@@ -1,0 +1,266 @@
+bazaario/
+│
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Auth/
+│   │   │   │   └── AuthController.php
+│   │   │   │
+│   │   │   ├── User/
+│   │   │   │   ├── HomeController.php
+│   │   │   │   ├── ProductController.php
+│   │   │   │   ├── CartController.php
+│   │   │   │   ├── CheckoutController.php
+│   │   │   │   ├── OrderController.php
+│   │   │   │   └── AccountController.php
+│   │   │   │
+│   │   │   ├── Seller/
+│   │   │   │   ├── DashboardController.php
+│   │   │   │   ├── ProductController.php
+│   │   │   │   ├── OrderController.php
+│   │   │   │   ├── AuctionController.php
+│   │   │   │   └── PayoutController.php
+│   │   │   │
+│   │   │   ├── Admin/
+│   │   │   │   ├── DashboardController.php
+│   │   │   │   ├── SellerController.php
+│   │   │   │   ├── ProductController.php
+│   │   │   │   ├── CategoryController.php
+│   │   │   │   ├── OrderController.php
+│   │   │   │   ├── AuctionController.php
+│   │   │   │   └── SettingController.php
+│   │   │   │
+│   │   │   ├── Auction/
+│   │   │   │   ├── AuctionController.php
+│   │   │   │   └── BidController.php
+│   │   │   │
+│   │   │   └── AI/
+│   │   │       ├── RecommendationController.php
+│   │   │       ├── ComparisonController.php
+│   │   │       └── ChatController.php
+│   │   │
+│   │   └── Middleware/
+│   │       ├── RoleMiddleware.php
+│   │       └── SellerApprovedMiddleware.php
+│   │
+│   └── Models/
+│       ├── User.php
+│       ├── SellerProfile.php
+│       ├── Category.php
+│       ├── Product.php
+│       ├── ProductImage.php
+│       ├── Address.php
+│       ├── Cart.php
+│       ├── CartItem.php
+│       ├── Order.php
+│       ├── SellerOrder.php
+│       ├── OrderItem.php
+│       ├── Review.php
+│       ├── Coupon.php
+│       ├── CouponUsage.php
+│       ├── Payout.php
+│       ├── TrustScoreLog.php
+│       ├── Auction.php
+│       ├── AuctionBid.php
+│       ├── UserProductInteraction.php
+│       ├── AiRecommendation.php
+│       ├── ChatConversation.php
+│       └── ChatMessage.php
+│
+├── database/
+│   ├── factories/
+│   ├── migrations/
+│   └── seeders/
+│       └── DatabaseSeeder.php
+│
+├── resources/
+│   ├── css/
+│   ├── js/
+│   │
+│   └── views/
+│       ├── layouts/
+│       │   ├── app.blade.php
+│       │   ├── customer.blade.php
+│       │   ├── seller.blade.php
+│       │   └── admin.blade.php
+│       │
+│       ├── components/
+│       │   ├── navbar.blade.php
+│       │   ├── footer.blade.php
+│       │   ├── product-card.blade.php
+│       │   └── auction-card.blade.php
+│       │
+│       ├── auth/
+│       │   ├── login.blade.php
+│       │   └── register.blade.php
+│       │
+│       ├── user/
+│       │   ├── home.blade.php
+│       │   ├── products/
+│       │   ├── cart/
+│       │   ├── checkout/
+│       │   ├── orders/
+│       │   └── account/
+│       │
+│       ├── seller/
+│       │   ├── dashboard.blade.php
+│       │   ├── products/
+│       │   ├── orders/
+│       │   ├── auctions/
+│       │   └── payouts/
+│       │
+│       ├── admin/
+│       │   ├── dashboard.blade.php
+│       │   ├── sellers/
+│       │   ├── products/
+│       │   ├── categories/
+│       │   ├── orders/
+│       │   ├── auctions/
+│       │   └── settings/
+│       │
+│       ├── auctions/
+│       │   ├── index.blade.php
+│       │   └── show.blade.php
+│       │
+│       └── ai/
+│           ├── recommendations.blade.php
+│           ├── comparison.blade.php
+│           └── chatbot.blade.php
+│
+├── routes/
+│   ├── web.php
+│   ├── auth.php
+│   ├── seller.php
+│   ├── admin.php
+│   ├── auction.php
+│   └── ai.php
+│
+├── public/
+├── storage/
+├── config/
+├── bootstrap/
+│
+├── .env
+├── composer.json
+└── package.json
+
+
+
+
+
+
+
+resources/views/user/
+│
+├── home.blade.php              # Landing / welcome page (optional)
+│
+├── products/
+│   ├── index.blade.php         ⭐ MAIN SHOP PAGE
+│   ├── show.blade.php          # Product details
+│   └── category.blade.php      # Category filter/listing
+│
+├── cart/
+│   └── index.blade.php
+│
+├── checkout/
+│   ├── index.blade.php
+│   └── success.blade.php
+│
+├── orders/
+│   ├── index.blade.php
+│   └── show.blade.php
+│
+└── account/
+    ├── dashboard.blade.php
+    ├── profile.blade.php
+    ├── edit-profile.blade.php
+    ├── addresses.blade.php
+    ├── wishlist.blade.php
+    ├── reviews.blade.php
+    ├── notifications.blade.php
+    ├── auctions.blade.php
+    ├── bids.blade.php
+    ├── compare.blade.php
+    ├── recommendations.blade.php
+    ├── returns.blade.php
+    ├── invoices.blade.php
+    ├── coupons.blade.php
+    ├── settings.blade.php
+    └── security.blade.php
+
+
+
+resources/views/seller/
+│
+├── dashboard.blade.php
+│
+├── products/
+│   ├── index.blade.php
+│   ├── create.blade.php
+│   ├── edit.blade.php
+│   └── show.blade.php
+│
+├── orders/
+│   ├── index.blade.php
+│   └── show.blade.php
+│
+├── auctions/
+│   ├── index.blade.php
+│   ├── create.blade.php
+│   ├── edit.blade.php
+│   └── show.blade.php
+│
+├── payouts/
+│   ├── index.blade.php
+│   └── show.blade.php
+│
+└── account/
+    ├── profile.blade.php
+    ├── shop.blade.php
+    ├── edit-shop.blade.php
+    ├── notifications.blade.php
+    ├── reviews.blade.php
+    ├── settings.blade.php
+    └── security.blade.php
+
+
+
+
+
+resources/views/admin/
+│
+├── dashboard.blade.php
+│
+├── sellers/
+│   ├── index.blade.php
+│   ├── show.blade.php
+│   └── edit.blade.php
+│
+├── products/
+│   ├── index.blade.php
+│   ├── show.blade.php
+│   └── edit.blade.php
+│
+├── categories/
+│   ├── index.blade.php
+│   ├── create.blade.php
+│   └── edit.blade.php
+│
+├── orders/
+│   ├── index.blade.php
+│   └── show.blade.php
+│
+├── auctions/
+│   ├── index.blade.php
+│   ├── show.blade.php
+│   └── edit.blade.php
+│
+└── settings/
+    ├── index.blade.php
+    ├── general.blade.php
+    ├── platform.blade.php
+    ├── payments.blade.php
+    ├── commissions.blade.php
+    ├── auction.blade.php
+    ├── ai.blade.php
+    └── security.blade.php
