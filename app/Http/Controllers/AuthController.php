@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\EmailOtpMail;
+use App\Mail\WelcomeEmail;
 use App\Models\SellerProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -144,10 +146,11 @@ class AuthController extends Controller
 
     public function sendOtp(Request $request)
     {
-        $validated = $request->validate([
+        // Return JSON validation errors for AJAX requests
+        $validator = Validator::make($request->all(), [
             'name'          => ['required', 'string', 'max:100'],
             'email'         => ['required', 'email', 'max:150', 'unique:users,email'],
-            'phone'         => ['nullable', 'string', 'max:10', 'unique:users,phone'],
+            'phone'         => ['nullable', 'string'],
             'password'      => ['required', 'confirmed', 'min:8'],
             'role'          => ['required', 'in:user,seller'],
             'terms'         => ['accepted'],
@@ -157,6 +160,16 @@ class AuthController extends Controller
                 'mimes:jpeg,png,jpg,gif,webp',
             ],
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors(),
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         /*
         |--------------------------------------------------------------------------
@@ -218,12 +231,13 @@ class AuthController extends Controller
                 ->store('tmp/profile_images', 'local');
         }
 
+        // Store bcrypt-hashed password so User::create cast doesn't double-hash
         $request->session()->put('pending_registration', [
 
             'name'              => $validated['name'],
             'email'             => $validated['email'],
             'phone'             => $validated['phone'] ?? null,
-            'password'          => $validated['password'],
+            'password'          => bcrypt($validated['password']),
             'role'              => $validated['role'],
             'profile_image_tmp' => $profileImageTmpPath,
 
@@ -232,6 +246,50 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'OTP sent to ' . $validated['email'],
+        ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resend OTP for Pending Registration
+    |--------------------------------------------------------------------------
+    */
+
+    public function resendOtp(Request $request)
+    {
+        $pending = $request->session()->get('pending_registration');
+
+        if (!$pending) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration session expired. Please fill the form again.',
+            ], 422);
+        }
+
+        $email = $pending['email'];
+
+        $otp = str_pad(
+            random_int(0, 999999),
+            6,
+            '0',
+            STR_PAD_LEFT
+        );
+
+        DB::table('email_otps')->where('email', $email)->delete();
+
+        DB::table('email_otps')->insert([
+            'email'      => $email,
+            'otp'        => $otp,
+            'expires_at' => now()->addMinutes(10),
+            'created_at' => now(),
+        ]);
+
+        Mail::to($email)->send(new EmailOtpMail($otp));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'New OTP sent to ' . $email,
         ]);
     }
 
@@ -413,7 +471,7 @@ class AuthController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Login User After Registration
+        | Login User After Registration & Send Welcome Email
         |--------------------------------------------------------------------------
         */
 
@@ -421,6 +479,12 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($user));
+        } catch (\Exception $e) {
+            // Log mail failure gracefully so registration completion is not blocked
+            logger()->error('Failed to send welcome email: ' . $e->getMessage());
+        }
 
         return response()->json([
 
@@ -502,7 +566,7 @@ class AuthController extends Controller
             case 'user':
 
                 return redirect()
-                    ->route('user.dashboard');
+                    ->route('products.index');
 
 
             /*
@@ -558,6 +622,6 @@ class AuthController extends Controller
             return route('seller.pending');
         }
 
-        return route('user.dashboard');
+        return route('products.index');
     }
 }

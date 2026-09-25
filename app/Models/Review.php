@@ -4,75 +4,50 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Coupon extends Model
+class Review extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'code',
-        'discount_type',
-        'discount_value',
-        'minimum_order_amount',
-        'maximum_discount_amount',
-        'usage_limit',
-        'used_count',
-        'starts_at',
-        'expires_at',
+        'product_id',
+        'user_id',
+        'order_item_id',
+        'rating',
+        'title',
+        'comment',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'discount_value' => 'decimal:2',
-            'minimum_order_amount' => 'decimal:2',
-            'maximum_discount_amount' => 'decimal:2',
-            'starts_at' => 'datetime',
-            'expires_at' => 'datetime',
+            'rating' => 'integer',
         ];
     }
 
     // Relationships
 
-    public function orders(): HasMany
+    public function product(): BelongsTo
     {
-        return $this->hasMany(Order::class);
+        return $this->belongsTo(Product::class);
     }
 
-    public function usages(): HasMany
+    public function user(): BelongsTo
     {
-        return $this->hasMany(CouponUsage::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function orderItem(): BelongsTo
+    {
+        return $this->belongsTo(OrderItem::class);
     }
 
     // Scopes
 
-    public function scopeActive($query)
+    public function scopeApproved($query)
     {
-        return $query->where('status', 'active');
-    }
-
-    // Helpers
-
-    public function isValid(): bool
-    {
-        if ($this->status !== 'active') {
-            return false;
-        }
-
-        if ($this->starts_at && $this->starts_at->isFuture()) {
-            return false;
-        }
-
-        if ($this->expires_at && $this->expires_at->isPast()) {
-            return false;
-        }
-
-        if ($this->usage_limit !== null && $this->used_count >= $this->usage_limit) {
-            return false;
-        }
-
-        return true;
+        return $query->where('status', 'approved');
     }
 }

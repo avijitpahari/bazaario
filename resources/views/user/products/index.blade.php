@@ -1,3 +1,202 @@
+@php
+    use Illuminate\Support\Str;
+
+    $fallbackProducts = [
+        [
+            'id' => 1,
+            'name' => 'Handcrafted Vintage Leather Messenger Bag',
+            'slug' => 'handcrafted-leather-messenger-bag',
+            'category' => 'Artisan & Handmade Crafts',
+            'seller' => 'Heritage Leather Crafters',
+            'sellerVerified' => true,
+            'price' => 4299,
+            'originalPrice' => 5499,
+            'discountPercent' => 22,
+            'rating' => 4.9,
+            'reviewCount' => 142,
+            'image' => 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Bestseller',
+            'badgeClass' => 'bg-amber-500 text-slate-950 font-bold',
+            'inStock' => true,
+            'description' => 'Full-grain vegetable-tanned leather handcrafted by master artisans in Rajasthan.'
+        ],
+        [
+            'id' => 2,
+            'name' => 'Lumik V87 Pro Wireless Mechanical Keyboard',
+            'slug' => 'lumik-v87-pro-wireless-keyboard',
+            'category' => 'Electronics & Gadgets',
+            'seller' => 'TechForge Systems',
+            'sellerVerified' => true,
+            'price' => 6499,
+            'originalPrice' => 7999,
+            'discountPercent' => 18,
+            'rating' => 4.8,
+            'reviewCount' => 215,
+            'image' => 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Verified',
+            'badgeClass' => 'bg-emerald-600 text-white',
+            'inStock' => true,
+            'description' => 'Gasket-mounted hot-swappable switches with tri-mode Bluetooth 5.2 and 4000mAh battery.'
+        ],
+        [
+            'id' => 3,
+            'name' => 'Hand-thrown Ceramic Coffee Dripper & Mug Set',
+            'slug' => 'hand-thrown-ceramic-coffee-set',
+            'category' => 'Home & Living',
+            'seller' => 'Clay & Kiln Studio',
+            'sellerVerified' => true,
+            'price' => 1850,
+            'originalPrice' => 2200,
+            'discountPercent' => 15,
+            'rating' => 4.9,
+            'reviewCount' => 88,
+            'image' => 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Handmade',
+            'badgeClass' => 'bg-slate-900 text-amber-400',
+            'inStock' => true,
+            'description' => 'Artisan stoneware glazed with natural minerals. Oven and dishwasher safe.'
+        ],
+        [
+            'id' => 4,
+            'name' => 'Acoustic Pro Active Noise-Cancelling Headphones',
+            'slug' => 'acoustic-pro-anc-headphones',
+            'category' => 'Electronics & Gadgets',
+            'seller' => 'SoundSphere India',
+            'sellerVerified' => true,
+            'price' => 12499,
+            'originalPrice' => 15999,
+            'discountPercent' => 21,
+            'rating' => 4.7,
+            'reviewCount' => 512,
+            'image' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Trending',
+            'badgeClass' => 'bg-rose-600 text-white',
+            'inStock' => true,
+            'description' => 'Hybrid active noise cancellation with 45-hour playback and high-resolution spatial audio.'
+        ],
+        [
+            'id' => 5,
+            'name' => 'Pure Organic Mulberry Silk Scarf (Indigo Dye)',
+            'slug' => 'organic-mulberry-silk-scarf',
+            'category' => 'Fashion & Apparel',
+            'seller' => 'Varanasi Weavers Guild',
+            'sellerVerified' => true,
+            'price' => 2499,
+            'originalPrice' => 3200,
+            'discountPercent' => 22,
+            'rating' => 4.9,
+            'reviewCount' => 120,
+            'image' => 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Artisan',
+            'badgeClass' => 'bg-indigo-600 text-white',
+            'inStock' => true,
+            'description' => '100% natural mulberry silk hand-dyed with organic indigo vats in Varanasi.'
+        ],
+        [
+            'id' => 6,
+            'name' => 'Vintage Brass Desk Compass & Sundial (1940s Replica)',
+            'slug' => 'vintage-brass-desk-compass',
+            'category' => 'Rare Collectibles & Antiques',
+            'seller' => 'Nautical Antiquities',
+            'sellerVerified' => false,
+            'price' => 3199,
+            'originalPrice' => 3999,
+            'discountPercent' => 20,
+            'rating' => 4.6,
+            'reviewCount' => 64,
+            'image' => 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Rare Find',
+            'badgeClass' => 'bg-amber-700 text-white',
+            'inStock' => true,
+            'description' => 'Solid brass casting with antique patina finish and hand-stitched leather storage case.'
+        ],
+        [
+            'id' => 7,
+            'name' => 'Handbound Leather Journal with Deckle Edge Cotton Paper',
+            'slug' => 'handbound-leather-journal-deckle-paper',
+            'category' => 'Books & Fine Stationery',
+            'seller' => 'Scriptorium Arts',
+            'sellerVerified' => true,
+            'price' => 1299,
+            'originalPrice' => 1699,
+            'discountPercent' => 23,
+            'rating' => 4.8,
+            'reviewCount' => 194,
+            'image' => 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Eco Friendly',
+            'badgeClass' => 'bg-emerald-700 text-white',
+            'inStock' => true,
+            'description' => '240 pages of tree-free handmade recycled cotton paper suitable for fountain pens.'
+        ],
+        [
+            'id' => 8,
+            'name' => 'Nordic Minimalist Oak Wood Table Lamp',
+            'slug' => 'nordic-minimalist-oak-table-lamp',
+            'category' => 'Home & Living',
+            'seller' => 'Lumina Studio',
+            'sellerVerified' => true,
+            'price' => 2899,
+            'originalPrice' => 3499,
+            'discountPercent' => 17,
+            'rating' => 4.7,
+            'reviewCount' => 76,
+            'image' => 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Sustainable',
+            'badgeClass' => 'bg-teal-700 text-white',
+            'inStock' => true,
+            'description' => 'FSC-certified solid white oak with warm dimmable LED and linen drum shade.'
+        ],
+        [
+            'id' => 9,
+            'name' => 'Minimalist Titanium Automatic Chronograph Watch',
+            'slug' => 'minimalist-titanium-chronograph-watch',
+            'category' => 'Fashion & Apparel',
+            'seller' => 'Chronos Horology',
+            'sellerVerified' => true,
+            'price' => 18999,
+            'originalPrice' => 24000,
+            'discountPercent' => 20,
+            'rating' => 4.9,
+            'reviewCount' => 287,
+            'image' => 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&auto=format&fit=crop&q=80',
+            'badge' => 'Premium',
+            'badgeClass' => 'bg-slate-950 text-amber-400 font-bold',
+            'inStock' => true,
+            'description' => 'Grade 5 titanium case, sapphire crystal glass with anti-reflective coating and NH35 movement.'
+        ]
+    ];
+
+    $dbProds = $dbProducts ?? collect();
+    $formattedProducts = $dbProds->map(function($p) {
+        $primaryImg = $p->primaryImage ? $p->primaryImage->image_path : ($p->images->first() ? $p->images->first()->image_path : 'images/products/leather_bag_1.jpg');
+        $imgUrl = Str::startsWith($primaryImg, ['http://', 'https://']) ? $primaryImg : asset($primaryImg);
+        
+        return [
+            'id' => $p->id,
+            'name' => $p->name,
+            'slug' => $p->slug,
+            'category' => $p->category ? $p->category->name : 'General',
+            'seller' => $p->seller && $p->seller->sellerProfile ? $p->seller->sellerProfile->shop_name : ($p->seller ? $p->seller->name : 'Bazaario Verified'),
+            'sellerVerified' => true,
+            'price' => (float)$p->price,
+            'originalPrice' => round((float)$p->price * 1.25),
+            'discountPercent' => 20,
+            'rating' => (float)($p->average_rating ?: 4.8),
+            'reviewCount' => (int)($p->total_reviews ?: 120),
+            'image' => $imgUrl,
+            'badge' => $p->price > 10000 ? 'Premium' : ($p->average_rating >= 4.9 ? 'Bestseller' : 'Verified'),
+            'badgeClass' => $p->price > 10000 ? 'bg-slate-950 text-amber-400 font-bold' : ($p->average_rating >= 4.9 ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-emerald-600 text-white'),
+            'inStock' => $p->stock > 0,
+            'description' => $p->short_description ?: $p->description,
+        ];
+    })->values();
+
+    $finalProducts = $formattedProducts->isNotEmpty() ? $formattedProducts : $fallbackProducts;
+    $categoryList = collect(['All Categories'])->merge(($dbCategories ?? collect())->pluck('name'))->values();
+    if ($categoryList->count() <= 1) {
+        $categoryList = collect(['All Categories', 'Artisan & Handmade Crafts', 'Electronics & Gadgets', 'Fashion & Apparel', 'Home & Living', 'Rare Collectibles & Antiques', 'Books & Fine Stationery']);
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,32 +212,10 @@
     <!-- Material Symbols Outlined -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "slate-authority": "#0F172A",
-                        "amber-action": "#F5A623",
-                        "status-green": "#16A34A",
-                        "canvas-ivory": "#FFFDF8",
-                        "card-white": "#FFFFFF",
-                        "surface-container": "#F1F5F9",
-                        "surface-container-low": "#F8FAFC",
-                        "surface-container-high": "#E2E8F0"
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    }
-                }
-            }
-        };
-    </script>
+    <!-- Compiled Tailwind CSS & App JS via Vite + Production Fallback -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('build/assets/app-C-FKvfT_.css') }}">
+
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -54,8 +231,29 @@
       x-data="productCatalog()"
       x-init="initCatalog()">
 
+    <!-- Global Page Initial Preloader -->
+    <div x-show="pageLoading" 
+         x-transition:leave="transition ease-out duration-500 opacity-0 scale-95"
+         class="fixed inset-0 z-[110] bg-[#FFFDF8]/95 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+        <div class="relative flex flex-col items-center">
+            <!-- Animated Spinner Rings -->
+            <div class="relative w-16 h-16">
+                <div class="absolute inset-0 rounded-full border-4 border-amber-500/20"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-amber-500 border-t-transparent animate-spin"></div>
+                <div class="absolute inset-2 rounded-full border-4 border-slate-900 border-b-transparent animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
+            </div>
+            <!-- Bazaario Brand Text -->
+            <div class="mt-4 flex items-center gap-2 font-display text-lg font-bold text-slate-900 tracking-tight">
+                <span>Bazaario</span>
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            </div>
+            <p class="text-xs font-mono text-slate-500 mt-1">Loading marketplace items...</p>
+        </div>
+    </div>
+
     <!-- Include Global Customer Top Navbar -->
     @include('components.nav-user')
+
 
     <!-- Toast Notification Banner -->
     <div x-cloak x-show="toast.visible" 
@@ -72,7 +270,7 @@
     </div>
 
     <!-- Main Container -->
-    <main class="flex-1 w-full pt-16 sm:pt-24 pb-24 md:pb-16">
+    <main class="flex-1 w-full pt-3 sm:pt-5 pb-24 md:pb-16">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             
             <!-- Breadcrumb & Top Bar -->
@@ -81,7 +279,6 @@
                     <nav class="flex items-center gap-1.5 text-[11px] sm:text-xs font-mono text-slate-500 mb-1">
                         <a href="{{ url('/') }}" class="hover:text-amber-600 transition-colors">Home</a>
                         <span>/</span>
-                        <span class="text-slate-900 font-semibold">Shop</span>
                     </nav>
                     <div class="flex items-center gap-2 sm:gap-3">
                         <h1 class="text-xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight">Marketplace Catalog</h1>
@@ -121,11 +318,11 @@
 
                 <!-- Sort & Filter Strip -->
                 <div class="flex items-center justify-between gap-2 pt-1 border-t sm:border-t-0 border-slate-100">
-                    <!-- Mobile Filter Trigger Button -->
-                    <button @click="mobileFiltersOpen = true" 
-                            class="flex-1 lg:hidden inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold active:scale-95 transition-transform">
+                    <!-- Filter Trigger Button (Visible on Desktop & Mobile) -->
+                    <button @click="mobileFiltersOpen = !mobileFiltersOpen" 
+                            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-xl text-xs font-semibold active:scale-95 transition-all">
                         <span class="material-symbols-outlined text-base">tune</span>
-                        <span>Filters</span>
+                        <span>Filter Panel</span>
                         <span x-show="activeFilterCount > 0" 
                               class="w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-mono text-[10px] flex items-center justify-center font-bold" 
                               x-text="activeFilterCount"></span>
@@ -160,8 +357,8 @@
                         </div>
                     </div>
 
-                    <!-- View Mode Grid/List Toggle (Desktop/Tablet) -->
-                    <div class="hidden sm:flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 shrink-0">
+                    <!-- View Mode Grid/List Toggle -->
+                    <div class="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 shrink-0">
                         <button @click="viewMode = 'grid'" 
                                 :class="viewMode === 'grid' ? 'bg-white shadow-xs text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-800'"
                                 class="p-1.5 rounded-lg transition-all" title="Grid View">
@@ -188,305 +385,201 @@
                 </template>
             </div>
 
-            <!-- Level 2: Main Grid with Desktop Sidebar Filters & Responsive Product Cards -->
-            <div class="mt-3 sm:mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
+            <!-- Level 2: Main Grid Full Width with 6 Columns -->
+            <div class="mt-3 sm:mt-6 w-full">
                 
-                <!-- ── DESKTOP SIDEBAR FILTERS (Hidden on Mobile) ── -->
-                <aside class="hidden lg:block lg:col-span-1 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-6 sticky top-28">
-                    
-                    <!-- Filter Header with Reset -->
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-slate-700 text-lg">filter_alt</span>
-                            <h3 class="font-display font-bold text-slate-900 text-sm">Refine Results</h3>
-                        </div>
-                        <button @click="resetFilters()" class="text-xs font-mono text-amber-600 hover:text-amber-700 font-semibold underline">
-                            Reset All
-                        </button>
-                    </div>
+                <!-- Zero Results State -->
+                <div x-show="filteredProducts.length === 0" 
+                     class="bg-white rounded-2xl p-8 sm:p-12 text-center border border-slate-200/80 shadow-xs">
+                    <span class="material-symbols-outlined text-4xl sm:text-5xl text-slate-300 mb-3">sentiment_dissatisfied</span>
+                    <h3 class="text-base sm:text-lg font-display font-bold text-slate-900 mb-1">No products match your criteria</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-5 max-w-md mx-auto">Try widening your price range, searching different keywords, or resetting your filter criteria.</p>
+                    <button @click="resetFilters()" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-colors">
+                        Clear All Filters
+                    </button>
+                </div>
 
-                    <!-- Price Range Filter Slider -->
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="text-xs font-mono font-semibold text-slate-800 uppercase tracking-wider">Max Price</label>
-                            <span class="text-xs font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded" x-text="'₹' + Number(maxPriceFilter).toLocaleString('en-IN')"></span>
-                        </div>
-                        <input type="range" 
-                               min="500" 
-                               max="35000" 
-                               step="500" 
-                               x-model="maxPriceFilter" 
-                               class="w-full accent-slate-900 cursor-pointer">
-                        <div class="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
-                            <span>₹500</span>
-                            <span>₹15,000</span>
-                            <span>₹35,000+</span>
-                        </div>
-                    </div>
-
-                    <!-- Rating Filter -->
-                    <div class="pt-4 border-t border-slate-100">
-                        <label class="text-xs font-mono font-semibold text-slate-800 uppercase tracking-wider block mb-2.5">Customer Rating</label>
-                        <div class="space-y-2">
-                            <template x-for="r in [4, 3, 2]" :key="r">
-                                <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:text-slate-900">
-                                    <input type="radio" name="minRatingDesk" :value="r" x-model="minRating" class="accent-slate-900">
-                                    <span class="flex items-center text-amber-400 text-sm">
-                                        <template x-for="i in r"><span>★</span></template>
-                                    </span>
-                                    <span class="text-slate-500 font-mono text-[11px]" x-text="'& up (' + r + '.0+)'"></span>
-                                </label>
-                            </template>
-                            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:text-slate-900">
-                                <input type="radio" name="minRatingDesk" value="0" x-model="minRating" class="accent-slate-900">
-                                <span class="text-slate-600">All Ratings</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Toggles: Verified Sellers & In Stock -->
-                    <div class="pt-4 border-t border-slate-100 space-y-3">
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <span class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-blue-600 text-base">verified</span>
-                                Verified Sellers Only
-                            </span>
-                            <input type="checkbox" x-model="verifiedOnly" class="w-4 h-4 rounded text-slate-900 accent-slate-900 focus:ring-0 cursor-pointer">
-                        </label>
-                        
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <span class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-emerald-600 text-base">inventory_2</span>
-                                In Stock Ready to Ship
-                            </span>
-                            <input type="checkbox" x-model="inStockOnly" class="w-4 h-4 rounded text-slate-900 accent-slate-900 focus:ring-0 cursor-pointer">
-                        </label>
-                    </div>
-
-                    <!-- Escrow Guarantee Box -->
-                    <div class="p-4 bg-emerald-50/60 rounded-xl border border-emerald-100 text-emerald-950 text-xs">
-                        <div class="flex items-center gap-2 font-bold mb-1 text-emerald-900">
-                            <span class="material-symbols-outlined text-emerald-600 text-base">verified_user</span>
-                            <span>Bazaario Escrow Shield</span>
-                        </div>
-                        <p class="text-[11px] text-emerald-800 leading-relaxed">
-                            Payment is protected in secure escrow until you inspect and accept your delivery.
-                        </p>
-                    </div>
-                </aside>
-
-                <!-- ── PRODUCT CATALOG (2 Columns on Mobile, 3 Columns on Desktop) ── -->
-                <div class="lg:col-span-3">
-
-                    <!-- Zero Results State -->
-                    <div x-show="filteredProducts.length === 0" 
-                         class="bg-white rounded-2xl p-8 sm:p-12 text-center border border-slate-200/80 shadow-xs">
-                        <span class="material-symbols-outlined text-4xl sm:text-5xl text-slate-300 mb-3">sentiment_dissatisfied</span>
-                        <h3 class="text-base sm:text-lg font-display font-bold text-slate-900 mb-1">No products match your criteria</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mb-5 max-w-md mx-auto">Try widening your price range, searching different keywords, or resetting your filter criteria.</p>
-                        <button @click="resetFilters()" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-colors">
-                            Clear All Filters
-                        </button>
-                    </div>
-
-                    <!-- Product Grid (2 columns on mobile, 3 on desktop) -->
+                    <!-- Product Grid (2 cols mobile, 3 tablet, 4 desktop md, 6 desktop xl) -->
                     <div x-show="filteredProducts.length > 0" 
-                         :class="viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6' : 'space-y-3 sm:space-y-4'">
+                         :class="viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-2.5 sm:gap-3' : 'space-y-3 sm:space-y-4'">
                         
-                        <template x-for="product in filteredProducts" :key="product.id">
-                            
-                            <!-- ── GRID CARD FORMAT ── -->
-                            <div x-show="viewMode === 'grid'" 
-                                 class="group bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between relative">
-                                
-                                <!-- Product Image & Badges -->
-                                <div class="relative aspect-square w-full bg-slate-100 overflow-hidden">
-                                    <a :href="'/product/' + product.slug" class="block w-full h-full">
-                                        <img :src="product.image" 
-                                             :alt="product.name" 
-                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                             loading="lazy"
-                                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';">
-                                    </a>
+                        <template x-for="product in filteredProducts.slice(0, displayLimit)" :key="product.id">
+                            <div>
+                                <!-- ── GRID CARD FORMAT ── -->
+                                <div x-show="viewMode === 'grid'" 
+                                     class="group bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col relative h-full">
+                                    
+                                    <!-- Product Image & Badges (Compact 4:3 Aspect Ratio) -->
+                                    <div class="relative aspect-[4/3] w-full bg-slate-100 overflow-hidden">
+                                        <a :href="'/product/' + product.slug" class="block w-full h-full">
+                                            <img :src="product.image" 
+                                                 :alt="product.name" 
+                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';">
+                                        </a>
 
-                                    <!-- Top Left Single Badge (Clean on Mobile) -->
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <template x-if="product.badge">
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs backdrop-blur-md"
-                                                  :class="product.badgeClass || 'bg-slate-900 text-white'"
-                                                  x-text="product.badge"></span>
-                                        </template>
-                                    </div>
+                                        <!-- Top Left Single Badge -->
+                                        <div class="absolute top-2 left-2 z-10">
+                                            <template x-if="product.badge">
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs backdrop-blur-md"
+                                                      :class="product.badgeClass || 'bg-slate-900 text-white'"
+                                                      x-text="product.badge"></span>
+                                            </template>
+                                        </div>
 
-                                    <!-- Top Right Wishlist Button -->
-                                    <button @click.stop="toggleWishlist(product)" 
-                                            class="absolute top-2 right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-slate-700 hover:text-red-500 active:scale-125 shadow-sm transition-all z-10"
-                                            aria-label="Wishlist">
-                                        <span class="material-symbols-outlined text-base sm:text-lg" 
-                                              :class="isWishlisted(product.id) ? 'text-red-500 fill-current' : 'text-slate-600'"
-                                              x-text="isWishlisted(product.id) ? 'favorite' : 'favorite'"></span>
-                                    </button>
-
-                                    <!-- Quick View Overlay Button (Hover Desktop) -->
-                                    <div class="absolute inset-x-3 bottom-3 hidden lg:group-hover:flex items-center justify-center gap-2 z-10 transition-opacity">
-                                        <button @click.stop="openQuickView(product)" 
-                                                class="w-full py-2 bg-white/95 backdrop-blur-md text-slate-900 font-semibold rounded-xl text-xs shadow-lg hover:bg-slate-900 hover:text-white transition-colors flex items-center justify-center gap-1.5">
-                                            <span class="material-symbols-outlined text-base">visibility</span>
-                                            <span>Quick View</span>
+                                        <!-- Top Right Wishlist Button -->
+                                        <button @click="toggleWishlist(product)" 
+                                                class="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 backdrop-blur-md text-slate-700 hover:text-red-500 hover:bg-white transition-all duration-200 shadow-xs z-10"
+                                                :class="{'text-red-500': isInWishlist(product.id)}"
+                                                aria-label="Wishlist">
+                                            <span class="material-symbols-outlined text-sm sm:text-base leading-none block fill-current">
+                                                <span x-text="isInWishlist(product.id) ? 'favorite' : 'favorite'"></span>
+                                            </span>
                                         </button>
                                     </div>
-                                </div>
 
-                                <!-- Product Info & Metadata -->
-                                <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <!-- Category Eyebrow -->
-                                        <div class="text-[9px] sm:text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-0.5 truncate" x-text="product.category"></div>
-
-                                        <!-- Title -->
-                                        <h3 class="font-display font-semibold text-slate-900 text-xs sm:text-sm leading-snug line-clamp-2 hover:text-amber-600 transition-colors">
-                                            <a :href="'/product/' + product.slug" x-text="product.name"></a>
-                                        </h3>
-
-                                        <!-- Seller & Rating Row (Clean wrap) -->
-                                        <div class="flex items-center justify-between gap-1 mt-1 text-[10px] sm:text-xs">
-                                            <div class="flex items-center gap-0.5 text-slate-600 truncate">
-                                                <span class="truncate max-w-[80px] sm:max-w-none" x-text="product.seller"></span>
-                                                <template x-if="product.sellerVerified">
-                                                    <span class="material-symbols-outlined text-blue-600 text-[12px] sm:text-xs shrink-0" title="Verified Seller">verified</span>
-                                                </template>
-                                            </div>
-                                            <div class="flex items-center text-amber-500 font-bold shrink-0">
-                                                <span>★</span>
-                                                <span class="text-slate-800 ml-0.5" x-text="product.rating.toFixed(1)"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Price & Cart CTA -->
-                                    <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-slate-100 flex items-center justify-between gap-1">
+                                    <!-- Content Container (Padding & Layout) -->
+                                    <div class="p-2.5 sm:p-3 flex-1 flex flex-col justify-between">
                                         <div>
-                                            <div class="flex items-baseline gap-1">
-                                                <span class="text-xs sm:text-base font-mono font-bold text-slate-900" x-text="'₹' + Number(product.price).toLocaleString('en-IN')"></span>
-                                                <template x-if="product.discountPercent > 0">
-                                                    <span class="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded" x-text="'-' + product.discountPercent + '%'"></span>
+                                            <!-- Sub-header Row: Category & Stock Pill -->
+                                            <div class="flex items-center justify-between gap-1 mb-1">
+                                                <span class="text-[9px] sm:text-[10px] font-mono font-medium text-slate-400 uppercase tracking-wider truncate" x-text="product.category"></span>
+                                                
+                                                <!-- In Stock Indicator -->
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+                                                    <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                    <span>In Stock</span>
+                                                </span>
+                                            </div>
+
+                                            <!-- Product Title (Clean 2-line clamp) -->
+                                            <h3 class="font-display font-bold text-slate-900 text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors">
+                                                <a :href="'/product/' + product.slug" x-text="product.name"></a>
+                                            </h3>
+
+                                            <!-- Seller & Rating Row (Clean wrap) -->
+                                            <div class="flex items-center justify-between gap-1 mt-1 text-[10px] sm:text-xs">
+                                                <div class="flex items-center gap-0.5 text-slate-600 truncate">
+                                                    <span class="truncate max-w-[80px] sm:max-w-none" x-text="product.seller"></span>
+                                                    <template x-if="product.sellerVerified">
+                                                        <span class="material-symbols-outlined text-blue-600 text-[12px] sm:text-xs shrink-0" title="Verified Seller">verified</span>
+                                                    </template>
+                                                </div>
+                                                <div class="flex items-center text-amber-500 font-bold shrink-0">
+                                                    <span>★</span>
+                                                    <span class="text-slate-800 ml-0.5" x-text="product.rating.toFixed(1)"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price & Cart CTA -->
+                                        <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1">
+                                            <div>
+                                                <div class="flex items-baseline gap-1">
+                                                    <span class="text-xs sm:text-sm font-mono font-bold text-slate-900" x-text="'₹' + Number(product.price).toLocaleString('en-IN')"></span>
+                                                    <template x-if="product.discountPercent > 0">
+                                                        <span class="text-[10px] font-mono text-slate-400 line-through" x-text="'₹' + Number(product.originalPrice).toLocaleString('en-IN')"></span>
+                                                    </template>
+                                                </div>
+                                            </div>
+
+                                            <!-- Cart Button -->
+                                            <button @click="addToCart(product)" 
+                                                    :disabled="addingToCartId === product.id"
+                                                    class="p-1 sm:px-2.5 sm:py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-xl text-[11px] font-semibold transition-all duration-200 flex items-center justify-center gap-1 shadow-xs active:scale-90 shrink-0 disabled:opacity-75"
+                                                    aria-label="Add to cart">
+                                                <template x-if="addingToCartId === product.id">
+                                                    <svg class="animate-spin h-3.5 w-3.5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
                                                 </template>
-                                            </div>
-                                            <span class="text-[8px] sm:text-[10px] font-mono text-emerald-600 block truncate leading-none mt-0.5">Escrow Safe</span>
+                                                <template x-if="addingToCartId !== product.id">
+                                                    <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                                </template>
+                                                <span class="hidden sm:inline text-xs" x-text="addingToCartId === product.id ? 'Adding...' : 'Add'"></span>
+                                            </button>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        <!-- Add To Cart Pill -->
-                                        <button @click.stop="addToCart(product)" 
-                                                class="p-1.5 sm:px-3 sm:py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-1 shadow-xs active:scale-90 shrink-0"
-                                                aria-label="Add to cart">
-                                            <span class="material-symbols-outlined text-sm sm:text-base">shopping_cart</span>
-                                            <span class="hidden sm:inline">Add</span>
-                                        </button>
+                                <!-- ── LIST ROW FORMAT ── -->
+                                <div x-show="viewMode === 'list'" 
+                                     class="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 justify-between">
+                                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-100 shrink-0 overflow-hidden relative">
+                                            <img :src="product.image" :alt="product.name" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-slate-500 mb-0.5">
+                                                <span class="uppercase text-slate-400 truncate" x-text="product.category"></span>
+                                                <span>•</span>
+                                                <span class="text-slate-700 font-sans truncate" x-text="product.seller"></span>
+                                            </div>
+                                            <h3 class="font-display font-bold text-slate-900 text-xs sm:text-sm line-clamp-1 hover:text-amber-600 transition-colors">
+                                                <a :href="'/product/' + product.slug" x-text="product.name"></a>
+                                            </h3>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-amber-500 text-xs font-bold">★ <span class="text-slate-700" x-text="product.rating.toFixed(1)"></span></span>
+                                                <span class="text-[10px] font-mono text-slate-400" x-text="'(' + product.reviewsCount + ' reviews)'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 border-slate-100 pt-2 sm:pt-0">
+                                        <div>
+                                            <span class="text-sm sm:text-base font-mono font-bold text-slate-900" x-text="'₹' + Number(product.price).toLocaleString('en-IN')"></span>
+                                            <template x-if="product.discountPercent > 0">
+                                                <span class="text-xs font-mono text-slate-400 line-through block" x-text="'₹' + Number(product.originalPrice).toLocaleString('en-IN')"></span>
+                                            </template>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button @click="openQuickView(product)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors" title="Quick View">
+                                                <span class="material-symbols-outlined text-base">visibility</span>
+                                            </button>
+                                            <button @click="addToCart(product)" 
+                                                    :disabled="addingToCartId === product.id"
+                                                    class="px-4 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1 disabled:opacity-75">
+                                                <template x-if="addingToCartId === product.id">
+                                                    <svg class="animate-spin h-3.5 w-3.5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                </template>
+                                                <template x-if="addingToCartId !== product.id">
+                                                    <span class="material-symbols-outlined text-base">shopping_cart</span>
+                                                </template>
+                                                <span x-text="addingToCartId === product.id ? 'Adding...' : 'Add'"></span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- ── LIST ROW FORMAT ── -->
-                            <div x-show="viewMode === 'list'" 
-                                 class="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 justify-between">
-                                <div class="flex items-center gap-3 w-full sm:w-auto">
-                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-100 shrink-0 overflow-hidden relative">
-                                        <img :src="product.image" :alt="product.name" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-slate-500 mb-0.5">
-                                            <span class="uppercase text-slate-400 truncate" x-text="product.category"></span>
-                                            <span>•</span>
-                                            <span class="text-slate-700 font-sans truncate" x-text="product.seller"></span>
-                                        </div>
-                                        <h3 class="font-display font-bold text-slate-900 text-xs sm:text-sm line-clamp-1 hover:text-amber-600 transition-colors">
-                                            <a :href="'/product/' + product.slug" x-text="product.name"></a>
-                                        </h3>
-                                        <div class="flex items-center gap-1.5 mt-1">
-                                            <div class="flex items-center text-amber-500 text-xs">
-                                                <span>★</span>
-                                                <span class="text-[11px] font-bold text-slate-800 ml-1" x-text="product.rating"></span>
-                                            </div>
-                                            <span class="text-slate-400 text-[10px] font-mono" x-text="'(' + product.reviewCount + ')'"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                                    <div class="text-left sm:text-right">
-                                        <div class="text-base sm:text-lg font-mono font-bold text-slate-900" x-text="'₹' + Number(product.price).toLocaleString('en-IN')"></div>
-                                        <template x-if="product.originalPrice">
-                                            <div class="text-[10px] font-mono text-slate-400 line-through" x-text="'₹' + Number(product.originalPrice).toLocaleString('en-IN')"></div>
-                                        </template>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <button @click="openQuickView(product)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors" title="Quick View">
-                                            <span class="material-symbols-outlined text-base">visibility</span>
-                                        </button>
-                                        <button @click="addToCart(product)" class="px-4 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-base">shopping_cart</span>
-                                            <span>Add</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
                         </template>
                     </div>
 
-                    <!-- Pagination -->
-                    <div class="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-slate-200/80">
-                        <span class="text-[11px] sm:text-xs font-mono text-slate-500">
-                            Showing <span class="font-bold text-slate-900" x-text="filteredProducts.length"></span> of <span class="font-bold text-slate-900">1,248</span> items
+                    <!-- Load More Products Button -->
+                    <div class="mt-10 flex flex-col items-center justify-center gap-3 pt-6 border-t border-slate-200/80">
+                        <button x-show="displayLimit < filteredProducts.length"
+                                @click="displayLimit += 12"
+                                class="px-8 py-3.5 rounded-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-xl transition-all duration-200 flex items-center gap-2 active:scale-95 group">
+                            <span>Load More Products</span>
+                            <span class="material-symbols-outlined text-[18px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
+                        </button>
+                        <span class="text-[11px] font-mono text-slate-500">
+                            Showing <span class="font-bold text-slate-900" x-text="Math.min(displayLimit, filteredProducts.length)"></span> of <span class="font-bold text-slate-900" x-text="filteredProducts.length"></span> curated items
                         </span>
-                        <div class="flex items-center gap-1">
-                            <button class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold shadow-xs">
-                                Prev
-                            </button>
-                            <button class="w-8 h-8 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-xs">1</button>
-                            <button class="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold">2</button>
-                            <button class="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold">3</button>
-                            <button class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold shadow-xs">
-                                Next
-                            </button>
-                        </div>
                     </div>
 
-                </div>
-            </div>
-
-            <!-- Escrow Guarantee Section -->
-            <div class="mt-12 sm:mt-16 bg-slate-900 text-white rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-xl">
-                <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="grid md:grid-cols-3 gap-6 sm:gap-8 items-center relative z-10">
-                    <div class="md:col-span-2">
-                        <span class="text-[11px] sm:text-xs font-mono font-bold text-amber-400 tracking-wider uppercase block mb-1">
-                            Verified Physical Marketplace Protocol
-                        </span>
-                        <h2 class="text-xl sm:text-3xl font-display font-bold text-white tracking-tight">
-                            Every transaction backed by Bazaario Escrow Protection
-                        </h2>
-                        <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
-                            Your payment is held safely in escrow and only released to the seller after you receive and inspect your package. 7-day hassle-free returns on all verified items.
-                        </p>
-                    </div>
-                    <div class="flex flex-row gap-2 sm:gap-3 md:justify-end">
-                        <a href="{{ url('/how-it-works') }}" class="flex-1 sm:flex-initial bg-amber-500 text-slate-950 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs hover:bg-amber-400 transition-colors text-center shadow-lg">
-                            How It Works
-                        </a>
-                        <a href="{{ url('/seller/register') }}" class="flex-1 sm:flex-initial bg-white/10 hover:bg-white/20 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs transition-colors text-center">
-                            Sell on Bazaario
-                        </a>
-                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- ── MOBILE SLIDE-OVER FILTERS DRAWER ── -->
+    <!-- ── SLIDE-OVER FILTERS DRAWER (LEFT SIDE) ── -->
     <div x-cloak x-show="mobileFiltersOpen" 
-         class="fixed inset-0 z-50 overflow-hidden lg:hidden"
+         class="fixed inset-0 z-50 overflow-hidden"
          x-transition:enter="transition-opacity ease-linear duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -497,15 +590,15 @@
         <!-- Backdrop -->
         <div @click="mobileFiltersOpen = false" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"></div>
 
-        <!-- Drawer Content Container (Slides from bottom on mobile) -->
-        <div class="fixed inset-x-0 bottom-0 max-h-[85vh] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden z-10"
+        <!-- Drawer Content Container (Slides from left) -->
+        <div class="fixed inset-y-0 left-0 w-80 sm:w-96 bg-white shadow-2xl flex flex-col overflow-hidden z-10"
              x-show="mobileFiltersOpen"
              x-transition:enter="transition ease-out duration-300 transform"
-             x-transition:enter-start="translate-y-full"
-             x-transition:enter-end="translate-y-0"
+             x-transition:enter-start="-translate-x-full"
+             x-transition:enter-end="translate-x-0"
              x-transition:leave="transition ease-in duration-200 transform"
-             x-transition:leave-start="translate-y-0"
-             x-transition:leave-end="translate-y-full">
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="-translate-x-full">
             
             <!-- Handle & Header -->
             <div class="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
@@ -549,14 +642,14 @@
                     </div>
                     <input type="range" 
                            min="500" 
-                           max="35000" 
-                           step="500" 
+                           max="1000000" 
+                           step="2500" 
                            x-model="maxPriceFilter" 
                            class="w-full accent-slate-900 h-2 bg-slate-200 rounded-lg cursor-pointer">
                     <div class="flex justify-between font-mono text-[10px] text-slate-400 mt-1">
                         <span>₹500</span>
-                        <span>₹15,000</span>
-                        <span>₹35,000+</span>
+                        <span>₹5,00,000</span>
+                        <span>₹10,00,000+</span>
                     </div>
                 </div>
 
@@ -763,29 +856,18 @@
     </nav>
 
     <!-- Global Footer -->
-    <footer class="bg-slate-900 text-slate-400 text-xs pt-8 pb-28 md:py-10 mt-auto border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-            <div class="flex items-center gap-2 justify-center sm:justify-start">
-                <span class="font-display font-bold text-white tracking-wider">BAZAARIO</span>
-                <span>— Multi-Vendor Verified Escrow Marketplace</span>
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 font-mono text-[11px]">
-                <a href="{{ url('/privacy') }}" class="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="{{ url('/terms') }}" class="hover:text-white transition-colors">Terms of Service</a>
-                <a href="{{ url('/support') }}" class="hover:text-white transition-colors">Customer Support</a>
-            </div>
-        </div>
-    </footer>
+    <x-footer />
 
     <!-- Alpine.js Catalog Logic -->
     <script>
         function productCatalog() {
             return {
+                pageLoading: true,
                 searchQuery: '',
                 selectedCategory: 'All Categories',
                 sortBy: 'featured',
                 viewMode: 'grid',
-                maxPriceFilter: 35000,
+                maxPriceFilter: 1000000,
                 minRating: 0,
                 verifiedOnly: false,
                 inStockOnly: false,
@@ -810,192 +892,29 @@
                     rating: 'Top Rated'
                 },
 
-                categories: [
-                    'All Categories',
-                    'Electronics',
-                    'Artisan Craft',
-                    'Fashion & Apparel',
-                    'Home Living',
-                    'Collectibles',
-                    'Books & Stationery'
-                ],
+                categories: {!! json_encode($categoryList) !!},
 
-                products: [
-                    {
-                        id: 1,
-                        name: 'Handcrafted Heritage Leather Messenger Bag',
-                        slug: 'handcrafted-leather-messenger-bag',
-                        category: 'Artisan Craft',
-                        seller: 'Heritage Leatherworks',
-                        sellerVerified: true,
-                        price: 4299,
-                        originalPrice: 5999,
-                        discountPercent: 28,
-                        rating: 4.9,
-                        reviewCount: 342,
-                        image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Bestseller',
-                        badgeClass: 'bg-amber-500 text-slate-950 font-bold',
-                        inStock: true,
-                        description: 'Full-grain pull-up leather crafted with brass hardware and dedicated laptop partition.'
-                    },
-                    {
-                        id: 2,
-                        name: 'Lumik V87 Pro Wireless Mechanical Keyboard',
-                        slug: 'lumik-v87-pro-wireless-keyboard',
-                        category: 'Electronics',
-                        seller: 'TechForge Systems',
-                        sellerVerified: true,
-                        price: 6499,
-                        originalPrice: 7999,
-                        discountPercent: 18,
-                        rating: 4.8,
-                        reviewCount: 215,
-                        image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Verified',
-                        badgeClass: 'bg-emerald-600 text-white',
-                        inStock: true,
-                        description: 'Gasket-mounted hot-swappable switches with tri-mode Bluetooth 5.2 and 4000mAh battery.'
-                    },
-                    {
-                        id: 3,
-                        name: 'Hand-thrown Ceramic Coffee Dripper & Mug Set',
-                        slug: 'hand-thrown-ceramic-coffee-set',
-                        category: 'Home Living',
-                        seller: 'Clay & Kiln Studio',
-                        sellerVerified: true,
-                        price: 1850,
-                        originalPrice: 2200,
-                        discountPercent: 15,
-                        rating: 4.9,
-                        reviewCount: 88,
-                        image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Handmade',
-                        badgeClass: 'bg-slate-900 text-amber-400',
-                        inStock: true,
-                        description: 'Artisan stoneware glazed with natural minerals. Oven and dishwasher safe.'
-                    },
-                    {
-                        id: 4,
-                        name: 'Acoustic Pro Active Noise-Cancelling Headphones',
-                        slug: 'acoustic-pro-anc-headphones',
-                        category: 'Electronics',
-                        seller: 'SoundSphere India',
-                        sellerVerified: true,
-                        price: 12499,
-                        originalPrice: 15999,
-                        discountPercent: 21,
-                        rating: 4.7,
-                        reviewCount: 512,
-                        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Trending',
-                        badgeClass: 'bg-rose-600 text-white',
-                        inStock: true,
-                        description: 'Hybrid active noise cancellation with 45-hour playback and high-resolution spatial audio.'
-                    },
-                    {
-                        id: 5,
-                        name: 'Pure Organic Mulberry Silk Scarf (Indigo Dye)',
-                        slug: 'organic-mulberry-silk-scarf',
-                        category: 'Fashion & Apparel',
-                        seller: 'Varanasi Weavers Guild',
-                        sellerVerified: true,
-                        price: 2499,
-                        originalPrice: 3200,
-                        discountPercent: 22,
-                        rating: 4.9,
-                        reviewCount: 120,
-                        image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Artisan',
-                        badgeClass: 'bg-indigo-600 text-white',
-                        inStock: true,
-                        description: '100% natural mulberry silk hand-dyed with organic indigo vats in Varanasi.'
-                    },
-                    {
-                        id: 6,
-                        name: 'Vintage Brass Desk Compass & Sundial (1940s Replica)',
-                        slug: 'vintage-brass-desk-compass',
-                        category: 'Collectibles',
-                        seller: 'Nautical Antiquities',
-                        sellerVerified: false,
-                        price: 3199,
-                        originalPrice: 3999,
-                        discountPercent: 20,
-                        rating: 4.6,
-                        reviewCount: 64,
-                        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Rare Find',
-                        badgeClass: 'bg-amber-700 text-white',
-                        inStock: true,
-                        description: 'Solid brass casting with antique patina finish and hand-stitched leather storage case.'
-                    },
-                    {
-                        id: 7,
-                        name: 'Handbound Leather Journal with Deckle Edge Paper',
-                        slug: 'handbound-leather-journal-deckle-paper',
-                        category: 'Books & Stationery',
-                        seller: 'Scriptorium Arts',
-                        sellerVerified: true,
-                        price: 1299,
-                        originalPrice: 1699,
-                        discountPercent: 23,
-                        rating: 4.8,
-                        reviewCount: 194,
-                        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Eco Friendly',
-                        badgeClass: 'bg-emerald-700 text-white',
-                        inStock: true,
-                        description: '240 pages of tree-free handmade recycled cotton paper suitable for fountain pens.'
-                    },
-                    {
-                        id: 8,
-                        name: 'Nordic Minimalist Oak Wood Table Lamp',
-                        slug: 'nordic-minimalist-oak-table-lamp',
-                        category: 'Home Living',
-                        seller: 'Lumina Studio',
-                        sellerVerified: true,
-                        price: 2899,
-                        originalPrice: 3499,
-                        discountPercent: 17,
-                        rating: 4.7,
-                        reviewCount: 76,
-                        image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Sustainable',
-                        badgeClass: 'bg-teal-700 text-white',
-                        inStock: true,
-                        description: 'FSC-certified solid white oak with warm dimmable LED and linen drum shade.'
-                    },
-                    {
-                        id: 9,
-                        name: 'Minimalist Titanium Automatic Chronograph Watch',
-                        slug: 'minimalist-titanium-chronograph-watch',
-                        category: 'Fashion & Apparel',
-                        seller: 'Chronos Horology',
-                        sellerVerified: true,
-                        price: 18999,
-                        originalPrice: 24000,
-                        discountPercent: 20,
-                        rating: 4.9,
-                        reviewCount: 287,
-                        image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&auto=format&fit=crop&q=80',
-                        badge: 'Premium',
-                        badgeClass: 'bg-slate-950 text-amber-400 font-bold',
-                        inStock: true,
-                        description: 'Grade 5 titanium case, sapphire crystal glass with anti-reflective coating and NH35 movement.'
-                    }
-                ],
+                products: {!! json_encode($finalProducts) !!},
+                displayLimit: 12,
 
                 initCatalog() {
                     try {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const searchParam = urlParams.get('search');
+                        if (searchParam) {
+                            this.searchQuery = searchParam;
+                        }
                         const saved = localStorage.getItem('bazaario_wishlist');
                         if (saved) this.wishlist = JSON.parse(saved);
                     } catch(e) {}
+                    setTimeout(() => { this.pageLoading = false; }, 350);
                 },
+
 
                 get activeFilterCount() {
                     let count = 0;
                     if (this.selectedCategory !== 'All Categories') count++;
-                    if (this.maxPriceFilter < 35000) count++;
+                    if (this.maxPriceFilter < 1000000) count++;
                     if (this.minRating > 0) count++;
                     if (this.verifiedOnly) count++;
                     if (this.inStockOnly) count++;
@@ -1012,7 +931,7 @@
                             const matchCat = p.category.toLowerCase().includes(q);
                             if (!matchTitle && !matchSeller && !matchCat) return false;
                         }
-                        if (p.price > this.maxPriceFilter) return false;
+                        if (p.price > Number(this.maxPriceFilter)) return false;
                         if (this.minRating > 0 && p.rating < this.minRating) return false;
                         if (this.verifiedOnly && !p.sellerVerified) return false;
                         if (this.inStockOnly && !p.inStock) return false;
@@ -1035,7 +954,7 @@
                     this.searchQuery = '';
                     this.selectedCategory = 'All Categories';
                     this.sortBy = 'featured';
-                    this.maxPriceFilter = 35000;
+                    this.maxPriceFilter = 1000000;
                     this.minRating = 0;
                     this.verifiedOnly = false;
                     this.inStockOnly = false;
@@ -1043,6 +962,10 @@
 
                 isWishlisted(id) {
                     return this.wishlist.includes(id);
+                },
+
+                isInWishlist(id) {
+                    return this.isWishlisted(id);
                 },
 
                 toggleWishlist(product) {
@@ -1058,9 +981,16 @@
                     } catch(e) {}
                 },
 
+                addingToCartId: null,
+
                 addToCart(product, qty = 1) {
-                    this.showToast(`Added to Cart: ${product.name.substring(0, 20)}...`, 'cart', 'shopping_cart');
+                    this.addingToCartId = product.id;
+                    setTimeout(() => {
+                        this.showToast(`Added to Cart: ${product.name.substring(0, 20)}...`, 'cart', 'shopping_cart');
+                        this.addingToCartId = null;
+                    }, 400);
                 },
+
 
                 openQuickView(product) {
                     this.selectedProduct = product;

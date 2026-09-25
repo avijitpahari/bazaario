@@ -5,36 +5,47 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class TrustScoreLog extends Model
+class Category extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
-
     protected $fillable = [
-        'seller_id',
-        'fulfillment_rate',
-        'average_rating',
-        'verification_bonus',
-        'computed_score',
+        'parent_id',
+        'name',
+        'slug',
+        'description',
+        'image',
+        'status',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'fulfillment_rate' => 'decimal:2',
-            'average_rating' => 'decimal:2',
-            'verification_bonus' => 'decimal:2',
-            'computed_score' => 'decimal:2',
-            'created_at' => 'datetime',
-        ];
-    }
 
     // Relationships
 
-    public function seller(): BelongsTo
+    public function parent(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'seller_id');
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    // Scopes
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeRoots($query)
+    {
+        return $query->whereNull('parent_id');
     }
 }

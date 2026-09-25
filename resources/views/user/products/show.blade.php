@@ -1,3 +1,46 @@
+@php
+    $prod = $product ?? null;
+    $prodName = $prod ? $prod->name : 'Handcrafted Leather Messenger Bag';
+    $prodPrice = $prod ? (float)$prod->price : 2499.00;
+    $prodCategory = ($prod && $prod->category) ? $prod->category->name : 'Artisan Crafts';
+    $prodSeller = ($prod && $prod->seller && $prod->seller->sellerProfile) ? $prod->seller->sellerProfile->shop_name : ($prod && $prod->seller ? $prod->seller->name : 'Bazaario Verified');
+    $prodStock = $prod ? $prod->stock : 10;
+    $prodDescription = ($prod && ($prod->description || $prod->short_description)) ? ($prod->description ?: $prod->short_description) : 'Premium handcrafted quality item with authentic materials and escrow-backed guarantee.';
+    
+    // Dynamic Product Images Gallery (loads database images & guarantees 4 thumbnail slides)
+    $galleryImages = [];
+    if ($prod && $prod->images && $prod->images->isNotEmpty()) {
+        foreach ($prod->images as $img) {
+            $url = $img->url;
+            if (!empty($url) && !in_array($url, $galleryImages)) {
+                $galleryImages[] = $url;
+            }
+        }
+    }
+    
+    if ($prod && !empty($prod->main_image_url) && !in_array($prod->main_image_url, $galleryImages)) {
+        array_unshift($galleryImages, $prod->main_image_url);
+    }
+    
+    $fallbackImagesPool = [
+        'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    ];
+
+    foreach ($fallbackImagesPool as $fb) {
+        if (count($galleryImages) >= 4) break;
+        if (!in_array($fb, $galleryImages)) {
+            $galleryImages[] = $fb;
+        }
+    }
+
+    $mainImage = $galleryImages[0];
+@endphp
 <!DOCTYPE html>
 
 <html lang="en">
@@ -5,7 +48,9 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Apple iPhone 15 Pro Max — Bazaario</title>
+    <title>{{ $prodName }} — Bazaario</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link
@@ -14,33 +59,19 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "slate-authority": "#0F172A",
-                        "canvas-ivory": "#FFFDF8",
-                        "amber-action": "#F5A623",
-                        "status-green": "#16A34A"
+                        primary: '#0F172A',
+                        accent: { DEFAULT: '#F5A623', hover: '#E09214' }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    },
-                    borderRadius: {
-                        'card': '1rem'
-                    },
-                    boxShadow: {
-                        'dock': '0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.9) inset',
-                        'card-elevated': '0 12px 32px -8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04)'
-                    }
+                    borderRadius: { card: '16px' }
                 }
             }
-        };
+        }
     </script>
     <style>
         body {
@@ -66,12 +97,6 @@
             border: 1px solid rgba(15, 23, 42, 0.08);
         }
 
-        .ai-gradient-border {
-            background: linear-gradient(#ffffff, #ffffff) padding-box,
-                linear-gradient(135deg, #F5A623 0%, #8B5CF6 50%, #3B82F6 100%) border-box;
-            border: 2px solid transparent;
-        }
-
         ::-webkit-scrollbar {
             display: none;
         }
@@ -80,88 +105,23 @@
 
 <body
     class="bg-[#FFFDF8] text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-amber-100 selection:text-amber-900 pb-16 relative">
-    <!-- 1. TOP NAVIGATION & FLOATING PILL DOCK -->
-    <header class="sticky top-0 z-50 w-full px-4 pt-4 pb-2">
-        <nav aria-label="Main Navigation"
-            class="max-w-6xl mx-auto glass-pill px-5 py-2.5 rounded-full shadow-dock flex items-center justify-between transition-all">
-            <!-- Left: Logo -->
-            <a aria-label="Bazaario Home" class="flex items-center space-x-2 group shrink-0" href="#">
-                <img alt="Bazaario Logo" class="h-7 md:h-8 w-auto object-contain"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuwlU-di3HEHvvXlgPdnw9rh9FBoYa5PQfUnKZsKGM_iyCpkMsTo3-xxlIWiKy_Syou2w8YfruCCwjrG-S6XZ2BZ_pnsMUSaU2h9I5n6IFjuk-eW-ClLsCxkqdDVWT1ZXz2oibvcqO84h6AeP2HPPv7B0omnP1FABWo3gzR_YlMH0x3rmZs1tRJ00gyakhiI1RiVK67IJiPKfP6T5zVxWM8QYyp138Mqi_dqk1blDWnqc_em3mBRfNGIHM_j2D-6LsuQ" />
-            </a>
-            <!-- Center Links Pill -->
-            <div
-                class="hidden md:flex items-center gap-1 bg-[#0F172A]/5 p-1 rounded-full text-xs font-semibold text-slate-700">
-                <a class="bg-[#0F172A] text-white px-4 py-1.5 rounded-full shadow-sm flex items-center gap-1.5"
-                    href="#">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></span>
-                    Shop
-                </a>
-                <a class="px-3.5 py-1.5 rounded-full hover:text-[#0F172A] hover:bg-white/70 transition-colors"
-                    href="#">Categories</a>
-                <a class="px-3.5 py-1.5 rounded-full hover:text-[#0F172A] hover:bg-white/70 transition-colors flex items-center gap-1.5"
-                    href="#">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    Auctions
-                </a>
-                <a class="px-3.5 py-1.5 rounded-full hover:text-[#0F172A] hover:bg-white/70 transition-colors flex items-center gap-1 text-purple-700 font-medium"
-                    href="#">
-                    <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
-                    AI Compare
-                </a>
-            </div>
-            <!-- Right Dock Controls -->
-            <div class="flex items-center space-x-2.5">
-                <!-- Search shortcut button -->
-                <button aria-label="Search items"
-                    class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-slate-200/80 text-xs text-slate-500 hover:text-slate-900 transition shadow-xs">
-                    <span class="material-symbols-outlined text-[15px]">search</span>
-                    <span class="font-mono text-[11px]">⌘K</span>
-                </button>
-                <!-- Notification Bell with Dot -->
-                <button aria-label="Notifications"
-                    class="relative p-2 text-slate-600 hover:text-[#0F172A] hover:bg-white/70 rounded-full transition">
-                    <span class="material-symbols-outlined text-[20px]">notifications</span>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-[#F5A623] rounded-full ring-2 ring-white"></span>
-                </button>
-                <!-- Cart Pill with count (3) -->
-                <a class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-xs font-semibold text-slate-800 transition"
-                    href="#">
-                    <span class="material-symbols-outlined text-[16px] text-amber-600">shopping_bag</span>
-                    <span>Cart</span>
-                    <span
-                        class="w-4 h-4 rounded-full bg-[#F5A623] text-[#0F172A] text-[10px] font-bold flex items-center justify-center font-mono">3</span>
-                </a>
-                <!-- Avijit's Verified Buyer Avatar Pill -->
-                <div class="flex items-center gap-2 pl-2 border-l border-slate-200/90">
-                    <div
-                        class="w-8 h-8 rounded-full bg-[#0F172A] text-white font-display font-bold text-xs flex items-center justify-center shadow-xs">
-                        A
-                    </div>
-                    <div class="hidden lg:flex flex-col text-left">
-                        <p class="text-xs font-bold text-[#0F172A] leading-tight">Avijit</p>
-                        <p class="text-[10px] font-mono text-[#16A34A] font-medium flex items-center gap-0.5">
-                            <span>Verified Buyer</span>
-                            <span class="material-symbols-outlined text-[11px]">verified</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
+    
+    <!-- 1. NAVIGATION -->
+    @include('components.nav')
+
     <!-- MAIN WRAPPER -->
-    <main class="max-w-6xl mx-auto px-4 md:px-6 py-4 w-full space-y-8 flex-1">
+    <main class="max-w-6xl mx-auto px-4 md:px-6 pt-24 pb-4 w-full space-y-8 flex-1">
         <!-- BREADCRUMBS & ESCROW BADGE -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <nav aria-label="Breadcrumb"
                 class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-500 flex-wrap">
-                <a class="hover:text-slate-900 transition-colors" href="#">Home</a>
+                <a class="hover:text-slate-900 transition-colors" href="{{ url('/') }}">Home</a>
                 <span>/</span>
-                <a class="hover:text-slate-900 transition-colors" href="#">Electronics</a>
+                <a class="hover:text-slate-900 transition-colors" href="{{ route('products.index') }}">Products</a>
                 <span>/</span>
-                <a class="hover:text-slate-900 transition-colors" href="#">Smartphones</a>
+                <span class="hover:text-slate-900 transition-colors">{{ $prodCategory }}</span>
                 <span>/</span>
-                <span class="text-[#0F172A] font-bold">iPhone 15 Pro Max</span>
+                <span class="text-[#0F172A] font-bold">{{ $prodName }}</span>
             </nav>
             <div class="flex items-center gap-3 font-mono text-xs">
                 <span
@@ -169,16 +129,17 @@
                     <span class="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
                     ● BAZAARIO ESCROW SECURED
                 </span>
-                <span class="text-slate-400 font-mono text-[11px] hidden md:inline">ITEM ID: BZ-89104-APL</span>
+                <span class="text-slate-400 font-mono text-[11px] hidden md:inline">ITEM ID: BZ-{{ $prod->id ?? '101' }}</span>
             </div>
         </div>
-        <!-- 2 & 3: MAIN PRODUCT OVERVIEW (LEFT GALLERY 50% / RIGHT BUY BOX 50%) -->
+
+        <!-- MAIN PRODUCT OVERVIEW -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <!-- LEFT COLUMN: PRODUCT GALLERY (lg:col-span-6 = 50%) -->
+            <!-- LEFT COLUMN: PRODUCT GALLERY -->
             <div class="lg:col-span-6 flex flex-col gap-4">
                 <!-- Main Showcase Card -->
                 <div
-                    class="bg-white rounded-card p-6 border border-slate-900/10 shadow-card-elevated relative overflow-hidden group">
+                    class="bg-white rounded-card p-6 border border-slate-900/10 shadow-sm relative overflow-hidden group">
                     <!-- Top Badges -->
                     <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
                         <span
@@ -190,27 +151,17 @@
                             <span class="text-[#16A34A]">⚡</span> Express Dispatch
                         </span>
                     </div>
-                    <!-- Top-Right Controls: Expand + Wishlist Heart -->
-                    <div class="absolute top-4 right-4 z-10 flex items-center gap-2">
-                        <button
-                            class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-700 hover:text-[#0F172A] shadow-sm transition active:scale-95"
-                            onclick="alert('Viewing high-resolution gallery full-screen.')" title="Expand Fullscreen">
-                            <span class="material-symbols-outlined text-[18px]">open_in_full</span>
-                        </button>
-                        <button
-                            class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-700 hover:text-red-500 shadow-sm transition active:scale-95"
-                            id="gallery-wishlist-btn" onclick="toggleWishlist(this)" title="Add to Wishlist">
-                            <span class="material-symbols-outlined text-[19px]">favorite_border</span>
-                        </button>
-                    </div>
-                    <!-- Centered Product Image with Hover Zoom -->
+
+                    <!-- Centered Product Image with Fallback -->
                     <div
                         class="w-full min-h-[390px] md:min-h-[420px] flex items-center justify-center p-2 overflow-hidden cursor-crosshair">
-                        <img alt="iPhone 15 Pro Max Natural Titanium"
-                            class="w-full max-h-[410px] object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-110"
+                        <img alt="{{ $prodName }}"
+                            class="w-full max-h-[410px] object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-105"
                             id="main-product-image"
-                            src="https://lh3.googleusercontent.com/aida/AEtjO1U3XME0NHjyC0yTKDtPI-ikX0uXSsK46fZWbEaNRHHh3unKIDvt926bWFjY23XI1c5GTBPfAs4A1fHM-2MKmEAcn266rdb_5aiHgb4OI9OdXVLs1zjaghPZsIBGNIXAEJZw-Yl91LswyLLPZpKiukxNkkqjmxe5RpeUyLb_TpaY5LV6_vyqZcvQWn_5K_BDw8a2JEJUCAerh9mvrt4wZU0oatV1V4JCINW2MuphqazsPhOTaIZpo9ayAW4" />
+                            src="{{ $mainImage }}"
+                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80';" />
                     </div>
+
                     <!-- Interactive Nav Arrows (< >) -->
                     <button
                         class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-[#0F172A] flex items-center justify-center border border-slate-200 shadow-sm transition opacity-0 group-hover:opacity-100"
@@ -222,46 +173,19 @@
                         onclick="cycleGallery(1)" title="Next Image">
                         <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                     </button>
-                    <!-- 360° Studio View Pill Button -->
-                    <div class="absolute bottom-4 right-4 z-10">
-                        <button
-                            class="bg-[#0F172A]/85 hover:bg-[#0F172A] backdrop-blur-md text-white px-3.5 py-1.5 rounded-full flex items-center gap-1.5 font-mono text-xs shadow-sm border border-white/10 transition active:scale-95"
-                            onclick="alert('Launching Interactive 360° Titanium Model.')">
-                            <span class="material-symbols-outlined text-[16px] text-[#F5A623]">360</span>
-                            <span>360° Studio View</span>
-                        </button>
-                    </div>
                 </div>
-                <!-- Thumbnails Rail (4 thumbnails with active amber ring) -->
-                <div class="grid grid-cols-4 gap-3">
-                    <!-- Thumb 1: Front screen view -->
-                    <button
-                        class="thumb-btn border border-slate-200 p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square"
-                        onclick="selectThumb(0, 'https://lh3.googleusercontent.com/aida/AEtjO1VBfMU_UJLdgyOwT14nG-AylyaKuOAGG2ZZqje9PxPmYECnNoJDh68Krv5X9qxiHEE91OaXp_EDCt15rQRy_d6wSZHmWvc-2WwjfxCyRKyXBqCJPKu-L3Tx9mxC9REuVmYucvAwPFfvDxod-gvguMPMEZv9fzJacAwGBT0Vtodc45GjrxPp1X-1LwYIRLUBL90UBCw54dIQBvsEzT7RHrJbneZrTHTldD4c-cC0eUZdQ_fBpU6yrnNlKvI', this)">
-                        <img alt="Front OLED display with thin bezels" class="w-full h-16 object-contain"
-                            src="https://lh3.googleusercontent.com/aida/AEtjO1VBfMU_UJLdgyOwT14nG-AylyaKuOAGG2ZZqje9PxPmYECnNoJDh68Krv5X9qxiHEE91OaXp_EDCt15rQRy_d6wSZHmWvc-2WwjfxCyRKyXBqCJPKu-L3Tx9mxC9REuVmYucvAwPFfvDxod-gvguMPMEZv9fzJacAwGBT0Vtodc45GjrxPp1X-1LwYIRLUBL90UBCw54dIQBvsEzT7RHrJbneZrTHTldD4c-cC0eUZdQ_fBpU6yrnNlKvI" />
-                    </button>
-                    <!-- Thumb 2: Back titanium angle (Initial Active) -->
-                    <button
-                        class="thumb-btn border-2 border-[#F5A623] p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square"
-                        onclick="selectThumb(1, 'https://lh3.googleusercontent.com/aida/AEtjO1U3XME0NHjyC0yTKDtPI-ikX0uXSsK46fZWbEaNRHHh3unKIDvt926bWFjY23XI1c5GTBPfAs4A1fHM-2MKmEAcn266rdb_5aiHgb4OI9OdXVLs1zjaghPZsIBGNIXAEJZw-Yl91LswyLLPZpKiukxNkkqjmxe5RpeUyLb_TpaY5LV6_vyqZcvQWn_5K_BDw8a2JEJUCAerh9mvrt4wZU0oatV1V4JCINW2MuphqazsPhOTaIZpo9ayAW4', this)">
-                        <img alt="Natural Titanium rear angle" class="w-full h-16 object-contain"
-                            src="https://lh3.googleusercontent.com/aida/AEtjO1U3XME0NHjyC0yTKDtPI-ikX0uXSsK46fZWbEaNRHHh3unKIDvt926bWFjY23XI1c5GTBPfAs4A1fHM-2MKmEAcn266rdb_5aiHgb4OI9OdXVLs1zjaghPZsIBGNIXAEJZw-Yl91LswyLLPZpKiukxNkkqjmxe5RpeUyLb_TpaY5LV6_vyqZcvQWn_5K_BDw8a2JEJUCAerh9mvrt4wZU0oatV1V4JCINW2MuphqazsPhOTaIZpo9ayAW4" />
-                    </button>
-                    <!-- Thumb 3: Reflective finish -->
-                    <button
-                        class="thumb-btn border border-slate-200 p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square"
-                        onclick="selectThumb(2, 'https://lh3.googleusercontent.com/aida/AEtjO1Wzt2qenVqQnp5b3WNrnmK9j8KZawCAt2uvf_-imd9ZPFeKz8NyGF_E0gE0047zxBPF__D5Jc_-tWxglSpDeAWXGT0QYKYMa8azKDyT3LpO-K2UFFteyMo7oKiwO6-NoFLmgTRYub_z4VvYkls48KdYB308dMR2mAyoCkLCz1CSZ-V2gSMW_ElybIVeVyM691WVLcfvRXORt8QLylnSBTVibdSfXVHv1EZmNzOCwcKHq-qcSMCPAhfSZjQ', this)">
-                        <img alt="Reflective finish angle" class="w-full h-16 object-contain"
-                            src="https://lh3.googleusercontent.com/aida/AEtjO1Wzt2qenVqQnp5b3WNrnmK9j8KZawCAt2uvf_-imd9ZPFeKz8NyGF_E0gE0047zxBPF__D5Jc_-tWxglSpDeAWXGT0QYKYMa8azKDyT3LpO-K2UFFteyMo7oKiwO6-NoFLmgTRYub_z4VvYkls48KdYB308dMR2mAyoCkLCz1CSZ-V2gSMW_ElybIVeVyM691WVLcfvRXORt8QLylnSBTVibdSfXVHv1EZmNzOCwcKHq-qcSMCPAhfSZjQ" />
-                    </button>
-                    <!-- Thumb 4: Lifestyle companion -->
-                    <button
-                        class="thumb-btn border border-slate-200 p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square"
-                        onclick="selectThumb(3, 'https://lh3.googleusercontent.com/aida/AEtjO1VdXEmh6VIHBeEKpbhBsJla5YRF2HZfN_yobBtuYB29VcpXPUhJ3bF_9h6T1v-aBFf9RjmXiP7SMtLWz8tL24YlWmvXBrRiy3Of39ExP85BvzYHoDoL_GGGbxXSqWdi9lnp-Q3RWE50x-h3nmfIdDsYuRa9jK19Gf1OXdvLjPu6tY-kxH7lRQL1qFgdx-WbwlmpFOp8_eww2HlqsF-1x2YrEWXQgabb7057tBdbEK6THq4cbJIPvONL01M', this)">
-                        <img alt="Apple ecosystem companion" class="w-full h-16 object-contain"
-                            src="https://lh3.googleusercontent.com/aida/AEtjO1VdXEmh6VIHBeEKpbhBsJla5YRF2HZfN_yobBtuYB29VcpXPUhJ3bF_9h6T1v-aBFf9RjmXiP7SMtLWz8tL24YlWmvXBrRiy3Of39ExP85BvzYHoDoL_GGGbxXSqWdi9lnp-Q3RWE50x-h3nmfIdDsYuRa9jK19Gf1OXdvLjPu6tY-kxH7lRQL1qFgdx-WbwlmpFOp8_eww2HlqsF-1x2YrEWXQgabb7057tBdbEK6THq4cbJIPvONL01M" />
-                    </button>
+
+                <!-- Thumbnails Rail -->
+                <div class="grid grid-cols-4 gap-3" id="gallery-thumbs">
+                    @foreach($galleryImages as $idx => $imgUrl)
+                        <button
+                            class="thumb-btn border {{ $idx === 0 ? 'border-2 border-[#F5A623]' : 'border-slate-200' }} p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square"
+                            onclick="selectThumb({{ $idx }}, '{{ $imgUrl }}', this)">
+                            <img alt="Thumbnail {{ $idx + 1 }}" class="w-full h-16 object-contain"
+                                src="{{ $imgUrl }}"
+                                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80';" />
+                        </button>
+                    @endforeach
                 </div>
             </div>
             <!-- RIGHT COLUMN: PRODUCT INFORMATION & BUY BOX (lg:col-span-6 = 50%) -->
@@ -270,49 +194,48 @@
                     <!-- Brand & Stock Urgency -->
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                         <span class="font-mono text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                            Apple
+                            {{ $prodSeller }}
                         </span>
                         <div
                             class="flex items-center gap-1.5 font-mono text-xs font-semibold text-[#16A34A] bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
                             <span class="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
                             <span>✓ In Stock</span>
-                            <span class="text-emerald-700 font-medium">• Only 8 units left in stock!</span>
+                            <span class="text-emerald-700 font-medium">• Only {{ $prodStock }} units left in stock!</span>
                         </div>
                     </div>
                     <!-- Product Title & Review Meta -->
                     <div>
                         <h1
                             class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight leading-tight">
-                            iPhone 15 Pro Max
+                            {{ $prodName }}
                         </h1>
                         <div class="flex items-center gap-2.5 pt-2 flex-wrap">
                             <span
                                 class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full font-mono text-xs font-bold">
                                 <span class="material-symbols-outlined text-[15px] text-[#F5A623]"
                                     style="font-variation-settings: 'FILL' 1;">star</span>
-                                ★ 4.8
+                                ★ {{ number_format($prod->average_rating ?? 4.8, 1) }}
                             </span>
                             <span class="text-slate-300">•</span>
                             <a class="text-xs font-mono text-slate-600 hover:text-[#0F172A] underline underline-offset-2"
                                 href="#customer-reviews">
-                                248 reviews
+                                {{ $prod->total_reviews ?? 248 }} reviews
                             </a>
                             <span class="text-slate-300">•</span>
-                            <span class="text-[11px] font-mono text-slate-500" id="selected-spec-label">256 GB • Natural
-                                Titanium</span>
+                            <span class="text-[11px] font-mono text-slate-500" id="selected-spec-label">{{ $prodCategory }} • Bazaario Verified</span>
                         </div>
                     </div>
                     <!-- Pricing Section -->
                     <div class="pt-2 border-t border-slate-100 flex items-baseline gap-3 flex-wrap">
                         <span class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight"
                             id="active-price">
-                            ₹1,19,999
+                            ₹{{ number_format($prodPrice, 2) }}
                         </span>
                         <span class="text-lg text-slate-400 line-through font-medium" id="mrp-price">
-                            MRP ₹1,34,999
+                            MRP ₹{{ number_format(round($prodPrice * 1.25), 2) }}
                         </span>
                         <span class="rounded-card px-2.5 py-1 bg-amber-100 text-amber-800 font-mono text-xs font-bold">
-                            11% OFF
+                            20% OFF
                         </span>
                     </div>
                     <!-- Color & Storage Selectors -->
@@ -899,22 +822,7 @@
         </button>
     </aside>
     <!-- 9. FOOTER -->
-    <footer class="w-full border-t border-slate-200 bg-white/70 backdrop-blur-md py-8 text-xs text-slate-500 font-mono">
-        <div class="max-w-6xl mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-3 flex-wrap">
-                <img alt="Bazaario Logo" class="h-5 w-auto object-contain opacity-85"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6N8xXYkJuSE5X-CR6WEhK9PUa5-2rkboZlHagx8IBbmecvbjJWr3mRbh9nw4Tf2EyurhHLJKOv7I6TpOH_kTJv-Mz2qotBSSqMN6OteRo0kgP1gwtNnJ2AoPfCQu0dBlavrJaqFR3842QyVI-CnPDHEUfrYcRGKDkeF8YoDBq6egY6CSLELCFW5wBzp7DaZiL_GRe6kdZ54M_yUS6TJ94-1aJx4OsIQzaGlG-fbf-LuE7O9cuReNoqLY6N4A5BDeBoQ" />
-                <span class="text-slate-300">|</span>
-                <p>© 2026 Bazaario Inc. All rights reserved. 100% Escrow Guarantee Protected Marketplace.</p>
-            </div>
-            <div class="flex items-center space-x-5 flex-wrap">
-                <a class="hover:text-[#0F172A] transition" href="#">Privacy Policy</a>
-                <a class="hover:text-[#0F172A] transition" href="#">Terms of Service</a>
-                <a class="hover:text-[#0F172A] transition" href="#">Escrow Guarantee</a>
-                <a class="hover:text-[#0F172A] transition" href="#">Help Center</a>
-            </div>
-        </div>
-    </footer>
+    <x-footer />
     <!-- SCRIPT FOR INTERACTION -->
     <script>
         const galleryList = [
@@ -1018,6 +926,35 @@
                     btn.classList.remove('text-red-500');
                 }
             }
+        }
+
+        const galleryImages = {!! json_encode($galleryImages) !!};
+        let currentGalleryIndex = 0;
+
+        function selectThumb(index, url, btn) {
+            currentGalleryIndex = index;
+            const mainImg = document.getElementById('main-product-image');
+            if (mainImg) {
+                mainImg.src = url;
+            }
+            document.querySelectorAll('.thumb-btn').forEach((b, i) => {
+                if (i === index) {
+                    b.classList.remove('border-slate-200');
+                    b.classList.add('border-2', 'border-[#F5A623]');
+                } else {
+                    b.classList.remove('border-2', 'border-[#F5A623]');
+                    b.classList.add('border-slate-200');
+                }
+            });
+        }
+
+        function cycleGallery(direction) {
+            if (!galleryImages || galleryImages.length === 0) return;
+            currentGalleryIndex = (currentGalleryIndex + direction + galleryImages.length) % galleryImages.length;
+            const url = galleryImages[currentGalleryIndex];
+            const buttons = document.querySelectorAll('.thumb-btn');
+            const targetBtn = buttons[currentGalleryIndex] || null;
+            selectThumb(currentGalleryIndex, url, targetBtn);
         }
     </script>
 </body>

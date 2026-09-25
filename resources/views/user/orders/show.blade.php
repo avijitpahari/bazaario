@@ -922,63 +922,8 @@
             </div>
         </div>
     </main>
-    <!-- Footer with 3D Glass Surface Treatment -->
-    <footer class="w-full bg-white/60 backdrop-blur-xl border-t border-white/80 mt-section-interior-y relative z-10">
-        <div class="max-w-container-max mx-auto px-gutter-md py-banner-padding">
-            <div
-                class="bg-gradient-to-r from-slate-authority to-[#18233C] text-canvas-ivory rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border border-white/20 shadow-[0_12px_36px_rgba(15,23,42,0.15)] relative overflow-hidden">
-                <div
-                    class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent">
-                </div>
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-amber-action/20 border border-amber-action/40 flex items-center justify-center shrink-0 backdrop-blur-md shadow-sm">
-                        <span
-                            class="material-symbols-outlined text-amber-action text-headline-section">verified_user</span>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="font-title-card text-title-card font-bold text-white">Bazaario Escrow Guarantee
-                            </h3>
-                            <span
-                                class="font-label-micro text-label-micro bg-secondary/20 text-secondary-fixed rounded-full px-2.5 py-0.5 font-bold border border-secondary-fixed/30">Protected
-                                Checkout</span>
-                        </div>
-                        <p class="font-body-small text-body-small text-white/70 mt-1">Funds held securely in
-                            decentralized escrow until authentic dispatch and buyer verification.</p>
-                    </div>
-                </div>
-                <a class="shrink-0 bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-button-text px-6 py-3 rounded-xl font-bold hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-md border border-amber-200/50"
-                    data-path="escrow-guarantee" href="#">
-                    Verify Protection
-                </a>
-            </div>
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 pt-6 border-t border-black/[0.06]">
-                <div class="flex flex-wrap items-center gap-6">
-                    <span class="font-label-micro text-label-micro text-on-surface-variant font-medium">© 2026 Bazaario
-                        Inc. Authentic Marketplace.</span>
-                    <a class="font-body-small text-body-small text-on-surface-variant hover:text-slate-authority transition-colors"
-                        data-path="privacy" href="#">Privacy Policy</a>
-                    <a class="font-body-small text-body-small text-on-surface-variant hover:text-slate-authority transition-colors"
-                        data-path="terms" href="#">Terms of Service</a>
-                    <a class="font-body-small text-body-small text-on-surface-variant hover:text-slate-authority transition-colors"
-                        data-path="market-rules" href="#">Market Rules</a>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div
-                        class="flex items-center gap-1.5 bg-white/80 border border-white/90 rounded-xl px-3 py-1.5 text-on-surface-variant font-label-micro text-label-micro shadow-xs">
-                        <span class="material-symbols-outlined text-body-small">payments</span>
-                        <span class="font-bold text-slate-authority">USD ($)</span>
-                    </div>
-                    <div
-                        class="flex items-center gap-1.5 bg-white/80 border border-white/90 rounded-xl px-3 py-1.5 text-on-surface-variant font-label-micro text-label-micro shadow-xs">
-                        <span class="material-symbols-outlined text-body-small">language</span>
-                        <span class="font-bold text-slate-authority">English (US)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer -->
+    <x-footer />
 </body>
 
 </html>

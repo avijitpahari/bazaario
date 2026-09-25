@@ -10,6 +10,8 @@ class AuctionBid extends Model
 {
     use HasFactory;
 
+    protected $table = 'bids';
+
     public $timestamps = false;
 
     protected $fillable = [

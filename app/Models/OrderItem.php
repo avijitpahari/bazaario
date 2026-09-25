@@ -5,49 +5,48 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Review extends Model
+class OrderItem extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
+        'seller_order_id',
         'product_id',
-        'user_id',
-        'order_item_id',
-        'rating',
-        'title',
-        'comment',
-        'status',
+        'product_name',
+        'product_image',
+        'sku',
+        'unit_price',
+        'quantity',
+        'total_price',
     ];
 
     protected function casts(): array
     {
         return [
-            'rating' => 'integer',
+            'unit_price' => 'decimal:2',
+            'total_price' => 'decimal:2',
+            'created_at' => 'datetime',
         ];
     }
 
     // Relationships
+
+    public function sellerOrder(): BelongsTo
+    {
+        return $this->belongsTo(SellerOrder::class);
+    }
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function user(): BelongsTo
+    public function review(): HasOne
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function orderItem(): BelongsTo
-    {
-        return $this->belongsTo(OrderItem::class);
-    }
-
-    // Scopes
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 'approved');
+        return $this->hasOne(Review::class);
     }
 }

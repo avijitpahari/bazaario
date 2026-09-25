@@ -14,7 +14,16 @@ class CartItem extends Model
         'cart_id',
         'product_id',
         'quantity',
+        'unit_price',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'unit_price' => 'decimal:2',
+            'quantity' => 'integer',
+        ];
+    }
 
     // Relationships
 

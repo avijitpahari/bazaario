@@ -50,7 +50,10 @@
             }
         }
     </script>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
+        [x-cloak] { display: none !important; }
         body {
             background-color: #FFFDF8;
             background-image:
@@ -73,7 +76,7 @@
     @include('components.nav', ['currentRoute' => Route::currentRouteName()])
 
     <!-- Main Content Grid -->
-    <main class="flex-1 max-w-6xl mx-auto w-full px-6 pt-28 pb-16 flex items-center justify-center">
+    <main class="flex-1 max-w-6xl mx-auto w-full px-6 pt-6 sm:pt-8 pb-12 flex items-center justify-center">
         <div class="w-full grid lg:grid-cols-12 gap-12 lg:gap-14 items-center">
 
             <!-- Left Column: Value Prop & 3D Glass Artwork (Shop smarter. Sell bigger.) -->
@@ -345,17 +348,7 @@
     </main>
 
     <!-- Global Footer Bar -->
-    <footer
-        class="w-full border-t border-primary/10 py-5 bg-white/60 backdrop-blur-sm text-xs font-mono text-primary/60">
-        <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="">© 2024 BAZAARIO MARKETPLACE. ALL RIGHTS RESERVED.</div>
-            <div class="flex items-center gap-6">
-                <a href="#" class="hover:text-primary transition-colors">PRIVACY</a>
-                <a href="#" class="hover:text-primary transition-colors">TERMS</a>
-                <a href="#" class="hover:text-primary transition-colors">SECURITY</a>
-            </div>
-        </div>
-    </footer>
+    <x-footer />
 
 
 

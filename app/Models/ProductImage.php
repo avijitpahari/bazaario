@@ -27,6 +27,23 @@ class ProductImage extends Model
         ];
     }
 
+    // Accessors
+
+    public function getUrlAttribute(): string
+    {
+        $path = $this->image_path;
+        if (empty($path)) {
+            return asset('images/products/leather_bag_1.jpg');
+        }
+        if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+        if (\Illuminate\Support\Str::startsWith($path, 'storage/')) {
+            return asset($path);
+        }
+        return \Illuminate\Support\Facades\Storage::url($path);
+    }
+
     // Relationships
 
     public function product(): BelongsTo

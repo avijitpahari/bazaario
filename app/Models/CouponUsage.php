@@ -5,47 +5,42 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Category extends Model
+class CouponUsage extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'parent_id',
-        'name',
-        'slug',
-        'description',
-        'image_path',
-        'status',
+        'coupon_id',
+        'user_id',
+        'order_id',
+        'discount_amount',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'discount_amount' => 'decimal:2',
+            'used_at' => 'datetime',
+        ];
+    }
 
     // Relationships
 
-    public function parent(): BelongsTo
+    public function coupon(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->belongsTo(Coupon::class);
     }
 
-    public function children(): HasMany
+    public function user(): BelongsTo
     {
-        return $this->hasMany(Category::class, 'parent_id');
+        return $this->belongsTo(User::class);
     }
 
-    public function products(): HasMany
+    public function order(): BelongsTo
     {
-        return $this->hasMany(Product::class);
-    }
-
-    // Scopes
-
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeRoots($query)
-    {
-        return $query->whereNull('parent_id');
+        return $this->belongsTo(Order::class);
     }
 }

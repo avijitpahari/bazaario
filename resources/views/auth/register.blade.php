@@ -141,7 +141,10 @@
         #avatar-placeholder:hover {
             border-color: #F5A623;
         }
+        [x-cloak] { display: none !important; }
     </style>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script
         id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-dim": "#dbdad5", "card-white": "#FFFFFF", "on-error-container": "#93000a", "on-tertiary-fixed-variant": "#633f00", "primary-alpha-70": "rgba(15, 23, 42, 0.70)", "outline": "#76777d", "on-tertiary-fixed": "#291800", "on-primary-fixed-variant": "#3f465c", "on-secondary-fixed-variant": "#005320", "slate-authority": "#0F172A", "inverse-on-surface": "#f2f1ec", "tertiary": "#000000", "tertiary-fixed": "#ffddb4", "error": "#ba1a1a", "tertiary-fixed-dim": "#ffb955", "surface-variant": "#e4e2de", "on-tertiary-container": "#b57700", "secondary-fixed": "#7ffc97", "ivory-alpha-70": "rgba(255, 253, 248, 0.70)", "on-secondary": "#ffffff", "on-primary": "#ffffff", "amber-action": "#F5A623", "on-primary-container": "#7c839b", "on-secondary-container": "#007230", "surface-container-low": "#f5f3ee", "surface-container": "#efeee9", "tertiary-container": "#291800", "inverse-primary": "#bec6e0", "secondary-container": "#7cf994", "on-secondary-fixed": "#002109", "surface-container-highest": "#e4e2de", "on-background": "#1b1c19", "primary-alpha-20": "rgba(15, 23, 42, 0.20)", "canvas-ivory": "#FFFDF8", "error-container": "#ffdad6", "primary-container": "#131b2e", "on-surface": "#1b1c19", "surface-tint": "#565e74", "on-error": "#ffffff", "surface-container-lowest": "#ffffff", "outline-variant": "#c6c6cd", "on-primary-fixed": "#131b2e", "background": "#fbf9f4", "status-green": "#16A34A", "primary": "#000000", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#62df7d", "surface-bright": "#fbf9f4", "primary-fixed-dim": "#bec6e0", "primary-fixed": "#dae2fd", "inverse-surface": "#30312e", "primary-alpha-10": "rgba(15, 23, 42, 0.10)", "on-surface-variant": "#45464d", "surface": "#fbf9f4", "surface-container-high": "#eae8e3", "secondary": "#006e2d" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter-md": "1.5rem", "section-final-bottom": "4rem", "gutter-sm": "1rem", "section-hero-top": "4rem", "container-max": "72rem", "section-hero-bottom": "2.5rem", "card-padding": "1.25rem", "gutter-lg": "2.5rem", "gutter-xs": "0.5rem", "section-interior-y": "3.5rem", "gutter-xl": "3.5rem", "banner-padding": "2.5rem" }, fontFamily: { "label-eyebrow": ["JetBrains Mono"], "body-regular": ["Inter"], "display-hero": ["Space Grotesk"], "title-card": ["Space Grotesk"], "label-micro": ["JetBrains Mono"], "body-small": ["Inter"], "button-text": ["Inter"], "body-lead": ["Inter"], "headline-section": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"] }, fontSize: { "label-eyebrow": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }], "body-regular": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "title-card": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-micro": ["10px", { "lineHeight": "14px", "letterSpacing": "0.025em", "fontWeight": "500" }], "body-small": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "button-text": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "body-lead": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-section": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } } } };</script>
@@ -159,8 +162,8 @@
         <div class="absolute -bottom-40 left-1/3 w-[600px] h-[600px] bg-amber-action/15 rounded-full blur-3xl"></div>
         <!-- Floating Isometric 3D Visual Accents from Gallery Images -->
     </div>
-    <main class="relative z-10 w-full pt-28 pb-16 px-4 flex flex-col items-center justify-center min-h-screen">
-        <div class="max-w-container-max mx-auto w-full px-4 sm:px-6 py-6">
+    <main class="relative z-10 w-full pt-6 sm:pt-8 pb-12 px-4 flex flex-col items-center justify-center min-h-screen">
+        <div class="max-w-container-max mx-auto w-full px-4 sm:px-6 py-2">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 <!-- LEFT COLUMN: 3D Showcase, Headline, and Value Props -->
                 <div class="lg:col-span-7 flex flex-col space-y-6">
@@ -299,7 +302,7 @@
                              STEP 1 — Registration Form
                         ══════════════════════════════════════════════════ -->
                         <div id="reg-form-panel">
-                            <form id="reg-form" class="space-y-3.5" enctype="multipart/form-data" action="{{ route('register') }}" method="POST">                                @csrf
+                            <form id="reg-form" class="space-y-3.5" enctype="multipart/form-data" action="{{ route('register.send-otp') }}" method="POST">                                @csrf
 
                                 <!-- ── Profile Image Upload ── -->
                                 <div>
@@ -629,23 +632,11 @@
             </div>
         </div>
     </main>
-    <footer class="w-full bg-canvas-ivory/80 backdrop-blur-md border-t border-primary-alpha-10 py-6 relative z-10">
-        <div
-            class="max-w-container-max mx-auto px-gutter-md flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span class="font-label-eyebrow text-[11px] text-on-surface-variant">© 2024 BAZAARIO MARKETPLACE. ALL RIGHTS
-                RESERVED.</span>
-            <div class="flex items-center gap-gutter-md">
-                <a class="font-label-eyebrow text-[11px] text-on-surface-variant hover:text-slate-authority transition-colors"
-                    data-path="privacy-policy" href="#">PRIVACY</a>
-                <a class="font-label-eyebrow text-[11px] text-on-surface-variant hover:text-slate-authority transition-colors"
-                    data-path="terms-of-service" href="#">TERMS</a>
-                <a class="font-label-eyebrow text-[11px] text-on-surface-variant hover:text-slate-authority transition-colors"
-                    href="#">SECURITY</a>
-            </div>
-        </div>
-    </footer>
+    <x-footer />
 
 <script>
+let countdownTimer = null;
+let expiryTimer = null;
 /* ════════════════════════════════════════════════════════════════
    Profile Image Preview
 ════════════════════════════════════════════════════════════════ */
@@ -686,7 +677,10 @@ document.getElementById('reg-form').addEventListener('submit', async function (e
         const res  = await fetch('{{ route("register.send-otp") }}', {
             method: 'POST',
             body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
         });
         const data = await res.json();
 
@@ -698,17 +692,20 @@ document.getElementById('reg-form').addEventListener('submit', async function (e
             startResendCountdown();
             startExpiryTimer(600); // 10 minutes
         } else {
-            // Show validation errors
-            const errors = data.errors
-                ? Object.values(data.errors).flat().join(' ')
-                : (data.message || 'Something went wrong. Please try again.');
-            showError(errors);
+            // Show exact validation errors from backend
+            let errorMessage = 'Something went wrong. Please try again.';
+            if (data.errors) {
+                errorMessage = Object.values(data.errors).flat().join(' ');
+            } else if (data.message) {
+                errorMessage = data.message;
+            }
+            showError(errorMessage);
             btn.disabled  = false;
             label.textContent = 'Create Account';
             icon.textContent  = 'arrow_forward';
         }
     } catch (err) {
-        showError('Network error. Please check your connection and try again.');
+        showError('Request failed (' + err.message + '). Please try again.');
         btn.disabled  = false;
         label.textContent = 'Create Account';
         icon.textContent  = 'arrow_forward';
@@ -816,21 +813,21 @@ document.getElementById('otp-verify-btn').addEventListener('click', async functi
 /* ════════════════════════════════════════════════════════════════
    Resend OTP
 ════════════════════════════════════════════════════════════════ */
-let countdownTimer = null;
-
 function startResendCountdown(seconds = 60) {
     const btn       = document.getElementById('resend-btn');
-    const countdown = document.getElementById('resend-countdown');
-    let   remaining = seconds;
-
+    if (!btn) return;
     btn.disabled = true;
     btn.className = 'font-body-small text-[12px] font-semibold text-slate-authority/40 cursor-not-allowed transition-colors';
-    countdown.textContent = remaining;
+    btn.innerHTML = 'Resend in <span id="resend-countdown">' + seconds + '</span>s';
 
+    let remaining = seconds;
     clearInterval(countdownTimer);
     countdownTimer = setInterval(() => {
         remaining--;
-        countdown.textContent = remaining;
+        const countdown = document.getElementById('resend-countdown');
+        if (countdown) {
+            countdown.textContent = remaining;
+        }
         if (remaining <= 0) {
             clearInterval(countdownTimer);
             btn.disabled  = false;
@@ -843,7 +840,6 @@ function startResendCountdown(seconds = 60) {
 /* ════════════════════════════════════════════════════════════════
    Expiry Timer Bar (10 min countdown)
 ════════════════════════════════════════════════════════════════ */
-let expiryTimer = null;
 
 function startExpiryTimer(totalSeconds = 600) {
     let remaining = totalSeconds;
@@ -879,13 +875,14 @@ document.getElementById('resend-btn').addEventListener('click', async function (
     this.textContent = 'Sending…';
     this.disabled    = true;
 
-    const formData = new FormData(document.getElementById('reg-form'));
-
     try {
-        const res  = await fetch('{{ route("register.send-otp") }}', {
+        const res  = await fetch('{{ route("register.resend-otp") }}', {
             method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
         });
         const data = await res.json();
 
@@ -897,16 +894,16 @@ document.getElementById('resend-btn').addEventListener('click', async function (
             // Reset timer bar
             const bar  = document.getElementById('otp-timer-bar');
             const text = document.getElementById('otp-timer-text');
-            bar.style.background = '';
-            text.style.color     = '';
+            if (bar) bar.style.background = '';
+            if (text) text.style.color    = '';
             startExpiryTimer(600);
         } else {
-            showError(data.message || 'Could not resend OTP. Please try again.');
+            showError(data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Could not resend OTP. Please try again.'));
             this.textContent = 'Resend OTP';
             this.disabled    = false;
         }
     } catch (err) {
-        showError('Network error. Please try again.');
+        showError('Network error (' + err.message + '). Please try again.');
         this.textContent = 'Resend OTP';
         this.disabled    = false;
     }

@@ -5,59 +5,48 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class SellerOrder extends Model
+class Payout extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'order_id',
         'seller_id',
-        'seller_order_number',
-        'subtotal',
-        'shipping_amount',
-        'commission_rate',
+        'seller_order_id',
+        'gross_amount',
         'commission_amount',
-        'payout_amount',
+        'net_amount',
         'status',
-        'tracking_number',
-        'shipped_at',
-        'delivered_at',
+        'payout_reference',
+        'paid_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'subtotal' => 'decimal:2',
-            'shipping_amount' => 'decimal:2',
-            'commission_rate' => 'decimal:2',
+            'gross_amount' => 'decimal:2',
             'commission_amount' => 'decimal:2',
-            'payout_amount' => 'decimal:2',
-            'shipped_at' => 'datetime',
-            'delivered_at' => 'datetime',
+            'net_amount' => 'decimal:2',
+            'paid_at' => 'datetime',
         ];
     }
 
     // Relationships
-
-    public function order(): BelongsTo
-    {
-        return $this->belongsTo(Order::class);
-    }
 
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
 
-    public function items(): HasMany
+    public function sellerOrder(): BelongsTo
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->belongsTo(SellerOrder::class);
     }
 
-    public function payouts(): HasMany
+    // Scopes
+
+    public function scopePaid($query)
     {
-        return $this->hasMany(Payout::class);
+        return $query->where('status', 'paid');
     }
 }
