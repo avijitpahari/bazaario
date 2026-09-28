@@ -276,7 +276,7 @@
                                 From rare Leica collectibles to mechanical watches — discover live bidding with anti-sniping protection.
                             </p>
                             <a class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-full transition-all shadow-md active:scale-95"
-                               href="{{ route('products.index', ['sale_type' => 'auction']) }}">
+                               href="{{ route('auctions.index') }}">
                                 <span>Explore Auctions</span>
                                 <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
                             </a>
@@ -309,7 +309,7 @@
                                 <div class="flex items-center justify-between mt-1">
                                     <div>
                                         <span class="font-mono text-[9px] text-slate-400 block uppercase">Current Bid</span>
-                                        <span class="font-display text-lg font-bold text-amber-400">₹ {{ number_format($featuredAuction->current_bid ?? $featuredAuction->start_price ?? 0, 0) }}</span>
+                                        <span class="font-display text-lg font-bold text-amber-400">₹ {{ number_format($featuredAuction->current_price ?? $featuredAuction->starting_price ?? 0, 0) }}</span>
                                     </div>
                                     <div class="text-right">
                                         <span class="font-mono text-[9px] text-slate-400 block uppercase">Ends in</span>

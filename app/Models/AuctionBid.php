@@ -12,7 +12,7 @@ class AuctionBid extends Model
 
     protected $table = 'bids';
 
-    public $timestamps = false;
+    // bids table DOES have created_at / updated_at columns — leave timestamps enabled
 
     protected $fillable = [
         'auction_id',
@@ -23,8 +23,9 @@ class AuctionBid extends Model
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
+            'amount'     => 'decimal:2',
             'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

@@ -444,7 +444,7 @@
                                         <div>
                                             <!-- Sub-header Row: Category & Stock Pill -->
                                             <div class="flex items-center justify-between gap-1 mb-1">
-                                                <span class="text-[9px] sm:text-[10px] font-mono font-medium text-slate-400 uppercase tracking-wider truncate" x-text="product.category"></span>
+                                                <span class="text-[9px] sm:text-[10px] font-mono font-medium text-slate-400 uppercase tracking-wider truncate max-w-[90px] sm:max-w-none" x-text="product.category"></span>
                                                 
                                                 <!-- In Stock Indicator -->
                                                 <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
@@ -460,46 +460,58 @@
 
                                             <!-- Seller & Rating Row (Clean wrap) -->
                                             <div class="flex items-center justify-between gap-1 mt-1 text-[10px] sm:text-xs">
-                                                <div class="flex items-center gap-0.5 text-slate-600 truncate">
-                                                    <span class="truncate max-w-[80px] sm:max-w-none" x-text="product.seller"></span>
+                                                <div class="flex items-center gap-0.5 text-slate-600 truncate min-w-0">
+                                                    <span class="truncate max-w-[85px] sm:max-w-[110px]" x-text="product.seller"></span>
                                                     <template x-if="product.sellerVerified">
                                                         <span class="material-symbols-outlined text-blue-600 text-[12px] sm:text-xs shrink-0" title="Verified Seller">verified</span>
                                                     </template>
                                                 </div>
                                                 <div class="flex items-center text-amber-500 font-bold shrink-0">
-                                                    <span>★</span>
+                                                    <span class="text-xs">★</span>
                                                     <span class="text-slate-800 ml-0.5" x-text="product.rating.toFixed(1)"></span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Price & Cart CTA -->
-                                        <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1">
-                                            <div>
-                                                <div class="flex items-baseline gap-1">
+                                        <!-- Price & Action Buttons (2-Row Stacked Footer) -->
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1.5">
+                                            <!-- Price Row -->
+                                            <div class="flex items-baseline justify-between gap-1">
+                                                <div class="flex items-baseline gap-1 truncate">
                                                     <span class="text-xs sm:text-sm font-mono font-bold text-slate-900" x-text="'₹' + Number(product.price).toLocaleString('en-IN')"></span>
                                                     <template x-if="product.discountPercent > 0">
                                                         <span class="text-[10px] font-mono text-slate-400 line-through" x-text="'₹' + Number(product.originalPrice).toLocaleString('en-IN')"></span>
                                                     </template>
                                                 </div>
+                                                <template x-if="product.discountPercent > 0">
+                                                    <span class="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200/50 shrink-0" x-text="product.discountPercent + '% OFF'"></span>
+                                                </template>
                                             </div>
 
-                                            <!-- Cart Button -->
-                                            <button @click="addToCart(product)" 
-                                                    :disabled="addingToCartId === product.id"
-                                                    class="p-1 sm:px-2.5 sm:py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-xl text-[11px] font-semibold transition-all duration-200 flex items-center justify-center gap-1 shadow-xs active:scale-90 shrink-0 disabled:opacity-75"
-                                                    aria-label="Add to cart">
-                                                <template x-if="addingToCartId === product.id">
-                                                    <svg class="animate-spin h-3.5 w-3.5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                </template>
-                                                <template x-if="addingToCartId !== product.id">
-                                                    <span class="material-symbols-outlined text-sm">shopping_cart</span>
-                                                </template>
-                                                <span class="hidden sm:inline text-xs" x-text="addingToCartId === product.id ? 'Adding...' : 'Add'"></span>
-                                            </button>
+                                            <!-- Buttons Row -->
+                                            <div class="flex items-center gap-1.5 w-full">
+                                                <button @click="addToCart(product)" 
+                                                        :disabled="addingToCartId === product.id"
+                                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center shrink-0 shadow-2xs active:scale-95 disabled:opacity-75"
+                                                        title="Add to Cart"
+                                                        aria-label="Add to cart">
+                                                    <template x-if="addingToCartId === product.id">
+                                                        <svg class="animate-spin h-3.5 w-3.5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </template>
+                                                    <template x-if="addingToCartId !== product.id">
+                                                        <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                                    </template>
+                                                </button>
+                                                <button @click="buyNow(product)" 
+                                                        class="flex-1 py-1.5 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-[11px] transition-all duration-200 flex items-center justify-center gap-1 shadow-2xs active:scale-95 whitespace-nowrap"
+                                                        title="Buy Now">
+                                                    <span class="material-symbols-outlined text-xs shrink-0">bolt</span>
+                                                    <span class="font-bold tracking-tight">Buy Now</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -539,9 +551,10 @@
                                             </button>
                                             <button @click="addToCart(product)" 
                                                     :disabled="addingToCartId === product.id"
-                                                    class="px-4 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1 disabled:opacity-75">
+                                                    class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 disabled:opacity-75"
+                                                    title="Add to Cart">
                                                 <template x-if="addingToCartId === product.id">
-                                                    <svg class="animate-spin h-3.5 w-3.5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <svg class="animate-spin h-3.5 w-3.5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                     </svg>
@@ -550,6 +563,11 @@
                                                     <span class="material-symbols-outlined text-base">shopping_cart</span>
                                                 </template>
                                                 <span x-text="addingToCartId === product.id ? 'Adding...' : 'Add'"></span>
+                                            </button>
+                                            <button @click="buyNow(product)" 
+                                                    class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center gap-1 shadow-xs active:scale-95 shrink-0">
+                                                <span class="material-symbols-outlined text-base">bolt</span>
+                                                <span>Buy Now</span>
                                             </button>
                                         </div>
                                     </div>
@@ -779,12 +797,17 @@
                         <!-- Modal CTA Buttons -->
                         <div class="mt-6 flex flex-row gap-2">
                             <button @click="addToCart(selectedProduct, quickViewQty); quickViewModal = false;" 
-                                    class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                    class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-sm">
                                 <span class="material-symbols-outlined text-base">shopping_cart</span>
                                 <span>Add to Cart</span>
                             </button>
+                            <button @click="buyNow(selectedProduct, quickViewQty)" 
+                                    class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-base">bolt</span>
+                                <span>Buy Now</span>
+                            </button>
                             <a :href="'/product/' + selectedProduct.slug" 
-                               class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold text-center transition-colors">
+                               class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold text-center transition-colors flex items-center justify-center">
                                 Details
                             </a>
                         </div>
@@ -989,6 +1012,39 @@
                         this.showToast(`Added to Cart: ${product.name.substring(0, 20)}...`, 'cart', 'shopping_cart');
                         this.addingToCartId = null;
                     }, 400);
+                },
+
+                buyNow(product, qty = 1) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ route('cart.store') }}";
+                    
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = "{{ csrf_token() }}";
+                    form.appendChild(csrf);
+
+                    const prodId = document.createElement('input');
+                    prodId.type = 'hidden';
+                    prodId.name = 'product_id';
+                    prodId.value = product.id;
+                    form.appendChild(prodId);
+
+                    const quantity = document.createElement('input');
+                    quantity.type = 'hidden';
+                    quantity.name = 'quantity';
+                    quantity.value = qty;
+                    form.appendChild(quantity);
+
+                    const buyNowFlag = document.createElement('input');
+                    buyNowFlag.type = 'hidden';
+                    buyNowFlag.name = 'buy_now';
+                    buyNowFlag.value = '1';
+                    form.appendChild(buyNowFlag);
+
+                    document.body.appendChild(form);
+                    form.submit();
                 },
 
 

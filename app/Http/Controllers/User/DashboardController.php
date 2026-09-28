@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuctionBid;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,9 +25,12 @@ class DashboardController extends Controller
 
         // ── Stats ────────────────────────────────────────────────────────────
         $totalOrders  = $user->orders()->count();
-        $inTransit    = $user->orders()->where('order_status', 'processing')->count();
+        $inTransit    = $user->orders()->whereIn('order_status', ['processing', 'shipped'])->count();
         $wishlistCount = $user->wishlist ? $user->wishlist->items()->count() : 0;
-        $activeBids   = 0; // Placeholder — extend with AuctionBid model later
+        $activeBids   = AuctionBid::where('user_id', $user->id)
+            ->whereHas('auction', fn($q) => $q->where('status', 'live')->where('ends_at', '>', now()))
+            ->distinct('auction_id')
+            ->count('auction_id');
         $availableCoupons = DB::table('coupons')
             ->where('status', 'active')
             ->where(function ($q) {

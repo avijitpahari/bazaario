@@ -34,17 +34,15 @@
                     <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index', ['filter' => 'auctions']) }}">Live Auctions</a></li>
                     <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index') }}">Categories</a></li>
                     <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index') }}">AI Compare</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index', ['filter' => 'escrow']) }}">Escrow Deals</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index', ['filter' => 'escrow']) }}">Deals</a></li>
                 </ul>
             </div>
             <!-- Links: Sell -->
             <div class="md:col-span-2">
                 <h5 class="font-mono font-bold text-slate-authority text-[11px] uppercase tracking-wider mb-3">Sell</h5>
                 <ul class="space-y-2 text-xs font-medium text-slate-authority/70">
-                    <li><a class="hover:text-amber-action transition-colors" href="{{ url('/seller/register') }}">Become a Seller</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Seller Guild</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Fees &amp; Commission</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Floor API</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('docs.become-a-seller') }}">Become a Seller</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('docs.fees-and-commission') }}">Fees &amp; Commission</a></li>
                 </ul>
             </div>
             <!-- Links: Platform -->
@@ -52,9 +50,7 @@
                 <h5 class="font-mono font-bold text-slate-authority text-[11px] uppercase tracking-wider mb-3">Company</h5>
                 <ul class="space-y-2 text-xs font-medium text-slate-authority/70">
                     <li><a class="hover:text-amber-action transition-colors" href="#">About Us</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Careers</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Press Kit</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Status</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="#">Return Policy</a></li>
                 </ul>
             </div>
             <!-- Links: Help & Escrow -->

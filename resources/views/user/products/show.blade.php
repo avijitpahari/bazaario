@@ -316,7 +316,7 @@
                             <!-- Primary Add to Cart Button -->
                             <button
                                 class="flex-1 py-3.5 px-6 bg-[#F5A623] hover:brightness-105 text-[#0F172A] rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
-                                id="add-to-cart-btn" onclick="triggerCartAdd(this)">
+                                id="add-to-cart-btn" onclick="submitCartForm(false)">
                                 <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
                                 <span>🛒 Add to Cart</span>
                             </button>
@@ -325,7 +325,7 @@
                         <div class="flex items-center gap-3">
                             <button
                                 class="flex-1 py-3.5 px-6 bg-[#0F172A] hover:bg-slate-800 text-white rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
-                                onclick="alert('Proceeding to instant secure smart escrow checkout for ' + document.getElementById('active-price').innerText + '.')">
+                                onclick="submitCartForm(true)">
                                 <span class="text-[#F5A623]">⚡</span>
                                 <span>⚡ Instant Escrow Buy Now</span>
                             </button>
@@ -893,6 +893,46 @@
         function adjustQty(delta) {
             qty = Math.max(1, qty + delta);
             document.getElementById('stepper-count').innerText = qty;
+        }
+
+        function submitCartForm(buyNow = false) {
+            const productId = "{{ $prod ? $prod->id : '' }}";
+            if (!productId) {
+                alert('Product not found.');
+                return;
+            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ route('cart.store') }}";
+
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = "{{ csrf_token() }}";
+            form.appendChild(csrf);
+
+            const prodInput = document.createElement('input');
+            prodInput.type = 'hidden';
+            prodInput.name = 'product_id';
+            prodInput.value = productId;
+            form.appendChild(prodInput);
+
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'hidden';
+            qtyInput.name = 'quantity';
+            qtyInput.value = qty;
+            form.appendChild(qtyInput);
+
+            if (buyNow) {
+                const buyNowInput = document.createElement('input');
+                buyNowInput.type = 'hidden';
+                buyNowInput.name = 'buy_now';
+                buyNowInput.value = '1';
+                form.appendChild(buyNowInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
         }
 
         function triggerCartAdd(btn) {

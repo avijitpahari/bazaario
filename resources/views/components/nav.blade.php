@@ -4,9 +4,16 @@
     use Illuminate\Support\Facades\Storage;
     use App\Models\Category;
 
-    $currentRoute = Route::currentRouteName();
     $currentUser = Auth::guard('user')->user() ?? Auth::guard('admin')->user() ?? Auth::guard('seller')->user() ?? Auth::user();
-    
+
+    if ($currentUser && !defined('NAV_DELEGATING')) {
+        define('NAV_DELEGATING', true);
+        echo view('components.nav-user', get_defined_vars())->render();
+        return;
+    }
+
+    $currentRoute = Route::currentRouteName();
+
     $navCategories = Cache::store('file')->remember('nav_categories_list', 600, function () {
         return Category::where('status', 'active')->take(6)->get();
     });
@@ -44,7 +51,7 @@
         <!-- 2. MAIN NAVIGATION LINKS (Centered) -->
         @php
             $isOnShop = in_array($currentRoute, ['products.index', 'products.show', 'products.category', 'user.wishlist.index']) && request()->path() !== '/';
-            $isOnAuctions = $currentRoute === 'products.index' && request('sale_type') === 'auction';
+            $isOnAuctions = in_array($currentRoute, ['auctions.index', 'auctions', 'user.bids', 'bids']) || request('sale_type') === 'auction';
             $isOnDeals = $currentRoute === 'products.index' && request('filter') === 'deals';
         @endphp
         <nav class="hidden lg:flex items-center justify-center gap-2 text-sm font-semibold text-slate-700 mx-auto">
@@ -55,7 +62,7 @@
             </a>
 
             <!-- Auctions (Distinct Live Identity) -->
-            <a href="{{ route('products.index', ['sale_type' => 'auction']) }}" 
+            <a href="{{ route('auctions.index') }}" 
                class="px-4 py-1.5 rounded-full flex items-center gap-1.5 font-bold transition-all {{ $isOnAuctions ? 'bg-slate-900 text-white' : 'text-slate-900 hover:bg-slate-100' }}">
                 <span class="flex h-2 w-2 relative">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
@@ -92,122 +99,125 @@
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 translate-y-2"
                          x-transition:enter-end="opacity-100 translate-y-0"
-                         class="absolute top-full mt-2 right-0 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 text-xs font-medium max-h-[80vh] overflow-y-auto">
+                         class="absolute top-full mt-2 right-0 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 text-xs font-medium max-h-[calc(100vh-85px)] flex flex-col overflow-hidden">
 
-                        {{-- User Identity Header --}}
-                        <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+                        {{-- Sticky User Identity Header --}}
+                        <div class="px-4 py-2.5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80 backdrop-blur-xs shrink-0">
                             @if($currentUser->profile_image)
-                                <img src="{{ Storage::url($currentUser->profile_image) }}" alt="{{ $currentUser->name }}" class="w-10 h-10 rounded-full object-cover shrink-0">
+                                <img src="{{ Storage::url($currentUser->profile_image) }}" alt="{{ $currentUser->name }}" class="w-9 h-9 rounded-full object-cover shrink-0">
                             @else
-                                <div class="w-10 h-10 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                <div class="w-9 h-9 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
                                     {{ strtoupper(mb_substr($currentUser->name, 0, 1)) }}
                                 </div>
                             @endif
                             <div class="min-w-0">
-                                <div class="font-bold text-slate-900 text-sm truncate">{{ $currentUser->name }}</div>
-                                <div class="text-slate-400 font-mono text-[11px] truncate">{{ $currentUser->email }}</div>
+                                <div class="font-bold text-slate-900 text-xs truncate leading-tight">{{ $currentUser->name }}</div>
+                                <div class="text-slate-400 font-mono text-[10px] truncate leading-tight mt-0.5">{{ $currentUser->email }}</div>
                             </div>
                         </div>
 
-                        {{-- Dashboard --}}
-                        @php
-                            $dashRoute = match($currentUser->role) {
-                                'admin' => route('admin.dashboard'),
-                                'seller' => route('seller.dashboard'),
-                                default => route('user.dashboard'),
-                            };
-                        @endphp
-                        <div class="py-1">
-                            <a href="{{ $dashRoute }}" class="px-4 py-2 hover:bg-amber-50 text-slate-700 hover:text-amber-700 flex items-center gap-2.5 font-semibold">
-                                <span class="material-symbols-outlined text-base text-amber-500">dashboard</span>
-                                <span>My Dashboard</span>
-                            </a>
+                        {{-- Scrollable Content Body --}}
+                        <div class="overflow-y-auto flex-1 py-1 divide-y divide-slate-100">
+                            {{-- Dashboard --}}
+                            @php
+                                $dashRoute = match($currentUser->role) {
+                                    'admin' => route('admin.dashboard'),
+                                    'seller' => route('seller.dashboard'),
+                                    default => route('user.dashboard'),
+                                };
+                            @endphp
+                            <div class="py-1">
+                                <a href="{{ $dashRoute }}" class="px-3.5 py-1.5 hover:bg-amber-50 text-slate-700 hover:text-amber-700 flex items-center gap-2.5 font-semibold transition-colors">
+                                    <span class="material-symbols-outlined text-base text-amber-500">dashboard</span>
+                                    <span>My Dashboard</span>
+                                </a>
+                            </div>
+
+                            {{-- Group: Shopping --}}
+                            <div class="py-1">
+                                <div class="px-3.5 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">Shopping</div>
+                                <a href="{{ route('user.orders.index') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">package_2</span>
+                                    <span>My Orders</span>
+                                </a>
+                                <a href="{{ route('user.wishlist.index') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">favorite</span>
+                                    <span>Wishlist</span>
+                                </a>
+                                <a href="{{ route('cart.index') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">shopping_cart</span>
+                                    <span>Cart</span>
+                                </a>
+                                <a href="{{ route('user.returns') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">assignment_return</span>
+                                    <span>Returns</span>
+                                </a>
+                                <a href="{{ route('user.invoices') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">receipt_long</span>
+                                    <span>Invoices</span>
+                                </a>
+                                <a href="{{ route('user.coupons') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">local_offer</span>
+                                    <span>My Coupons</span>
+                                </a>
+                            </div>
+
+                            {{-- Group: Auctions & Discovery --}}
+                            <div class="py-1">
+                                <div class="px-3.5 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">Auctions & Discovery</div>
+                                <a href="{{ route('user.bids') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">gavel</span>
+                                    <span>My Bids</span>
+                                </a>
+                                <a href="{{ route('user.auctions') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">bolt</span>
+                                    <span>My Auctions</span>
+                                </a>
+                                <a href="{{ route('user.compare') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">compare</span>
+                                    <span>Compare Products</span>
+                                </a>
+                                <a href="{{ route('user.recommendations') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">recommend</span>
+                                    <span>Recommendations</span>
+                                </a>
+                            </div>
+
+                            {{-- Group: Account --}}
+                            <div class="py-1">
+                                <div class="px-3.5 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">Account</div>
+                                <a href="{{ route('user.profile') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">person</span>
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="{{ route('user.reviews.index') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">rate_review</span>
+                                    <span>My Reviews</span>
+                                </a>
+                                <a href="{{ route('user.addresses.index') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">location_on</span>
+                                    <span>Addresses</span>
+                                </a>
+                                <a href="{{ route('user.notifications.index') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">notifications</span>
+                                    <span>Notifications</span>
+                                </a>
+                                <a href="{{ route('user.settings') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">settings</span>
+                                    <span>Settings</span>
+                                </a>
+                                <a href="{{ route('user.security') }}" class="px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5 transition-colors">
+                                    <span class="material-symbols-outlined text-base text-slate-400">shield</span>
+                                    <span>Security</span>
+                                </a>
+                            </div>
                         </div>
 
-                        {{-- Group: Shopping --}}
-                        <div class="border-t border-slate-100 pt-1 pb-1">
-                            <div class="px-4 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Shopping</div>
-                            <a href="{{ route('user.orders.index') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">package_2</span>
-                                <span>My Orders</span>
-                            </a>
-                            <a href="{{ route('user.wishlist.index') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">favorite</span>
-                                <span>Wishlist</span>
-                            </a>
-                            <a href="{{ route('cart.index') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">shopping_cart</span>
-                                <span>Cart</span>
-                            </a>
-                            <a href="{{ route('user.returns') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">assignment_return</span>
-                                <span>Returns</span>
-                            </a>
-                            <a href="{{ route('user.invoices') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">receipt_long</span>
-                                <span>Invoices</span>
-                            </a>
-                            <a href="{{ route('user.coupons') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">local_offer</span>
-                                <span>My Coupons</span>
-                            </a>
-                        </div>
-
-                        {{-- Group: Auctions & Discovery --}}
-                        <div class="border-t border-slate-100 pt-1 pb-1">
-                            <div class="px-4 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Auctions & Discovery</div>
-                            <a href="{{ route('user.bids') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">gavel</span>
-                                <span>My Bids</span>
-                            </a>
-                            <a href="{{ route('user.auctions') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">bolt</span>
-                                <span>My Auctions</span>
-                            </a>
-                            <a href="{{ route('user.compare') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">compare</span>
-                                <span>Compare Products</span>
-                            </a>
-                            <a href="{{ route('user.recommendations') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">recommend</span>
-                                <span>Recommendations</span>
-                            </a>
-                        </div>
-
-                        {{-- Group: Account --}}
-                        <div class="border-t border-slate-100 pt-1 pb-1">
-                            <div class="px-4 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Account</div>
-                            <a href="{{ route('user.profile') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">person</span>
-                                <span>My Profile</span>
-                            </a>
-                            <a href="{{ route('user.reviews.index') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">rate_review</span>
-                                <span>My Reviews</span>
-                            </a>
-                            <a href="{{ route('user.addresses.index') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">location_on</span>
-                                <span>Addresses</span>
-                            </a>
-                            <a href="{{ route('user.notifications.index') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">notifications</span>
-                                <span>Notifications</span>
-                            </a>
-                            <a href="{{ route('user.settings') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">settings</span>
-                                <span>Settings</span>
-                            </a>
-                            <a href="{{ route('user.security') }}" class="px-4 py-2 hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center gap-2.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">shield</span>
-                                <span>Security</span>
-                            </a>
-                        </div>
-
-                        {{-- Logout --}}
-                        <div class="pt-1 border-t border-slate-100">
+                        {{-- Sticky Logout Footer --}}
+                        <div class="border-t border-slate-100 bg-white shrink-0">
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2.5">
+                                <button type="submit" class="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2.5 transition-colors">
                                     <span class="material-symbols-outlined text-base">logout</span>
                                     <span>Logout</span>
                                 </button>
@@ -253,7 +263,7 @@
                 <!-- Navigation Links -->
                 <div class="py-4 space-y-1 font-semibold text-sm">
                     <a href="{{ route('products.index') }}" class="block px-3 py-2 rounded-xl {{ $isOnShop ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-900' }}">Home</a>
-                    <a href="{{ route('products.index', ['sale_type' => 'auction']) }}" class="block px-3 py-2 rounded-xl {{ $isOnAuctions ? 'bg-slate-900 text-white' : 'hover:bg-rose-50 text-rose-700' }} flex items-center gap-2">
+                    <a href="{{ route('auctions.index') }}" class="block px-3 py-2 rounded-xl {{ $isOnAuctions ? 'bg-slate-900 text-white' : 'hover:bg-rose-50 text-rose-700' }} flex items-center gap-2">
                         <span>⚡ Live Auctions</span>
                         <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-200 text-rose-800">LIVE</span>
                     </a>
@@ -289,7 +299,7 @@
         <span class="material-symbols-outlined text-xl">search</span>
         <span>Search</span>
     </a>
-    <a href="{{ route('products.index', ['sale_type' => 'auction']) }}" class="flex flex-col items-center gap-0.5 text-rose-600 font-bold">
+    <a href="{{ route('auctions.index') }}" class="flex flex-col items-center gap-0.5 {{ $isOnAuctions ? 'text-slate-900 font-bold' : 'text-rose-600 font-bold' }}">
         <span class="material-symbols-outlined text-xl">bolt</span>
         <span>Auctions</span>
     </a>

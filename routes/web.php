@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\OrderController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\SecurityController;
 use App\Http\Controllers\User\SettingsController;
+use App\Http\Controllers\User\AuctionController;
 
 Route::get('/test', function () {
     return view('test');
@@ -92,6 +94,11 @@ Route::get('/shop', function () {
     return redirect()->route('products.index');
 })->name('shop');
 
+Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions.index');
+Route::get('/auctions/{auction}', [AuctionController::class, 'show'])->name('auctions.show');
+Route::post('/auctions/{auction}/bid', [AuctionController::class, 'placeBid'])->name('auctions.placeBid');
+Route::post('/auctions/{auction}/quick-bid', [AuctionController::class, 'quickBid'])->name('auctions.quickBid');
+
 Route::get('/product/{slug?}', function ($slug = 'handcrafted-leather-messenger-bag') {
     $product = Cache::store('file')->remember("product_detail_{$slug}", 300, function () use ($slug) {
         return \App\Models\Product::with(['category', 'seller.sellerProfile', 'images', 'reviews.user'])
@@ -134,11 +141,6 @@ Route::get('/category/{slug?}', function ($slug = 'all') {
     
     return view('user.products.category', compact('slug', 'category', 'categories', 'products'));
 })->name('category.show');
-
-
-Route::get('/auctions', function () {
-    return view('user.account.auctions');
-})->name('auctions.index');
 
 // ── Cart (accessible to guests too, but actions require auth) ───────────────
 
@@ -226,19 +228,56 @@ Route::prefix('user')->name('user.')->middleware(['auth:user', 'user'])->group(f
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
-    // Static-data pages (no complex controller needed yet)
-    Route::get('/coupons', fn () => view('user.account.coupons', ['user' => Auth::user()]))->name('coupons');
-    Route::get('/auctions', fn () => view('user.account.auctions', ['user' => Auth::user()]))->name('auctions');
-    Route::get('/bids', fn () => view('user.account.bids', ['user' => Auth::user()]))->name('bids');
-    Route::get('/returns', fn () => view('user.account.returns', ['user' => Auth::user()]))->name('returns');
+    // Dynamic Account Views
+    Route::get('/coupons', function () {
+        $coupons = \App\Models\Coupon::where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->orderBy('minimum_order_amount', 'asc')
+            ->get();
+        return view('user.account.coupons', ['user' => Auth::user(), 'coupons' => $coupons]);
+    })->name('coupons');
+
+    Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions');
+    Route::get('/bids', [AuctionController::class, 'bids'])->name('bids');
+
+    Route::get('/returns', function () {
+        $returns = \App\Models\OrderReturn::where('user_id', Auth::id())
+            ->with(['order', 'orderItem'])
+            ->latest('requested_at')
+            ->get();
+        return view('user.account.returns', ['user' => Auth::user(), 'returns' => $returns]);
+    })->name('returns');
+
     Route::get('/invoices', fn () => view('user.account.invoices', ['user' => Auth::user()]))->name('invoices');
-    Route::get('/recommendations', fn () => view('user.account.recommendations', ['user' => Auth::user()]))->name('recommendations');
+
+    Route::get('/recommendations', function () {
+        $recommendedProducts = \App\Models\Product::with(['category', 'primaryImage', 'images', 'seller.sellerProfile'])
+            ->where('status', 'active')
+            ->latest()
+            ->take(8)
+            ->get();
+        return view('user.account.recommendations', ['user' => Auth::user(), 'recommendedProducts' => $recommendedProducts]);
+    })->name('recommendations');
+
     Route::get('/compare', fn () => view('user.account.compare', ['user' => Auth::user()]))->name('compare');
 });
+
+// ── Public Seller Documentation Pages ────────────────────────────────────────
+
+Route::get('/seller/become-a-seller', function () {
+    return view('docs.become-a-seller');
+})->name('docs.become-a-seller');
+
+Route::get('/seller/fees-and-commission', function () {
+    return view('docs.fees-and-commission');
+})->name('docs.fees-and-commission');
 
 // ── Seller Panel ────────────────────────────────────────────────────────────
 
 Route::prefix('seller')->name('seller.')->group(function () {
+
     Route::middleware(['auth:seller', 'seller'])->group(function () {
 
         Route::get('/pending', function () {
@@ -264,9 +303,63 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
 
     Route::middleware(['auth:admin', 'admin'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+        
+        // Sellers & Approvals
+        Route::get('/sellers', [AdminDashboardController::class, 'sellers'])->name('sellers.index');
+        Route::get('/sellers/approvals', [AdminDashboardController::class, 'sellerApprovals'])->name('sellers.approvals');
+        Route::get('/sellers/{id}', [AdminDashboardController::class, 'sellerDetail'])->name('sellers.show');
+        Route::post('/sellers/{id}/approve', [AdminDashboardController::class, 'approveSeller'])->name('sellers.approve');
+        Route::post('/sellers/{id}/reject', [AdminDashboardController::class, 'rejectSeller'])->name('sellers.reject');
+        Route::post('/sellers/{id}/toggle-status', [AdminDashboardController::class, 'toggleSellerStatus'])->name('sellers.toggle-status');
+        Route::post('/sellers/{id}/commission', [AdminDashboardController::class, 'updateSellerCommission'])->name('sellers.commission');
+
+        // Products & Inventory
+        Route::get('/products', [AdminDashboardController::class, 'products'])->name('products.index');
+        Route::post('/products/{id}/toggle-status', [AdminDashboardController::class, 'toggleProductStatus'])->name('products.toggle-status');
+        Route::post('/products/{id}/update-stock', [AdminDashboardController::class, 'updateProductStock'])->name('products.update-stock');
+        Route::delete('/products/{id}', [AdminDashboardController::class, 'deleteProduct'])->name('products.destroy');
+
+        // Categories Taxonomy
+        Route::get('/categories', [AdminDashboardController::class, 'categories'])->name('categories.index');
+        Route::post('/categories', [AdminDashboardController::class, 'storeCategory'])->name('categories.store');
+        Route::put('/categories/{id}', [AdminDashboardController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('/categories/{id}', [AdminDashboardController::class, 'deleteCategory'])->name('categories.destroy');
+
+        // Orders & Fulfillment
+        Route::get('/orders', [AdminDashboardController::class, 'orders'])->name('orders.index');
+        Route::get('/orders/{id}', [AdminDashboardController::class, 'orderDetail'])->name('orders.show');
+        Route::post('/orders/{id}/status', [AdminDashboardController::class, 'updateOrderStatus'])->name('orders.update-status');
+
+        // Live Auctions
+        Route::get('/auctions', [AdminDashboardController::class, 'auctions'])->name('auctions.index');
+        Route::get('/auctions/{id}', [AdminDashboardController::class, 'auctionDetail'])->name('auctions.show');
+        Route::post('/auctions/{id}/end', [AdminDashboardController::class, 'endAuction'])->name('auctions.end');
+        Route::post('/auctions/{id}/cancel', [AdminDashboardController::class, 'cancelAuction'])->name('auctions.cancel');
+
+        // Payouts & Escrow
+        Route::get('/payouts', [AdminDashboardController::class, 'payouts'])->name('payouts.index');
+        Route::post('/payouts/{id}/release', [AdminDashboardController::class, 'releasePayout'])->name('payouts.release');
+        Route::post('/payouts/batch-release', [AdminDashboardController::class, 'batchReleasePayouts'])->name('payouts.batch-release');
+
+        // Disputes & Return Arbitration
+        Route::get('/disputes', [AdminDashboardController::class, 'disputes'])->name('disputes.index');
+        Route::post('/disputes/{id}/arbitrate', [AdminDashboardController::class, 'arbitrateDispute'])->name('disputes.arbitrate');
+
+        // Customers
+        Route::get('/customers', [AdminDashboardController::class, 'customers'])->name('customers.index');
+        Route::get('/customers/{id}', [AdminDashboardController::class, 'customerDetail'])->name('customers.show');
+        Route::post('/customers/{id}/toggle-status', [AdminDashboardController::class, 'toggleCustomerStatus'])->name('customers.toggle-status');
+
+        // Coupons
+        Route::get('/coupons', [AdminDashboardController::class, 'coupons'])->name('coupons.index');
+        Route::post('/coupons', [AdminDashboardController::class, 'storeCoupon'])->name('coupons.store');
+        Route::post('/coupons/{id}/toggle-status', [AdminDashboardController::class, 'toggleCouponStatus'])->name('coupons.toggle-status');
+        Route::delete('/coupons/{id}', [AdminDashboardController::class, 'deleteCoupon'])->name('coupons.destroy');
+
+        // AI Engine Configuration
+        Route::get('/settings/ai', [AdminDashboardController::class, 'aiSettings'])->name('settings.ai');
+        Route::post('/settings/ai', [AdminDashboardController::class, 'updateAiSettings'])->name('settings.ai.update');
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     });

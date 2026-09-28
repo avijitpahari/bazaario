@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overscroll-behavior: none;
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+::-webkit-scrollbar {
+  display: none;
+}
+</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "on-tertiary-container": "#005421",
+        "inverse-primary": "#ffb955",
+        "tertiary": "#006e2d",
+        "primary": "#835500",
+        "primary-container": "#f5a623",
+        "on-surface": "#1a1b21",
+        "on-primary-fixed": "#291800",
+        "surface": "#faf8ff",
+        "on-primary": "#ffffff",
+        "surface-tint": "#835500",
+        "surface-dim": "#dad9e2",
+        "background": "#faf8ff",
+        "surface-container-lowest": "#ffffff",
+        "secondary-container": "#dae2fd",
+        "on-tertiary": "#ffffff",
+        "on-error": "#ffffff",
+        "primary-fixed-dim": "#ffb955",
+        "secondary-fixed": "#dae2fd",
+        "on-error-container": "#93000a",
+        "on-tertiary-fixed-variant": "#005320",
+        "surface-variant": "#e2e2ea",
+        "tertiary-fixed": "#7ffc97",
+        "on-background": "#1a1b21",
+        "inverse-on-surface": "#f1f0f9",
+        "on-primary-fixed-variant": "#633f00",
+        "error-container": "#ffdad6",
+        "inverse-surface": "#2f3037",
+        "on-secondary-container": "#5c647a",
+        "surface-container-high": "#e8e7f0",
+        "error": "#ba1a1a",
+        "surface-container": "#eeedf6",
+        "surface-bright": "#faf8ff",
+        "on-secondary-fixed-variant": "#3f465c",
+        "outline": "#857462",
+        "secondary-fixed-dim": "#bec6e0",
+        "tertiary-container": "#50ce6f",
+        "secondary": "#565e74",
+        "surface-container-low": "#f4f3fb",
+        "on-tertiary-fixed": "#002109",
+        "outline-variant": "#d7c3ae",
+        "surface-container-highest": "#e2e2ea",
+        "on-primary-container": "#644000",
+        "primary-fixed": "#ffddb4",
+        "on-secondary-fixed": "#131b2e",
+        "on-surface-variant": "#524534",
+        "on-secondary": "#ffffff",
+        "tertiary-fixed-dim": "#62df7d"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+      },
+      "spacing": {
+        "margin-desktop": "2rem",
+        "space-lg": "1.25rem",
+        "space-xs": "0.25rem",
+        "gutter": "1.25rem",
+        "space-sm": "0.5rem",
+        "margin-tablet": "1.5rem",
+        "gutter-desktop": "1.5rem",
+        "margin": "1rem",
+        "space-xl": "2rem",
+        "space-md": "1rem"
+      },
+      "fontFamily": {
+        "body-md": ["Inter"],
+        "body-sm": ["Inter"],
+        "body-lg": ["Inter"],
+        "headline-md": ["Space Grotesk"],
+        "headline-lg": ["Space Grotesk"],
+        "headline-lg-mobile": ["Space Grotesk"],
+        "headline-sm": ["Space Grotesk"],
+        "label-sm": ["JetBrains Mono"],
+        "display": ["Space Grotesk"],
+        "label-lg": ["JetBrains Mono"],
+        "label-md": ["JetBrains Mono"]
+      },
+      "fontSize": {
+        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+        "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+        "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+        "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}]
+      }
+    }
+  }
+}
+</script>
+</head>
+<body class="bg-[#FFFDF8] font-body-md text-on-surface antialiased">
+<aside class="fixed left-0 top-0 h-full w-[260px] bg-[#0F172A] z-50 flex flex-col justify-between border-r border-[#1E293B] overflow-hidden">
+<div class="flex flex-col min-h-0 flex-1">
+<div class="p-space-lg border-b border-[#1E293B] flex-shrink-0">
+<div class="flex items-center gap-space-sm">
+<img alt="Bazaario Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VBjTuhEsm9Scv0ifz7PfgJR06Yaamlg-f432eXjf9rUAmiBYg9dMpjTDvH8KhxjqZ2XNLcCxvW3__0H4UmtzfZvSRqWDVFYgxHxZakCkHdkQh62WxpUAwlsurnREfAzXhV5YTN-Ngba9PDLM7qwO7D4QRy68zYW06OK5afMryWT3Zf7eGKhUVMGpIUYQjA2LCxayVRL0JOv1Bp8qUKToHqZR4bSD3Sk_m07j6NLb2Lvf7TtWPsR5c5dU4"/>
+<span class="font-headline-sm text-headline-sm text-surface-container-lowest tracking-tight">BAZAARIO</span>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-[#94A3B8] leading-tight">Smarter Shopping. Local Sellers. Live Auctions.</p>
+</div>
+<div class="overflow-y-auto flex-1 py-space-sm px-space-sm">
+<div class="px-space-md pt-2 pb-1.5 font-label-sm text-label-sm uppercase tracking-wider text-[#64748B]">Phase 1 Core</div>
+<nav class="flex flex-col gap-0.5" data-active-classes="bg-[#1E293B] text-primary-container font-headline-sm border-l-4 border-primary-container pl-3">
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="admin-dashboard" href="#">Dashboard</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="analytics" href="#">Analytics</a>
+<div class="flex flex-col">
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="seller-management" href="#"><span>Sellers</span></a>
+<div class="flex flex-col pl-4 pr-space-xs gap-0.5 mt-0.5 border-l border-[#334155] ml-4">
+<a class="flex items-center px-space-sm py-1.5 rounded text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-sm text-body-sm" data-path="all-sellers" href="#">All Sellers</a>
+<a class="flex items-center justify-between px-space-sm py-1.5 rounded text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-sm text-body-sm" data-path="seller-approval" href="#"><span>Seller Approval</span><span class="px-1.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold">4</span></a>
+</div>
+</div>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="products-and-categories" href="#">Products &amp; Categories</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="order-detail" href="#"><span>Orders</span><span class="px-1.5 py-0.5 rounded-full bg-[#334155] text-surface-container-lowest font-label-sm text-label-sm">12</span></a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="payout-management" href="#">Payouts</a>
+</nav>
+<div class="px-space-md pt-space-md pb-1.5 font-label-sm text-label-sm uppercase tracking-wider text-[#64748B] flex items-center justify-between">
+<span>Phase 2 Modules</span>
+<span class="px-1.5 py-0.5 rounded bg-tertiary/20 text-tertiary-fixed font-label-sm text-[10px] uppercase font-bold">Live</span>
+</div>
+<nav class="flex flex-col gap-0.5" data-active-classes="bg-[#1E293B] text-primary-container font-headline-sm border-l-4 border-primary-container pl-3">
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="customers" href="#">Customers</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="coupons" href="#">Coupons</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="reviews-and-trust" href="#">Reviews &amp; Trust</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="disputes" href="#"><span>Disputes</span><span class="px-1.5 py-0.5 rounded-full bg-[#DC2626] text-surface-container-lowest font-label-sm text-label-sm font-semibold">3</span></a>
+<div class="flex flex-col">
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="auctions" href="#">Auctions</a>
+<div class="flex flex-col pl-4 pr-space-xs gap-0.5 mt-0.5 border-l border-[#334155] ml-4">
+<a aria-current="page" class="flex items-center justify-between px-space-sm py-1.5 rounded transition-all bg-[#1E293B] text-primary-container font-headline-sm border-l-4 border-primary-container pl-3" data-path="live-monitoring" href="#"><span>Live Monitoring</span><span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span></a>
+<a class="flex items-center px-space-sm py-1.5 rounded text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-sm text-body-sm" data-path="auction-center" href="#">Auction Center</a>
+</div>
+</div>
+</nav>
+</div>
+</div>
+<div class="p-space-sm border-t border-[#1E293B] flex flex-col gap-space-xs flex-shrink-0 bg-[#0F172A]">
+<nav class="flex flex-col gap-0.5" data-active-classes="bg-[#1E293B] text-primary-container font-headline-sm">
+<a class="flex items-center px-space-md py-2 rounded-lg text-[#94A3B8] hover:text-surface-container-lowest hover:bg-[#1E293B] transition-all font-body-md text-body-md" data-path="settings" href="#">Settings</a>
+</nav>
+<div class="flex items-center justify-between px-space-md py-2 rounded-lg bg-[#0B1120]">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-[#94A3B8]">System Health</span>
+</div>
+<span class="font-label-sm text-label-sm text-[#16A34A]">99.98%</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-[#1E293B]/60">
+<div class="flex items-center gap-space-sm overflow-hidden">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0 font-bold">RM</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-surface-container-lowest font-medium truncate">Rajesh Mukherjee</span>
+<span class="font-label-sm text-label-sm text-[#94A3B8] truncate">Chief Administrator</span>
+</div>
+</div>
+<a class="text-[#94A3B8] hover:text-error transition-colors p-1" data-path="logout" href="#" title="Logout"><span class="material-symbols-outlined text-[20px]">logout</span></a>
+</div>
+</div>
+</aside>
+<div class="pl-[260px]">
+<header class="fixed top-0 left-[260px] right-0 h-[68px] bg-surface-container-lowest/90 backdrop-blur-md z-40 border-b border-[rgba(15,23,42,0.08)] flex items-center justify-between px-space-xl">
+<div class="flex items-center w-full max-w-lg">
+<div class="relative w-full flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-[20px] text-on-surface-variant pointer-events-none">search</span>
+<input class="w-full pl-10 pr-14 py-2 bg-surface-container-lowest border border-[rgba(15,23,42,0.15)] rounded-xl font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-on-surface transition-all" placeholder="Search sellers, orders (e.g. #BZ-10482), products, SKU..." type="text"/>
+<kbd class="absolute right-3 px-1.5 py-0.5 rounded bg-surface-container-high border border-outline-variant font-label-sm text-label-sm text-on-surface-variant">⌘K</kbd>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container/20 border border-tertiary-container/30">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span class="font-label-sm text-label-sm font-semibold text-tertiary">Live Auctions: Active</span>
+</div>
+<div class="relative flex items-center bg-surface-container-low rounded-lg p-0.5 border border-[rgba(15,23,42,0.08)]">
+<button class="px-2 py-1 rounded font-label-sm text-label-sm font-semibold bg-surface-container-lowest shadow-sm text-on-surface">EN</button>
+<button class="px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">BN</button>
+<button class="px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">HI</button>
+</div>
+<button class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary-container ring-2 ring-surface-container-lowest"></span>
+</button>
+<div class="h-6 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-space-sm pl-1">
+<img alt="Rajesh Mukherjee" class="w-8 h-8 rounded-full object-cover ring-1 ring-[rgba(15,23,42,0.1)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9aoUQcu1mnG4q_JGG4uIYweEfayZd8VLRfmtq5io4mK-udcQ2XrfjXxk4i1CVWTM6lXyEu4gj0McIU5qR6yvtZFqEcNIKCHPOjzCi9NgjWB06mqZZWIgFje5Ow6LUZMTkW2oMcwF_EYjoaOpWaBDpRFtZTxWKMzYnZ59FAzFhaEqwrNN2NZpTitj3e0RdjHV-c7cC_kJcHL3EnRrTCIV0053XMadyRmUMNk6AgQyoZYXYbCeJMWBh"/>
+<div class="flex flex-col text-left">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface leading-tight">Rajesh Mukherjee</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Chief Administrator</span>
+</div>
+</div>
+</div>
+</header>
+<main class="w-full pt-[68px] min-h-screen bg-[#FFFDF8] px-space-xl py-space-xl"><div class="flex flex-col w-full gap-space-lg">
+<!-- TOP APP SUB-HEADER / ACTIONS BAR -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-xs">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Live Auction Monitoring</h1>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-container/20 text-on-tertiary-container border border-tertiary-container/30">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-sm text-label-sm uppercase font-bold tracking-wider">3 Active Rooms</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">ENGINE V4.2</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Real-time bidding desk, anti-sniping velocity engine, and live bid moderation controls.</p>
+</div>
+<!-- Right Header Controls -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="flex items-center gap-1.5 px-3.5 py-2 rounded-[14px] bg-surface-container-lowest border border-error/30 text-error hover:bg-error-container/40 transition-colors font-body-sm text-body-sm font-semibold shadow-sm" id="btn-emergency-pause">
+<span class="material-symbols-outlined text-[18px]">emergency_home</span>
+<span>Create Emergency Pause</span>
+</button>
+<button class="flex items-center gap-1.5 px-3.5 py-2 rounded-[14px] bg-surface-container-lowest border border-[rgba(15,23,42,0.15)] text-on-surface hover:bg-surface-container-low transition-colors font-body-sm text-body-sm font-medium shadow-sm">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span>Operations Log</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-[14px] bg-primary-container text-on-primary-container hover:brightness-105 active:scale-[0.99] transition-all font-headline-sm text-headline-sm font-bold shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>+ Host Live Lot</span>
+</button>
+</div>
+</div>
+<!-- MAIN OPERATIONAL WORKSPACE (SPLIT 65% / 35%) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT / CENTER PRIMARY MONITORING COLUMN (65% -> 8 of 12 cols) -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg">
+<!-- FEATURED MAIN ROOM HERO CARD (#AUC-1048) -->
+<div class="w-full bg-surface-container-lowest rounded-[14px] border border-[rgba(15,23,42,0.10)] overflow-hidden shadow-sm">
+<!-- Room Status & Metadata Stripe -->
+<div class="px-space-lg py-space-sm bg-surface-container-low border-b border-[rgba(15,23,42,0.08)] flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md px-2.5 py-1 rounded bg-[#0F172A] text-surface-container-lowest font-bold">#AUC-1048</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">BENGAL EXPORT CORRIDOR • LOT 4 OF 12</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
+<span>SYNCHRONIZED WS 12ms</span>
+</div>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Host: <strong class="text-on-surface font-semibold">Contai APMC Terminal 1</strong></span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Lot Details & Image Intro -->
+<div class="flex flex-col md:flex-row gap-space-md justify-between items-start">
+<div class="flex gap-space-md items-start">
+<div class="w-24 h-24 rounded-[12px] overflow-hidden flex-shrink-0 bg-surface-container relative border border-[rgba(15,23,42,0.10)]">
+<img class="w-full h-full object-cover" data-alt="Close up commercial crate filled with ripe golden Himsagar export quality mangoes arranged meticulously with natural leaf padding in agricultural warehouse lighting, warm amber tones, crisp photographic clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdjLwMkwKw-UPgAYMpyZV34hhcd3eA6UcaV9OAFNYOu3cgMZnN_lDTookoxbgcEVvdgsfNEhfPNoTR2fr5tewS17_qT3emk9JeLEEcMikOSqhgzsnX3QIGxaiW2bjZmBY2QVLyX-2_3noYSm62_LqxlhupFXT0iuaf2HmvPLArK_6zQ48kspy8Evh7CDeTpezTiyl1ogrODJAgk0FZ0RjVM2cI3ki4IRZUTOSCCZdExzuHSzuSQHQJ"/>
+<span class="absolute bottom-1 right-1 bg-[#0F172A]/85 text-surface-container-lowest font-label-sm text-[10px] px-1 py-0.5 rounded">200 KG</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-semibold px-2 py-0.5 rounded-full bg-primary-container/20 text-on-primary-container">GI-TAGGED LOT</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">GRADE A1 EXPORT</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold mt-1 tracking-tight">Premium Organic Himsagar Mango Box (200kg Export Lot)</h2>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md text-on-surface-variant font-body-sm text-body-sm mt-1">
+<span>Seller: <strong class="text-on-surface font-medium">Green Valley Farm</strong> (Farmer Co-op, Contai Hub)</span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1 text-tertiary font-medium">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>KYC &amp; QC Passed</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Anti-Sniping Countdown Engine Display in #0F172A -->
+<div class="w-full md:w-auto flex-shrink-0 bg-[#0F172A] text-surface-container-lowest rounded-[14px] p-space-md flex flex-col items-center justify-center min-w-[210px] border border-[#1E293B]">
+<div class="flex items-center justify-between w-full pb-1 border-b border-[#1E293B]">
+<span class="font-label-sm text-label-sm text-[#94A3B8] uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary-container">timer</span>
+<span>Time Remaining</span>
+</span>
+<span class="font-label-sm text-[10px] bg-primary-container text-on-primary-container px-1 rounded font-bold">LIVE</span>
+</div>
+<div class="font-label-lg text-[32px] leading-tight text-primary-container font-bold tracking-wider my-1 font-mono" id="countdown-timer">00:04:32</div>
+<div class="flex items-center gap-1 text-[11px] font-label-sm text-[#CBD5E1] text-center">
+<span class="material-symbols-outlined text-[14px] text-primary-container">shield</span>
+<span>Anti-Sniping: +2m on bid &lt;60s</span>
+</div>
+</div>
+</div>
+<!-- PRIMARY METRIC STRIP -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-sm pt-space-xs">
+<div class="p-space-sm rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-medium">Current Highest Bid</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-label-lg text-[22px] text-on-surface font-bold font-mono">₹ 2,850</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant font-mono">/ box</span>
+</div>
+<div class="flex items-center gap-1 mt-1 font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Reserve ₹2,500</span>
+<span class="px-1.5 py-0.2 rounded-full bg-tertiary-container/20 text-tertiary font-bold text-[10px]">MET ✓</span>
+</div>
+</div>
+<div class="p-space-sm rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-medium">Current Leader</span>
+<div class="font-body-md text-body-md text-on-surface font-bold truncate mt-1">Fresh Mart Wholesale</div>
+<div class="flex items-center gap-1 mt-1 font-label-sm text-label-sm text-on-surface-variant truncate">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span>
+<span>Kolkata Hub (Tier-1)</span>
+</div>
+</div>
+<div class="p-space-sm rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-medium">Total Bids &amp; Pace</span>
+<div class="flex items-baseline gap-1.5 mt-1">
+<span class="font-label-lg text-headline-sm text-on-surface font-bold font-mono">24</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">bids logged</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary mt-1 font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +6 in last 3 mins
+              </span>
+</div>
+<div class="p-space-sm rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-medium">Min Increment Step</span>
+<div class="font-label-lg text-headline-sm text-on-surface font-bold mt-1 font-mono">₹ 100</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1 font-mono">
+                Min Next: <strong class="text-on-surface">₹ 2,950</strong>
+</div>
+</div>
+</div>
+<!-- MODERATOR LIVE ACTIONS BAR -->
+<div class="p-space-sm rounded-[12px] bg-[#0F172A] text-surface-container-lowest flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">tune</span>
+<span class="font-label-sm text-label-sm uppercase font-semibold text-[#CBD5E1]">Room Moderation Desk:</span>
+</div>
+<div class="flex flex-wrap items-center gap-2">
+<button class="px-3 py-1.5 rounded-[14px] bg-[#1E293B] hover:bg-[#334155] text-surface-container-lowest text-body-sm font-body-sm font-semibold flex items-center gap-1 transition-colors" onclick="alert('Auction Paused: Clock stopped at 00:04:32')">
+<span class="material-symbols-outlined text-[16px] text-primary-container">pause</span>
+<span>Pause Auction</span>
+</button>
+<button class="px-3 py-1.5 rounded-[14px] bg-[#1E293B] hover:bg-[#334155] text-surface-container-lowest text-body-sm font-body-sm font-semibold flex items-center gap-1 transition-colors" onclick="extendTimer()">
+<span class="material-symbols-outlined text-[16px] text-[#38BDF8]">more_time</span>
+<span>Extend Time (+5m)</span>
+</button>
+<button class="px-3 py-1.5 rounded-[14px] bg-[#1E293B] hover:bg-error/30 text-error text-body-sm font-body-sm font-semibold flex items-center gap-1 transition-colors" onclick="alert('Moderator intervention initiated on Lot #AUC-1048')">
+<span class="material-symbols-outlined text-[16px]">flag</span>
+<span>Intervene / Flag Bid</span>
+</button>
+<button class="px-3 py-1.5 rounded-[14px] bg-primary-container text-on-primary-container text-body-sm font-body-sm font-bold flex items-center gap-1 hover:brightness-105 transition-all">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+<span>Room Broadcast</span>
+</button>
+</div>
+</div>
+<!-- BIDDING VELOCITY & ANTI-SNIPING ENGINE TELEMETRY -->
+<div class="rounded-[12px] border border-[rgba(15,23,42,0.08)] p-space-md bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">speed</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Bidding Velocity &amp; Sniping Surge Detection</span>
+</div>
+<div class="flex items-center gap-3 font-label-sm text-label-sm text-on-surface-variant font-mono">
+<span>PEAK: 3.4 Bids/min</span>
+<span class="text-outline-variant">•</span>
+<span class="text-tertiary font-bold">STATUS: NOMINAL</span>
+</div>
+</div>
+<!-- Inline SVG Sparkline / Velocity Graphic -->
+<div class="h-16 w-full flex items-end">
+<svg class="w-full h-full text-primary-container" fill="none" preserveaspectratio="none" viewbox="0 0 600 64">
+<path d="M0,58 L40,55 L80,50 L120,52 L160,45 L200,48 L240,40 L280,35 L320,42 L360,28 L400,32 L440,20 L480,24 L520,12 L560,16 L600,6" stroke="#835500" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+<path d="M0,58 L40,55 L80,50 L120,52 L160,45 L200,48 L240,40 L280,35 L320,42 L360,28 L400,32 L440,20 L480,24 L520,12 L560,16 L600,6 L600,64 L0,64 Z" fill="currentColor" fill-opacity="0.12"></path>
+<!-- Key event markers -->
+<circle cx="360" cy="28" fill="#835500" r="3.5"></circle>
+<circle cx="520" cy="12" fill="#835500" r="3.5"></circle>
+<circle cx="600" cy="6" fill="#16A34A" r="4.5"></circle>
+</svg>
+</div>
+<div class="flex items-center justify-between text-[11px] font-label-sm text-on-surface-variant border-t border-[rgba(15,23,42,0.06)] pt-1">
+<span>T-15m (11:30 AM)</span>
+<span>T-10m</span>
+<span>T-5m (Reserve Unlocked)</span>
+<span>T-2m (Surge Phase)</span>
+<span class="text-on-surface font-semibold">T-0 (Now)</span>
+</div>
+</div>
+<!-- REAL-TIME BID STREAM TABLE -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Live Bid Stream</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-mono">Real-time WS</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Auto-scrolling stream</span>
+</div>
+<!-- Table Container -->
+<div class="w-full bg-surface-container-lowest rounded-[12px] border border-[rgba(15,23,42,0.10)] overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#FFFDF8] border-b border-[rgba(15,23,42,0.08)] font-label-sm text-label-sm text-on-surface-variant uppercase">
+<th class="py-2.5 px-3">Timestamp</th>
+<th class="py-2.5 px-3">Bidder Identity</th>
+<th class="py-2.5 px-3">Region / Hub</th>
+<th class="py-2.5 px-3 text-right">Amount (INR)</th>
+<th class="py-2.5 px-3 text-center">Status</th>
+<th class="py-2.5 px-3 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[rgba(15,23,42,0.06)] font-body-sm text-body-sm" id="bid-stream-body">
+<!-- Leading Bid Row -->
+<tr class="bg-tertiary-container/10 hover:bg-tertiary-container/20 transition-colors">
+<td class="py-2 px-3 font-mono text-on-surface font-semibold">11:42:18 AM</td>
+<td class="py-2 px-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-body-sm text-body-sm font-bold text-on-surface">Fresh Mart Wholesale</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant bg-surface-container px-1 rounded font-mono">ID#4482</span>
+</div>
+</td>
+<td class="py-2 px-3 text-on-surface-variant">Kolkata Central</td>
+<td class="py-2 px-3 text-right font-mono font-bold text-on-surface text-[15px]">₹ 2,850.00</td>
+<td class="py-2 px-3 text-center">
+<span class="px-2 py-0.5 rounded-full bg-tertiary text-on-tertiary font-label-sm text-[10px] font-bold tracking-wider uppercase">LEADING</span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="text-on-surface-variant hover:text-error text-label-sm font-label-sm">Invalidate</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-2 px-3 font-mono text-on-surface-variant">11:41:05 AM</td>
+<td class="py-2 px-3">
+<div class="flex items-center gap-1.5">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Bengal Caterers Ltd</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant bg-surface-container px-1 rounded font-mono">ID#1109</span>
+</div>
+</td>
+<td class="py-2 px-3 text-on-surface-variant">Howrah Grid</td>
+<td class="py-2 px-3 text-right font-mono text-on-surface font-medium">₹ 2,750.00</td>
+<td class="py-2 px-3 text-center">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] font-medium uppercase">OUTBID</span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="text-on-surface-variant hover:text-error text-label-sm font-label-sm">Invalidate</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-2 px-3 font-mono text-on-surface-variant">11:39:50 AM</td>
+<td class="py-2 px-3">
+<div class="flex items-center gap-1.5">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Kolkata Retail Grid Co.</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant bg-surface-container px-1 rounded font-mono">ID#9084</span>
+</div>
+</td>
+<td class="py-2 px-3 text-on-surface-variant">North Kolkata</td>
+<td class="py-2 px-3 text-right font-mono text-on-surface font-medium">₹ 2,600.00</td>
+<td class="py-2 px-3 text-center">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] font-medium uppercase">OUTBID</span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="text-on-surface-variant hover:text-error text-label-sm font-label-sm">Invalidate</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors opacity-80">
+<td class="py-2 px-3 font-mono text-on-surface-variant">11:38:12 AM</td>
+<td class="py-2 px-3">
+<div class="flex items-center gap-1.5">
+<span class="font-body-sm text-body-sm text-on-surface">Subir Mondal (Retailer)</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant bg-surface-container px-1 rounded font-mono">ID#7723</span>
+</div>
+</td>
+<td class="py-2 px-3 text-on-surface-variant">Barasat APMC</td>
+<td class="py-2 px-3 text-right font-mono text-on-surface">₹ 2,450.00</td>
+<td class="py-2 px-3 text-center">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-[10px] font-semibold">BELOW RESERVE</span>
+</td>
+<td class="py-2 px-3 text-right">
+<span class="text-outline-variant text-label-sm">—</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors opacity-70">
+<td class="py-2 px-3 font-mono text-on-surface-variant">11:35:00 AM</td>
+<td class="py-2 px-3">
+<div class="flex items-center gap-1.5">
+<span class="font-body-sm text-body-sm text-on-surface">Fresh Mart Wholesale</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant bg-surface-container px-1 rounded font-mono">ID#4482</span>
+</div>
+</td>
+<td class="py-2 px-3 text-on-surface-variant">Kolkata Central</td>
+<td class="py-2 px-3 text-right font-mono text-on-surface">₹ 2,200.00</td>
+<td class="py-2 px-3 text-center">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] font-medium uppercase">OUTBID</span>
+</td>
+<td class="py-2 px-3 text-right">
+<span class="text-outline-variant text-label-sm">—</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- CONCURRENT LIVE MINI-ROOMS CAROUSEL / GRID -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Concurrent Live Mini-Rooms</h3>
+<span class="px-2 py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface font-semibold">3 AUCTIONS IN PROGRESS</span>
+</div>
+<button class="font-body-sm text-body-sm text-primary hover:text-on-surface font-semibold flex items-center gap-1">
+<span>View All Market Rooms</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Mini Room 1 (#AUC-1051) -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[rgba(15,23,42,0.10)] hover:border-primary-container p-space-md transition-all shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant font-bold">#AUC-1051</span>
+<span class="flex items-center gap-1 font-label-sm text-[11px] px-2 py-0.5 rounded-full bg-tertiary-container/20 text-on-tertiary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span> 12:45 LEFT
+                </span>
+</div>
+<h4 class="font-body-lg text-body-lg font-bold text-on-surface mt-2 line-clamp-1">Digha Deep-Sea Tiger Prawns (150kg)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Seller: Coastal Catch Co-op, Digha</p>
+<div class="mt-space-md p-space-xs rounded bg-surface-container-low flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Top Bid:</span>
+<span class="font-label-md text-headline-sm font-bold font-mono text-on-surface">₹ 42,200</span>
+</div>
+<div class="mt-2 text-[12px] font-body-sm text-on-surface-variant flex items-center justify-between">
+<span>Leader: <strong class="text-on-surface">Bengal Caterers</strong></span>
+<span class="font-mono text-[11px]">18 Bids</span>
+</div>
+</div>
+<div class="pt-space-md border-t border-[rgba(15,23,42,0.06)] mt-space-md flex gap-2">
+<button class="w-full py-1.5 rounded-[12px] bg-surface-container-low hover:bg-surface-container text-on-surface font-body-sm text-body-sm font-medium transition-colors">
+                Quick Monitor
+              </button>
+<button class="px-2.5 py-1.5 rounded-[12px] bg-surface-container-low hover:bg-error/20 text-error transition-colors" title="Emergency Halt">
+<span class="material-symbols-outlined text-[18px]">pause</span>
+</button>
+</div>
+</div>
+<!-- Mini Room 2 (#AUC-1053) -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[rgba(15,23,42,0.10)] hover:border-primary-container p-space-md transition-all shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant font-bold">#AUC-1053</span>
+<span class="flex items-center gap-1 font-label-sm text-[11px] px-2 py-0.5 rounded-full bg-tertiary-container/20 text-on-tertiary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span> 28:10 LEFT
+                </span>
+</div>
+<h4 class="font-body-lg text-body-lg font-bold text-on-surface mt-2 line-clamp-1">Sundarban Certified Wild Honey (80 Jars)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Seller: Sundarban Forest Trust</p>
+<div class="mt-space-md p-space-xs rounded bg-surface-container-low flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Top Bid:</span>
+<span class="font-label-md text-headline-sm font-bold font-mono text-on-surface">₹ 14,800</span>
+</div>
+<div class="mt-2 text-[12px] font-body-sm text-on-surface-variant flex items-center justify-between">
+<span>Leader: <strong class="text-on-surface">Midnapore Mart</strong></span>
+<span class="font-mono text-[11px]">11 Bids</span>
+</div>
+</div>
+<div class="pt-space-md border-t border-[rgba(15,23,42,0.06)] mt-space-md flex gap-2">
+<button class="w-full py-1.5 rounded-[12px] bg-surface-container-low hover:bg-surface-container text-on-surface font-body-sm text-body-sm font-medium transition-colors">
+                Quick Monitor
+              </button>
+<button class="px-2.5 py-1.5 rounded-[12px] bg-surface-container-low hover:bg-error/20 text-error transition-colors" title="Emergency Halt">
+<span class="material-symbols-outlined text-[18px]">pause</span>
+</button>
+</div>
+</div>
+<!-- Mini Room 3 (#AUC-1055 - Scheduled) -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[rgba(15,23,42,0.10)] p-space-md shadow-sm flex flex-col justify-between opacity-90">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant font-bold">#AUC-1055</span>
+<span class="font-label-sm text-[11px] px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-medium">
+                  STARTS 2:00 PM
+                </span>
+</div>
+<h4 class="font-body-lg text-body-lg font-bold text-on-surface mt-2 line-clamp-1">Gobindobhog Aromatic Organic Paddy (500kg)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Seller: Bardhaman Agro Collective</p>
+<div class="mt-space-md p-space-xs rounded bg-surface-container-low flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Starting Base:</span>
+<span class="font-label-md text-headline-sm font-bold font-mono text-on-surface">₹ 35,000</span>
+</div>
+<div class="mt-2 text-[12px] font-body-sm text-on-surface-variant flex items-center justify-between">
+<span>Registrations: <strong class="text-on-surface">14 Buyers</strong></span>
+<span class="font-mono text-[11px] text-tertiary">Escrow Verified</span>
+</div>
+</div>
+<div class="pt-space-md border-t border-[rgba(15,23,42,0.06)] mt-space-md flex gap-2">
+<button class="w-full py-1.5 rounded-[12px] bg-surface-container-low hover:bg-surface-container text-on-surface font-body-sm text-body-sm font-medium transition-colors">
+                Pre-Auction Desk
+              </button>
+<button class="px-2.5 py-1.5 rounded-[12px] bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors" title="Room Config">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL (35% -> 4 of 12 cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-lg">
+<!-- PARTICIPANT DOSSIER & INTEGRITY CHECK CARD -->
+<div class="w-full bg-surface-container-lowest rounded-[14px] border border-[rgba(15,23,42,0.10)] p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-xs border-b border-[rgba(15,23,42,0.08)]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Active Bidder Integrity</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">18 Online</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant -mt-2">
+          Top participants in Room #AUC-1048 validated against Bazaario Trust Graph and active escrow reserves.
+        </p>
+<!-- Top 4 Active Bidders List -->
+<div class="flex flex-col gap-2">
+<!-- Bidder 1 (Leader) -->
+<div class="p-2.5 rounded-[12px] bg-surface-container-low border border-tertiary/20 flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Fresh Mart Wholesale</span>
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ID: #BZ-BUY-4482 • Kolkata Central</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-tertiary-container/30 text-on-tertiary-container font-bold font-mono">99.2% TRUST</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-[rgba(15,23,42,0.06)] font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Escrow Deposit Lock:</span>
+<span class="font-mono text-on-surface font-bold">₹ 50,000.00</span>
+</div>
+</div>
+<!-- Bidder 2 -->
+<div class="p-2.5 rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Bengal Caterers Ltd</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ID: #BZ-BUY-1109 • Howrah Grid</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-bold font-mono">96.5% TRUST</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-[rgba(15,23,42,0.06)] font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Escrow Deposit Lock:</span>
+<span class="font-mono text-on-surface font-bold">₹ 35,000.00</span>
+</div>
+</div>
+<!-- Bidder 3 -->
+<div class="p-2.5 rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Kolkata Retail Grid Co.</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ID: #BZ-BUY-9084 • North Kolkata</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-bold font-mono">94.1% TRUST</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-[rgba(15,23,42,0.06)] font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Escrow Deposit Lock:</span>
+<span class="font-mono text-on-surface font-bold">₹ 25,000.00</span>
+</div>
+</div>
+<!-- Bidder 4 -->
+<div class="p-2.5 rounded-[12px] bg-surface-container-low border border-[rgba(15,23,42,0.06)] flex flex-col gap-1.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Subir Mondal</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ID: #BZ-BUY-7723 • Barasat APMC</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-bold font-mono">88.7% TRUST</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-[rgba(15,23,42,0.06)] font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Escrow Deposit Lock:</span>
+<span class="font-mono text-on-surface font-bold">₹ 15,000.00</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 rounded-[14px] bg-surface-container-low border border-[rgba(15,23,42,0.12)] hover:bg-surface-container text-on-surface font-body-sm text-body-sm font-semibold transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">manage_accounts</span>
+<span>Review All 18 Bidders &amp; Collateral</span>
+</button>
+</div>
+<!-- AUCTION RULES & FINANCIAL SLA CARD -->
+<div class="w-full bg-surface-container-lowest rounded-[14px] border border-[rgba(15,23,42,0.10)] p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between pb-space-xs border-b border-[rgba(15,23,42,0.08)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Auction Settlement Rules &amp; SLA</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">gavel</span>
+</div>
+<div class="flex flex-col gap-2 font-body-sm text-body-sm">
+<div class="flex justify-between items-center py-1">
+<span class="text-on-surface-variant">Reserve Status</span>
+<span class="font-mono font-bold text-tertiary">₹ 2,500.00 (PASSED)</span>
+</div>
+<div class="flex justify-between items-center py-1 border-t border-[rgba(15,23,42,0.04)]">
+<span class="text-on-surface-variant">Platform Commission</span>
+<span class="font-mono font-semibold text-on-surface">8.0% (Post-Gavel)</span>
+</div>
+<div class="flex justify-between items-center py-1 border-t border-[rgba(15,23,42,0.04)]">
+<span class="text-on-surface-variant">Instant Settlement Window</span>
+<span class="font-mono font-semibold text-on-surface">15 mins to Confirm</span>
+</div>
+<div class="flex justify-between items-center py-1 border-t border-[rgba(15,23,42,0.04)]">
+<span class="text-on-surface-variant">Logistics Dispatch SLA</span>
+<span class="font-mono font-semibold text-on-surface">Within 4 Hours (Cold-Chain)</span>
+</div>
+</div>
+<div class="p-2.5 rounded-[12px] bg-surface-container-low flex items-start gap-2 mt-1">
+<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0 mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+            Automated platform mandate: Highest bid strike triggers immediate Escrow debit. Seller is bound to release physical delivery token within 60 mins.
+          </p>
+</div>
+</div>
+<!-- QUICK MODERATOR OVERRIDES -->
+<div class="w-full bg-[#0F172A] text-surface-container-lowest rounded-[14px] border border-[#1E293B] p-space-md flex flex-col gap-space-sm shadow-md">
+<div class="flex items-center justify-between pb-2 border-b border-[#1E293B]">
+<span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary-container text-[20px]">admin_panel_settings</span>
+<span>Emergency Command</span>
+</span>
+<span class="font-label-sm text-label-sm text-[#94A3B8] font-mono">LVL 4 CLEARANCE</span>
+</div>
+<p class="font-body-sm text-body-sm text-[#94A3B8]">
+          Administrator actions directly broadcast to WebSocket channel. Affects active bidding clients instantly.
+        </p>
+<div class="grid grid-cols-2 gap-2 mt-1">
+<button class="p-2 rounded-[10px] bg-[#1E293B] hover:bg-[#334155] text-left transition-colors" onclick="confirmOverride('Reset Anti-Sniping Timer')">
+<div class="font-label-sm text-label-sm font-semibold text-surface-container-lowest">Reset Clock</div>
+<div class="font-label-sm text-[10px] text-[#94A3B8]">Revert to +3m base</div>
+</button>
+<button class="p-2 rounded-[10px] bg-[#1E293B] hover:bg-[#334155] text-left transition-colors" onclick="confirmOverride('Freeze Bidding Desk')">
+<div class="font-label-sm text-label-sm font-semibold text-surface-container-lowest">Freeze Room</div>
+<div class="font-label-sm text-[10px] text-[#94A3B8]">Reject incoming bids</div>
+</button>
+<button class="p-2 rounded-[10px] bg-[#1E293B] hover:bg-primary-container/20 text-left transition-colors" onclick="confirmOverride('Force Strike Winner')">
+<div class="font-label-sm text-label-sm font-semibold text-primary-container">Force Gavel</div>
+<div class="font-label-sm text-[10px] text-[#94A3B8]">Award to leader now</div>
+</button>
+<button class="p-2 rounded-[10px] bg-[#1E293B] hover:bg-error/30 text-left transition-colors" onclick="confirmOverride('Cancel Lot &amp; Return Escrow')">
+<div class="font-label-sm text-label-sm font-semibold text-error">Halt &amp; Void</div>
+<div class="font-label-sm text-[10px] text-[#94A3B8]">Dispute resolution</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Dynamic Real-time Countdown Timer Simulation
+  (function() {
+    let secondsLeft = 272; // 00:04:32
+    const timerEl = document.getElementById('countdown-timer');
+
+    function updateDisplay() {
+      const mins = Math.floor(secondsLeft / 60);
+      const secs = secondsLeft % 60;
+      const formatted = '00:' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      if (timerEl) {
+        timerEl.textContent = formatted;
+      }
+      if (secondsLeft > 0) {
+        secondsLeft--;
+      }
+    }
+
+    setInterval(updateDisplay, 1000);
+
+    window.extendTimer = function() {
+      secondsLeft += 300;
+      updateDisplay();
+      alert('Time successfully extended by +5 minutes for Room #AUC-1048.');
+    };
+
+    window.confirmOverride = function(actionName) {
+      if (confirm('BAZAARIO SUPER-ADMIN CONFIRMATION:\nAre you sure you want to execute: ' + actionName + '? This will immediately impact all connected WebSocket bidding sessions.')) {
+        alert('Command dispatched: ' + actionName + ' executed successfully.');
+      }
+    };
+  })();
+</script></main>
+</div>
+</body></html>

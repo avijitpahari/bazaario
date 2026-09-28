@@ -20,6 +20,13 @@ class SellerProfile extends Model
         'state',
         'country',
         'verified_at',
+        'gstin',
+        'pan_number',
+        'trade_license_number',
+        'bank_account_number',
+        'bank_ifsc',
+        'fssai_number',
+        'rejection_reason',
     ];
 
     protected function casts(): array
@@ -34,5 +41,10 @@ class SellerProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'seller_id', 'user_id');
     }
 }

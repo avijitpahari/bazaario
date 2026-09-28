@@ -66,6 +66,10 @@ class CartController extends Controller
             ]);
         }
 
+        if ($request->boolean('buy_now')) {
+            return redirect()->route('checkout.index')->with('success', 'Proceeding to checkout.');
+        }
+
         return redirect()->back()->with('success', 'Item added to cart.');
     }
 

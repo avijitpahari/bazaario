@@ -115,6 +115,7 @@
     </script>
 
     <style>
+        [x-cloak] { display: none !important; }
         @layer base {
             html, body { margin: 0; padding: 0; }
             body { overscroll-behavior: none; }
