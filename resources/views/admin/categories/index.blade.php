@@ -211,16 +211,22 @@
                                     <a href="{{ route('admin.products.index', ['category_id' => $category->id]) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0F172A] hover:bg-slate-100 transition-colors" title="View Products in Category">
                                         <span class="material-symbols-outlined text-[18px]">inventory_2</span>
                                     </a>
-                                    @if(($category->products_count ?? 0) === 0)
+                                    <button type="button" 
+                                            onclick="openEditCategoryModal({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->slug) }}', '{{ addslashes($category->description ?? '') }}', {{ ($category->is_active ?? true) ? 'true' : 'false' }})" 
+                                            class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer" 
+                                            title="Edit Category">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </button>
+                                    @if(($category->products_count ?? 0) === 0 && ($category->children_count ?? 0) === 0)
                                         <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}" onsubmit="return confirm('Delete category {{ addslashes($category->name) }}?');" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors" title="Delete Empty Category">
+                                            <button type="submit" class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer" title="Delete Empty Category">
                                                 <span class="material-symbols-outlined text-[18px]">delete</span>
                                             </button>
                                         </form>
                                     @else
-                                        <button disabled class="p-1.5 rounded-lg text-slate-300 cursor-not-allowed" title="Cannot delete: has {{ $category->products_count }} active products">
+                                        <button disabled class="p-1.5 rounded-lg text-slate-300 cursor-not-allowed" title="Cannot delete: {{ ($category->products_count ?? 0) > 0 ? 'has ' . $category->products_count . ' active products' : 'has ' . $category->children_count . ' active sub-categories' }}">
                                             <span class="material-symbols-outlined text-[18px]">lock</span>
                                         </button>
                                     @endif
@@ -239,5 +245,77 @@
             </table>
         </div>
     </div>
+
+    <!-- Interactive Category Edit Modal -->
+    <div id="editCategoryModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full border border-slate-200 shadow-xl overflow-hidden animate-fadeIn">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-lg">edit</span>
+                    </div>
+                    <div>
+                        <h3 class="font-headline-sm text-sm font-bold text-[#0F172A]">Edit Taxonomy Node</h3>
+                        <p class="text-[11px] text-slate-500 font-body-sm">Update category nomenclature, slug, description, and status</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEditCategoryModal()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+            <form id="editCategoryForm" method="POST" action="" class="p-5 flex flex-col gap-4">
+                @csrf
+                @method('PUT')
+                
+                <div>
+                    <label for="edit_cat_name" class="block font-headline-sm text-xs font-bold text-slate-700 mb-1">Category Name *</label>
+                    <input type="text" id="edit_cat_name" name="name" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 focus:bg-white font-body-sm transition-all" />
+                </div>
+
+                <div>
+                    <label for="edit_cat_slug" class="block font-headline-sm text-xs font-bold text-slate-700 mb-1">Slug Identifier</label>
+                    <input type="text" id="edit_cat_slug" name="slug" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-amber-500 focus:bg-white font-mono transition-all" placeholder="auto-generated-if-empty" />
+                </div>
+
+                <div>
+                    <label for="edit_cat_description" class="block font-headline-sm text-xs font-bold text-slate-700 mb-1">Description / Marketplace Scope</label>
+                    <textarea id="edit_cat_description" name="description" rows="3" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 focus:bg-white font-body-sm transition-all resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="edit_cat_is_active" name="is_active" value="1" class="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 cursor-pointer" />
+                    <label for="edit_cat_is_active" class="font-body-sm text-xs font-semibold text-slate-700 cursor-pointer">
+                        Active Category (Visible across catalog and vendor listing interfaces)
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeEditCategoryModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                        <span class="material-symbols-outlined text-[16px]">save</span>
+                        <span>Save Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditCategoryModal(id, name, slug, description, isActive) {
+            const form = document.getElementById('editCategoryForm');
+            form.action = '{{ url("admin/categories") }}/' + id;
+            document.getElementById('edit_cat_name').value = name;
+            document.getElementById('edit_cat_slug').value = slug;
+            document.getElementById('edit_cat_description').value = description;
+            document.getElementById('edit_cat_is_active').checked = !!isActive;
+            document.getElementById('editCategoryModal').classList.remove('hidden');
+        }
+
+        function closeEditCategoryModal() {
+            document.getElementById('editCategoryModal').classList.add('hidden');
+        }
+    </script>
 </div>
 @endsection

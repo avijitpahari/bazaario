@@ -22,20 +22,6 @@
     </title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C-FKvfT_.css') }}">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'amber-action': '#F5A623',
-                        'slate-authority': '#0F172A',
-                    }
-                }
-            }
-        }
-    </script>
 
 
 

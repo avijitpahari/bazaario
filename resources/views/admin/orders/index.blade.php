@@ -80,6 +80,7 @@
                     <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>Processing & Shipped</option>
                     <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Delivered & Completed</option>
                     <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    <option value="refunded" {{ request('status') === 'refunded' ? 'selected' : '' }}>Refunded</option>
                 </select>
 
                 <select name="payment_status" class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:outline-none focus:border-[#F5A623] cursor-pointer">
@@ -132,7 +133,7 @@
 
                             <!-- Customer -->
                             <td class="py-3.5 px-4">
-                                <span class="font-bold text-[#0F172A]">{{ $order->delivery_full_name ?? ($order->user->name ?? 'Guest Buyer') }}</span>
+                                <span class="font-bold text-[#0F172A]">{{ $order->delivery_full_name ?? ($order->user?->name ?? 'Guest Buyer') }}</span>
                                 <span class="text-[10px] text-slate-400 block">{{ $order->delivery_phone }}</span>
                             </td>
 
@@ -156,7 +157,7 @@
 
                             <!-- Total -->
                             <td class="py-3.5 px-4 text-right font-label-md font-bold text-[#0F172A] text-sm whitespace-nowrap">
-                                ₹{{ number_format($order->total_amount, 2) }}
+                                ₹{{ number_format((float)($order->total_amount ?? 0), 2) }}
                             </td>
 
                             <!-- Payment Method -->
@@ -180,6 +181,10 @@
                                 @elseif($order->order_status === 'cancelled')
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 font-label-sm text-[10px] font-bold border border-rose-200/60">
                                         Cancelled
+                                    </span>
+                                @elseif($order->order_status === 'refunded')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 font-label-sm text-[10px] font-bold border border-purple-200/60">
+                                        Refunded
                                     </span>
                                 @else
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-label-sm text-[10px] font-bold border border-amber-200/60">

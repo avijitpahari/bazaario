@@ -168,7 +168,7 @@
                             <td class="py-3.5 px-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-xs shrink-0">
-                                        {{ strtoupper(substr($seller->shop_name, 0, 2)) }}
+                                        {{ strtoupper(substr((string)($seller->shop_name ?? 'SL'), 0, 2)) }}
                                     </div>
                                     <div class="flex flex-col min-w-0">
                                         <a href="{{ route('admin.sellers.show', $seller->id) }}" class="font-bold text-[#0F172A] hover:text-amber-700 transition-colors truncate text-sm">
@@ -183,8 +183,8 @@
 
                             <!-- Contact Person -->
                             <td class="py-3.5 px-4">
-                                <span class="font-semibold text-slate-800">{{ $seller->user->name ?? 'N/A' }}</span>
-                                <div class="text-[10px] text-slate-400">{{ $seller->user->email ?? '' }}</div>
+                                <span class="font-semibold text-slate-800">{{ $seller->user?->name ?? 'N/A' }}</span>
+                                <div class="text-[10px] text-slate-400">{{ $seller->user?->email ?? '' }}</div>
                             </td>
 
                             <!-- Regional Hub -->
@@ -228,7 +228,7 @@
                             <!-- Rating -->
                             <td class="py-3.5 px-4 text-center">
                                 <span class="text-amber-600 font-bold font-label-md text-xs">
-                                    ★ {{ number_format($seller->trust_score, 1) }}
+                                    ★ {{ number_format((float)($seller->trust_score ?? 95.0), 1) }}
                                 </span>
                             </td>
 

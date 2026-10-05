@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"primary":"#000000","surface-variant":"#e4e2de","on-tertiary-fixed-variant":"#005320","tertiary":"#000000","surface-tint":"#565e74","surface-dim":"#dbdad5","surface":"#fbf9f4","outline-variant":"#c6c6cd","on-tertiary-container":"#009842","on-surface":"#1b1c19","on-primary":"#ffffff","secondary":"#835500","on-error-container":"#93000a","primary-container":"#131b2e","on-tertiary-fixed":"#002109","on-secondary-fixed":"#291800","tertiary-fixed":"#7ffc97","inverse-primary":"#bec6e0","on-secondary-fixed-variant":"#633f00","secondary-fixed-dim":"#ffb955","on-tertiary":"#ffffff","surface-container":"#efeee9","on-secondary-container":"#6b4500","surface-container-lowest":"#ffffff","surface-bright":"#fbf9f4","tertiary-container":"#002109","primary-fixed":"#dae2fd","on-secondary":"#ffffff","surface-container-high":"#eae8e3","secondary-fixed":"#ffddb4","tertiary-fixed-dim":"#62df7d","on-error":"#ffffff","primary-fixed-dim":"#bec6e0","on-primary-fixed":"#131b2e","on-background":"#1b1c19","error-container":"#ffdad6","error":"#ba1a1a","inverse-surface":"#30312e","inverse-on-surface":"#f2f1ec","on-primary-fixed-variant":"#3f465c","surface-container-low":"#f5f3ee","secondary-container":"#feae2c","on-surface-variant":"#45464d","outline":"#76777d","surface-container-highest":"#e4e2de","on-primary-container":"#7c839b","background":"#fbf9f4"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","gutter-mobile":"1rem","margin-mobile":"1.25rem","margin":"3rem","space-xs":"0.25rem","gutter":"1.5rem","space-sm":"0.5rem","space-md":"1rem","space-xl":"2.5rem"},"fontFamily":{"system-code":["JetBrains Mono"],"headline-sm":["Space Grotesk"],"body-md":["Inter"],"headline-lg-mobile":["Space Grotesk"],"body-sm":["Inter"],"body-lg":["Inter"],"display-hero":["Space Grotesk"],"headline-md":["Space Grotesk"],"headline-lg":["Space Grotesk"],"display-hero-mobile":["Space Grotesk"],"system-label":["JetBrains Mono"]},"fontSize":{"system-code":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-hero":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"display-hero-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"system-label":["11px",{"lineHeight":"16px","letterSpacing":"0.06em","fontWeight":"500"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low z-50 flex flex-col justify-between py-space-md px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-md"><div class="px-space-md py-space-xs flex items-center gap-space-sm"><img alt="Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XfXc9EvMu_fjYnNrz7Zwwv_KR5v8WQVLctdULxhU8Ph1QncDCZesGsyGv8V-tLmb1sZ56HsetOoJyJ-w_6aokB7CH5-ZstPxoEOpsDvIL5DbtCS26KAVgTqT42_k8mUyqL9dGTwEuhCk1HM8WQN_wcogOku-kE0zO5yviRPsdAFF1iQfNo_bsnDU3SWAv6TRVFjz874aqFSjEd6Cr_LoWXjkOx3ANz1kLG4lBvqauOngcxqpmG-NfP0tH7"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">BAZAARIO</span><span class="font-system-label text-system-label tracking-wider uppercase text-secondary font-medium">SELLER CENTER</span></div></div><nav class="flex flex-col gap-space-xs px-space-xs overflow-y-auto max-h-[calc(100vh-280px)]" data-active-classes="bg-secondary-container text-on-secondary-container font-medium rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dashboard" href="#"><span class="font-body-md text-body-md">Dashboard</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="orders" href="#"><span class="font-body-md text-body-md">Orders</span><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-on-surface font-medium">12</span></a><div class="flex flex-col gap-0.5 rounded-xl bg-surface-container/60 p-1"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface font-semibold bg-surface-container-high/70 hover:bg-surface-container-high transition-all" data-path="products" href="#"><span class="font-body-md text-body-md">Products</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span></a><div class="pl-4 pr-1 flex flex-col gap-0.5 mt-0.5"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="all-products" href="#">All Products</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="add-edit-product" href="#">Add / Edit Product</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="inventory-and-stock-management" href="#">Inventory &amp; Stock Management</a></div></div><div class="flex flex-col gap-0.5 rounded-xl bg-surface-container/60 p-1"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface font-semibold bg-surface-container-high/70 hover:bg-surface-container-high transition-all" data-path="auctions" href="#"><span class="font-body-md text-body-md">Auctions</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span></a><div class="pl-4 pr-1 flex flex-col gap-0.5 mt-0.5"><a class="flex items-center justify-between px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="my-auctions" href="#"><span class="font-body-sm text-body-sm">My Auctions</span><span class="font-system-code text-system-code px-1.5 py-0.5 rounded-md bg-surface-container-highest text-on-surface-variant font-medium">8</span></a><a class="flex items-center justify-between px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="create-auction" href="#"><span class="font-body-sm text-body-sm">Create Auction</span><span class="font-system-label text-system-label px-1.5 py-0.5 rounded-md bg-secondary text-surface-container-lowest font-medium tracking-wide uppercase">+ New</span></a><a class="flex items-center justify-between px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="live-auctions" href="#"><span class="flex items-center gap-1.5 font-body-sm text-body-sm"><span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>Live Auctions</span><span class="font-system-code text-system-code px-1.5 py-0.5 rounded-md bg-error-container text-on-error-container font-semibold">2</span></a><a class="flex items-center justify-between px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="auction-history" href="#"><span class="font-body-sm text-body-sm">Auction History</span></a></div></div><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="payouts" href="#"><span class="font-body-md text-body-md">Payouts</span><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-secondary font-medium">₹12.4k</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="trust-and-performance" href="#"><span class="font-body-md text-body-md">Trust &amp; Performance</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="shop-profile" href="#"><span class="font-body-md text-body-md">Shop Profile</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="settings" href="#"><span class="font-body-md text-body-md">Settings</span></a></nav></div><div class="flex flex-col gap-space-xs px-space-xs pt-space-sm border-t border-surface-container-highest"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="help-and-support" href="#"><span class="font-body-md text-body-md">Help &amp; Support</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><span class="font-body-md text-body-md">Notifications</span><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-medium">3</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-error hover:bg-error-container hover:text-on-error-container transition-all" data-path="logout" href="#"><span class="font-body-md text-body-md">Logout / Switch Account</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center flex-1 max-w-lg"><div class="flex items-center w-full px-space-md py-space-xs bg-surface-container-lowest rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.02)] border border-surface-container-highest focus-within:border-primary"><span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-space-sm">search</span><input class="w-full bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant outline-none" placeholder="Search orders, products, auctions, payouts..." type="text"/><kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 font-system-code text-system-code bg-surface-container text-on-surface-variant rounded">⌘K</kbd></div></div><div class="flex items-center gap-space-lg"><button aria-label="Notifications" class="relative p-space-xs rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">notifications</span><span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-secondary-container text-on-secondary-container font-system-code text-system-label flex items-center justify-center font-bold">3</span></button><div class="flex items-center gap-space-sm pl-space-md border-l border-surface-container-highest"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-body-md text-body-md font-semibold text-on-surface leading-tight">Green Valley Farm</span><span class="material-symbols-outlined text-[16px] text-on-tertiary-container">check_circle</span></div><div class="flex items-center gap-1"><span class="font-body-sm text-body-sm text-on-surface-variant">Farmer</span><span class="text-outline-variant font-bold">•</span><span class="font-system-label text-system-label uppercase text-on-tertiary-container font-semibold">Verified Seller</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen w-full px-8"><div class="flex flex-col w-full pb-16">
+<!-- BREADCRUMB & METRIC STATUS BAR -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-2">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+<span class="hover:text-on-surface cursor-pointer transition-colors">Seller Center</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-on-surface cursor-pointer transition-colors">Auctions</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-medium text-on-surface">Live Auctions &amp; Bidding Terminal</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-2 px-3 py-1 bg-surface-container rounded-lg font-system-label text-system-label tracking-wide uppercase text-on-surface font-semibold shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+        APMC SPOT TICKER CONNECTED
+      </span>
+<span class="font-system-code text-system-code text-on-surface-variant bg-surface-container-high px-2.5 py-1 rounded-lg">
+        SELLER ID: #BZ-SLR-9021
+      </span>
+</div>
+</div>
+<!-- WORKSPACE HEADER & CONTROL BAR -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-surface-container-high">
+<div class="space-y-1.5 max-w-3xl">
+<div class="flex items-center gap-3">
+<h1 class="font-headline-lg text-headline-lg tracking-tight text-on-surface font-bold">
+          Auctions &amp; Wholesale Bidding
+        </h1>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-secondary-container text-on-secondary-container font-system-label text-system-label font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container"></span>
+          1 Active Lot
+        </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+        Live spot-market auctions, real-time bidder telemetry, and verified bulk agricultural allocations for Green Valley Farm.
+      </p>
+</div>
+<!-- ACTION BUTTON GROUP -->
+<div class="flex flex-wrap items-center gap-3">
+<button class="h-11 px-4 rounded-xl bg-surface-container-lowest text-on-surface font-body-md text-body-md font-medium shadow-sm hover:bg-surface-container transition-all flex items-center gap-2" onclick="document.getElementById('export-modal').classList.toggle('hidden')">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">receipt_long</span>
+        Export Bidding Ledger
+      </button>
+<button class="h-11 px-5 rounded-xl bg-secondary-container text-on-secondary-container font-body-md text-body-md font-semibold shadow-sm hover:brightness-105 transition-all flex items-center gap-2" onclick="document.getElementById('create-auction-wizard-pane').scrollIntoView({ behavior: 'smooth' })">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+        Create New Auction
+      </button>
+</div>
+</div>
+<!-- NAVIGATION SUB-TABS -->
+<div class="flex items-center gap-2 pt-4 pb-6 overflow-x-auto">
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high text-on-surface font-body-md text-body-md font-semibold shadow-sm">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></span>
+      Live Auction Terminal
+      <span class="font-system-code text-system-code px-1.5 py-0.2 rounded bg-surface-container-lowest text-on-surface font-bold text-xs">1</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all font-body-md text-body-md font-medium" onclick="document.getElementById('master-auction-table').scrollIntoView({ behavior: 'smooth' })">
+      My Auctions
+      <span class="font-system-code text-system-code px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant text-xs">14</span>
+</button>
+<div class="h-4 w-[1px] bg-surface-container-high mx-2"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+      Filtered Statuses: <span class="font-medium text-on-surface">Scheduled (3)</span>, <span class="font-medium text-on-tertiary-container">Live (1)</span>, <span class="font-medium text-secondary">Ending Soon (1)</span>, <span class="font-medium text-on-surface">Completed (8)</span>
+</span>
+</div>
+<!-- DUAL PANE WORKSPACE (COLUMN A: 62% / COLUMN B: 38%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- COLUMN A: 62% (8 Cols) - LIVE TERMINAL & TELEMETRY -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- MAIN LIVE AUCTION CARD -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-6 relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary-container via-secondary to-on-tertiary-container"></div>
+<!-- HEADER BLOCK OF LOT -->
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+<div class="space-y-1.5">
+<div class="flex flex-wrap items-center gap-2.5">
+<span class="font-system-code text-system-code font-bold bg-surface-container px-2.5 py-0.5 rounded text-on-surface">
+                LOT #AUC-2026-MNG9
+              </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-error-container text-on-error-container font-system-label text-system-label font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
+                Ending Soon
+              </span>
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container text-on-surface-variant uppercase">
+                APMC Lot #402
+              </span>
+</div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">
+              Grade A+ Ratnagiri Alphonso Mango
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              10 Dozen Export-Grade Wooden Crates • Total Consignment ~240 kg Net
+            </p>
+</div>
+<!-- VERIFIED TAGS -->
+<div class="flex sm:flex-col items-end gap-1.5 shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container font-system-label text-system-label font-medium text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-on-tertiary-container">verified</span>
+              GI TAG: MAHARASHTRA / GI-128
+            </div>
+<span class="font-system-code text-system-code text-on-surface-variant text-xs">Cold Bay 4 • Pre-Cooled</span>
+</div>
+</div>
+<!-- AGRONOMIC SPECS GRID -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-container-low p-3.5 rounded-xl">
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Harvest Date</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface mt-0.5">May 20, 2026</span>
+</div>
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Brix Sweetness</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface mt-0.5">19.4° Brix (Optimum)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Packaging Spec</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface mt-0.5">Ventilated Corrugated</span>
+</div>
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Inspection Grade</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface mt-0.5">APMC Grade A+ Verified</span>
+</div>
+</div>
+<!-- HERO BIDDING METRICS - 4 TILES -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+<!-- TILE 1: CURRENT HIGHEST BID (DOMINANT VISUAL ANCHOR) -->
+<div class="sm:col-span-2 xl:col-span-2 bg-surface-container p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-system-label text-system-label uppercase tracking-wider text-on-surface-variant font-semibold">
+                Current Highest Leading Bid
+              </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-lowest text-on-tertiary-container font-system-label text-system-label font-bold uppercase">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                Reserve Met (Target ₹2,500)
+              </span>
+</div>
+<div class="flex items-baseline gap-3 my-1">
+<span class="font-display-hero text-display-hero font-bold tracking-tight text-on-surface font-system-code">
+                ₹2,850
+              </span>
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">
+                / Crate Base Unit
+              </span>
+</div>
+<div class="flex items-center justify-between text-xs pt-3 mt-1 border-t border-surface-container-high font-body-sm text-body-sm text-on-surface-variant">
+<span>Gross Lot Allocation Value: <strong class="font-system-code text-on-surface font-semibold">₹28,500</strong></span>
+<span class="text-on-tertiary-container font-medium">+14.0% Over Reserve</span>
+</div>
+</div>
+<!-- TILE 2: COUNTDOWN TIMER -->
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Time Remaining</span>
+<span class="material-symbols-outlined text-[18px] text-secondary">timer</span>
+</div>
+<div class="my-2">
+<div class="font-headline-lg text-headline-lg font-bold font-system-code text-secondary" id="auction-countdown">
+                00:04:32
+              </div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mt-2">
+<div class="bg-secondary h-full rounded-full transition-all duration-1000" style="width: 92%;"></div>
+</div>
+</div>
+<span class="font-system-code text-system-code text-on-surface-variant text-xs">Soft-close buffer active</span>
+</div>
+<!-- TILE 3: STARTING & INCREMENT -->
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Starting &amp; Rules</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">gavel</span>
+</div>
+<div class="my-1">
+<span class="font-headline-md text-headline-md font-bold font-system-code text-on-surface">₹1,500</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                Min. Increment: <span class="font-system-code font-semibold text-on-surface">₹100</span>
+</div>
+</div>
+<span class="font-system-code text-system-code text-on-surface-variant text-xs">Reserve Price: ₹2,500</span>
+</div>
+</div>
+<!-- BID PARTICIPATION TELEMETRY PILL -->
+<div class="flex flex-wrap items-center justify-between gap-4 p-3.5 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[20px]">groups</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">
+                24 Bids Placed by 12 Verified APMC Buyers
+              </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                100% of participants hold verified pre-funded trade guarantees
+              </div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-system-code text-system-code text-xs px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface font-medium">
+              Velocity: 1.8 bids/min
+            </span>
+</div>
+</div>
+<!-- TELEMETRY / BID ACCELERATION SVG CHART -->
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">
+              Bid Price Progression &amp; Spread
+            </span>
+<span class="font-system-code text-system-code text-xs text-on-surface-variant">
+              10:00:00 AM — 10:45:00 AM Window
+            </span>
+</div>
+<!-- CHART CONTAINER -->
+<div class="w-full bg-surface-container-low p-4 rounded-xl">
+<div class="relative w-full h-44">
+<!-- Inline SVG Vector Chart with crisp coordinates -->
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 700 160">
+<defs>
+<lineargradient id="auctionGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#feae2c" stop-opacity="0.35"></stop>
+<stop offset="100%" stop-color="#feae2c" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="#eae8e3" stroke-width="1" x1="0" x2="700" y1="130" y2="130"></line>
+<line stroke="#eae8e3" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="700" y1="85" y2="85"></line>
+<line stroke="#eae8e3" stroke-width="1" x1="0" x2="700" y1="40" y2="40"></line>
+<!-- Reserve Threshold Line (₹2,500 at y=60) -->
+<line stroke="#16a34a" stroke-dasharray="6 4" stroke-width="1.5" x1="0" x2="700" y1="58" y2="58"></line>
+<text fill="#005320" font-family="JetBrains Mono" font-size="10" font-weight="600" x="10" y="52">RESERVE THRESHOLD ₹2,500 (MET AT 10:35 AM)</text>
+<!-- Area Fill -->
+<path d="M 30 130 L 110 120 L 220 108 L 330 96 L 440 78 L 520 58 L 590 38 L 660 22 L 660 130 Z" fill="url(#auctionGrad)"></path>
+<!-- Main Trend Line -->
+<path d="M 30 130 L 110 120 L 220 108 L 330 96 L 440 78 L 520 58 L 590 38 L 660 22" fill="none" stroke="#835500" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<!-- Plot Nodes -->
+<circle cx="30" cy="130" fill="#835500" r="4"></circle>
+<circle cx="220" cy="108" fill="#835500" r="3.5"></circle>
+<circle cx="440" cy="78" fill="#835500" r="3.5"></circle>
+<circle cx="520" cy="58" fill="#16a34a" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="660" cy="22" fill="#feae2c" r="6" stroke="#131b2e" stroke-width="2"></circle>
+</svg>
+</div>
+<!-- TIME MARKS -->
+<div class="flex justify-between font-system-code text-system-code text-xs text-on-surface-variant pt-2 border-t border-surface-container-high mt-1">
+<span>10:00 AM (Start ₹1,500)</span>
+<span>10:15 AM (₹1,800)</span>
+<span>10:30 AM (₹2,200)</span>
+<span class="text-on-tertiary-container font-medium">10:35 AM (Reserve ₹2,500)</span>
+<span class="text-secondary font-bold">10:42 AM (Current ₹2,850)</span>
+</div>
+</div>
+</div>
+<!-- REAL-TIME BID HISTORY STREAM (STRICT PRIVACY) -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm font-semibold text-on-surface">
+                Real-Time Bid Activity Stream
+              </h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-system-label text-system-label">
+                ANONYMIZED APMC PROTOCOL
+              </span>
+</div>
+<span class="font-system-code text-system-code text-xs text-on-surface-variant">Auto-updating (1s latency)</span>
+</div>
+<div class="overflow-x-auto bg-surface-container-low rounded-xl">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead class="bg-surface-container font-system-label text-system-label text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="py-3 px-4">Bidder Hash</th>
+<th class="py-3 px-4">Entity Category / Node</th>
+<th class="py-3 px-4">Placed Bid</th>
+<th class="py-3 px-4">Timestamp</th>
+<th class="py-3 px-4 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high text-on-surface">
+<!-- ROW 1: LEADING -->
+<tr class="bg-surface-container-lowest/80 font-medium">
+<td class="py-3 px-4 font-system-code font-bold text-on-surface flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+                    Bidder #104
+                  </td>
+<td class="py-3 px-4 text-on-surface-variant">Verified Wholesale Kirana Network • Bengaluru Hub</td>
+<td class="py-3 px-4 font-system-code text-body-md font-bold text-on-surface">₹2,850</td>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">10:42:31 AM</td>
+<td class="py-3 px-4 text-right">
+<span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-system-label text-system-label font-bold uppercase">
+                      Leading Bid
+                    </span>
+</td>
+</tr>
+<!-- ROW 2 -->
+<tr>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">Bidder #218</td>
+<td class="py-3 px-4 text-on-surface-variant">Organic Fresh Mart Chain • Pune APMC</td>
+<td class="py-3 px-4 font-system-code font-semibold text-on-surface">₹2,750</td>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">10:42:12 AM</td>
+<td class="py-3 px-4 text-right text-on-surface-variant font-system-label text-system-label">
+                    OUTBID
+                  </td>
+</tr>
+<!-- ROW 3 -->
+<tr>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">Bidder #091</td>
+<td class="py-3 px-4 text-on-surface-variant">Metro Hypermarket Central Procurement • Mumbai</td>
+<td class="py-3 px-4 font-system-code font-semibold text-on-surface">₹2,650</td>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">10:41:58 AM</td>
+<td class="py-3 px-4 text-right text-on-surface-variant font-system-label text-system-label">
+                    OUTBID
+                  </td>
+</tr>
+<!-- ROW 4 -->
+<tr>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">Bidder #104</td>
+<td class="py-3 px-4 text-on-surface-variant">Verified Wholesale Kirana Network • Bengaluru Hub</td>
+<td class="py-3 px-4 font-system-code font-semibold text-on-surface">₹2,600</td>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">10:40:15 AM</td>
+<td class="py-3 px-4 text-right text-on-surface-variant font-system-label text-system-label">
+                    OUTBID
+                  </td>
+</tr>
+<!-- ROW 5 (RESERVE TRIGGER) -->
+<tr class="bg-surface-container/40">
+<td class="py-3 px-4 font-system-code text-on-tertiary-container font-semibold">Bidder #314</td>
+<td class="py-3 px-4 text-on-surface-variant">Export House APMC Terminal • Navi Mumbai</td>
+<td class="py-3 px-4 font-system-code font-bold text-on-tertiary-container">₹2,500</td>
+<td class="py-3 px-4 font-system-code text-on-surface-variant">10:35:00 AM</td>
+<td class="py-3 px-4 text-right">
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest text-on-tertiary-container font-system-label text-system-label font-bold uppercase">
+                      Reserve Trigger
+                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- AUCTION MANAGEMENT GUARDRAILS NOTIFICATION BAR -->
+<div class="bg-surface-container p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-[20px] text-secondary mt-0.5">policy</span>
+<div class="space-y-0.5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">
+                Seller Guardrail: Reserve Price Exceeded
+              </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                This lot cannot be cancelled as binding bids meet the specified ₹2,500 reserve. Upon timer zero, allocation generates an immediate escrow-backed wholesale invoice.
+              </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<label class="flex items-center gap-2 cursor-pointer font-body-sm text-body-sm text-on-surface font-medium">
+<input checked="" class="w-4 h-4 rounded text-secondary" type="checkbox"/>
+<span>Soft-Close (+5m on last min bids)</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- COLUMN B: 38% (4 Cols) - WORKFLOWS & MODAL SECTIONS -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- PANEL 1: CREATE AUCTION WIZARD (INTERACTIVE PREVIEW) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-5" id="create-auction-wizard-pane">
+<div class="flex items-center justify-between pb-3 border-b border-surface-container-high">
+<div>
+<span class="font-system-label text-system-label font-bold text-secondary uppercase tracking-wider">NEW CONSIGNMENT</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Create Auction Listing</h3>
+</div>
+<span class="font-system-code text-system-code px-2 py-0.5 bg-surface-container rounded font-semibold text-on-surface text-xs">
+            STEP 01/04
+          </span>
+</div>
+<form class="space-y-4" onsubmit="event.preventDefault(); alert('Auction #AUC-2026-MST7 successfully verified and scheduled!');">
+<!-- STEP 1: SELECT VERIFIED PRODUCT -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="font-body-sm text-body-sm font-semibold text-on-surface">1. Select Certified Farm Product</label>
+<span class="font-system-label text-system-label text-on-surface-variant uppercase text-xs">From Inventory</span>
+</div>
+<select class="w-full h-11 px-3 bg-surface-container-low rounded-xl font-body-sm text-body-sm text-on-surface border-0 focus:ring-2 focus:ring-secondary outline-none">
+<option selected="" value="mustard">Cold-Pressed Mustard Oil (50L Bulk Drum) — 18 Drums Available</option>
+<option value="rice">Heirloom Basmati Rice (100 kg Lot) — 4 Lots Available</option>
+<option value="ghee">Desi Cow Ghee (A2 - 25 Jars) — 8 Cartons Available</option>
+</select>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">lock</span>
+              Only authenticated Green Valley Farm inventory can be auctioned.
+            </p>
+</div>
+<!-- STEP 2: PRICING TRIFECTA -->
+<div class="space-y-3 pt-2">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface block">2. Auction Pricing Structure</span>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="font-system-label text-system-label text-on-surface-variant block mb-1">Starting Price (₹)</label>
+<div class="relative">
+<span class="absolute left-3 top-2.5 font-system-code text-on-surface-variant text-sm">₹</span>
+<input class="w-full h-10 pl-7 pr-3 bg-surface-container-low rounded-xl font-system-code text-system-code font-semibold text-on-surface border-0 focus:ring-2 focus:ring-secondary outline-none" type="number" value="1500"/>
+</div>
+</div>
+<div>
+<label class="font-system-label text-system-label text-on-surface-variant block mb-1">Reserve Price (₹)</label>
+<div class="relative">
+<span class="absolute left-3 top-2.5 font-system-code text-on-surface-variant text-sm">₹</span>
+<input class="w-full h-10 pl-7 pr-3 bg-surface-container-low rounded-xl font-system-code text-system-code font-semibold text-on-surface border-0 focus:ring-2 focus:ring-secondary outline-none" type="number" value="2500"/>
+</div>
+</div>
+</div>
+<div>
+<label class="font-system-label text-system-label text-on-surface-variant block mb-1">Minimum Bid Increment (₹)</label>
+<div class="relative">
+<span class="absolute left-3 top-2.5 font-system-code text-on-surface-variant text-sm">₹</span>
+<input class="w-full h-10 pl-7 pr-3 bg-surface-container-low rounded-xl font-system-code text-system-code font-semibold text-on-surface border-0 focus:ring-2 focus:ring-secondary outline-none" type="number" value="100"/>
+</div>
+<span class="text-xs text-on-surface-variant mt-1 block">Bids must increase by at least this delta to be valid.</span>
+</div>
+</div>
+<!-- STEP 3: SCHEDULE & DURATION -->
+<div class="space-y-2 pt-2">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface block">3. Time Window (APMC Synchronized)</span>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-2.5 rounded-xl">
+<span class="font-system-label text-system-label text-on-surface-variant uppercase text-xs">Start Time</span>
+<div class="font-system-code text-system-code font-medium text-on-surface mt-0.5">Today, 02:00 PM</div>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded-xl">
+<span class="font-system-label text-system-label text-on-surface-variant uppercase text-xs">End Time</span>
+<div class="font-system-code text-system-code font-medium text-on-surface mt-0.5">Today, 03:00 PM</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-2 pt-1 font-body-sm text-body-sm text-on-surface-variant">
+<span>Calculated Window Duration:</span>
+<span class="font-system-code font-bold text-on-surface">60 Minutes</span>
+</div>
+</div>
+<!-- SUBMIT CTA BUTTON -->
+<button class="w-full h-12 mt-2 rounded-xl bg-secondary-container text-on-secondary-container font-body-md text-body-md font-bold shadow-sm hover:brightness-105 transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[18px]">publish</span>
+            Schedule &amp; Launch Auction
+          </button>
+</form>
+</div>
+<!-- PANEL 2: RECENTLY COMPLETED SETTLEMENT (OUTCOME CARD) -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-surface-container-high">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-tertiary-container text-[20px]">task_alt</span>
+<h4 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Recent Settlement</h4>
+</div>
+<span class="font-system-code text-system-code text-xs text-on-surface-variant">#AUC-2026-GHEE</span>
+</div>
+<div class="space-y-3">
+<div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Organic A2 Gir Cow Ghee (20 kg Tin)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Settled: Today, 09:30 AM • 34 Total Bids</div>
+</div>
+<div class="p-3 bg-surface-container-low rounded-xl space-y-2">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Final Winning Bid:</span>
+<span class="font-system-code text-headline-sm font-bold text-on-surface">₹18,400</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Winning Buyer:</span>
+<span class="font-medium text-on-surface font-system-code">Bidder #048 (FreshBite Kitchens)</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Reserve Performance:</span>
+<span class="text-on-tertiary-container font-semibold">Met (122.6% of ₹15,000)</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Escrow Status:</span>
+<span class="text-on-tertiary-container font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                ₹18,400 Locked in Escrow
+              </span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-3 pt-1">
+<div class="font-system-code text-system-code text-xs text-on-surface-variant">
+              Order: <span class="font-bold text-on-surface">#BZ-10499</span>
+</div>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container font-body-sm text-body-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors">
+              View Linked Order
+            </button>
+</div>
+</div>
+</div>
+<!-- PANEL 3: CANCELLATION GUARDRAIL DIALOG / MOCKUP -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm space-y-3">
+<div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-[18px]">event_busy</span>
+<span class="font-system-label text-system-label font-bold uppercase tracking-wider">Guardrail Policy</span>
+</div>
+<span class="font-system-code text-system-code text-xs text-on-surface-variant">#AUC-2026-RICE</span>
+</div>
+<div class="space-y-1.5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Cancel Scheduled Auction #AUC-2026-RICE</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Product: <em>Heirloom Basmati Rice (Lot 3)</em>. Starts in 3h 15m. Bidding has not commenced (0 bids received).
+          </p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-xl text-xs font-body-sm text-on-surface-variant space-y-1">
+<div class="font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">check_circle</span>
+            Cancellation is fully permitted
+          </div>
+<p>Since bidding has not begun, withdrawing this lot incurs zero fee or seller trust penalties.</p>
+</div>
+<div class="flex items-center justify-end gap-2 pt-1">
+<button class="px-3 py-1.5 rounded-xl bg-surface-container font-body-sm text-body-sm text-on-surface hover:bg-surface-container-high transition-colors">
+            Keep Auction
+          </button>
+<button class="px-3 py-1.5 rounded-xl bg-error-container text-on-error-container font-body-sm text-body-sm font-semibold hover:brightness-95 transition-all" onclick="alert('Auction #AUC-2026-RICE successfully cancelled without penalty.')">
+            Confirm Cancel
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- BOTTOM SECTION: ALL MY AUCTIONS MASTER TABLE -->
+<div class="mt-10 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col" id="master-auction-table">
+<!-- TABLE HEADER BAR & TABS -->
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-surface-container-high">
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">All Auctions Master Registry</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Historical &amp; real-time performance of Green Valley Farm auction lots</p>
+</div>
+<!-- FILTER PILLS -->
+<div class="flex flex-wrap items-center gap-1.5 bg-surface-container-low p-1 rounded-xl">
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-bold shadow-sm">All (14)</button>
+<button class="px-3 py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm font-medium">Scheduled (3)</button>
+<button class="px-3 py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          Live (1)
+        </button>
+<button class="px-3 py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm font-medium">Completed (8)</button>
+<button class="px-3 py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm font-medium">Cancelled (1)</button>
+</div>
+</div>
+<!-- RESPONSIVE TABLE -->
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead class="bg-surface-container font-system-label text-system-label text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="py-3.5 px-5">Auction ID</th>
+<th class="py-3.5 px-5">Product Lot &amp; Spec</th>
+<th class="py-3.5 px-5">Starting Price</th>
+<th class="py-3.5 px-5">Current / Final Bid</th>
+<th class="py-3.5 px-5">Bid Count</th>
+<th class="py-3.5 px-5">Timing / Status</th>
+<th class="py-3.5 px-5 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high text-on-surface">
+<!-- ROW 1 (LIVE NOW) -->
+<tr class="bg-surface-container-low/40 hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-5">
+<span class="font-system-code text-system-code font-bold text-on-surface">#AUC-2026-MNG9</span>
+</td>
+<td class="py-4 px-5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Alphonso Mango Export Grade</div>
+<div class="text-xs text-on-surface-variant">10 Crates • Lot #402</div>
+</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">₹1,500</td>
+<td class="py-4 px-5 font-system-code">
+<div class="text-body-md font-bold text-on-surface">₹2,850</div>
+<span class="text-xs text-on-tertiary-container font-medium font-body-sm">Reserve Met</span>
+</td>
+<td class="py-4 px-5 font-system-code">
+<span class="font-semibold text-on-surface">24</span>
+<span class="text-xs text-on-surface-variant block">12 Bidders</span>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-system-label text-system-label font-bold uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container animate-pulse"></span>
+                00:04:32 LEFT
+              </span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="px-3 py-1.5 rounded-xl bg-secondary-container text-on-secondary-container font-body-sm text-body-sm font-semibold hover:brightness-105" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                Monitor Live
+              </button>
+</td>
+</tr>
+<!-- ROW 2 (SCHEDULED) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-5">
+<span class="font-system-code text-system-code font-bold text-on-surface">#AUC-2026-RICE</span>
+</td>
+<td class="py-4 px-5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Heirloom Basmati Rice Lot 3</div>
+<div class="text-xs text-on-surface-variant">100 kg Lot • Grade 1 Aging</div>
+</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">₹4,200</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">—</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">0 Bids</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-on-surface font-system-label text-system-label font-semibold uppercase">
+                Starts in 3h 15m
+              </span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="px-3 py-1.5 rounded-xl text-error hover:bg-error-container hover:text-on-error-container font-body-sm text-body-sm font-medium transition-colors" onclick="alert('Cancelling scheduled auction #AUC-2026-RICE')">
+                Cancel
+              </button>
+</td>
+</tr>
+<!-- ROW 3 (SCHEDULED) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-5">
+<span class="font-system-code text-system-code font-bold text-on-surface">#AUC-2026-MST7</span>
+</td>
+<td class="py-4 px-5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Cold-Pressed Mustard Oil</div>
+<div class="text-xs text-on-surface-variant">50L Bulk Drum • Kacchi Ghani</div>
+</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">₹5,000</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">—</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">0 Bids</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-on-surface font-system-label text-system-label font-semibold uppercase">
+                Today, 02:00 PM
+              </span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high font-body-sm text-body-sm font-medium text-on-surface transition-colors">
+                Edit Parameters
+              </button>
+</td>
+</tr>
+<!-- ROW 4 (COMPLETED) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-5">
+<span class="font-system-code text-system-code font-bold text-on-surface">#AUC-2026-GHEE</span>
+</td>
+<td class="py-4 px-5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Organic A2 Gir Cow Ghee</div>
+<div class="text-xs text-on-surface-variant">20 kg Tin Container</div>
+</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">₹12,000</td>
+<td class="py-4 px-5 font-system-code">
+<div class="text-body-md font-bold text-on-surface">₹18,400</div>
+<span class="text-xs text-on-tertiary-container font-medium font-body-sm">Sold to Bidder #048</span>
+</td>
+<td class="py-4 px-5 font-system-code">
+<span class="font-semibold text-on-surface">34</span>
+<span class="text-xs text-on-surface-variant block">18 Bidders</span>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-system-label text-system-label font-bold uppercase">
+                Completed
+              </span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-medium inline-flex items-center gap-1.5 transition-colors" onclick="alert('Downloading Settlement Certificate for #AUC-2026-GHEE')">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                Receipt
+              </button>
+</td>
+</tr>
+<!-- ROW 5 (COMPLETED) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-5">
+<span class="font-system-code text-system-code font-bold text-on-surface">#AUC-2026-HONEY</span>
+</td>
+<td class="py-4 px-5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Raw Wild Forest Honey</div>
+<div class="text-xs text-on-surface-variant">30 kg Bulk Pail • Untreated</div>
+</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">₹8,000</td>
+<td class="py-4 px-5 font-system-code">
+<div class="text-body-md font-bold text-on-surface">₹11,200</div>
+<span class="text-xs text-on-tertiary-container font-medium font-body-sm">Sold to Bidder #512</span>
+</td>
+<td class="py-4 px-5 font-system-code">
+<span class="font-semibold text-on-surface">19</span>
+<span class="text-xs text-on-surface-variant block">8 Bidders</span>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-system-label text-system-label font-bold uppercase">
+                Completed
+              </span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-medium inline-flex items-center gap-1.5 transition-colors" onclick="alert('Downloading Settlement Certificate for #AUC-2026-HONEY')">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                Receipt
+              </button>
+</td>
+</tr>
+<!-- ROW 6 (CANCELLED) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-5">
+<span class="font-system-code text-system-code font-bold text-on-surface">#AUC-2026-JAG1</span>
+</td>
+<td class="py-4 px-5">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Organic Sugarcane Jaggery Blocks</div>
+<div class="text-xs text-on-surface-variant">50 kg Sack Lot</div>
+</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">₹2,000</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">—</td>
+<td class="py-4 px-5 font-system-code text-on-surface-variant">0 Bids</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-error-container text-on-error-container font-system-label text-system-label font-bold uppercase">
+                Cancelled
+              </span>
+</td>
+<td class="py-4 px-5 text-right">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Seller Withdrawn</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- TABLE FOOTER PAGINATION -->
+<div class="p-4 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-4 font-body-sm text-body-sm text-on-surface-variant">
+<span>Showing 1 to 6 of 14 wholesale auction records</span>
+<div class="flex items-center gap-1">
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-medium disabled:opacity-50" disabled="">Previous</button>
+<button class="px-3 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-bold">1</button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-medium hover:bg-surface-container">2</button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-medium hover:bg-surface-container">Next</button>
+</div>
+</div>
+</div>
+<!-- EXPORT MODAL (MODAL BACKDROP) -->
+<div class="hidden fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4" id="export-modal">
+<div class="bg-surface-container-lowest rounded-xl max-w-md w-full p-6 shadow-xl space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-surface-container-high">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">file_download</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Export APMC Bidding Ledger</h3>
+</div>
+<button class="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant" onclick="document.getElementById('export-modal').classList.add('hidden')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Select format to download tamper-evident bidding transcripts with cryptographic verification hashes for tax and APMC market compliance.
+      </p>
+<div class="space-y-2">
+<label class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low cursor-pointer">
+<span class="font-body-md text-body-md font-medium text-on-surface">CSV Format (Complete Telemetry &amp; Bids)</span>
+<input checked="" class="text-secondary" name="export-fmt" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low cursor-pointer">
+<span class="font-body-md text-body-md font-medium text-on-surface">Official APMC PDF Certificate</span>
+<input class="text-secondary" name="export-fmt" type="radio"/>
+</label>
+</div>
+<div class="flex items-center justify-end gap-3 pt-2">
+<button class="px-4 py-2 rounded-xl bg-surface-container font-body-md text-body-md text-on-surface" onclick="document.getElementById('export-modal').classList.add('hidden')">
+          Cancel
+        </button>
+<button class="px-4 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-body-md text-body-md font-bold" onclick="alert('Export started. Your download will begin shortly.'); document.getElementById('export-modal').classList.add('hidden')">
+          Download Ledger
+        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- REAL-TIME INTERACTION SCRIPT -->
+<script>
+  (function() {
+    // Dynamic countdown clock emulation for Live Auction
+    let totalSeconds = 272; // 00:04:32
+    const clockEl = document.getElementById('auction-countdown');
+
+    function updateTimer() {
+      if (!clockEl) return;
+      if (totalSeconds <= 0) {
+        clockEl.textContent = "00:00:00 - CLOSED";
+        return;
+      }
+      totalSeconds--;
+      const hrs = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+      clockEl.textContent = 
+        String(hrs).padStart(2, '0') + ':' + 
+        String(mins).padStart(2, '0') + ':' + 
+        String(secs).padStart(2, '0');
+    }
+    setInterval(updateTimer, 1000);
+  })();
+</script></main></div></body></html>

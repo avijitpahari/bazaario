@@ -71,13 +71,14 @@
     <div class="flex flex-col gap-space-md">
         @forelse($disputes as $dispute)
             @php
-                $orderNumber = $dispute->order->order_number ?? 'BZ-ORDER';
-                $buyerName = $dispute->order->user->name ?? 'Customer';
-                $sellerName = $dispute->orderItem->sellerOrder->seller->sellerProfile->shop_name 
-                    ?? ($dispute->orderItem->sellerOrder->seller->name ?? 'Merchant');
-                $productName = $dispute->orderItem->product_name ?? 'Consigned Item';
-                $sku = $dispute->orderItem->sku ?? 'N/A';
+                $orderNumber = $dispute->order?->order_number ?? ('BZ-ORD-' . $dispute->order_id);
+                $buyerName = $dispute->order?->user?->name ?? ($dispute->user?->name ?? 'Customer');
+                $sellerName = $dispute->orderItem?->sellerOrder?->seller?->sellerProfile?->shop_name 
+                    ?? ($dispute->orderItem?->sellerOrder?->seller?->name ?? 'Merchant');
+                $productName = $dispute->orderItem?->product_name ?? 'Consigned Item';
+                $sku = $dispute->orderItem?->sku ?? 'N/A';
             @endphp
+
             <div class="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5 flex flex-col gap-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                     <div>
@@ -96,7 +97,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-mono text-xs font-bold">
-                            Escrow Amount: ₹{{ number_format($dispute->refund_amount, 2) }}
+                            Escrow Amount: ₹{{ number_format((float)($dispute->refund_amount ?? 0), 2) }}
                         </span>
                         @if($dispute->status === 'requested')
                             <span class="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-mono text-[10px] font-bold">PENDING REVIEW</span>
@@ -129,7 +130,7 @@
                     <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] uppercase font-mono font-bold text-slate-400">Merchant Fulfillment Telemetry</span>
-                            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-mono text-[10px] font-bold border border-blue-200/50">Status: {{ strtoupper($dispute->orderItem->sellerOrder->status ?? 'DELIVERED') }}</span>
+                            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-mono text-[10px] font-bold border border-blue-200/50">Status: {{ strtoupper($dispute->orderItem?->sellerOrder?->status ?? 'DELIVERED') }}</span>
                         </div>
                         <p class="text-xs text-slate-700 leading-relaxed">
                             Fulfilled by <strong>{{ $sellerName }}</strong>. Dispatch and delivery scans completed through certified Bazaario regional carrier network.
@@ -154,18 +155,18 @@
                                     Reject Claim & Release to Seller
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.disputes.arbitrate', $dispute->id) }}" onsubmit="return confirm('Approve refund of ₹{{ number_format($dispute->refund_amount, 2) }} to {{ addslashes($buyerName) }}?');">
+                            <form method="POST" action="{{ route('admin.disputes.arbitrate', $dispute->id) }}" onsubmit="return confirm('Approve refund of ₹{{ number_format((float)($dispute->refund_amount ?? 0), 2) }} to {{ addslashes($buyerName) }}?');">
                                 @csrf
                                 <input type="hidden" name="decision" value="approve">
                                 <button type="submit" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-colors">
-                                    Approve Full Refund (₹{{ number_format($dispute->refund_amount, 2) }})
+                                    Approve Full Refund (₹{{ number_format((float)($dispute->refund_amount ?? 0), 2) }})
                                 </button>
                             </form>
                         </div>
                     @elseif($dispute->status === 'approved')
                         <div class="flex items-center gap-2 text-emerald-700 font-mono text-xs font-bold">
                             <span class="material-symbols-outlined text-base">check_circle</span>
-                            <span>Refund of ₹{{ number_format($dispute->refund_amount, 2) }} processed to buyer account</span>
+                            <span>Refund of ₹{{ number_format((float)($dispute->refund_amount ?? 0), 2) }} processed to buyer account</span>
                         </div>
                     @else
                         <div class="flex items-center gap-2 text-slate-600 font-mono text-xs font-bold">

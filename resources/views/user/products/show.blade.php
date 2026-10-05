@@ -3,11 +3,20 @@
     $prodName = $prod ? $prod->name : 'Handcrafted Leather Messenger Bag';
     $prodPrice = $prod ? (float)$prod->price : 2499.00;
     $prodCategory = ($prod && $prod->category) ? $prod->category->name : 'Artisan Crafts';
-    $prodSeller = ($prod && $prod->seller && $prod->seller->sellerProfile) ? $prod->seller->sellerProfile->shop_name : ($prod && $prod->seller ? $prod->seller->name : 'Bazaario Verified');
-    $prodStock = $prod ? $prod->stock : 10;
-    $prodDescription = ($prod && ($prod->description || $prod->short_description)) ? ($prod->description ?: $prod->short_description) : 'Premium handcrafted quality item with authentic materials and escrow-backed guarantee.';
+    $sellerUser = ($prod && $prod->seller) ? $prod->seller : null;
+    $sellerProfile = $sellerUser ? $sellerUser->sellerProfile : null;
+    $prodSeller = $sellerProfile ? $sellerProfile->shop_name : ($sellerUser ? $sellerUser->name : 'Bazaario Verified');
+    $sellerType = $sellerProfile ? ($sellerProfile->seller_type ?? 'Kirana Store') : 'Kirana Store';
+    $trustScore = $sellerProfile ? (float)($sellerProfile->trust_score ?? 95.0) : 95.0;
+    $sellerCity = $sellerProfile ? ($sellerProfile->city ?? 'India') : 'India';
+    $sellerState = $sellerProfile ? ($sellerProfile->state ?? '') : '';
+    $prodStock = $prod ? (int)$prod->stock : 10;
+    $prodUnitType = $prod ? ($prod->unit_type ?? 'piece') : 'piece';
+    $prodDescription = ($prod && ($prod->description || $prod->short_description))
+        ? ($prod->description ?: $prod->short_description)
+        : 'Premium handcrafted quality item with authentic materials and escrow-backed guarantee.';
     
-    // Dynamic Product Images Gallery (loads database images & guarantees 4 thumbnail slides)
+    // Dynamic Product Images Gallery (Feature 24)
     $galleryImages = [];
     if ($prod && $prod->images && $prod->images->isNotEmpty()) {
         foreach ($prod->images as $img) {
@@ -22,29 +31,44 @@
         array_unshift($galleryImages, $prod->main_image_url);
     }
     
-    $fallbackImagesPool = [
-        'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
-    ];
-
-    foreach ($fallbackImagesPool as $fb) {
-        if (count($galleryImages) >= 4) break;
-        if (!in_array($fb, $galleryImages)) {
-            $galleryImages[] = $fb;
-        }
+    if (empty($galleryImages)) {
+        $galleryImages = [
+            asset('images/product-placeholder.svg'),
+        ];
     }
 
     $mainImage = $galleryImages[0];
+
+    // Reviews Computation (Feature 32)
+    $reviews = ($prod && $prod->reviews) ? $prod->reviews : collect();
+    $totalReviewsCount = $reviews->count();
+    $avgRating = $totalReviewsCount > 0 ? (float)$reviews->avg('rating') : (float)($prod->average_rating ?? 5.0);
+    $ratingCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+    foreach ($reviews as $rev) {
+        $r = (int)$rev->rating;
+        if ($r >= 1 && $r <= 5) {
+            $ratingCounts[$r]++;
+        }
+    }
+
+    $sellerTypeBadgeClasses = match($sellerType) {
+        'Farmer' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'Dark Store' => 'bg-indigo-50 text-indigo-800 border-indigo-200',
+        'Individual' => 'bg-purple-50 text-purple-800 border-purple-200',
+        default => 'bg-amber-50 text-amber-800 border-amber-200',
+    };
+
+    // Wishlist check
+    $isWishlisted = false;
+    if (Auth::guard('user')->check() && $prod) {
+        $wishlist = Auth::guard('user')->user()->wishlist()->with('items')->first();
+        if ($wishlist && $wishlist->items->where('product_id', $prod->id)->isNotEmpty()) {
+            $isWishlisted = true;
+        }
+    }
 @endphp
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -97,80 +121,86 @@
             border: 1px solid rgba(15, 23, 42, 0.08);
         }
 
-        ::-webkit-scrollbar {
-            display: none;
-        }
+        /* Prevent Alpine.js x-cloak elements from flashing open */
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 
-<body
-    class="bg-[#FFFDF8] text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-amber-100 selection:text-amber-900 pb-16 relative">
-    
-    <!-- 1. NAVIGATION -->
-    @include('components.nav')
+<body class="font-sans text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+    <!-- NAVIGATION BAR -->
+    <x-nav />
 
-    <!-- MAIN WRAPPER -->
-    <main class="max-w-6xl mx-auto px-4 md:px-6 pt-24 pb-4 w-full space-y-8 flex-1">
+    <!-- FLASH MESSAGES -->
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
+        @if(session('success'))
+            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">check_circle</span>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">error</span>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+    </div>
+
+    <!-- MAIN PRODUCT DETAIL CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-24 lg:pb-8 space-y-10 flex-1 w-full">
         <!-- BREADCRUMBS & ESCROW BADGE -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-            <nav aria-label="Breadcrumb"
-                class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-500 flex-wrap">
-                <a class="hover:text-slate-900 transition-colors" href="{{ url('/') }}">Home</a>
+        <div class="flex items-center justify-between text-xs font-mono text-slate-500 flex-wrap gap-2">
+            <nav class="flex items-center gap-2">
+                <a class="hover:text-[#0F172A] transition" href="{{ url('/') }}">Home</a>
                 <span>/</span>
-                <a class="hover:text-slate-900 transition-colors" href="{{ route('products.index') }}">Products</a>
+                <a class="hover:text-[#0F172A] transition" href="{{ route('products.index') }}">Products</a>
                 <span>/</span>
-                <span class="hover:text-slate-900 transition-colors">{{ $prodCategory }}</span>
+                <a class="hover:text-[#0F172A] transition" href="{{ route('products.index', ['category' => $prodCategory]) }}">{{ $prodCategory }}</a>
                 <span>/</span>
-                <span class="text-[#0F172A] font-bold">{{ $prodName }}</span>
+                <span class="text-[#0F172A] font-semibold truncate max-w-[200px] sm:max-w-none">{{ $prodName }}</span>
             </nav>
-            <div class="flex items-center gap-3 font-mono text-xs">
-                <span
-                    class="bg-emerald-500/10 text-[#16A34A] border border-emerald-500/25 rounded-full px-3 py-1 inline-flex items-center gap-1.5 font-bold tracking-wide text-[11px]">
-                    <span class="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[11px] font-bold">
                     ● BAZAARIO ESCROW SECURED
                 </span>
-                <span class="text-slate-400 font-mono text-[11px] hidden md:inline">ITEM ID: BZ-{{ $prod->id ?? '101' }}</span>
+                <span class="text-slate-400 font-mono text-[11px] hidden md:inline">SKU: {{ $prod->sku ?? 'BZ-' . ($prod->id ?? '101') }}</span>
             </div>
         </div>
 
         <!-- MAIN PRODUCT OVERVIEW -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <!-- LEFT COLUMN: PRODUCT GALLERY -->
+            <!-- LEFT COLUMN: Feature 24 PRODUCT GALLERY -->
             <div class="lg:col-span-6 flex flex-col gap-4">
                 <!-- Main Showcase Card -->
-                <div
-                    class="bg-white rounded-card p-6 border border-slate-900/10 shadow-sm relative overflow-hidden group">
+                <div class="bg-white rounded-card p-6 border border-slate-900/10 shadow-sm relative overflow-hidden group">
                     <!-- Top Badges -->
                     <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                        <span
-                            class="font-mono text-[11px] bg-[#0F172A]/85 backdrop-blur-md text-white rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-sm border border-white/20 font-semibold">
+                        <span class="font-mono text-[11px] bg-[#0F172A]/85 backdrop-blur-md text-white rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-sm border border-white/20 font-semibold">
                             <span class="text-[#F5A623]">⚡</span> 100% Escrow Verified
                         </span>
-                        <span
-                            class="font-mono text-[11px] bg-emerald-100/90 backdrop-blur-md text-emerald-800 rounded-full px-3 py-1 inline-flex items-center gap-1 font-semibold border border-emerald-200">
+                        <span class="font-mono text-[11px] bg-emerald-100/90 backdrop-blur-md text-emerald-800 rounded-full px-3 py-1 inline-flex items-center gap-1 font-semibold border border-emerald-200">
                             <span class="text-[#16A34A]">⚡</span> Express Dispatch
                         </span>
                     </div>
 
                     <!-- Centered Product Image with Fallback -->
-                    <div
-                        class="w-full min-h-[390px] md:min-h-[420px] flex items-center justify-center p-2 overflow-hidden cursor-crosshair">
+                    <div class="w-full min-h-[390px] md:min-h-[420px] flex items-center justify-center p-2 overflow-hidden cursor-crosshair">
                         <img alt="{{ $prodName }}"
                             class="w-full max-h-[410px] object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-105"
                             id="main-product-image"
                             src="{{ $mainImage }}"
-                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80';" />
+                            onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';" />
                     </div>
 
                     <!-- Interactive Nav Arrows (< >) -->
                     <button
                         class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-[#0F172A] flex items-center justify-center border border-slate-200 shadow-sm transition opacity-0 group-hover:opacity-100"
-                        onclick="cycleGallery(-1)" title="Previous Image">
+                        onclick="cycleGallery(-1)" title="Previous Image" type="button">
                         <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                     </button>
                     <button
                         class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-[#0F172A] flex items-center justify-center border border-slate-200 shadow-sm transition opacity-0 group-hover:opacity-100"
-                        onclick="cycleGallery(1)" title="Next Image">
+                        onclick="cycleGallery(1)" title="Next Image" type="button">
                         <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                     </button>
                 </div>
@@ -179,58 +209,88 @@
                 <div class="grid grid-cols-4 gap-3" id="gallery-thumbs">
                     @foreach($galleryImages as $idx => $imgUrl)
                         <button
+                            type="button"
                             class="thumb-btn border {{ $idx === 0 ? 'border-2 border-[#F5A623]' : 'border-slate-200' }} p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square"
                             onclick="selectThumb({{ $idx }}, '{{ $imgUrl }}', this)">
                             <img alt="Thumbnail {{ $idx + 1 }}" class="w-full h-16 object-contain"
                                 src="{{ $imgUrl }}"
-                                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80';" />
+                                onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';" />
                         </button>
                     @endforeach
                 </div>
             </div>
-            <!-- RIGHT COLUMN: PRODUCT INFORMATION & BUY BOX (lg:col-span-6 = 50%) -->
+
+            <!-- RIGHT COLUMN: PRODUCT INFORMATION & BUY BOX -->
             <div class="lg:col-span-6 flex flex-col gap-5">
-                <div class="bg-white rounded-card p-6 md:p-7 border border-slate-900/10 shadow-card-elevated space-y-5">
-                    <!-- Brand & Stock Urgency -->
+                <div class="bg-white rounded-card p-6 md:p-7 border border-slate-900/10 shadow-sm space-y-5">
+                    
+                    <!-- Seller Brand & Feature 27 Stock Urgency -->
                     <div class="flex items-center justify-between gap-2 flex-wrap">
-                        <span class="font-mono text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                        <span class="font-mono text-xs uppercase tracking-wider text-slate-500 font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-amber-500">storefront</span>
                             {{ $prodSeller }}
                         </span>
-                        <div
-                            class="flex items-center gap-1.5 font-mono text-xs font-semibold text-[#16A34A] bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                            <span class="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
-                            <span>✓ In Stock</span>
-                            <span class="text-emerald-700 font-medium">• Only {{ $prodStock }} units left in stock!</span>
-                        </div>
+
+                        @if($prodStock > 0)
+                            <div class="flex items-center gap-1.5 font-mono text-xs font-semibold text-[#16A34A] bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
+                                <span>✓ In Stock</span>
+                                <span class="text-emerald-700 font-medium">• Only {{ $prodStock }} left in stock!</span>
+                            </div>
+                        @else
+                            <div class="flex items-center gap-1.5 font-mono text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                                <span>✕ Out of Stock</span>
+                            </div>
+                        @endif
                     </div>
+
                     <!-- Product Title & Review Meta -->
                     <div>
-                        <h1
-                            class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight leading-tight">
+                        <h1 class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight leading-tight">
                             {{ $prodName }}
                         </h1>
                         <div class="flex items-center gap-2.5 pt-2 flex-wrap">
-                            <span
-                                class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full font-mono text-xs font-bold">
-                                <span class="material-symbols-outlined text-[15px] text-[#F5A623]"
-                                    style="font-variation-settings: 'FILL' 1;">star</span>
-                                ★ {{ number_format($prod->average_rating ?? 4.8, 1) }}
+                            <span class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full font-mono text-xs font-bold">
+                                <span class="material-symbols-outlined text-[15px] text-[#F5A623]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                ★ {{ number_format($avgRating, 1) }}
                             </span>
                             <span class="text-slate-300">•</span>
-                            <a class="text-xs font-mono text-slate-600 hover:text-[#0F172A] underline underline-offset-2"
-                                href="#customer-reviews">
-                                {{ $prod->total_reviews ?? 248 }} reviews
+                            <a class="text-xs font-mono text-slate-600 hover:text-[#0F172A] underline underline-offset-2" href="#customer-reviews">
+                                {{ $totalReviewsCount }} customer reviews
                             </a>
                             <span class="text-slate-300">•</span>
-                            <span class="text-[11px] font-mono text-slate-500" id="selected-spec-label">{{ $prodCategory }} • Bazaario Verified</span>
+                            <span class="text-[11px] font-mono text-slate-500">{{ $prodCategory }}</span>
                         </div>
                     </div>
-                    <!-- Pricing Section -->
-                    <div class="pt-2 border-t border-slate-100 flex items-baseline gap-3 flex-wrap">
-                        <span class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight"
-                            id="active-price">
+
+                    <!-- Feature 26, 28, 29: Badges Rail -->
+                    <div class="flex items-center gap-2 flex-wrap pt-1">
+                        {{-- Feature 26: Seller Type badge --}}
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-mono font-bold {{ $sellerTypeBadgeClasses }}">
+                            <span class="material-symbols-outlined text-[14px]">store</span>
+                            <span>Seller: {{ $sellerType }}</span>
+                        </span>
+
+                        {{-- Feature 28: Unit Type badge --}}
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-mono font-bold">
+                            <span class="material-symbols-outlined text-[14px]">scale</span>
+                            <span>Unit: {{ $prodUnitType }}</span>
+                        </span>
+
+                        {{-- Feature 29: Seller Trust Score badge --}}
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-mono font-bold">
+                            <span class="material-symbols-outlined text-[14px] text-emerald-600">verified_user</span>
+                            <span>{{ number_format($trustScore, 1) }}% Trust Score</span>
+                        </span>
+                    </div>
+
+                    <!-- Feature 27: Dynamic Pricing Section -->
+                    <div class="pt-3 border-t border-slate-100 flex items-baseline gap-3 flex-wrap">
+                        <span class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight" id="active-price">
                             ₹{{ number_format($prodPrice, 2) }}
                         </span>
+                        <span class="text-sm font-mono text-slate-500 font-medium">/ {{ $prodUnitType }}</span>
                         <span class="text-lg text-slate-400 line-through font-medium" id="mrp-price">
                             MRP ₹{{ number_format(round($prodPrice * 1.25), 2) }}
                         </span>
@@ -238,660 +298,425 @@
                             20% OFF
                         </span>
                     </div>
-                    <!-- Color & Storage Selectors -->
-                    <div class="space-y-4 pt-1 border-t border-slate-100">
-                        <!-- Color Selection -->
-                        <div>
-                            <div class="flex justify-between items-center text-xs mb-2">
-                                <span class="font-mono text-slate-500 uppercase tracking-wider font-semibold">Finish:
-                                    <span class="text-slate-900" id="color-name">Natural Titanium</span></span>
-                            </div>
-                            <div class="flex items-center gap-2.5">
-                                <button
-                                    class="color-btn w-8 h-8 rounded-full bg-[#B8B3A8] ring-2 ring-offset-2 ring-[#0F172A] transition shadow-xs"
-                                    onclick="setColor('Natural Titanium', this)" title="Natural Titanium"></button>
-                                <button
-                                    class="color-btn w-8 h-8 rounded-full bg-[#3B4454] ring-1 ring-slate-300 hover:ring-2 hover:ring-slate-400 transition shadow-xs"
-                                    onclick="setColor('Blue Titanium', this)" title="Blue Titanium"></button>
-                                <button
-                                    class="color-btn w-8 h-8 rounded-full bg-[#E5E5EA] ring-1 ring-slate-300 hover:ring-2 hover:ring-slate-400 transition shadow-xs"
-                                    onclick="setColor('White Titanium', this)" title="White Titanium"></button>
-                                <button
-                                    class="color-btn w-8 h-8 rounded-full bg-[#1C1C1E] ring-1 ring-slate-300 hover:ring-2 hover:ring-slate-400 transition shadow-xs"
-                                    onclick="setColor('Space Black', this)" title="Space Black"></button>
-                            </div>
-                        </div>
-                        <!-- Storage Selection -->
-                        <div>
-                            <div class="flex justify-between items-center text-xs mb-2">
-                                <span class="font-mono text-slate-500 uppercase tracking-wider font-semibold">Storage:
-                                    <span class="text-slate-900" id="storage-name">256 GB</span></span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                <button
-                                    class="storage-btn p-2.5 rounded-xl border-2 border-[#0F172A] bg-slate-900/5 font-semibold text-[#0F172A] flex flex-col items-center justify-center transition"
-                                    onclick="setStorage('256 GB', '₹1,19,999', 'MRP ₹1,34,999', this)">
-                                    <span>256 GB</span>
-                                    <span
-                                        class="text-[10px] text-slate-500 font-mono font-normal mt-0.5">Included</span>
-                                </button>
-                                <button
-                                    class="storage-btn p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 bg-white font-semibold text-slate-700 flex flex-col items-center justify-center transition"
-                                    onclick="setStorage('512 GB', '₹1,39,999', 'MRP ₹1,54,999', this)">
-                                    <span>512 GB</span>
-                                    <span
-                                        class="text-[10px] text-slate-500 font-mono font-normal mt-0.5">+₹20,000</span>
-                                </button>
-                                <button
-                                    class="storage-btn p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 bg-white font-semibold text-slate-700 flex flex-col items-center justify-center transition"
-                                    onclick="setStorage('1 TB', '₹1,59,999', 'MRP ₹1,74,999', this)">
-                                    <span>1 TB</span>
-                                    <span
-                                        class="text-[10px] text-slate-500 font-mono font-normal mt-0.5">+₹40,000</span>
-                                </button>
-                            </div>
-                        </div>
+
+                    <!-- Product Short Description -->
+                    <div class="text-xs md:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                        {{ $prodDescription }}
                     </div>
-                    <!-- Quantity Stepper & Main CTA Buttons -->
+
+                    <!-- Feature 30 & 31: Quantity Stepper & Main CTA Buttons -->
                     <div class="space-y-3 pt-2">
-                        <div class="flex items-center gap-3">
-                            <!-- Tactile Stepper: [ - ] 1 [ + ] -->
-                            <div
-                                class="bg-slate-100 rounded-card p-1 flex items-center border border-slate-200/90 shadow-inner">
+                        @if($prodStock > 0)
+                            <div class="flex items-center gap-3">
+                                <!-- Tactile Stepper: [ - ] 1 [ + ] -->
+                                <div class="bg-slate-100 rounded-card p-1 flex items-center border border-slate-200/90 shadow-inner">
+                                    <button
+                                        type="button"
+                                        class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-700 hover:bg-white hover:text-slate-900 transition text-base font-bold active:scale-95"
+                                        onclick="adjustQty(-1)">
+                                        −
+                                    </button>
+                                    <span class="w-10 text-center font-mono text-sm font-bold text-[#0F172A]" id="stepper-count">
+                                        1
+                                    </span>
+                                    <button
+                                        type="button"
+                                        class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-700 hover:bg-white hover:text-slate-900 transition text-base font-bold active:scale-95"
+                                        onclick="adjustQty(1)">
+                                        +
+                                    </button>
+                                </div>
+
+                                <!-- Feature 30: Primary Add to Cart Button -->
                                 <button
-                                    class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-700 hover:bg-white hover:text-slate-900 transition text-base font-bold active:scale-95"
-                                    onclick="adjustQty(-1)">
-                                    −
-                                </button>
-                                <span class="w-10 text-center font-mono text-sm font-bold text-[#0F172A]"
-                                    id="stepper-count">
-                                    1
-                                </span>
-                                <button
-                                    class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-700 hover:bg-white hover:text-slate-900 transition text-base font-bold active:scale-95"
-                                    onclick="adjustQty(1)">
-                                    +
+                                    type="button"
+                                    class="flex-1 py-3.5 px-6 bg-[#F5A623] hover:brightness-105 text-[#0F172A] rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
+                                    id="add-to-cart-btn" onclick="submitCartForm(false)">
+                                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                                    <span>🛒 Add to Cart</span>
                                 </button>
                             </div>
-                            <!-- Primary Add to Cart Button -->
-                            <button
-                                class="flex-1 py-3.5 px-6 bg-[#F5A623] hover:brightness-105 text-[#0F172A] rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
-                                id="add-to-cart-btn" onclick="submitCartForm(false)">
-                                <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                                <span>🛒 Add to Cart</span>
+
+                            <!-- Feature 31: Instant Escrow Buy Now Button + Wishlist Heart -->
+                            <div class="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    class="flex-1 py-3.5 px-6 bg-[#0F172A] hover:bg-slate-800 text-white rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
+                                    onclick="submitCartForm(true)">
+                                    <span class="text-[#F5A623]">⚡</span>
+                                    <span>⚡ Instant Escrow Buy Now</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="w-12 h-12 rounded-card border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 hover:text-red-500 flex items-center justify-center transition active:scale-95 shadow-xs {{ $isWishlisted ? 'text-red-500' : '' }}"
+                                    onclick="toggleWishlist(this)" title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist' }}">
+                                    <span class="material-symbols-outlined text-[22px]">{{ $isWishlisted ? 'favorite' : 'favorite_border' }}</span>
+                                </button>
+                            </div>
+                        @else
+                            <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-center">
+                                <p class="font-bold text-rose-800 text-sm">This product is currently out of stock.</p>
+                                <p class="text-xs text-rose-600 mt-1">Check back later or browse similar products in the catalog.</p>
+                            </div>
+                            <button disabled class="w-full py-3.5 px-6 bg-slate-200 text-slate-400 rounded-card font-semibold text-sm cursor-not-allowed">
+                                Out of Stock
                             </button>
-                        </div>
-                        <!-- Instant Escrow Buy Now Button + Wishlist Heart -->
-                        <div class="flex items-center gap-3">
-                            <button
-                                class="flex-1 py-3.5 px-6 bg-[#0F172A] hover:bg-slate-800 text-white rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
-                                onclick="submitCartForm(true)">
-                                <span class="text-[#F5A623]">⚡</span>
-                                <span>⚡ Instant Escrow Buy Now</span>
-                            </button>
-                            <button
-                                class="w-12 h-12 rounded-card border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 hover:text-red-500 flex items-center justify-center transition active:scale-95 shadow-xs"
-                                onclick="toggleWishlist(this)" title="Save to Wishlist">
-                                <span class="material-symbols-outlined text-[22px]">favorite_border</span>
-                            </button>
-                        </div>
+                        @endif
                     </div>
-                    <!-- Product Benefits Cards (Grid of 4 Clean Cards) -->
-                    <div class="grid grid-cols-2 gap-2.5 pt-2">
-                        <div
-                            class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2.5">
+
+                    <!-- Product Benefits Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                        <div class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2">
                             <span class="text-lg">🚚</span>
                             <div>
-                                <p class="font-display font-bold text-xs text-[#0F172A]">Free Delivery</p>
-                                <p class="font-mono text-[10px] text-slate-500">Express in 24h</p>
+                                <p class="font-display font-bold text-xs text-[#0F172A]">Fast Delivery</p>
+                                <p class="font-mono text-[10px] text-slate-500">2-4 days</p>
                             </div>
                         </div>
-                        <div
-                            class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2.5">
+                        <div class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2">
                             <span class="text-lg">↩</span>
                             <div>
                                 <p class="font-display font-bold text-xs text-[#0F172A]">7 Day Returns</p>
-                                <p class="font-mono text-[10px] text-slate-500">Hassle-free guarantee</p>
+                                <p class="font-mono text-[10px] text-slate-500">Guaranteed</p>
                             </div>
                         </div>
-                        <div
-                            class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2.5">
+                        <div class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2">
                             <span class="text-lg">🔒</span>
                             <div>
-                                <p class="font-display font-bold text-xs text-[#0F172A]">Secure Payment</p>
-                                <p class="font-mono text-[10px] text-slate-500">100% Escrow Vault</p>
+                                <p class="font-display font-bold text-xs text-[#0F172A]">Escrow Vault</p>
+                                <p class="font-mono text-[10px] text-slate-500">100% Protected</p>
                             </div>
                         </div>
-                        <div
-                            class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2.5">
+                        <div class="p-3 rounded-card bg-slate-50/80 border border-slate-200/70 flex items-center gap-2">
                             <span class="text-lg">✓</span>
                             <div>
-                                <p class="font-display font-bold text-xs text-[#0F172A]">Genuine Product</p>
-                                <p class="font-mono text-[10px] text-slate-500">Brand Authenticity Verified</p>
+                                <p class="font-display font-bold text-xs text-[#0F172A]">Genuine</p>
+                                <p class="font-mono text-[10px] text-slate-500">Verified Stall</p>
                             </div>
                         </div>
                     </div>
-                    <!-- Multi-vendor Seller Information Card -->
+
+                    <!-- Features 26 & 29: Seller Information Card -->
                     <div class="border-t border-slate-100 pt-4 space-y-2">
-                        <span
-                            class="font-mono text-[11px] text-slate-400 uppercase tracking-wider block font-semibold">Sold
-                            by</span>
-                        <div
-                            class="p-3.5 rounded-card bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span class="font-mono text-[11px] text-slate-400 uppercase tracking-wider block font-semibold">
+                            Sold by Merchant
+                        </span>
+                        <div class="p-3.5 rounded-card bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="space-y-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="font-display font-bold text-sm text-[#0F172A]">TechWorld Store</span>
-                                    <span
-                                        class="bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                        Trusted Seller ✓
+                                    <span class="font-display font-bold text-sm text-[#0F172A]">{{ $prodSeller }}</span>
+                                    <span class="border font-mono text-[10px] font-bold px-2 py-0.5 rounded-full {{ $sellerTypeBadgeClasses }}">
+                                        {{ $sellerType }}
                                     </span>
-                                    <span class="text-xs font-mono font-semibold text-amber-700">★ 4.8 (98% positive
-                                        rating)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                        🛡️ {{ number_format($trustScore, 1) }}% Trust Score
+                                    </span>
                                 </div>
                                 <p class="font-mono text-[11px] text-slate-500">
-                                    4,912 Products • Mumbai, India • Seller since 2021 • 99.8% Trust Score
+                                    {{ $sellerCity }}{{ $sellerState ? ', ' . $sellerState : '' }} • Verified Merchant
                                 </p>
                             </div>
-                            <button
+                            <a href="{{ route('products.index', ['search' => $prodSeller]) }}"
                                 class="self-start sm:self-center font-mono text-xs font-bold text-[#0F172A] hover:text-amber-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg transition shrink-0">
-                                [ Visit Store → ]
-                            </button>
+                                [ View Stall Catalog → ]
+                            </a>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
-        <!-- 4. BAZAARIO AI PRODUCT INSIGHT (GEMINI AI SECTION) -->
-        <section class="w-full">
-            <div class="ai-gradient-border bg-white rounded-card p-6 md:p-7 shadow-card-elevated space-y-5">
-                <div
-                    class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[#F5A623] text-[22px]">auto_awesome</span>
-                            <h3 class="font-display font-bold text-xl text-[#0F172A]">✨ Bazaario AI Insight</h3>
-                            <span
-                                class="bg-purple-100 text-purple-800 font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                                Powered by Gemini AI Engine v4.2
-                            </span>
-                        </div>
-                        <p class="font-display font-semibold text-sm text-slate-800">Is this product right for you?</p>
-                        <p class="font-mono text-xs text-slate-500">Based on your browsing and purchase preferences:</p>
-                    </div>
-                    <a class="self-start md:self-center font-display font-semibold text-xs text-[#0F172A] bg-amber-100 hover:bg-amber-200 text-amber-950 px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-xs"
-                        href="#">
-                        [ Compare with Similar Products → ]
-                    </a>
-                </div>
-                <!-- AI Bullet checks & Metric Bars -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                    <!-- Checks (7 cols) -->
-                    <div class="lg:col-span-7 space-y-2.5 text-xs text-slate-700 leading-relaxed">
-                        <div class="flex items-start gap-2">
-                            <span class="text-[#16A34A] font-bold text-sm">✓</span>
-                            <p><strong class="text-[#0F172A]">Great performance:</strong> A17 Pro benchmarks surpass 98%
-                                of flagship phones on market compute loads.</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-[#16A34A] font-bold text-sm">✓</span>
-                            <p><strong class="text-[#0F172A]">Good camera quality:</strong> 5x optical periscope zoom
-                                &amp; 48MP ProRAW for professional studio captures.</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-[#16A34A] font-bold text-sm">✓</span>
-                            <p><strong class="text-[#0F172A]">Suitable for everyday use:</strong> All-day endurance
-                                paired with aerospace titanium chassis.</p>
-                        </div>
-                    </div>
-                    <!-- Progress Bars (5 cols) -->
-                    <div
-                        class="lg:col-span-5 bg-slate-50/90 rounded-xl p-4 border border-slate-200/80 space-y-3 font-mono text-xs">
-                        <div class="space-y-1.5">
-                            <div class="flex justify-between font-medium">
-                                <span class="text-slate-700">Value for Money</span>
-                                <span class="text-[#0F172A] font-bold">8.7 / 10</span>
-                            </div>
-                            <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#F5A623] rounded-full" style="width: 87%;"></div>
-                            </div>
-                        </div>
-                        <div class="space-y-1.5">
-                            <div class="flex justify-between font-medium">
-                                <span class="text-slate-700">Performance</span>
-                                <span class="text-[#0F172A] font-bold">9.2 / 10</span>
-                            </div>
-                            <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-emerald-600 rounded-full" style="width: 92%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- 5. ABOUT THIS PRODUCT & DESCRIPTION -->
-        <section class="w-full">
-            <div class="glass-card rounded-card p-6 md:p-8 space-y-6 shadow-sm">
-                <div>
-                    <h2 class="font-display font-bold text-2xl text-[#0F172A]">About this product</h2>
-                    <p class="text-sm md:text-base text-slate-600 leading-relaxed mt-2">
-                        The iPhone 15 Pro Max delivers exceptional performance with a powerful processor, advanced
-                        camera system, and long-lasting battery. Forged in aerospace-grade titanium, it brings unmatched
-                        computational photography and next-generation gaming to the Bazaario ecosystem.
-                    </p>
-                </div>
-                <div class="space-y-2.5 pt-2 border-t border-slate-100">
-                    <h3 class="font-display font-bold text-sm text-[#0F172A] uppercase tracking-wide">Key Features</h3>
-                    <ul class="space-y-2 text-xs md:text-sm text-slate-700 font-sans">
-                        <li class="flex items-center gap-2">
-                            <span class="text-[#16A34A] font-bold">✓</span>
-                            <span>6.7-inch Super Retina XDR display with ProMotion 120Hz</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-[#16A34A] font-bold">✓</span>
-                            <span>256GB NVMe high-speed storage</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-[#16A34A] font-bold">✓</span>
-                            <span>Advanced 48MP triple-lens camera system with 5x optical zoom</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-[#16A34A] font-bold">✓</span>
-                            <span>Long battery life (up to 29 hours video playback)</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-[#16A34A] font-bold">✓</span>
-                            <span>Premium titanium design with customizable Action button</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-        <!-- 6. PRODUCT SPECIFICATIONS (CLEAN 2-COLUMN TABLE) -->
+
+        <!-- Feature 25: PRODUCT SPECIFICATIONS & DETAILS -->
         <section class="w-full space-y-3">
-            <h2 class="font-display font-bold text-2xl text-[#0F172A]">Product Specifications</h2>
+            <h2 class="font-display font-bold text-2xl text-[#0F172A]">Product Specifications & Details</h2>
             <div class="bg-white rounded-card overflow-hidden border border-slate-900/10 shadow-sm">
                 <table class="w-full text-left text-xs md:text-sm border-collapse">
                     <tbody class="divide-y divide-slate-200/80 font-sans">
                         <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Brand</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">Apple</td>
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Product Name</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">{{ $prodName }}</td>
                         </tr>
                         <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Model</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">iPhone 15 Pro Max</td>
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">SKU Code</td>
+                            <td class="w-2/3 py-3 px-4 font-mono font-semibold text-[#0F172A]">{{ $prod->sku ?? 'N/A' }}</td>
                         </tr>
                         <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Storage</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">256 GB</td>
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Category</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">{{ $prodCategory }}</td>
                         </tr>
                         <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">RAM</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">8 GB Unified</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Display</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">6.7 inch Super Retina XDR OLED</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Processor
-                            </td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">Apple A17 Pro (3nm)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Main Camera
-                            </td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">48 MP + 12 MP + 12 MP (5x
-                                Telephoto)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Operating
-                                System</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">iOS 17 (Upgradable)</td>
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Unit Type</td>
+                            <td class="w-2/3 py-3 px-4 font-mono font-semibold text-[#0F172A]">{{ $prodUnitType }}</td>
                         </tr>
                         <tr class="hover:bg-slate-50/60 transition">
                             <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Weight</td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">221 grams</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">{{ $prod->weight ? $prod->weight . ' kg' : 'Standard' }}</td>
                         </tr>
                         <tr class="hover:bg-slate-50/60 transition">
-                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Warranty
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Dimensions (L × W × H)</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">
+                                @if($prod->length || $prod->width || $prod->height)
+                                    {{ $prod->length ?? 0 }} × {{ $prod->width ?? 0 }} × {{ $prod->height ?? 0 }} cm
+                                @else
+                                    Standard Packaging
+                                @endif
                             </td>
-                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">1 Year Official Manufacturer
-                                Warranty</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Stock Availability</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold {{ $prodStock > 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                                {{ $prodStock > 0 ? "{$prodStock} units available" : 'Out of Stock' }}
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Sale Type</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">{{ ucfirst($prod->sale_type ?? 'fixed') }}</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Dispatch Processing Time</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">{{ $prod->processing_time_days ? $prod->processing_time_days . ' business days' : '1-2 business days' }}</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="w-1/3 py-3 px-4 font-mono font-medium text-slate-500 bg-slate-50/50">Merchant Stall & Origin</td>
+                            <td class="w-2/3 py-3 px-4 font-semibold text-[#0F172A]">{{ $prodSeller }} ({{ $sellerCity }}{{ $sellerState ? ', ' . $sellerState : '' }})</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-        <!-- 7. CUSTOMER REVIEWS SECTION -->
+
+        <!-- Feature 32 & 33: CUSTOMER REVIEWS & RATING FORM -->
         <section class="space-y-6 pt-2" id="customer-reviews">
             <div class="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <span class="font-mono text-xs font-bold text-amber-700 uppercase tracking-wider block">VERIFIED
-                        RATINGS</span>
-                    <h2 class="font-display font-bold text-2xl md:text-3xl text-[#0F172A]">⭐ Customer Reviews</h2>
+                    <span class="font-mono text-xs font-bold text-amber-700 uppercase tracking-wider block">VERIFIED BUYER FEEDBACK</span>
+                    <h2 class="font-display font-bold text-2xl md:text-3xl text-[#0F172A]">⭐ Customer Reviews & Ratings</h2>
                 </div>
-                <!-- Filter pills -->
-                <div class="flex items-center gap-1.5 flex-wrap text-xs font-mono">
-                    <button class="bg-[#0F172A] text-white px-3 py-1.5 rounded-full font-bold">All (248)</button>
-                    <button
-                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-full">With
-                        Photos (64)</button>
-                    <button
-                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-full">5
-                        Stars (190)</button>
-                    <button
-                        class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-full font-semibold">Escrow
-                        Verified (248)</button>
+                <div class="font-mono text-xs text-slate-500">
+                    Showing {{ $reviews->count() }} verified buyer reviews
                 </div>
             </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <!-- Rating summary card (5 cols) -->
                 <div class="lg:col-span-5 glass-card rounded-card p-6 shadow-sm space-y-5">
                     <div class="flex items-baseline gap-3">
-                        <span class="font-display font-bold text-5xl text-[#0F172A]">4.8</span>
+                        <span class="font-display font-bold text-5xl text-[#0F172A]">{{ number_format($avgRating, 1) }}</span>
                         <div class="space-y-1">
                             <span class="text-sm font-mono text-slate-500">/ 5.0</span>
                             <div class="flex text-[#F5A623] text-lg">
-                                ★★★★★
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= round($avgRating))
+                                        ★
+                                    @else
+                                        ☆
+                                    @endif
+                                @endfor
                             </div>
                         </div>
                     </div>
-                    <p class="font-mono text-xs text-slate-500">Based on 248 verified reviews</p>
-                    <!-- Horizontal distribution bars matching requested specs -->
+                    <p class="font-mono text-xs text-slate-500">Based on {{ $totalReviewsCount }} customer ratings</p>
+                    
+                    <!-- Horizontal distribution bars -->
                     <div class="space-y-2 font-mono text-xs pt-2 border-t border-slate-100">
-                        <!-- 5 Star -->
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-8 text-right font-medium">5 ★</span>
-                            <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-[#F5A623] h-full rounded-full" style="width: 76%;"></div>
+                        @foreach([5, 4, 3, 2, 1] as $star)
+                            @php
+                                $cnt = $ratingCounts[$star] ?? 0;
+                                $pct = $totalReviewsCount > 0 ? round(($cnt / $totalReviewsCount) * 100) : 0;
+                            @endphp
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 text-right font-medium">{{ $star }} ★</span>
+                                <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="bg-[#F5A623] h-full rounded-full" style="width: {{ $pct }}%;"></div>
+                                </div>
+                                <span class="w-16 text-right text-slate-600 font-semibold">{{ $cnt }} ({{ $pct }}%)</span>
                             </div>
-                            <span class="w-16 text-right text-slate-600 font-semibold">190 (76%)</span>
-                        </div>
-                        <!-- 4 Star -->
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-8 text-right font-medium">4 ★</span>
-                            <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-[#F5A623] h-full rounded-full" style="width: 15%;"></div>
+                        @endforeach
+                    </div>
+
+                    <!-- Feature 33: Add Review Form Container -->
+                    <div class="pt-4 border-t border-slate-200">
+                        <h3 class="font-display font-bold text-base text-[#0F172A] mb-2">Write a Review</h3>
+                        @auth
+                            <form action="{{ route('user.reviews.store') }}" method="POST" class="space-y-3">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $prod->id }}">
+
+                                <div>
+                                    <label class="block font-mono text-xs font-semibold text-slate-700 mb-1">Your Rating</label>
+                                    <div class="flex items-center gap-3">
+                                        @for($s = 5; $s >= 1; $s--)
+                                            <label class="flex items-center gap-1 cursor-pointer font-mono text-xs">
+                                                <input type="radio" name="rating" value="{{ $s }}" {{ $s === 5 ? 'checked' : '' }} class="accent-[#F5A623]">
+                                                <span>{{ $s }} ★</span>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block font-mono text-xs font-semibold text-slate-700 mb-1">Headline / Title</label>
+                                    <input type="text" name="title" placeholder="Summary of your experience"
+                                        class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500">
+                                </div>
+
+                                <div>
+                                    <label class="block font-mono text-xs font-semibold text-slate-700 mb-1">Comments</label>
+                                    <textarea name="comment" rows="3" placeholder="Tell other buyers what you liked or how this item performed..."
+                                        class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500"></textarea>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition">
+                                    Submit Feedback
+                                </button>
+                            </form>
+                        @else
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-center text-slate-600">
+                                Please <a href="{{ route('login') }}" class="font-bold text-amber-700 underline">Sign In</a> to share your review and rating.
                             </div>
-                            <span class="w-16 text-right text-slate-600 font-semibold">38 (15%)</span>
-                        </div>
-                        <!-- 3 Star -->
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-8 text-right font-medium">3 ★</span>
-                            <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-[#F5A623] h-full rounded-full" style="width: 5%;"></div>
-                            </div>
-                            <span class="w-16 text-right text-slate-600 font-semibold">12 (5%)</span>
-                        </div>
-                        <!-- 2 Star -->
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-8 text-right font-medium">2 ★</span>
-                            <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-[#F5A623] h-full rounded-full" style="width: 2%;"></div>
-                            </div>
-                            <span class="w-16 text-right text-slate-600 font-semibold">5 (2%)</span>
-                        </div>
-                        <!-- 1 Star -->
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-8 text-right font-medium">1 ★</span>
-                            <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-[#F5A623] h-full rounded-full" style="width: 1%;"></div>
-                            </div>
-                            <span class="w-16 text-right text-slate-600 font-semibold">3 (1%)</span>
-                        </div>
+                        @endauth
                     </div>
                 </div>
-                <!-- Review Cards (7 cols) -->
+
+                <!-- Feature 32: Real Customer Review Cards (7 cols) -->
                 <div class="lg:col-span-7 space-y-4">
-                    <!-- Review 1: Rahul V. -->
-                    <div class="glass-card rounded-card p-5 shadow-sm space-y-2.5">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div class="flex items-center gap-2.5">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-[#0F172A] text-white font-display font-bold text-xs flex items-center justify-center">
-                                    RV
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-display font-bold text-sm text-[#0F172A]">Rahul V.</span>
-                                        <span
-                                            class="bg-emerald-100 text-emerald-800 font-mono text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                                            Verified Purchase ✓
-                                        </span>
+                    @if($reviews->isNotEmpty())
+                        @foreach($reviews as $rev)
+                            @php
+                                $authorName = $rev->user->name ?? 'Verified Buyer';
+                                $initials = strtoupper(mb_substr($authorName, 0, 2));
+                                $revRating = (int)($rev->rating ?? 5);
+                            @endphp
+                            <div class="glass-card rounded-card p-5 shadow-sm space-y-2.5">
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-full bg-[#0F172A] text-white font-display font-bold text-xs flex items-center justify-center">
+                                            {{ $initials }}
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-display font-bold text-sm text-[#0F172A]">{{ $authorName }}</span>
+                                                <span class="bg-emerald-100 text-emerald-800 font-mono text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                                                    Verified Purchase ✓
+                                                </span>
+                                            </div>
+                                            <span class="font-mono text-[10px] text-slate-400">
+                                                {{ $rev->created_at ? $rev->created_at->diffForHumans() : 'Recently' }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <span class="font-mono text-[10px] text-slate-400">2 days ago</span>
-                                </div>
-                            </div>
-                            <div class="text-[#F5A623] text-sm">★★★★★</div>
-                        </div>
-                        <p class="text-xs md:text-sm text-slate-700 leading-relaxed">
-                            Excellent product. Delivery was very fast. The natural titanium finish feels unbelievable in
-                            hand and escrow protection gave me total peace of mind.
-                        </p>
-                    </div>
-                    <!-- Review 2: Priya Sharma -->
-                    <div class="glass-card rounded-card p-5 shadow-sm space-y-2.5">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div class="flex items-center gap-2.5">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-slate-700 text-white font-display font-bold text-xs flex items-center justify-center">
-                                    PS
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-display font-bold text-sm text-[#0F172A]">Priya Sharma</span>
-                                        <span
-                                            class="bg-emerald-100 text-emerald-800 font-mono text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                                            Verified Purchase ✓
-                                        </span>
+                                    <div class="text-[#F5A623] text-sm font-mono">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= $revRating)★@else☆@endif
+                                        @endfor
                                     </div>
-                                    <span class="font-mono text-[10px] text-slate-400">1 week ago</span>
                                 </div>
+                                @if($rev->title)
+                                    <h4 class="font-display font-bold text-sm text-[#0F172A]">{{ $rev->title }}</h4>
+                                @endif
+                                <p class="text-xs md:text-sm text-slate-700 leading-relaxed">
+                                    {{ $rev->comment ?? $rev->body ?? 'Great product quality and fast delivery.' }}
+                                </p>
                             </div>
-                            <div class="text-[#F5A623] text-sm">★★★★★</div>
+                        @endforeach
+                    @else
+                        <div class="glass-card rounded-card p-8 text-center space-y-3">
+                            <span class="material-symbols-outlined text-4xl text-amber-500">rate_review</span>
+                            <h3 class="font-display font-bold text-base text-slate-800">No customer reviews yet</h3>
+                            <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                                Be the first customer to purchase and share authentic feedback on this stall listing!
+                            </p>
                         </div>
-                        <p class="text-xs md:text-sm text-slate-700 leading-relaxed">
-                            Battery easily lasts two full days. 120Hz screen is gorgeous and camera in low light is top
-                            tier.
-                        </p>
-                    </div>
+                    @endif
                 </div>
             </div>
         </section>
-        <!-- 8. YOU MAY ALSO LIKE -->
+
+        <!-- RELATED PRODUCTS: YOU MAY ALSO LIKE -->
+        @if(isset($relatedProducts) && $relatedProducts->isNotEmpty())
         <section class="space-y-5 pt-4 pb-8">
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="font-display font-bold text-2xl text-[#0F172A]">✨ You may also like</h2>
                 </div>
-                <a class="text-xs font-mono font-bold text-[#0F172A] hover:text-amber-600 transition" href="#">
+                <a class="text-xs font-mono font-bold text-[#0F172A] hover:text-amber-600 transition" href="{{ route('products.index') }}">
                     Browse catalog →
                 </a>
             </div>
-            <!-- 4 product cards grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Card 1: Sony WH-1000XM5 -->
-                <article
-                    class="bg-white rounded-card p-4 border border-slate-900/10 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-                    <div class="space-y-3">
-                        <div
-                            class="w-full aspect-square bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center p-3">
-                            <img alt="Sony WH-1000XM5"
-                                class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                                src="https://lh3.googleusercontent.com/aida/AEtjO1VHIOUaIHnEHXj6aAZR4Ssh03jnYrUls7pm_emn5hHL2orC7ViQ-wxHcYe-_OtQ4l7DFZJtmf9sVuU9gusW4XgqcW0bn92muRJsSPTObn0awSbspcMJr7VIFOyHd974SJiQ_R0tqH09fkmekCH06QhNvFA8G_Azm4NodqGuMIHPfhtk9Z3DeVZT5bgVvTgUIHqlnWVHYBzuChGGQ3NqtT_B5CoyX1mWpCicCbGqDmUt56gau_yghNUuBQ" />
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1 text-[#F5A623] text-xs font-mono">
-                                <span>★ 4.9</span>
+                @foreach($relatedProducts as $rel)
+                    @php $relImg = $rel->primaryImage?->url ?? $rel->images->first()?->url ?? asset('images/product-placeholder.svg'); @endphp
+                    <article class="bg-white rounded-card p-4 border border-slate-900/10 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                        <a href="{{ route('products.show', $rel->slug) }}" class="space-y-3 block">
+                            <div class="w-full aspect-square bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center p-3">
+                                <img alt="{{ $rel->name }}" class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
+                                    src="{{ $relImg }}" onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';" />
                             </div>
-                            <h3 class="font-display font-bold text-sm text-[#0F172A] truncate">Sony WH-1000XM5</h3>
-                            <p class="font-mono font-bold text-base text-[#0F172A] mt-1">₹25,000</p>
-                        </div>
-                    </div>
-                    <button
-                        class="mt-3 w-full bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[#0F172A] font-semibold text-xs py-2 rounded-lg transition"
-                        onclick="triggerMiniAdd(this)">
-                        🛒 Add to Cart
-                    </button>
-                </article>
-                <!-- Card 2: Retro Cream Keyboard -->
-                <article
-                    class="bg-white rounded-card p-4 border border-slate-900/10 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-                    <div class="space-y-3">
-                        <div
-                            class="w-full aspect-square bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center p-3">
-                            <img alt="Retro Cream Keyboard"
-                                class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                                src="https://lh3.googleusercontent.com/aida/AEtjO1Vuz-e4ii6gOV2jAQgMpB1N9MIzgysUeNPdcwjYPzkYHga3UfjHTFkS8fV47RmoFUipezX_vsHo5VUXgpGvYfuiLYWCL6KwVgK2YofEOcjvrD7zgENNTjPH6_9ab9Wbd8R3aWmYg1Asip4dJ1bqyLdJS_B9Q_v2_CWdT3Z7b7lW8j6T4qpgzDUUdMYSEG2cj1zvGiQWjGEYf78vpvUhqvVPVQD5Cd-OnQNGRa_cTNAjtQjwoMCHPba5ag" />
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1 text-[#F5A623] text-xs font-mono">
-                                <span>★ 4.7</span>
+                            <div>
+                                <div class="flex items-center gap-1 text-[#F5A623] text-xs font-mono">
+                                    <span>★ {{ number_format($rel->average_rating ?: 4.8, 1) }}</span>
+                                </div>
+                                <h3 class="font-display font-bold text-sm text-[#0F172A] truncate">{{ $rel->name }}</h3>
+                                <p class="font-mono font-bold text-base text-[#0F172A] mt-1">₹{{ number_format($rel->price, 2) }}</p>
                             </div>
-                            <h3 class="font-display font-bold text-sm text-[#0F172A] truncate">Retro Cream Keyboard</h3>
-                            <p class="font-mono font-bold text-base text-[#0F172A] mt-1">₹18,500</p>
-                        </div>
-                    </div>
-                    <button
-                        class="mt-3 w-full bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[#0F172A] font-semibold text-xs py-2 rounded-lg transition"
-                        onclick="triggerMiniAdd(this)">
-                        🛒 Add to Cart
-                    </button>
-                </article>
-                <!-- Card 3: Nike Air Max Earth -->
-                <article
-                    class="bg-white rounded-card p-4 border border-slate-900/10 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-                    <div class="space-y-3">
-                        <div
-                            class="w-full aspect-square bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center p-3">
-                            <img alt="Nike Air Max Earth"
-                                class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                                src="https://lh3.googleusercontent.com/aida/AEtjO1Xep3-dlB7z3YoAD_OUxL9JusNyYl-fYu4q6eKlOSOZ6br_ALauCKVM6uFISE7m5spV00agB9G9sqJ_dNw2FedqwACnW1yGZQ6MQJAVPcHepLbD640I33clDsP90jYqsRZxxibHRC9if3kpfkSsoPQFouW7OCh6An1cW2TfHK9q5KXusLSjn1EsJ9hBupZcW99lKn7SmOSXwtjbGJwC2PS-cHJGkK-lVnnrd9FD3uGDWokcvfbNdxQ9mgg" />
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1 text-[#F5A623] text-xs font-mono">
-                                <span>★ 4.8</span>
-                            </div>
-                            <h3 class="font-display font-bold text-sm text-[#0F172A] truncate">Nike Air Max Earth</h3>
-                            <p class="font-mono font-bold text-base text-[#0F172A] mt-1">₹31,000</p>
-                        </div>
-                    </div>
-                    <button
-                        class="mt-3 w-full bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[#0F172A] font-semibold text-xs py-2 rounded-lg transition"
-                        onclick="triggerMiniAdd(this)">
-                        🛒 Add to Cart
-                    </button>
-                </article>
-                <!-- Card 4: Apple Watch Ultra -->
-                <article
-                    class="bg-white rounded-card p-4 border border-slate-900/10 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-                    <div class="space-y-3">
-                        <div
-                            class="w-full aspect-square bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center p-3">
-                            <img alt="Apple Watch Ultra"
-                                class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                                src="https://lh3.googleusercontent.com/aida/AEtjO1VdXEmh6VIHBeEKpbhBsJla5YRF2HZfN_yobBtuYB29VcpXPUhJ3bF_9h6T1v-aBFf9RjmXiP7SMtLWz8tL24YlWmvXBrRiy3Of39ExP85BvzYHoDoL_GGGbxXSqWdi9lnp-Q3RWE50x-h3nmfIdDsYuRa9jK19Gf1OXdvLjPu6tY-kxH7lRQL1qFgdx-WbwlmpFOp8_eww2HlqsF-1x2YrEWXQgabb7057tBdbEK6THq4cbJIPvONL01M" />
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1 text-[#F5A623] text-xs font-mono">
-                                <span>★ 4.9</span>
-                            </div>
-                            <h3 class="font-display font-bold text-sm text-[#0F172A] truncate">Apple Watch Ultra</h3>
-                            <p class="font-mono font-bold text-base text-[#0F172A] mt-1">₹42,000</p>
-                        </div>
-                    </div>
-                    <button
-                        class="mt-3 w-full bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[#0F172A] font-semibold text-xs py-2 rounded-lg transition"
-                        onclick="triggerMiniAdd(this)">
-                        🛒 Add to Cart
-                    </button>
-                </article>
+                        </a>
+                        <form action="{{ route('cart.store') }}" method="POST" class="mt-3">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $rel->id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="w-full bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[#0F172A] font-semibold text-xs py-2 rounded-lg transition">
+                                🛒 Add to Cart
+                            </button>
+                        </form>
+                    </article>
+                @endforeach
             </div>
         </section>
+        @endif
     </main>
-    <!-- 8. FLOATING AI ASSISTANT PILL (FIXED BOTTOM-RIGHT) -->
-    <aside class="fixed bottom-5 right-5 z-40">
-        <button
-            class="bg-[#0F172A] hover:bg-slate-800 text-white px-4 py-2.5 rounded-full shadow-2xl border border-slate-700/80 flex items-center gap-2.5 transition active:scale-95 group"
-            onclick="alert('Bazaario AI Assistant: Comparing specs, finding coupons, or initiating seller escrow price negotiation...')">
-            <span
-                class="material-symbols-outlined text-[#F5A623] text-[18px] group-hover:rotate-12 transition-transform">auto_awesome</span>
-            <span class="font-display font-medium text-xs tracking-tight">Ask Bazaario AI: Compare specs or negotiate
-                price</span>
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5"></span>
-        </button>
-    </aside>
-    <!-- 9. FOOTER -->
-    <x-footer />
-    <!-- SCRIPT FOR INTERACTION -->
-    <script>
-        const galleryList = [
-            "https://lh3.googleusercontent.com/aida/AEtjO1VBfMU_UJLdgyOwT14nG-AylyaKuOAGG2ZZqje9PxPmYECnNoJDh68Krv5X9qxiHEE91OaXp_EDCt15rQRy_d6wSZHmWvc-2WwjfxCyRKyXBqCJPKu-L3Tx9mxC9REuVmYucvAwPFfvDxod-gvguMPMEZv9fzJacAwGBT0Vtodc45GjrxPp1X-1LwYIRLUBL90UBCw54dIQBvsEzT7RHrJbneZrTHTldD4c-cC0eUZdQ_fBpU6yrnNlKvI",
-            "https://lh3.googleusercontent.com/aida/AEtjO1U3XME0NHjyC0yTKDtPI-ikX0uXSsK46fZWbEaNRHHh3unKIDvt926bWFjY23XI1c5GTBPfAs4A1fHM-2MKmEAcn266rdb_5aiHgb4OI9OdXVLs1zjaghPZsIBGNIXAEJZw-Yl91LswyLLPZpKiukxNkkqjmxe5RpeUyLb_TpaY5LV6_vyqZcvQWn_5K_BDw8a2JEJUCAerh9mvrt4wZU0oatV1V4JCINW2MuphqazsPhOTaIZpo9ayAW4",
-            "https://lh3.googleusercontent.com/aida/AEtjO1Wzt2qenVqQnp5b3WNrnmK9j8KZawCAt2uvf_-imd9ZPFeKz8NyGF_E0gE0047zxBPF__D5Jc_-tWxglSpDeAWXGT0QYKYMa8azKDyT3LpO-K2UFFteyMo7oKiwO6-NoFLmgTRYub_z4VvYkls48KdYB308dMR2mAyoCkLCz1CSZ-V2gSMW_ElybIVeVyM691WVLcfvRXORt8QLylnSBTVibdSfXVHv1EZmNzOCwcKHq-qcSMCPAhfSZjQ",
-            "https://lh3.googleusercontent.com/aida/AEtjO1VdXEmh6VIHBeEKpbhBsJla5YRF2HZfN_yobBtuYB29VcpXPUhJ3bF_9h6T1v-aBFf9RjmXiP7SMtLWz8tL24YlWmvXBrRiy3Of39ExP85BvzYHoDoL_GGGbxXSqWdi9lnp-Q3RWE50x-h3nmfIdDsYuRa9jK19Gf1OXdvLjPu6tY-kxH7lRQL1qFgdx-WbwlmpFOp8_eww2HlqsF-1x2YrEWXQgabb7057tBdbEK6THq4cbJIPvONL01M"
-        ];
-        let activeGalleryIdx = 1; // Default to main Titanium back image
 
-        function selectThumb(idx, src, btn) {
-            activeGalleryIdx = idx;
+    <!-- FOOTER -->
+    <x-footer />
+
+    <!-- JAVASCRIPT FOR GALLERY & CART -->
+    <script>
+        const galleryImages = {!! json_encode($galleryImages) !!};
+        let currentGalleryIndex = 0;
+
+        function selectThumb(idx, url, btn) {
+            currentGalleryIndex = idx;
             const img = document.getElementById('main-product-image');
             if (img) {
                 img.style.opacity = '0.3';
                 setTimeout(() => {
-                    img.src = src;
+                    img.src = url;
                     img.style.opacity = '1';
-                }, 120);
+                }, 100);
             }
-            document.querySelectorAll('.thumb-btn').forEach(b => {
-                b.className = 'thumb-btn border border-slate-200 p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square';
+            document.querySelectorAll('.thumb-btn').forEach((b, i) => {
+                if (i === idx) {
+                    b.className = 'thumb-btn border-2 border-[#F5A623] p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square';
+                } else {
+                    b.className = 'thumb-btn border border-slate-200 p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square';
+                }
             });
-            btn.className = 'thumb-btn border-2 border-[#F5A623] p-1.5 rounded-card bg-white shadow-xs transition hover:scale-[1.02] flex items-center justify-center aspect-square';
         }
 
         function cycleGallery(delta) {
-            activeGalleryIdx = (activeGalleryIdx + delta + galleryList.length) % galleryList.length;
-            const thumbs = document.querySelectorAll('.thumb-btn');
-            if (thumbs[activeGalleryIdx]) {
-                selectThumb(activeGalleryIdx, galleryList[activeGalleryIdx], thumbs[activeGalleryIdx]);
-            }
-        }
-
-        let currentColor = 'Natural Titanium';
-        let currentStorage = '256 GB';
-
-        function updateSpecLabel() {
-            const label = document.getElementById('selected-spec-label');
-            if (label) {
-                label.innerText = `${currentStorage} • ${currentColor}`;
-            }
-        }
-
-        function setColor(name, btn) {
-            currentColor = name;
-            document.getElementById('color-name').innerText = name;
-            document.querySelectorAll('.color-btn').forEach(b => {
-                b.className = 'color-btn w-8 h-8 rounded-full ring-1 ring-slate-300 hover:ring-2 hover:ring-slate-400 transition shadow-xs ' + b.className.split(' ').filter(c => c.startsWith('bg-')).join(' ');
-            });
-            btn.className = 'color-btn w-8 h-8 rounded-full ring-2 ring-offset-2 ring-[#0F172A] transition shadow-xs ' + btn.className.split(' ').filter(c => c.startsWith('bg-')).join(' ');
-            updateSpecLabel();
-        }
-
-        function setStorage(size, price, mrp, btn) {
-            currentStorage = size;
-            document.getElementById('storage-name').innerText = size;
-            document.getElementById('active-price').innerText = price;
-            document.getElementById('mrp-price').innerText = mrp;
-            document.querySelectorAll('.storage-btn').forEach(b => {
-                b.className = 'storage-btn p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 bg-white font-semibold text-slate-700 flex flex-col items-center justify-center transition';
-            });
-            btn.className = 'storage-btn p-2.5 rounded-xl border-2 border-[#0F172A] bg-slate-900/5 font-semibold text-[#0F172A] flex flex-col items-center justify-center transition';
-            updateSpecLabel();
+            if (!galleryImages || galleryImages.length === 0) return;
+            currentGalleryIndex = (currentGalleryIndex + delta + galleryImages.length) % galleryImages.length;
+            const url = galleryImages[currentGalleryIndex];
+            const buttons = document.querySelectorAll('.thumb-btn');
+            const targetBtn = buttons[currentGalleryIndex] || null;
+            selectThumb(currentGalleryIndex, url, targetBtn);
         }
 
         let qty = 1;
+        const maxStock = {{ $prodStock > 0 ? $prodStock : 1 }};
         function adjustQty(delta) {
-            qty = Math.max(1, qty + delta);
+            qty = Math.max(1, Math.min(maxStock, qty + delta));
             document.getElementById('stepper-count').innerText = qty;
         }
 
@@ -935,68 +760,30 @@
             form.submit();
         }
 
-        function triggerCartAdd(btn) {
-            const original = btn.innerHTML;
-            btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span> Added to Cart!';
-            btn.classList.add('bg-emerald-500', 'text-white');
-            setTimeout(() => {
-                btn.innerHTML = original;
-                btn.classList.remove('bg-emerald-500', 'text-white');
-            }, 1800);
-        }
-
-        function triggerMiniAdd(btn) {
-            const original = btn.innerHTML;
-            btn.innerHTML = '✓ Added';
-            btn.classList.add('bg-emerald-600', 'text-white');
-            setTimeout(() => {
-                btn.innerHTML = original;
-                btn.classList.remove('bg-emerald-600', 'text-white');
-            }, 1500);
-        }
-
         function toggleWishlist(btn) {
-            const icon = btn.querySelector('.material-symbols-outlined');
-            if (icon) {
-                if (icon.innerText === 'favorite_border') {
-                    icon.innerText = 'favorite';
-                    btn.classList.add('text-red-500');
-                } else {
-                    icon.innerText = 'favorite_border';
-                    btn.classList.remove('text-red-500');
-                }
-            }
-        }
+            const productId = '{{ $product->id }}';
 
-        const galleryImages = {!! json_encode($galleryImages) !!};
-        let currentGalleryIndex = 0;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route('user.wishlist.store') }}';
 
-        function selectThumb(index, url, btn) {
-            currentGalleryIndex = index;
-            const mainImg = document.getElementById('main-product-image');
-            if (mainImg) {
-                mainImg.src = url;
-            }
-            document.querySelectorAll('.thumb-btn').forEach((b, i) => {
-                if (i === index) {
-                    b.classList.remove('border-slate-200');
-                    b.classList.add('border-2', 'border-[#F5A623]');
-                } else {
-                    b.classList.remove('border-2', 'border-[#F5A623]');
-                    b.classList.add('border-slate-200');
-                }
-            });
-        }
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = '{{ csrf_token() }}';
+            form.appendChild(csrf);
 
-        function cycleGallery(direction) {
-            if (!galleryImages || galleryImages.length === 0) return;
-            currentGalleryIndex = (currentGalleryIndex + direction + galleryImages.length) % galleryImages.length;
-            const url = galleryImages[currentGalleryIndex];
-            const buttons = document.querySelectorAll('.thumb-btn');
-            const targetBtn = buttons[currentGalleryIndex] || null;
-            selectThumb(currentGalleryIndex, url, targetBtn);
+            const productIdInput = document.createElement('input');
+            productIdInput.type = 'hidden';
+            productIdInput.name = 'product_id';
+            productIdInput.value = productId;
+            form.appendChild(productIdInput);
+
+            document.body.appendChild(form);
+            form.submit();
         }
     </script>
+    <!-- Alpine.js — required for nav dropdowns and interactive UI -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
-
 </html>

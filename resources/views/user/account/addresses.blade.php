@@ -149,6 +149,12 @@
 
             {{-- Actions --}}
             <div class="flex items-center gap-2 pt-2 border-t border-slate-authority/5">
+                <button type="button" @click="editId = editId === {{ $address->id }} ? null : {{ $address->id }}"
+                    class="px-3 py-1.5 rounded-lg border border-slate-authority/20 text-slate-authority font-label-micro text-label-micro font-semibold hover:bg-surface-container transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px]">edit</span>
+                    Edit
+                </button>
+
                 @if(!$address->is_default)
                 <form action="{{ route('user.addresses.default', $address->id) }}" method="POST" class="flex-1">
                     @csrf
@@ -160,9 +166,82 @@
                 <form action="{{ route('user.addresses.destroy', $address->id) }}" method="POST" onsubmit="return confirm('Remove this address?')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="p-1.5 rounded-lg text-error hover:bg-error/10 transition-colors">
+                    <button type="submit" class="p-1.5 rounded-lg text-error hover:bg-error/10 transition-colors" title="Delete address">
                         <span class="material-symbols-outlined text-[18px]">delete</span>
                     </button>
+                </form>
+            </div>
+
+            {{-- Inline Edit Address Form --}}
+            <div x-show="editId === {{ $address->id }}" x-cloak x-transition class="pt-4 mt-2 border-t border-slate-authority/10">
+                <form action="{{ route('user.addresses.update', $address->id) }}" method="POST" class="flex flex-col gap-3">
+                    @csrf
+                    @method('PUT')
+                    <div class="font-label-micro text-label-micro font-bold text-slate-authority flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px] text-amber-action">edit_note</span>
+                        Edit Address Details
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">Type</label>
+                            <select name="type" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action">
+                                <option value="home" {{ $address->type === 'home' ? 'selected' : '' }}>Home</option>
+                                <option value="work" {{ $address->type === 'work' ? 'selected' : '' }}>Work</option>
+                                <option value="other" {{ $address->type === 'other' ? 'selected' : '' }}>Other</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">Full Name</label>
+                            <input type="text" name="full_name" value="{{ old('full_name', $address->full_name) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">Phone</label>
+                            <input type="tel" name="phone" value="{{ old('phone', $address->phone) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">City</label>
+                            <input type="text" name="city" value="{{ old('city', $address->city) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:col-span-2">
+                            <label class="font-semibold text-slate-authority text-[11px]">Address Line 1</label>
+                            <input type="text" name="address_line_1" value="{{ old('address_line_1', $address->address_line_1) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:col-span-2">
+                            <label class="font-semibold text-slate-authority text-[11px]">Address Line 2 (Optional)</label>
+                            <input type="text" name="address_line_2" value="{{ old('address_line_2', $address->address_line_2) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">Landmark (Optional)</label>
+                            <input type="text" name="landmark" value="{{ old('landmark', $address->landmark) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">State</label>
+                            <input type="text" name="state" value="{{ old('state', $address->state) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">Postal Code</label>
+                            <input type="text" name="postal_code" value="{{ old('postal_code', $address->postal_code) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-semibold text-slate-authority text-[11px]">Country</label>
+                            <input type="text" name="country" value="{{ old('country', $address->country) }}" class="bg-surface-container-low border border-slate-authority/20 rounded-lg px-2.5 py-1.5 text-slate-authority focus:outline-none focus:border-amber-action" required>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-1">
+                        <input type="checkbox" name="is_default" value="1" id="is_default_{{ $address->id }}" class="rounded border-slate-authority/30 text-amber-action focus:ring-amber-action" {{ $address->is_default ? 'checked' : '' }}>
+                        <label for="is_default_{{ $address->id }}" class="text-[11px] text-slate-authority">Set as default address</label>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-authority/10">
+                        <button type="button" @click="editId = null" class="px-3 py-1.5 rounded-lg border border-slate-authority/20 text-slate-authority text-[11px] font-semibold hover:bg-surface-container">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-1.5 rounded-lg bg-amber-action text-slate-authority text-[11px] font-bold shadow-xs hover:opacity-95">
+                            Update Address
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

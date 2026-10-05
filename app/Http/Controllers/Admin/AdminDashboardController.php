@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Order;
@@ -39,8 +40,8 @@ class AdminDashboardController extends Controller
             'active_auctions' => Auction::where('status', 'live')->count() ?: 10,
         ];
 
-        // Real recent multi-seller split orders
-        $recentOrders = Order::with(['user', 'sellerOrders.seller', 'sellerOrders.items.product'])
+        // Real recent multi-seller split orders with eager loaded merchant profiles to eliminate N+1
+        $recentOrders = Order::with(['user', 'sellerOrders.seller.sellerProfile', 'sellerOrders.items.product'])
             ->latest()
             ->take(6)
             ->get();
@@ -52,8 +53,8 @@ class AdminDashboardController extends Controller
             ->take(4)
             ->get();
 
-        // Live auctions ticker
-        $liveAuctions = Auction::with(['product', 'seller'])
+        // Live auctions ticker with product category eager loaded
+        $liveAuctions = Auction::with(['product.category', 'seller'])
             ->where('status', 'live')
             ->latest()
             ->take(4)
@@ -67,10 +68,10 @@ class AdminDashboardController extends Controller
      */
     public function sellers(Request $request)
     {
-        $query = SellerProfile::with(['user', 'products']);
+        $query = SellerProfile::with(['user', 'products'])->withCount('products');
 
         if ($request->filled('search')) {
-            $s = $request->search;
+            $s = trim(strip_tags((string)$request->search));
             $query->where(function($q) use ($s) {
                 $q->where('shop_name', 'like', "%{$s}%")
                   ->orWhere('city', 'like', "%{$s}%")
@@ -82,15 +83,17 @@ class AdminDashboardController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            $query->where('status', $status);
         }
 
         if ($request->filled('city')) {
-            $query->where('city', $request->city);
+            $city = trim(strip_tags((string)$request->city));
+            $query->where('city', $city);
         }
 
         $sellers = $query->latest()->paginate(12)->withQueryString();
-        $cities = SellerProfile::whereNotNull('city')->pluck('city')->unique();
+        $cities = SellerProfile::whereNotNull('city')->pluck('city')->unique()->filter()->values();
 
         $metrics = [
             'total' => SellerProfile::count(),
@@ -109,8 +112,9 @@ class AdminDashboardController extends Controller
     {
         $query = SellerProfile::with('user');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        $status = $request->input('status', 'pending');
+        if (in_array($status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $status);
         } else {
             $query->where('status', 'pending');
         }
@@ -124,66 +128,138 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Approve Seller KYC
+     * Approve Seller KYC inside atomic DB transaction
      */
     public function approveSeller($id)
     {
-        $seller = SellerProfile::findOrFail($id);
-        $seller->update([
-            'status' => 'approved',
-            'verified_at' => now(),
-            'rejection_reason' => null,
-        ]);
+        try {
+            return DB::transaction(function () use ($id) {
+                $seller = SellerProfile::lockForUpdate()->findOrFail($id);
+                $seller->update([
+                    'status' => 'approved',
+                    'verified_at' => now(),
+                    'rejection_reason' => null,
+                ]);
 
-        return back()->with('success', "Merchant \"{$seller->shop_name}\" has been successfully verified & activated!");
+                // Synchronize associated user account role and status
+                if ($seller->user && $seller->user->role !== 'admin') {
+                    $seller->user->update([
+                        'role' => 'seller',
+                        'status' => 'active',
+                    ]);
+                }
+
+                return back()->with('success', "Merchant \"{$seller->shop_name}\" has been successfully verified & activated!");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to approve merchant KYC: " . $e->getMessage());
+        }
     }
 
     /**
-     * Reject Seller KYC
+     * Reject Seller KYC inside atomic DB transaction
      */
     public function rejectSeller(Request $request, $id)
     {
-        $seller = SellerProfile::findOrFail($id);
-        $reason = $request->input('reason', 'Submitted business documents did not satisfy GSTIN or trade licensing compliance.');
-        $seller->update([
-            'status' => 'rejected',
-            'rejection_reason' => $reason,
+        $rawReason = (string)$request->input('reason', '');
+        $cleanReason = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawReason);
+        $cleanReason = trim(strip_tags($cleanReason));
+        if (empty($cleanReason)) {
+            $cleanReason = 'Submitted business documents did not satisfy GSTIN or trade licensing compliance.';
+        }
+        $request->merge(['reason' => $cleanReason]);
+
+        $request->validate([
+            'reason' => 'nullable|string|max:1000',
         ]);
 
-        return back()->with('success', "Merchant application for \"{$seller->shop_name}\" was rejected.");
+        try {
+            return DB::transaction(function () use ($request, $id, $cleanReason) {
+                $seller = SellerProfile::lockForUpdate()->findOrFail($id);
+
+                $seller->update([
+                    'status' => 'rejected',
+                    'rejection_reason' => $cleanReason,
+                ]);
+
+                // Synchronize associated user account: suspend trading access
+                if ($seller->user && $seller->user->role !== 'admin') {
+                    $seller->user->update([
+                        'status' => 'suspended',
+                    ]);
+                }
+
+                return back()->with('success', "Merchant application for \"{$seller->shop_name}\" was rejected.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to reject merchant application: " . $e->getMessage());
+        }
     }
 
     /**
-     * Toggle Seller Active/Suspension
+     * Toggle Seller Active/Suspension inside DB transaction
      */
     public function toggleSellerStatus($id)
     {
-        $seller = SellerProfile::findOrFail($id);
-        $newStatus = $seller->status === 'suspended' ? 'approved' : 'suspended';
-        $seller->update(['status' => $newStatus]);
+        try {
+            return DB::transaction(function () use ($id) {
+                $seller = SellerProfile::lockForUpdate()->findOrFail($id);
 
-        $msg = $newStatus === 'suspended' ? 'suspended from platform trading.' : 're-activated.';
-        return back()->with('success', "Merchant \"{$seller->shop_name}\" has been {$msg}");
+                if (!in_array($seller->status, ['approved', 'suspended'])) {
+                    return back()->with('error', "Cannot toggle status for merchant with '{$seller->status}' status. Only approved or suspended merchants can have their status toggled.");
+                }
+
+                $newStatus = $seller->status === 'suspended' ? 'approved' : 'suspended';
+                $seller->update(['status' => $newStatus]);
+
+                // Synchronize seller user account status
+                if ($seller->user && $seller->user->role !== 'admin') {
+                    $seller->user->update(['status' => $newStatus === 'approved' ? 'active' : 'suspended']);
+                }
+
+                $msg = $newStatus === 'suspended' ? 'suspended from platform trading.' : 're-activated.';
+                return back()->with('success', "Merchant \"{$seller->shop_name}\" has been {$msg}");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update seller status: " . $e->getMessage());
+        }
     }
 
     /**
-     * Update Seller Commission Rate
+     * Update Seller Commission Rate inside DB transaction
      */
     public function updateSellerCommission(Request $request, $id)
     {
-        $request->validate(['commission_rate' => 'required|numeric|min:0|max:50']);
-        $seller = SellerProfile::findOrFail($id);
-        $seller->update(['commission_rate' => $request->commission_rate]);
+        $request->validate(['commission_rate' => 'required|numeric|min:0|max:100']);
 
-        return back()->with('success', "Commission rate for {$seller->shop_name} updated to {$request->commission_rate}%.");
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $seller = SellerProfile::lockForUpdate()->findOrFail($id);
+                $rate = round((float)$request->commission_rate, 2);
+                $seller->update(['commission_rate' => $rate]);
+
+                return back()->with('success', "Commission rate for {$seller->shop_name} updated to {$rate}%.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update commission rate: " . $e->getMessage());
+        }
     }
 
     /**
-     * Merchant Deep Dossier
+     * Merchant Deep Dossier with Graceful Fallbacks
      */
     public function sellerDetail($id)
     {
-        $seller = SellerProfile::with(['user', 'products'])->findOrFail($id);
+        $seller = SellerProfile::where('id', $id)->with(['user', 'products'])->first();
+
+        if (!$seller) {
+            $seller = SellerProfile::with(['user', 'products'])->latest()->first();
+        }
+
+        if (!$seller) {
+            return redirect()->route('admin.sellers.index')->with('error', 'No merchant profiles exist in the system.');
+        }
+
         $recentOrders = SellerOrder::where('seller_id', $seller->user_id)
             ->with(['order.user', 'items.product'])
             ->latest()
@@ -201,7 +277,7 @@ class AdminDashboardController extends Controller
         $query = Product::with(['category', 'seller']);
 
         if ($request->filled('search')) {
-            $s = $request->search;
+            $s = trim(strip_tags((string)$request->search));
             $query->where(function($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
                   ->orWhere('sku', 'like', "%{$s}%")
@@ -212,15 +288,17 @@ class AdminDashboardController extends Controller
         }
 
         if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
+            $query->where('category_id', (int)$request->category_id);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            $query->where('status', $status);
         }
 
         if ($request->filled('sale_type')) {
-            $query->where('sale_type', $request->sale_type);
+            $saleType = trim(strip_tags((string)$request->sale_type));
+            $query->where('sale_type', $saleType);
         }
 
         $products = $query->latest()->paginate(15)->withQueryString();
@@ -237,46 +315,81 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Toggle Product Status
+     * Toggle Product Status inside DB transaction
      */
     public function toggleProductStatus($id)
     {
-        $product = Product::findOrFail($id);
-        $newStatus = $product->status === 'active' ? 'inactive' : 'active';
-        $product->update(['status' => $newStatus]);
+        try {
+            return DB::transaction(function () use ($id) {
+                $product = Product::lockForUpdate()->findOrFail($id);
+                $newStatus = $product->status === 'active' ? 'inactive' : 'active';
 
-        return back()->with('success', "Product SKU \"{$product->name}\" is now {$newStatus}.");
+                if ($newStatus === 'inactive') {
+                    $hasLiveAuction = Auction::where('product_id', $product->id)->where('status', 'live')->exists();
+                    if ($hasLiveAuction) {
+                        return back()->with('error', "Cannot deactivate SKU \"{$product->name}\" while it is featured in an active live auction.");
+                    }
+                }
+
+                $product->update(['status' => $newStatus]);
+
+                return back()->with('success', "Product SKU \"{$product->name}\" is now {$newStatus}.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update product status: " . $e->getMessage());
+        }
     }
 
     /**
-     * Quick Update Product Stock and Price
+     * Quick Update Product Stock and Price inside DB transaction
      */
     public function updateProductStock(Request $request, $id)
     {
         $request->validate([
-            'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0|max:1000000',
+            'price' => 'required|numeric|min:0|max:10000000',
         ]);
 
-        $product = Product::findOrFail($id);
-        $product->update([
-            'stock' => $request->stock,
-            'price' => $request->price,
-        ]);
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $product = Product::lockForUpdate()->findOrFail($id);
+                $product->update([
+                    'stock' => (int)$request->stock,
+                    'price' => round((float)$request->price, 2),
+                ]);
 
-        return back()->with('success', "Updated SKU \"{$product->name}\" stock to {$request->stock} and price to ₹{$request->price}.");
+                return back()->with('success', "Updated SKU \"{$product->name}\" stock to {$request->stock} and price to ₹" . number_format($request->price, 2) . ".");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update product stock: " . $e->getMessage());
+        }
     }
 
     /**
-     * Delete Product SKU
+     * Delete Product SKU inside DB transaction
      */
     public function deleteProduct($id)
     {
-        $product = Product::findOrFail($id);
-        $name = $product->name;
-        $product->delete();
+        try {
+            return DB::transaction(function () use ($id) {
+                $product = Product::lockForUpdate()->findOrFail($id);
 
-        return back()->with('success', "Product SKU \"{$name}\" removed from catalog.");
+                // Safeguard: verify product is not part of an active or scheduled auction
+                $hasAuction = Auction::where('product_id', $product->id)
+                    ->whereIn('status', ['live', 'scheduled'])
+                    ->exists();
+                if ($hasAuction) {
+                    return back()->with('error', "Cannot remove SKU \"{$product->name}\" because it is currently featured in an active or scheduled auction.");
+                }
+
+                $name = $product->name;
+                $product->delete();
+
+                return back()->with('success', "Product SKU \"{$name}\" removed from catalog.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to delete product: " . $e->getMessage());
+        }
     }
 
     /**
@@ -284,74 +397,139 @@ class AdminDashboardController extends Controller
      */
     public function categories()
     {
-        $categories = Category::withCount('products')->latest()->get();
+        $categories = Category::withCount(['products', 'children'])->latest()->get();
         $totalProducts = Product::count();
         return view('admin.categories.index', compact('categories', 'totalProducts'));
     }
 
     /**
-     * Create New Category
+     * Create New Category with input sanitization
      */
     public function storeCategory(Request $request)
     {
+        $rawName = (string)$request->name;
+        $cleanName = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawName);
+        $cleanName = trim(strip_tags($cleanName));
+
+        $rawDesc = (string)$request->description;
+        $cleanDesc = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawDesc);
+        $cleanDesc = trim(strip_tags($cleanDesc));
+
+        $request->merge([
+            'name' => $cleanName,
+            'description' => $cleanDesc ?: null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:100|unique:categories,name',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
         ]);
 
-        $category = Category::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'description' => $request->description,
-            'status' => 'active',
-        ]);
+        try {
+            return DB::transaction(function () use ($cleanName, $cleanDesc) {
+                $baseSlug = Str::slug($cleanName) ?: 'category-' . time();
+                $slug = $baseSlug;
+                $counter = 1;
+                while (Category::where('slug', $slug)->exists()) {
+                    $slug = "{$baseSlug}-{$counter}";
+                    $counter++;
+                }
 
-        return back()->with('success', "New category node \"{$category->name}\" created successfully.");
+                $category = Category::create([
+                    'name' => $cleanName,
+                    'slug' => $slug,
+                    'description' => $cleanDesc ?: null,
+                    'status' => 'active',
+                ]);
+
+                return back()->with('success', "New category node \"{$category->name}\" created successfully.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to create category: " . $e->getMessage());
+        }
     }
 
     /**
-     * Update Category
+     * Update Category with input sanitization
      */
     public function updateCategory(Request $request, $id)
     {
+        $rawName = (string)$request->name;
+        $cleanName = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawName);
+        $cleanName = trim(strip_tags($cleanName));
+
+        $rawDesc = (string)$request->description;
+        $cleanDesc = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawDesc);
+        $cleanDesc = trim(strip_tags($cleanDesc));
+
+        $request->merge([
+            'name' => $cleanName,
+            'description' => $cleanDesc ?: null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:100|unique:categories,name,' . $id,
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
         ]);
 
-        $category = Category::findOrFail($id);
-        $category->update([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'description' => $request->description,
-        ]);
+        try {
+            return DB::transaction(function () use ($request, $id, $cleanName, $cleanDesc) {
+                $category = Category::lockForUpdate()->findOrFail($id);
 
-        return back()->with('success', "Category \"{$category->name}\" updated.");
+                $baseSlug = Str::slug($cleanName) ?: 'category-' . $id;
+                $slug = $baseSlug;
+                $counter = 1;
+                while (Category::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+                    $slug = "{$baseSlug}-{$counter}";
+                    $counter++;
+                }
+
+                $category->update([
+                    'name' => $cleanName,
+                    'slug' => $slug,
+                    'description' => $cleanDesc ?: null,
+                ]);
+
+                return back()->with('success', "Category \"{$category->name}\" updated.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update category: " . $e->getMessage());
+        }
     }
 
     /**
-     * Delete Category
+     * Delete Category with safeguard checks
      */
     public function deleteCategory($id)
     {
-        $category = Category::withCount('products')->findOrFail($id);
-        if ($category->products_count > 0) {
-            return back()->with('error', "Cannot delete category \"{$category->name}\" because it contains {$category->products_count} active products.");
-        }
+        try {
+            return DB::transaction(function () use ($id) {
+                $category = Category::lockForUpdate()->withCount(['products', 'children'])->findOrFail($id);
+                if ($category->products_count > 0) {
+                    return back()->with('error', "Cannot delete category \"{$category->name}\" because it contains {$category->products_count} active products.");
+                }
 
-        $category->delete();
-        return back()->with('success', "Category deleted successfully.");
+                if ($category->children_count > 0) {
+                    return back()->with('error', "Cannot delete category \"{$category->name}\" because it contains {$category->children_count} active sub-categories.");
+                }
+
+                $category->delete();
+                return back()->with('success', "Category deleted successfully.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to delete category: " . $e->getMessage());
+        }
     }
 
     /**
-     * Marketplace Orders Directory
+     * Marketplace Orders Directory with Eager Loading
      */
     public function orders(Request $request)
     {
-        $query = Order::with(['user', 'sellerOrders.seller', 'sellerOrders.items.product']);
+        $query = Order::with(['user', 'sellerOrders.seller.sellerProfile', 'sellerOrders.items.product']);
 
         if ($request->filled('search')) {
-            $s = $request->search;
+            $s = trim(strip_tags((string)$request->search));
             $query->where(function($q) use ($s) {
                 $q->where('order_number', 'like', "%{$s}%")
                   ->orWhere('delivery_full_name', 'like', "%{$s}%")
@@ -363,11 +541,13 @@ class AdminDashboardController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('order_status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            $query->where('order_status', $status);
         }
 
         if ($request->filled('payment_status')) {
-            $query->where('payment_status', $request->payment_status);
+            $paymentStatus = trim(strip_tags((string)$request->payment_status));
+            $query->where('payment_status', $paymentStatus);
         }
 
         $orders = $query->latest()->paginate(15)->withQueryString();
@@ -384,24 +564,28 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Order Deep Dossier
+     * Order Deep Dossier with Graceful Fallbacks & Eager Loading
      */
     public function orderDetail($id = 'BZ-10482')
     {
         $order = Order::where('id', $id)
             ->orWhere('order_number', $id)
-            ->with(['user', 'sellerOrders.seller', 'sellerOrders.items.product', 'coupon'])
+            ->with(['user', 'sellerOrders.seller.sellerProfile', 'sellerOrders.items.product', 'coupon'])
             ->first();
 
         if (!$order) {
-            $order = Order::with(['user', 'sellerOrders.seller', 'sellerOrders.items.product', 'coupon'])->latest()->first();
+            $order = Order::with(['user', 'sellerOrders.seller.sellerProfile', 'sellerOrders.items.product', 'coupon'])->latest()->first();
+        }
+
+        if (!$order) {
+            return redirect()->route('admin.orders.index')->with('error', 'No marketplace orders found in the database.');
         }
 
         return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Update Order Fulfillment Status
+     * Update Order Fulfillment Status inside atomic DB transaction
      */
     public function updateOrderStatus(Request $request, $id)
     {
@@ -409,30 +593,67 @@ class AdminDashboardController extends Controller
             'order_status' => 'required|in:pending,processing,completed,cancelled,refunded',
         ]);
 
-        $order = Order::findOrFail($id);
-        $order->update(['order_status' => $request->order_status]);
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $order = Order::lockForUpdate()->findOrFail($id);
 
-        // Sync seller orders
-        $sellerStatus = match($request->order_status) {
-            'completed' => 'delivered',
-            'processing' => 'shipped',
-            'cancelled' => 'cancelled',
-            default => 'placed',
-        };
-        $order->sellerOrders()->update(['status' => $sellerStatus]);
+                // Terminal states safeguard: cannot change status of cancelled or refunded orders
+                if (in_array($order->order_status, ['cancelled', 'refunded']) && $order->order_status !== $request->order_status) {
+                    return back()->with('error', "Cannot modify Order #{$order->order_number}: Orders in '{$order->order_status}' status are final and cannot be transitioned.");
+                }
 
-        return back()->with('success', "Order #{$order->order_number} status updated to \"{$request->order_status}\".");
+                $sellerOrderIds = $order->sellerOrders()->pluck('id');
+
+                // Financial safeguard: cannot cancel order if payouts have already been disbursed to merchants
+                if ($request->order_status === 'cancelled') {
+                    $hasPaidPayouts = Payout::whereIn('seller_order_id', $sellerOrderIds)->where('status', 'paid')->exists();
+                    if ($hasPaidPayouts) {
+                        return back()->with('error', "Cannot cancel Order #{$order->order_number}: Merchant payouts have already been disbursed. Process returns via dispute arbitration instead.");
+                    }
+                }
+
+                $order->update(['order_status' => $request->order_status]);
+
+                // Sync seller orders
+                $sellerStatus = match($request->order_status) {
+                    'completed' => 'delivered',
+                    'processing' => 'shipped',
+                    'cancelled' => 'cancelled',
+                    'refunded' => 'returned',
+                    default => 'placed',
+                };
+                $order->sellerOrders()->update(['status' => $sellerStatus]);
+
+                // Synchronize payment status and void pending payouts on cancelled/refunded orders
+                if (in_array($request->order_status, ['cancelled', 'refunded'])) {
+                    if ($request->order_status === 'refunded') {
+                        $order->update(['payment_status' => 'refunded']);
+                    }
+                    Payout::whereIn('seller_order_id', $sellerOrderIds)
+                        ->where('status', 'pending')
+                        ->update([
+                            'status' => 'failed',
+                            'payout_reference' => 'ORDER-' . strtoupper($request->order_status) . '-' . date('Ymd'),
+                        ]);
+                }
+
+                return back()->with('success', "Order #{$order->order_number} status updated to \"{$request->order_status}\".");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update order status: " . $e->getMessage());
+        }
     }
 
     /**
-     * Live Auction Monitoring Terminal
+     * Live Auction Monitoring Terminal with Eager-Loaded Category Relations
      */
     public function auctions(Request $request)
     {
-        $query = Auction::with(['product', 'seller', 'winner'])->withCount('bids');
+        $query = Auction::with(['product.category', 'seller', 'winner'])->withCount('bids');
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            $query->where('status', $status);
         }
 
         $auctions = $query->latest()->paginate(12)->withQueryString();
@@ -448,16 +669,20 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Auction Lot Control Center
+     * Auction Lot Control Center with Eager Loaded Categories & Graceful Fallbacks
      */
     public function auctionDetail($id = 'AUC-8041')
     {
         $auction = Auction::where('id', $id)
-            ->with(['product', 'seller', 'winner', 'bids.user'])
+            ->with(['product.category', 'seller', 'winner', 'bids.user'])
             ->first();
 
         if (!$auction) {
-            $auction = Auction::with(['product', 'seller', 'winner', 'bids.user'])->latest()->first();
+            $auction = Auction::with(['product.category', 'seller', 'winner', 'bids.user'])->latest()->first();
+        }
+
+        if (!$auction) {
+            return redirect()->route('admin.auctions.index')->with('error', 'No auction lots found in the database.');
         }
 
         $bids = $auction ? $auction->bids()->with('user')->orderByDesc('amount')->get() : collect();
@@ -466,43 +691,83 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * End Auction & Determine Winning Bid
+     * End Auction & Determine Winning Bid inside atomic DB transaction
      */
     public function endAuction($id)
     {
-        $auction = Auction::findOrFail($id);
-        $highestBid = AuctionBid::where('auction_id', $auction->id)->orderByDesc('amount')->first();
+        try {
+            return DB::transaction(function () use ($id) {
+                $auction = Auction::lockForUpdate()->findOrFail($id);
 
-        $auction->update([
-            'status' => 'ended',
-            'winner_id' => $highestBid ? $highestBid->user_id : null,
-            'current_price' => $highestBid ? $highestBid->amount : $auction->current_price,
-        ]);
+                if ($auction->status === 'ended') {
+                    return back()->with('info', "Auction #AUC-{$auction->id} has already ended.");
+                }
 
-        $winnerMsg = $highestBid ? "Winner assigned to User #{$highestBid->user_id} at ₹" . number_format($highestBid->amount) : "No valid bids met reserve.";
-        return back()->with('success', "Auction #AUC-{$auction->id} closed. {$winnerMsg}");
+                if ($auction->status === 'cancelled') {
+                    return back()->with('error', "Auction #AUC-{$auction->id} is cancelled and cannot be ended.");
+                }
+
+                if ($auction->status === 'scheduled') {
+                    return back()->with('error', "Auction #AUC-{$auction->id} is scheduled and has not started yet. Only live auctions can be ended.");
+                }
+
+                $highestBid = AuctionBid::where('auction_id', $auction->id)->lockForUpdate()->orderByDesc('amount')->first();
+
+                $hasMetReserve = $highestBid && (!$auction->reserve_price || (float)$highestBid->amount >= (float)$auction->reserve_price);
+
+                $auction->update([
+                    'status' => 'ended',
+                    'winner_id' => $hasMetReserve ? $highestBid->user_id : null,
+                    'current_price' => $highestBid ? $highestBid->amount : $auction->current_price,
+                ]);
+
+                $winnerMsg = $hasMetReserve 
+                    ? "Winner assigned to User #{$highestBid->user_id} at ₹" . number_format($highestBid->amount, 2) 
+                    : "No valid bids met reserve.";
+
+                return back()->with('success', "Auction #AUC-{$auction->id} closed. {$winnerMsg}");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to close auction: " . $e->getMessage());
+        }
     }
 
     /**
-     * Cancel Auction
+     * Cancel Auction inside atomic DB transaction
      */
     public function cancelAuction($id)
     {
-        $auction = Auction::findOrFail($id);
-        $auction->update(['status' => 'cancelled']);
+        try {
+            return DB::transaction(function () use ($id) {
+                $auction = Auction::lockForUpdate()->findOrFail($id);
 
-        return back()->with('success', "Auction #AUC-{$auction->id} has been cancelled.");
+                if ($auction->status === 'ended') {
+                    return back()->with('error', "Auction #AUC-{$auction->id} has already ended and cannot be cancelled.");
+                }
+
+                if ($auction->status === 'cancelled') {
+                    return back()->with('info', "Auction #AUC-{$auction->id} has already been cancelled.");
+                }
+
+                $auction->update(['status' => 'cancelled']);
+
+                return back()->with('success', "Auction #AUC-{$auction->id} has been cancelled.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to cancel auction: " . $e->getMessage());
+        }
     }
 
     /**
-     * Merchant Payouts & Escrow Settlements
+     * Merchant Payouts & Escrow Settlements with Eager Loading
      */
     public function payouts(Request $request)
     {
         $query = Payout::with(['seller.sellerProfile', 'sellerOrder.order']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            $query->where('status', $status);
         }
 
         $payouts = $query->latest()->paginate(15)->withQueryString();
@@ -518,50 +783,162 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Release Payout
+     * Release Payout inside atomic DB transaction
      */
     public function releasePayout($id)
     {
-        $payout = Payout::with('seller')->findOrFail($id);
-        $reference = 'NEFT-BZ-' . date('Ymd') . '-' . str_pad($payout->id, 4, '0', STR_PAD_LEFT);
+        try {
+            return DB::transaction(function () use ($id) {
+                $payout = Payout::lockForUpdate()->with(['seller.sellerProfile', 'sellerOrder.order'])->findOrFail($id);
 
-        $payout->update([
-            'status' => 'paid',
-            'paid_at' => now(),
-            'payout_reference' => $reference,
-        ]);
+                if ($payout->status === 'paid') {
+                    return back()->with('error', "Payout #{$id} has already been released.");
+                }
 
-        return back()->with('success', "Escrow settlement of ₹" . number_format($payout->net_amount, 2) . " released to {$payout->seller->name}. Ref: {$reference}");
+                if ($payout->status !== 'pending') {
+                    return back()->with('error', "Cannot release payout #{$id}: status is '{$payout->status}'. Only pending payouts can be released.");
+                }
+
+                // Safeguard 1: Verify merchant banking details exist before releasing escrow
+                $bankAcc = $payout->seller?->sellerProfile?->bank_account_number;
+                $bankIfsc = $payout->seller?->sellerProfile?->bank_ifsc;
+                if (empty($bankAcc) || empty($bankIfsc)) {
+                    return back()->with('error', "Cannot release payout #{$id}: Merchant has not provided verified bank account or IFSC credentials.");
+                }
+
+                // Safeguard 1b: Verify merchant KYC is approved and merchant account is not suspended
+                $sellerProfile = $payout->seller?->sellerProfile;
+                if (!$sellerProfile || $sellerProfile->status !== 'approved' || $payout->seller?->status === 'suspended') {
+                    $statusDesc = $sellerProfile ? $sellerProfile->status : 'unverified';
+                    return back()->with('error', "Cannot release payout #{$id}: Merchant KYC status is '{$statusDesc}'. Payouts can only be released to active, approved merchants.");
+                }
+
+                // Safeguard 2: Verify there is no active open dispute or cancelled order
+                if ($payout->sellerOrder) {
+                    SellerOrder::lockForUpdate()->find($payout->sellerOrder->id);
+
+                    if (in_array($payout->sellerOrder->status, ['cancelled', 'returned'])) {
+                        return back()->with('error', "Cannot release payout #{$id}: Associated consignment is {$payout->sellerOrder->status}.");
+                    }
+
+                    if ($payout->sellerOrder->order && (in_array($payout->sellerOrder->order->order_status, ['cancelled', 'refunded']) || $payout->sellerOrder->order->payment_status === 'refunded')) {
+                        return back()->with('error', "Cannot release payout #{$id}: Parent order #{$payout->sellerOrder->order->order_number} has been cancelled or refunded.");
+                    }
+
+                    $hasOpenDispute = OrderReturn::where('order_id', $payout->sellerOrder->order_id)
+                        ->whereIn('status', ['requested', 'pickup_scheduled', 'received', 'refund_processing'])
+                        ->exists();
+
+                    if ($hasOpenDispute) {
+                        $orderNum = $payout->sellerOrder->order?->order_number ?? $payout->sellerOrder->order_id;
+                        return back()->with('error', "Cannot release payout #{$id}: Order #{$orderNum} has an active buyer dispute pending arbitration.");
+                    }
+                }
+
+                $reference = 'NEFT-BZ-' . date('Ymd') . '-' . str_pad($payout->id, 4, '0', STR_PAD_LEFT);
+
+                $payout->update([
+                    'status' => 'paid',
+                    'paid_at' => now(),
+                    'payout_reference' => $reference,
+                ]);
+
+                $sellerName = $payout->seller?->sellerProfile?->shop_name ?? ($payout->seller?->name ?? 'Merchant');
+                return back()->with('success', "Escrow settlement of ₹" . number_format($payout->net_amount, 2) . " released to {$sellerName}. Ref: {$reference}");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to release payout #{$id}: " . $e->getMessage());
+        }
     }
 
     /**
-     * Batch Release All Pending Payouts
+     * Batch Release All Pending Payouts inside atomic DB transaction
      */
     public function batchReleasePayouts()
     {
-        $pending = Payout::where('status', 'pending')->get();
-        $count = $pending->count();
+        try {
+            return DB::transaction(function () {
+                $pending = Payout::lockForUpdate()->with(['seller.sellerProfile', 'sellerOrder.order'])->where('status', 'pending')->get();
+                $totalPending = $pending->count();
 
-        foreach ($pending as $p) {
-            $p->update([
-                'status' => 'paid',
-                'paid_at' => now(),
-                'payout_reference' => 'BATCH-NEFT-' . date('Ymd') . '-' . str_pad($p->id, 4, '0', STR_PAD_LEFT),
-            ]);
+                if ($totalPending === 0) {
+                    return back()->with('info', 'No pending merchant payouts available for batch settlement.');
+                }
+
+                $disbursedCount = 0;
+                $skippedIncompleteBankCount = 0;
+                $skippedDisputeCount = 0;
+                $skippedUnapprovedKycCount = 0;
+
+                foreach ($pending as $p) {
+                    // Check merchant KYC and account status
+                    $sellerProfile = $p->seller?->sellerProfile;
+                    if (!$sellerProfile || $sellerProfile->status !== 'approved' || $p->seller?->status === 'suspended') {
+                        $skippedUnapprovedKycCount++;
+                        continue;
+                    }
+
+                    // Check bank details
+                    $bankAcc = $sellerProfile->bank_account_number;
+                    $bankIfsc = $sellerProfile->bank_ifsc;
+                    if (empty($bankAcc) || empty($bankIfsc)) {
+                        $skippedIncompleteBankCount++;
+                        continue;
+                    }
+
+                    // Check for active open disputes or cancelled orders
+                    if ($p->sellerOrder) {
+                        if (in_array($p->sellerOrder->status, ['cancelled', 'returned']) || 
+                            ($p->sellerOrder->order && (in_array($p->sellerOrder->order->order_status, ['cancelled', 'refunded']) || $p->sellerOrder->order->payment_status === 'refunded'))) {
+                            $skippedDisputeCount++;
+                            continue;
+                        }
+
+                        $hasOpenDispute = OrderReturn::where('order_id', $p->sellerOrder->order_id)
+                            ->whereIn('status', ['requested', 'pickup_scheduled', 'received', 'refund_processing'])
+                            ->exists();
+                        if ($hasOpenDispute) {
+                            $skippedDisputeCount++;
+                            continue;
+                        }
+                    }
+
+                    $p->update([
+                        'status' => 'paid',
+                        'paid_at' => now(),
+                        'payout_reference' => 'BATCH-NEFT-' . date('Ymd') . '-' . str_pad($p->id, 4, '0', STR_PAD_LEFT),
+                    ]);
+                    $disbursedCount++;
+                }
+
+                $msg = "Batch release processed: {$disbursedCount} merchant payouts disbursed via escrow rails.";
+                $details = [];
+                if ($skippedIncompleteBankCount > 0) $details[] = "{$skippedIncompleteBankCount} skipped due to missing bank details";
+                if ($skippedDisputeCount > 0) $details[] = "{$skippedDisputeCount} held due to active disputes";
+                if ($skippedUnapprovedKycCount > 0) $details[] = "{$skippedUnapprovedKycCount} held due to unapproved merchant KYC";
+                if (!empty($details)) {
+                    $msg .= " (" . implode(', ', $details) . ").";
+                }
+
+                return back()->with('success', $msg);
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Batch payout settlement failed: " . $e->getMessage());
         }
-
-        return back()->with('success', "Batch release completed: {$count} merchant payouts disbursed via escrow rails.");
     }
 
     /**
-     * Escrow Dispute Resolution Portal
+     * Escrow Dispute Resolution Portal with Eager Loaded Merchant Profiles
      */
     public function disputes(Request $request)
     {
-        $query = OrderReturn::with(['order.user', 'orderItem.sellerOrder.seller']);
+        $query = OrderReturn::with(['order.user', 'user', 'orderItem.sellerOrder.seller.sellerProfile']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            if (in_array($status, ['requested', 'approved', 'rejected', 'pickup_scheduled', 'received', 'refund_processing', 'refunded'])) {
+                $query->where('status', $status);
+            }
         }
 
         $disputes = $query->latest()->paginate(10)->withQueryString();
@@ -569,7 +946,7 @@ class AdminDashboardController extends Controller
         $stats = [
             'total' => OrderReturn::count(),
             'requested' => OrderReturn::where('status', 'requested')->count(),
-            'approved' => OrderReturn::where('status', 'approved')->count(),
+            'approved' => OrderReturn::whereIn('status', ['approved', 'pickup_scheduled', 'received', 'refund_processing', 'refunded'])->count(),
             'rejected' => OrderReturn::where('status', 'rejected')->count(),
         ];
 
@@ -577,28 +954,53 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Arbitrate Dispute Decision
+     * Arbitrate Dispute Decision inside atomic DB transaction
      */
     public function arbitrateDispute(Request $request, $id)
     {
         $request->validate(['decision' => 'required|in:approve,reject']);
-        $dispute = OrderReturn::with('order')->findOrFail($id);
 
-        if ($request->decision === 'approve') {
-            $dispute->update([
-                'status' => 'approved',
-                'approved_at' => now(),
-            ]);
-            if ($dispute->order) {
-                $dispute->order->update(['payment_status' => 'refunded']);
-            }
-            return back()->with('success', "Dispute #DSP-{$dispute->id} approved. Refund of ₹" . number_format($dispute->refund_amount, 2) . " scheduled for buyer.");
-        } else {
-            $dispute->update([
-                'status' => 'rejected',
-                'completed_at' => now(),
-            ]);
-            return back()->with('success', "Dispute #DSP-{$dispute->id} rejected. Escrow settlement released to seller.");
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $dispute = OrderReturn::lockForUpdate()->with(['order', 'orderItem.sellerOrder'])->findOrFail($id);
+
+                if ($dispute->status !== 'requested') {
+                    return back()->with('error', "Dispute #DSP-{$dispute->id} has already been arbitrated ({$dispute->status}).");
+                }
+
+                if ($request->decision === 'approve') {
+                    $dispute->update([
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                    ]);
+                    if ($dispute->order) {
+                        $dispute->order->update(['payment_status' => 'refunded']);
+                    }
+                    if ($dispute->orderItem?->sellerOrder) {
+                        $dispute->orderItem->sellerOrder->update(['status' => 'returned']);
+                    }
+
+                    // Void any pending payout for this seller order to prevent payout release on refunded order
+                    if ($dispute->orderItem?->seller_order_id) {
+                        Payout::where('seller_order_id', $dispute->orderItem->seller_order_id)
+                            ->where('status', 'pending')
+                            ->update([
+                                'status' => 'failed',
+                                'payout_reference' => 'DISPUTE-REFUNDED-' . date('Ymd'),
+                            ]);
+                    }
+
+                    return back()->with('success', "Dispute #DSP-{$dispute->id} approved. Refund of ₹" . number_format($dispute->refund_amount, 2) . " scheduled for buyer.");
+                } else {
+                    $dispute->update([
+                        'status' => 'rejected',
+                        'completed_at' => now(),
+                    ]);
+                    return back()->with('success', "Dispute #DSP-{$dispute->id} rejected. Escrow settlement released to seller.");
+                }
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to arbitrate dispute: " . $e->getMessage());
         }
     }
 
@@ -610,7 +1012,7 @@ class AdminDashboardController extends Controller
         $query = User::where('role', 'user')->withCount('orders');
 
         if ($request->filled('search')) {
-            $s = $request->search;
+            $s = trim(strip_tags((string)$request->search));
             $query->where(function($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
                   ->orWhere('email', 'like', "%{$s}%")
@@ -619,7 +1021,8 @@ class AdminDashboardController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = trim(strip_tags((string)$request->status));
+            $query->where('status', $status);
         }
 
         $customers = $query->latest()->paginate(15)->withQueryString();
@@ -634,34 +1037,44 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Customer Dossier
+     * Customer Dossier with Graceful Fallbacks
      */
     public function customerDetail($id = '1')
     {
         $customer = User::where('role', 'user')
             ->where('id', $id)
-            ->with(['orders.sellerOrders.items.product', 'addresses'])
+            ->with(['orders', 'addresses'])
             ->first();
 
         if (!$customer) {
-            $customer = User::where('role', 'user')->with(['orders.sellerOrders.items.product', 'addresses'])->first();
+            $customer = User::where('role', 'user')->with(['orders', 'addresses'])->first();
         }
 
-        $bids = $customer ? AuctionBid::where('user_id', $customer->id)->with('auction.product')->latest()->take(10)->get() : collect();
+        if (!$customer) {
+            return redirect()->route('admin.customers.index')->with('error', 'No customer records found in the database.');
+        }
+
+        $bids = AuctionBid::where('user_id', $customer->id)->with('auction.product')->latest()->take(10)->get();
 
         return view('admin.customers.show', compact('customer', 'bids'));
     }
 
     /**
-     * Toggle Customer Active/Suspension
+     * Toggle Customer Active/Suspension inside DB transaction
      */
     public function toggleCustomerStatus($id)
     {
-        $user = User::where('role', 'user')->findOrFail($id);
-        $newStatus = $user->status === 'suspended' ? 'active' : 'suspended';
-        $user->update(['status' => $newStatus]);
+        try {
+            return DB::transaction(function () use ($id) {
+                $user = User::lockForUpdate()->where('role', 'user')->findOrFail($id);
+                $newStatus = $user->status === 'suspended' ? 'active' : 'suspended';
+                $user->update(['status' => $newStatus]);
 
-        return back()->with('success', "Customer \"{$user->name}\" status updated to {$newStatus}.");
+                return back()->with('success', "Customer \"{$user->name}\" status updated to {$newStatus}.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update customer status: " . $e->getMessage());
+        }
     }
 
     /**
@@ -680,56 +1093,97 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Create New Coupon
+     * Create New Coupon with input validation & sanitization
      */
     public function storeCoupon(Request $request)
     {
+        $rawCode = (string)$request->code;
+        $cleanCode = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawCode);
+        $cleanCode = strtoupper(trim(strip_tags($cleanCode)));
+
+        $request->merge([
+            'code' => $cleanCode,
+        ]);
+
         $request->validate([
-            'code' => 'required|string|max:50|unique:coupons,code',
+            'code' => 'required|string|max:50|alpha_dash|unique:coupons,code',
             'discount_type' => 'required|in:fixed,percentage',
-            'discount_value' => 'required|numeric|min:1',
+            'discount_value' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->discount_type === 'percentage' && $value > 100) {
+                        $fail('The percentage discount value cannot exceed 100%.');
+                    }
+                },
+            ],
             'minimum_order_amount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date',
         ]);
 
-        $coupon = Coupon::create([
-            'code' => strtoupper(trim($request->code)),
-            'discount_type' => $request->discount_type,
-            'discount_value' => $request->discount_value,
-            'minimum_order_amount' => $request->minimum_order_amount ?? 0,
-            'usage_limit' => $request->usage_limit ?? 500,
-            'used_count' => 0,
-            'starts_at' => now(),
-            'expires_at' => $request->expires_at ? date('Y-m-d H:i:s', strtotime($request->expires_at)) : now()->addMonths(6),
-            'status' => 'active',
-        ]);
+        try {
+            return DB::transaction(function () use ($request, $cleanCode) {
+                $coupon = Coupon::create([
+                    'code' => $cleanCode,
+                    'discount_type' => $request->discount_type,
+                    'discount_value' => round((float)$request->discount_value, 2),
+                    'minimum_order_amount' => $request->filled('minimum_order_amount') ? round((float)$request->minimum_order_amount, 2) : 0,
+                    'usage_limit' => $request->filled('usage_limit') ? (int)$request->usage_limit : 500,
+                    'used_count' => 0,
+                    'starts_at' => now(),
+                    'expires_at' => $request->filled('expires_at') ? date('Y-m-d H:i:s', strtotime($request->expires_at)) : now()->addMonths(6),
+                    'status' => 'active',
+                ]);
 
-        return back()->with('success', "Promotional voucher \"{$coupon->code}\" successfully activated.");
+                return back()->with('success', "Promotional voucher \"{$coupon->code}\" successfully activated.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to create coupon: " . $e->getMessage());
+        }
     }
 
     /**
-     * Toggle Coupon Status
+     * Toggle Coupon Status inside DB transaction
      */
     public function toggleCouponStatus($id)
     {
-        $coupon = Coupon::findOrFail($id);
-        $newStatus = $coupon->status === 'active' ? 'inactive' : 'active';
-        $coupon->update(['status' => $newStatus]);
+        try {
+            return DB::transaction(function () use ($id) {
+                $coupon = Coupon::lockForUpdate()->findOrFail($id);
+                $newStatus = $coupon->status === 'active' ? 'inactive' : 'active';
+                $coupon->update(['status' => $newStatus]);
 
-        return back()->with('success', "Coupon \"{$coupon->code}\" is now {$newStatus}.");
+                return back()->with('success', "Coupon \"{$coupon->code}\" is now {$newStatus}.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update coupon status: " . $e->getMessage());
+        }
     }
 
     /**
-     * Delete Coupon
+     * Delete Coupon inside DB transaction
      */
     public function deleteCoupon($id)
     {
-        $coupon = Coupon::findOrFail($id);
-        $code = $coupon->code;
-        $coupon->delete();
+        try {
+            return DB::transaction(function () use ($id) {
+                $coupon = Coupon::lockForUpdate()->withCount(['usages', 'orders'])->findOrFail($id);
 
-        return back()->with('success', "Coupon \"{$code}\" has been removed.");
+                if (($coupon->usages_count ?? 0) > 0 || ($coupon->orders_count ?? 0) > 0 || ($coupon->used_count ?? 0) > 0) {
+                    $count = max($coupon->usages_count ?? 0, $coupon->orders_count ?? 0, $coupon->used_count ?? 0);
+                    return back()->with('error', "Cannot delete coupon \"{$coupon->code}\" because it has already been redeemed in {$count} order(s). You can deactivate it instead.");
+                }
+
+                $code = $coupon->code;
+                $coupon->delete();
+
+                return back()->with('success', "Coupon \"{$code}\" has been removed.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to delete coupon: " . $e->getMessage());
+        }
     }
 
     /**
@@ -742,10 +1196,21 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Update AI Engine Settings
+     * Update AI Engine Settings with validation & sanitization
      */
     public function updateAiSettings(Request $request)
     {
+        $request->validate([
+            'gemini_api_key' => 'nullable|string|max:255',
+            'gemini_model' => 'nullable|string|max:100',
+            'temperature' => 'nullable|numeric|min:0|max:2',
+            'auto_triage_enabled' => 'nullable|string|in:0,1,true,false',
+            'dispute_confidence_threshold' => 'nullable|numeric|min:0|max:100',
+            'recommendation_engine_enabled' => 'nullable|string|in:0,1,true,false',
+            'platform_commission_base' => 'nullable|numeric|min:0|max:100',
+            'escrow_cooling_period_days' => 'nullable|integer|min:0|max:365',
+        ]);
+
         $keys = [
             'gemini_api_key',
             'gemini_model',
@@ -757,12 +1222,22 @@ class AdminDashboardController extends Controller
             'escrow_cooling_period_days',
         ];
 
-        foreach ($keys as $k) {
-            if ($request->has($k)) {
-                SiteSetting::set($k, $request->input($k));
-            }
-        }
+        try {
+            return DB::transaction(function () use ($request, $keys) {
+                foreach ($keys as $k) {
+                    if ($request->has($k)) {
+                        $val = $request->input($k);
+                        if (is_string($val)) {
+                            $val = trim(strip_tags($val));
+                        }
+                        SiteSetting::set($k, $val);
+                    }
+                }
 
-        return back()->with('success', 'AI Engine hyperparameters, autonomous triage rules, and prompt directives deployed to production!');
+                return back()->with('success', 'AI Engine hyperparameters, autonomous triage rules, and prompt directives deployed to production!');
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to update AI settings: " . $e->getMessage());
+        }
     }
 }

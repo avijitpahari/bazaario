@@ -20,6 +20,7 @@ class Product extends Model
         'short_description',
         'description',
         'sale_type',
+        'unit_type',
         'price',
         'stock',
         'sku',
@@ -31,6 +32,14 @@ class Product extends Model
         'status',
         'average_rating',
         'total_reviews',
+        'harvest_date',
+        'expiry_days',
+        'expiry_date',
+        'is_perishable',
+        'auto_hide_expired',
+        'farm_origin',
+        'harvest_grade',
+        'low_stock_threshold',
     ];
 
     protected function casts(): array
@@ -42,6 +51,12 @@ class Product extends Model
             'width' => 'decimal:2',
             'height' => 'decimal:2',
             'average_rating' => 'decimal:2',
+            'harvest_date' => 'date',
+            'expiry_date' => 'date',
+            'expiry_days' => 'integer',
+            'is_perishable' => 'boolean',
+            'auto_hide_expired' => 'boolean',
+            'low_stock_threshold' => 'integer',
         ];
     }
 
@@ -116,6 +131,35 @@ class Product extends Model
         return [$this->main_image_url];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Product $product) {
+            if ($product->is_perishable && $product->harvest_date && $product->expiry_days && empty($product->expiry_date)) {
+                $product->expiry_date = \Carbon\Carbon::parse($product->harvest_date)->addDays((int) $product->expiry_days)->toDateString();
+            }
+        });
+    }
+
+    public function isExpired(): bool
+    {
+        if (!$this->is_perishable || !$this->expiry_date) {
+            return false;
+        }
+
+        return $this->expiry_date->endOfDay()->isPast();
+    }
+
+    public function isStale(): bool
+    {
+        return $this->isExpired();
+    }
+
+    public function isLowStock(): bool
+    {
+        $threshold = $this->low_stock_threshold ?? 10;
+        return $this->stock <= $threshold;
+    }
+
     // Scopes
 
     public function scopeActive($query)
@@ -131,5 +175,42 @@ class Product extends Model
     public function scopeAuctionType($query)
     {
         return $query->where('sale_type', 'auction');
+    }
+
+    public function scopeFresh($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('is_perishable', false)
+              ->orWhereNull('expiry_date')
+              ->orWhereDate('expiry_date', '>=', now()->toDateString());
+        });
+    }
+
+    public function scopeStale($query)
+    {
+        return $query->where('is_perishable', true)
+            ->whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '<', now()->toDateString());
+    }
+
+    public function scopePublicVisible($query)
+    {
+        return $query->where('status', 'active')
+            ->where(function ($q) {
+                $q->where('auto_hide_expired', false)
+                  ->orWhere('is_perishable', false)
+                  ->orWhereNull('expiry_date')
+                  ->orWhereDate('expiry_date', '>=', now()->toDateString());
+            });
+    }
+
+    public function scopeLowStock($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereColumn('stock', '<=', 'low_stock_threshold')
+              ->orWhere(function ($sub) {
+                  $sub->whereNull('low_stock_threshold')->where('stock', '<=', 10);
+              });
+        });
     }
 }

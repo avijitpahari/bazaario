@@ -1,936 +1,288 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <meta content="web_standard" name="shell-type" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-        rel="stylesheet" />
+    <title>{{ $category ? $category->name . ' — Bazaario Catalog' : 'All Products — Bazaario Catalog' }}</title>
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <!-- Compiled Tailwind CSS & App JS via Vite -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
-        @layer base {
-
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-            }
-
-            body {
-                overscroll-behavior: none;
-            }
-
-            main>:first-child {
-                margin-top: 0 !important;
-            }
-
-            main>:last-child {
-                margin-bottom: 0 !important;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            display: none;
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { display: none; }
+        body {
+            background-color: #FFFDF8;
+            background-image: 
+                radial-gradient(circle at 12% 10%, rgba(245, 166, 35, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 88% 18%, rgba(15, 23, 42, 0.03) 0%, transparent 40%);
+            background-attachment: fixed;
         }
     </style>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-
-<body
-    class="bg-[#FAF7F0] text-on-surface font-body-regular text-body-regular min-h-screen relative selection:bg-amber-action/30 selection:text-slate-authority">
+<body class="bg-[#FFFDF8] text-slate-800 font-sans antialiased min-h-screen relative selection:bg-amber-500 selection:text-slate-950">
     <!-- Ambient 3D Volumetric Mesh & Glow Blobs -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-            class="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-amber-400/20 via-orange-300/15 to-transparent blur-3xl opacity-70 transform -rotate-12">
-        </div>
-        <div
-            class="absolute top-1/3 -right-28 w-[480px] h-[480px] rounded-full bg-gradient-to-bl from-purple-400/15 via-indigo-300/10 to-transparent blur-3xl opacity-60">
-        </div>
-        <div
-            class="absolute bottom-1/4 -left-20 w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-amber-300/15 via-emerald-200/10 to-transparent blur-3xl opacity-50">
-        </div>
+        <div class="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-amber-400/20 via-orange-300/15 to-transparent blur-3xl opacity-70 transform -rotate-12"></div>
+        <div class="absolute top-1/3 -right-28 w-[480px] h-[480px] rounded-full bg-gradient-to-bl from-purple-400/15 via-indigo-300/10 to-transparent blur-3xl opacity-60"></div>
+        <div class="absolute bottom-1/4 -left-20 w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-amber-300/15 via-emerald-200/10 to-transparent blur-3xl opacity-50"></div>
     </div>
+
     <!-- CUSTOMER NAVBAR -->
     @include('components.nav')
 
-    <main class="w-full pt-3 relative z-10">
-        <div class="flex flex-col w-full">
-            <div class="w-full max-w-container-max mx-auto px-gutter-md py-4 flex flex-col gap-6">
-                <!-- Top Breadcrumb & Micro-Trust Bar -->
-                <div
-                    class="flex flex-wrap items-center justify-between gap-3 text-on-surface-variant text-body-small font-body-small">
-                    <nav
-                        class="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/60 shadow-xs">
-                        <a class="hover:text-slate-authority transition-colors flex items-center gap-1" data-path="home"
-                            href="#">
-                            <span class="material-symbols-outlined text-body-small">home</span>
-                            <span>Home</span>
-                        </a>
-                        <span class="text-outline/40">/</span>
-                        <a class="hover:text-slate-authority transition-colors" data-path="categories"
-                            href="#">Categories</a>
-                        <span class="text-outline/40">/</span>
-                        <span class="text-slate-authority font-bold">Electronics</span>
-                    </nav>
-                    <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-status-green/10 backdrop-blur-md text-status-green border border-status-green/25 shadow-xs">
-                        <span class="w-2 h-2 rounded-full bg-status-green animate-pulse"></span>
-                        <span class="font-label-micro text-label-micro font-semibold uppercase tracking-wider">BAZAARIO
-                            ESCROW SECURED</span>
-                    </div>
+    <main class="w-full pt-20 relative z-10 pb-16">
+        <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-6">
+            
+            <!-- Top Breadcrumb & Micro-Trust Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                <nav class="flex items-center gap-2 bg-white/70 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
+                    <a class="hover:text-amber-600 transition-colors flex items-center gap-1" href="{{ route('home') }}">
+                        <span class="material-symbols-outlined text-sm">home</span>
+                        <span>Home</span>
+                    </a>
+                    <span class="text-slate-300">/</span>
+                    <a class="hover:text-amber-600 transition-colors" href="{{ route('products.index') }}">Catalog</a>
+                    <span class="text-slate-300">/</span>
+                    <span class="text-slate-900 font-bold">{{ $category ? $category->name : 'All Products' }}</span>
+                </nav>
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 backdrop-blur-md text-emerald-800 border border-emerald-500/25 shadow-xs font-mono text-[11px] font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="uppercase tracking-wider">BAZAARIO ESCROW SECURED</span>
                 </div>
-                <!-- Category Hero Banner with 3D Dimensional Glass Atmosphere -->
-                <section
-                    class="relative w-full rounded-3xl bg-gradient-to-br from-slate-authority/95 via-[#131E35] to-[#1E293B] text-canvas-ivory overflow-hidden p-6 md:p-10 border border-white/20 shadow-[0_20px_50px_rgba(15,23,42,0.25)] backdrop-blur-2xl">
-                    <!-- Glowing Ambient Iridescent Accents -->
-                    <div
-                        class="absolute -right-16 -top-16 w-[420px] h-[420px] rounded-full bg-gradient-to-bl from-amber-action/25 to-purple-500/15 blur-3xl pointer-events-none">
-                    </div>
-                    <div
-                        class="absolute left-1/3 -bottom-24 w-80 h-80 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none">
-                    </div>
-                    <div
-                        class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.08),transparent_70%)] pointer-events-none">
-                    </div>
-                    <div class="relative z-10 grid md:grid-cols-12 gap-8 items-center">
-                        <div class="md:col-span-7 flex flex-col gap-4">
-                            <div
-                                class="inline-flex items-center gap-2 self-start bg-white/10 backdrop-blur-xl px-3.5 py-1.5 rounded-full border border-white/20 text-amber-action font-label-eyebrow text-label-eyebrow uppercase tracking-widest font-semibold shadow-inner">
-                                <span class="material-symbols-outlined text-label-eyebrow">memory</span>
-                                Certified Authenticity Division
-                            </div>
-                            <h1
-                                class="font-display-hero text-display-hero tracking-tight text-white font-bold leading-none drop-shadow-sm">
-                                ELECTRONICS <span
-                                    class="bg-gradient-to-r from-amber-300 via-amber-action to-amber-200 bg-clip-text text-transparent drop-shadow-sm font-semibold">VAULT</span>
-                            </h1>
-                            <p class="font-body-lead text-body-lead text-white/80 max-w-xl">
-                                Everything you need, all in one place. Every chip, lens, and display strictly inspected
-                                via multi-point decentralized escrow assurance.
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 pt-2">
-                                <div
-                                    class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md shadow-xs">
-                                    <span
-                                        class="material-symbols-outlined text-amber-action text-body-regular">inventory_2</span>
-                                    <span class="font-label-eyebrow text-label-eyebrow font-medium text-white">328
-                                        Curated Products</span>
-                                </div>
-                                <div
-                                    class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md shadow-xs">
-                                    <span
-                                        class="material-symbols-outlined text-status-green text-body-regular">verified</span>
-                                    <span class="font-label-eyebrow text-label-eyebrow font-medium text-white">42
-                                        Verified Sellers</span>
-                                </div>
-                                <div
-                                    class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md shadow-xs">
-                                    <span
-                                        class="material-symbols-outlined text-amber-action text-body-regular">shield_with_heart</span>
-                                    <span class="font-label-eyebrow text-label-eyebrow font-medium text-white">100%
-                                        Escrow Protected</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 3D Dimensional Marketplace Glass Showcase Widget -->
-                        <div class="md:col-span-5 flex flex-col items-center md:items-end justify-center">
-                            <div
-                                class="relative w-full max-w-sm rounded-3xl bg-white/[0.08] backdrop-blur-2xl border border-white/25 p-5 flex flex-col gap-4 shadow-[0_16px_40px_rgba(0,0,0,0.35)] relative overflow-hidden group">
-                                <!-- Specular highlight line on top border -->
-                                <div
-                                    class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent">
-                                </div>
-                                <div class="flex items-center justify-between pb-3 border-b border-white/15">
-                                    <div class="flex items-center gap-2">
-                                        <span
-                                            class="w-3 h-3 rounded-full bg-amber-action shadow-[0_0_10px_rgba(245,166,35,0.8)]"></span>
-                                        <span
-                                            class="font-label-micro text-label-micro tracking-widest text-white/90 uppercase font-bold">Hardware
-                                            Guard Metric</span>
-                                    </div>
-                                    <span
-                                        class="font-label-micro text-label-micro text-status-green font-bold bg-status-green/20 px-2.5 py-0.5 rounded-full border border-status-green/30">PASS
-                                        99.8%</span>
-                                </div>
-                                <!-- 3D Visual Teaser & Metric Cards -->
-                                <div
-                                    class="relative rounded-2xl overflow-hidden border border-white/20 bg-black/20 p-2 flex items-center justify-between">
-                                    <img alt="3D Marketplace Glass Render"
-                                        class="w-20 h-20 rounded-xl object-cover shrink-0 border border-white/20 shadow-md transform group-hover:scale-105 transition-transform duration-300"
-                                        src="https://lh3.googleusercontent.com/aida/AEtjO1VbxQxTE236aWF3wyF8Ou9sGV29jSDWJIeyPpXw4ZRNlpaNJ14xn4G4_qbazvvebzc-PqOkeQn7dBNi0J1r2NeH47T8DOXLkBSh1SM1lUb9b59v-i3l-Zf5KAmb_4_qlGOrLfO2PLHLp-Sif4BhDyz06RvpKqLELulEVdJPG48ixs_7SMoyfwJlW7C2Cn0sg9YiUorrmQXNWohqsHBXyBVnIqX4CSt-Zqs28Enmerd6ePRu_C-WdPPEcEk" />
-                                    <div class="grid grid-cols-2 gap-2 flex-1 ml-3 text-center">
-                                        <div
-                                            class="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 flex flex-col items-center justify-center">
-                                            <span
-                                                class="material-symbols-outlined text-amber-action text-body-small mb-0.5">radar</span>
-                                            <span class="font-label-micro text-label-micro text-white/70">Serial
-                                                Match</span>
-                                            <span
-                                                class="font-headline-section text-title-card text-white font-bold leading-tight">100%</span>
-                                        </div>
-                                        <div
-                                            class="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 flex flex-col items-center justify-center">
-                                            <span
-                                                class="material-symbols-outlined text-status-green text-body-small mb-0.5">lock_clock</span>
-                                            <span class="font-label-micro text-label-micro text-white/70">Escrow
-                                                Hold</span>
-                                            <span
-                                                class="font-headline-section text-title-card text-white font-bold leading-tight">48
-                                                Hrs</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="p-3 rounded-xl bg-gradient-to-r from-amber-action/25 to-amber-500/10 border border-amber-action/35 flex items-center gap-2.5 text-canvas-ivory backdrop-blur-md">
-                                    <div
-                                        class="w-7 h-7 rounded-lg bg-amber-action text-slate-authority flex items-center justify-center shrink-0 font-bold shadow-sm">
-                                        <span class="material-symbols-outlined text-body-regular">gavel</span>
-                                    </div>
-                                    <p class="font-label-micro text-label-micro leading-snug text-white/90">
-                                        Inspected for motherboard integrity &amp; serial tampering prior to payout.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <!-- Subcategory Quick Filter Pill Bar (Frosted 3D Glass Pill Dock) -->
-                <div
-                    class="w-full bg-white/60 backdrop-blur-xl border border-white/80 rounded-2xl p-2 shadow-[0_8px_24px_rgba(15,23,42,0.04)] relative">
-                    <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar scroll-smooth">
-                        <button
-                            class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold shadow-[0_4px_14px_rgba(245,166,35,0.4)] border border-amber-300/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            type="button">
-                            <span class="material-symbols-outlined text-body-regular">grid_view</span>
-                            <span>All</span>
-                            <span
-                                class="font-label-micro text-label-micro bg-slate-authority/15 px-2 py-0.5 rounded-full">328</span>
-                        </button>
-                        <button
-                            class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-slate-authority font-button-text text-body-small font-semibold border border-white/80 hover:border-amber-action/50 shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            type="button">
-                            <span
-                                class="material-symbols-outlined text-body-regular text-slate-authority">smartphone</span>
-                            <span>Phones</span>
-                            <span
-                                class="font-label-micro text-label-micro text-on-surface-variant bg-black/[0.04] px-2 py-0.5 rounded-full border border-black/[0.06]">94</span>
-                        </button>
-                        <button
-                            class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-slate-authority font-button-text text-body-small font-semibold border border-white/80 hover:border-amber-action/50 shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            type="button">
-                            <span
-                                class="material-symbols-outlined text-body-regular text-slate-authority">laptop_mac</span>
-                            <span>Laptops</span>
-                            <span
-                                class="font-label-micro text-label-micro text-on-surface-variant bg-black/[0.04] px-2 py-0.5 rounded-full border border-black/[0.06]">62</span>
-                        </button>
-                        <button
-                            class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-slate-authority font-button-text text-body-small font-semibold border border-white/80 hover:border-amber-action/50 shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            type="button">
-                            <span
-                                class="material-symbols-outlined text-body-regular text-slate-authority">headphones</span>
-                            <span>Audio</span>
-                            <span
-                                class="font-label-micro text-label-micro text-on-surface-variant bg-black/[0.04] px-2 py-0.5 rounded-full border border-black/[0.06]">58</span>
-                        </button>
-                        <button
-                            class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-slate-authority font-button-text text-body-small font-semibold border border-white/80 hover:border-amber-action/50 shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            type="button">
-                            <span
-                                class="material-symbols-outlined text-body-regular text-slate-authority">photo_camera</span>
-                            <span>Cameras</span>
-                            <span
-                                class="font-label-micro text-label-micro text-on-surface-variant bg-black/[0.04] px-2 py-0.5 rounded-full border border-black/[0.06]">31</span>
-                        </button>
-                        <button
-                            class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-slate-authority font-button-text text-body-small font-semibold border border-white/80 hover:border-amber-action/50 shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            type="button">
-                            <span
-                                class="material-symbols-outlined text-body-regular text-slate-authority">keyboard</span>
-                            <span>Keyboards &amp; Accessories</span>
-                            <span
-                                class="font-label-micro text-label-micro text-on-surface-variant bg-black/[0.04] px-2 py-0.5 rounded-full border border-black/[0.06]">83</span>
-                        </button>
-                    </div>
-                </div>
-                <!-- Catalog Filter & Sorting Bar -->
-                <div
-                    class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-2 border-b border-black/[0.06]">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <h2
-                            class="font-headline-section text-headline-section font-bold text-slate-authority tracking-tight">
-                            Electronics Catalog
-                        </h2>
-                        <span
-                            class="font-label-micro text-label-micro font-bold bg-slate-authority text-canvas-ivory px-2.5 py-1 rounded-full shadow-xs">
-                            328 PRODUCTS
-                        </span>
-                        <div class="hidden sm:flex items-center gap-2 ml-2">
-                            <button
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-eyebrow font-label-eyebrow bg-white/80 backdrop-blur-sm border border-white/80 hover:border-amber-action text-slate-authority shadow-xs transition-all hover:scale-105"
-                                type="button">
-                                <span class="w-1.5 h-1.5 rounded-full bg-status-green"></span>
-                                <span>In Stock</span>
-                            </button>
-                            <button
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-eyebrow font-label-eyebrow bg-white/80 backdrop-blur-sm border border-white/80 hover:border-amber-action text-slate-authority shadow-xs transition-all hover:scale-105"
-                                type="button">
-                                <span
-                                    class="material-symbols-outlined text-label-eyebrow text-amber-action">verified</span>
-                                <span>Escrow Verified</span>
-                            </button>
-                            <button
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-eyebrow font-label-eyebrow bg-white/80 backdrop-blur-sm border border-white/80 hover:border-amber-action text-slate-authority shadow-xs transition-all hover:scale-105"
-                                type="button">
-                                <span
-                                    class="material-symbols-outlined text-label-eyebrow text-amber-action">hotel_class</span>
-                                <span>Top Rated (4.8+)</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 self-end lg:self-auto w-full sm:w-auto">
-                        <!-- Compact Search -->
-                        <div class="relative flex-1 sm:w-64">
-                            <span
-                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-body-small">search</span>
-                            <input
-                                class="w-full bg-white/80 backdrop-blur-md border border-white/90 rounded-xl pl-9 pr-3 py-2 text-body-small font-body-small text-slate-authority placeholder:text-on-surface-variant/60 focus:outline-none focus:border-amber-action shadow-xs"
-                                placeholder="Search electronics..." type="text" />
-                        </div>
-                        <!-- Sort Select -->
-                        <div class="relative">
-                            <select
-                                class="appearance-none bg-white/80 backdrop-blur-md border border-white/90 rounded-xl pl-3.5 pr-8 py-2 text-body-small font-button-text font-semibold text-slate-authority hover:border-amber-action cursor-pointer focus:outline-none focus:border-amber-action shadow-xs">
-                                <option>Sort: Popular</option>
-                                <option>Price: Low to High</option>
-                                <option>Price: High to Low</option>
-                                <option>Highest Rating</option>
-                                <option>Newest Arrivals</option>
-                            </select>
-                            <span
-                                class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-authority pointer-events-none text-body-small">expand_more</span>
-                        </div>
-                        <!-- Layout toggle -->
-                        <div
-                            class="flex items-center bg-white/70 backdrop-blur-md rounded-xl p-1 border border-white/80 shadow-xs">
-                            <button class="p-1.5 rounded-lg bg-white text-slate-authority shadow-sm" title="Grid View"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular block">grid_view</span>
-                            </button>
-                            <button class="p-1.5 rounded-lg text-on-surface-variant hover:text-slate-authority"
-                                title="List View" type="button">
-                                <span class="material-symbols-outlined text-body-regular block">view_list</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Curated 4-Column Product Grid (Tactile 3D Dimensional Glass Tiles) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Item 1: MacBook Pro M3 -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Space Black Apple MacBook Pro M3"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1WmVwiFHlpeR7aYWEXJI4MXdP_CMYZQzm9EupPH1KVffNXSiO5PbZE_Tl4V_tHbuNP3hZJ0_nT2oTXbZIQZyfuHDsn592L5uVajacxVQs83-yA9rgzvgTCkCPFH1bEB5Xhg6AZfBoRqtN_xg9zUgydCzGubY78iWLgaQXB-BLQKX-06YRbcoJMVWNDeA3muHHDYcfbSIMMagz19qyd9UFJwbexjK_t_q8IxTxQur18NCgCLnTQ057oWX-E" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-amber-action/90 backdrop-blur-md text-slate-authority px-2.5 py-1 rounded-lg tracking-wider shadow-sm border border-amber-200/50">Top
-                                        Pick</span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Laptops</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.9</span>
-                                    <span>(142)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Space Black Apple MacBook Pro M3
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                M3 Pro 18GB unified, Liquid Retina XDR 14-inch
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹1,69,999</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹1,89,999</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">10%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 2: Sony WH-1000XM5 -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Sony WH-1000XM5 Wireless Headphones"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1ULHYfZ58DWHb3ovmkHCOx30d2y2KNFJNjSaNeyIekug2Nn45SSGMa1s8vyF89_u8JpyK5DcURAFa2FtF4vEIv2pVZGC2MzAZq1rRjLYQKE-t52YAMdsIJW5prgjmSFsExmX2aiDaBf_jZkASVFGXLFGDmCoTL9fUxPtPDX9hogJvtf9H4TP8MNd42K8QLAuao7kkBFZ2byKJcoFdTnhVs9s7R2FX26LF17V1ZCh9hOhUu4lmibOG9-0g" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-slate-authority/90 backdrop-blur-md text-canvas-ivory px-2.5 py-1 rounded-lg tracking-wider shadow-sm border border-white/20">Bestseller</span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Audio</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.8</span>
-                                    <span>(312)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Sony WH-1000XM5 Noise Cancelling
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                Auto NC Optimizer, 30hr battery, multipoint pairing
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹24,990</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹29,990</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">17%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 3: iPhone 15 Pro Max -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Apple iPhone 15 Pro Max Natural Titanium"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1WesLuM3IFLMPZUGxaMNdOhk2dJKDYQ9yuKcNdYKX5C18SpBicMn17UyRJAchtK3huE0flK1zcWeUZ2E942aIxfmt56ttVCJnTuVZro-ChI7-Gx-yDq86MhgcaZx1u8zK9Sydayqwz7q33bBL62MraJpkjRmKW2NFUL7KDzwDehHSlscPCLZJWfnyjxGASuHYn-dwCRd4AzCFyXSDcKSHZMYcuodKUilGRnaAriohwlHoo3_jPF0417mN0" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-status-green/90 backdrop-blur-md text-white px-2.5 py-1 rounded-lg tracking-wider flex items-center gap-1 shadow-sm border border-emerald-300/40">
-                                        <span class="material-symbols-outlined text-label-micro">verified</span>Escrow
-                                        Verified
-                                    </span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Phones</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.9</span>
-                                    <span>(248)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Apple iPhone 15 Pro Max Titanium
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                256GB Grade A+ Refurbished with battery report 100%
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹1,19,999</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹1,34,999</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">11%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 4: Retro Mechanical Keyboard 75% -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Retro Cream Mechanical Keyboard 75%"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1V962eUfdX3W9GnnupcSTLq4Tj4fBcsQVyefenltjqVi57DxdkzzgTDibxjj3Yzbz2nHjzJc4mf14iqX6-ZoBGNkGV2MuMAUjwjBX5bHwb5HsGHHGEGqa8O93vN9qHtPEl-439Y21ZODyv1zHYyXj8PmErpyFrKKLYka9HfSEGbq2va_SX1PLem6YZwjhcJ88Tjmv7w83mQkPJSQYoQYZYPPhtt-jy46KqZisQ9VjvIcBg-CbzOJV9SzQ" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-secondary/90 backdrop-blur-md text-canvas-ivory px-2.5 py-1 rounded-lg tracking-wider shadow-sm border border-emerald-300/30">Artisan
-                                        Guild</span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Accessories</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.7</span>
-                                    <span>(89)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Retro Cream Mechanical Keyboard
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                Hot-swappable tactile amber switches with brass plate
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹18,500</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹21,000</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">12%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 5: Vintage Leica M 35mm -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Vintage Leica M 35mm Rangefinder Camera"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1WtXge9GPbqerXxtDR81FmoO_hfHqYgmqlaYYUwc2Yh_MefBJoICSP9w7Wb0Cqr6tyKGrqQHUndgUWVoT8ggWFORDtiLGGzfQHiKXsLNWSKSi8IniszOYx4fofXjH1O2Fr6JH_kTpLyAmT-GYlGMOKE3SeqInPG0mwsWk2CEDPZEvzeA4FChdtZ_EWJd2NUmm0zgSRZojYH02eszXaZDsXknosVC-J0Vy91v025yswoZN2tqWyLVRPaitw" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-[#7C2D12]/90 backdrop-blur-md text-canvas-ivory px-2.5 py-1 rounded-lg tracking-wider shadow-sm border border-orange-300/30">Rare
-                                        Collector</span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Cameras</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.9</span>
-                                    <span>(52)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Vintage Leica M 35mm Rangefinder
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                Brass patina body, shutter timing verified by stallmaster
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹85,000</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-secondary bg-secondary/10 border border-secondary/20 px-2 py-0.5 rounded-md">Auction
-                                    Grade</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 6: Apple Watch Ultra 2 Titanium -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Apple Watch Ultra 2 Titanium"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1WCV79P_WvGQN5KQJBCsoSb-BB7bk_bI9raCF39grO__0osmkm6wz8yOcsJDmbNAtpsoOLotAmSTm8MaUvtbCzz2kFK6vXUGpeo78gNOeqO1yyDPtdaIb533Ya-QTC0PN7pTYfSKxV6V-u3H9sok9Nj0YVvjmpsuzEplsjAWJRMufP453b17PWleiI6RG79hsIYDKekSa9mJ0sz3bbZnIjMwEebK0zG_961mM9Bh1cY8T9TmdK9Ce5EeQc" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-slate-authority/90 backdrop-blur-md text-canvas-ivory px-2.5 py-1 rounded-lg tracking-wider shadow-sm border border-white/20">Direct
-                                        Stall</span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Accessories</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.9</span>
-                                    <span>(388)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Apple Watch Ultra 2 Titanium
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                49mm Case with Ocean Band, precision dual-frequency GPS
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹42,000</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹49,900</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">15%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 7: Aura P50 Gold Edition Flagship -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Aura P50 Gold Edition Flagship"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1U3oJ6qEpXnJRplfQ2cJaxsl6uVmv_P0CQvmKXrYwLfyvZyYHTx9MBo-40o6gU4zPDVUI_eEir24c0nvJhy7MznF2PT46ANJyjzLSQ2mFr-1fXzdbcx-L-TA4FV20dbrVF2qtEq_87em-lFUM7J83FkDQUEaRnMq4LtG3pjNFYWfG-e6YU0PKLAeYDKS4IY0pMei9EplREiltU-4fsg-VSnV442WLUfM3oWs3ccW48OULbyBUubsqKU8Jk" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-amber-action/90 backdrop-blur-md text-slate-authority px-2.5 py-1 rounded-lg tracking-wider flex items-center gap-1 shadow-sm border border-amber-200/50">
-                                        <span class="material-symbols-outlined text-label-micro">auto_awesome</span>98%
-                                        AI Match
-                                    </span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Phones</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.8</span>
-                                    <span>(194)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Aura P50 Gold Flagship Edition
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                Periscope 5x telephoto, curved OLED, 512GB storage
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹28,000</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹34,000</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">18%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                    <!-- Item 8: Titanium Gray Flagship Pro OLED -->
-                    <article
-                        class="group bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-4 flex flex-col justify-between hover:border-amber-action/60 hover:-translate-y-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_45px_rgba(245,166,35,0.15)] transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent">
-                        </div>
-                        <div>
-                            <div
-                                class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-stone-100 to-stone-200/70 mb-3.5 flex items-center justify-center p-2 shadow-inner">
-                                <img alt="Titanium Gray Flagship Pro OLED"
-                                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                                    src="https://lh3.googleusercontent.com/aida/AEtjO1WJqsIaif7cmfvLsishfWYq34gojgu0svIdwXok5gEG0Q_W-6tykrS7xH3hsA883j4tF_eEEK0z1sjfo9ceM5LFNRcmojAq3IUyh3Y7kj1ZlCXH8zjOck5QvqjSULDo0Tj0Tl4BVpcLDrOTrDPu8FnX80uvK4431hjXlubO4-lbyE6F9hxAUI9oI4hK5YsY0WZ_UOiICGIY2mTyJHoGXi5sWysIOazYBXA3kEvpiOrqM-kwIYOce3ZkxAc" />
-                                <div class="absolute top-3 left-3">
-                                    <span
-                                        class="font-label-micro text-label-micro uppercase font-bold bg-[#0284C7]/90 backdrop-blur-md text-canvas-ivory px-2.5 py-1 rounded-lg tracking-wider shadow-sm border border-cyan-200/40">Trending</span>
-                                </div>
-                                <button aria-label="Add to wishlist"
-                                    class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/90 flex items-center justify-center text-slate-authority hover:text-error hover:bg-white hover:scale-110 transition-all shadow-sm"
-                                    type="button">
-                                    <span class="material-symbols-outlined text-body-regular">favorite</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span
-                                    class="font-label-eyebrow text-label-eyebrow uppercase text-amber-action font-bold tracking-wider">Phones</span>
-                                <div
-                                    class="flex items-center gap-1 text-label-micro font-label-micro text-on-surface-variant font-medium bg-black/[0.03] px-2 py-0.5 rounded-full">
-                                    <span class="material-symbols-outlined text-amber-action text-label-eyebrow"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-slate-authority font-bold">4.7</span>
-                                    <span>(118)</span>
-                                </div>
-                            </div>
-                            <h3
-                                class="font-title-card text-title-card font-bold text-slate-authority line-clamp-1 group-hover:text-amber-600 transition-colors">
-                                Titanium Gray Flagship Pro OLED
-                            </h3>
-                            <p class="font-body-small text-body-small text-on-surface-variant line-clamp-1 mt-0.5">
-                                120Hz LTPO display, Snapdragon Gen 3, ceramic shield
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-black/[0.05] flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span
-                                    class="font-headline-section text-headline-section font-bold text-slate-authority">₹32,499</span>
-                                <span
-                                    class="font-body-small text-body-small line-through text-on-surface-variant/70">₹38,000</span>
-                                <span
-                                    class="font-label-micro text-label-micro font-bold text-status-green bg-status-green/10 border border-status-green/20 px-2 py-0.5 rounded-md">14%
-                                    OFF</span>
-                            </div>
-                            <button
-                                class="w-full bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-[0_4px_16px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-sm border border-amber-300/60"
-                                type="button">
-                                <span class="material-symbols-outlined text-body-regular">shopping_cart</span>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
-                    </article>
-                </div>
-                <!-- Pagination with 3D Dimensional Glass Pill Container -->
-                <div
-                    class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-2 border-t border-black/[0.06]">
-                    <span class="font-body-small text-body-small text-on-surface-variant font-medium">
-                        Showing <strong class="text-slate-authority font-bold">1–8</strong> of <strong
-                            class="text-slate-authority font-bold">328</strong> Products
-                    </span>
-                    <div
-                        class="flex items-center gap-1.5 p-1 bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl shadow-xs">
-                        <button
-                            class="px-3 py-1.5 rounded-xl border border-transparent text-on-surface-variant/40 font-button-text text-body-small cursor-not-allowed"
-                            disabled="" type="button">
-                            Previous
-                        </button>
-                        <button
-                            class="w-9 h-9 rounded-xl bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-body-small font-bold flex items-center justify-center shadow-[0_2px_8px_rgba(245,166,35,0.35)] border border-amber-300/50"
-                            type="button">
-                            1
-                        </button>
-                        <button
-                            class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white border border-white/90 hover:border-amber-action/50 text-slate-authority font-button-text text-body-small font-semibold flex items-center justify-center transition-all hover:scale-105 shadow-2xs"
-                            type="button">
-                            2
-                        </button>
-                        <button
-                            class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white border border-white/90 hover:border-amber-action/50 text-slate-authority font-button-text text-body-small font-semibold flex items-center justify-center transition-all hover:scale-105 shadow-2xs"
-                            type="button">
-                            3
-                        </button>
-                        <button
-                            class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white border border-white/90 hover:border-amber-action/50 text-slate-authority font-button-text text-body-small font-semibold flex items-center justify-center transition-all hover:scale-105 shadow-2xs"
-                            type="button">
-                            4
-                        </button>
-                        <span class="px-1 text-on-surface-variant font-mono">…</span>
-                        <button
-                            class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white border border-white/90 hover:border-amber-action/50 text-slate-authority font-button-text text-body-small font-semibold flex items-center justify-center transition-all hover:scale-105 shadow-2xs"
-                            type="button">
-                            41
-                        </button>
-                        <button
-                            class="px-3 py-1.5 rounded-xl border border-white/80 bg-white/70 hover:bg-white hover:border-amber-action/50 text-slate-authority font-button-text text-body-small font-semibold transition-all shadow-2xs"
-                            type="button">
-                            Next
-                        </button>
-                    </div>
-                </div>
-                <!-- Category Featured Escrow Authority Banner (3D Glass Translucent Dark Theme) -->
-                <section
-                    class="w-full bg-gradient-to-r from-slate-authority via-[#111A2E] to-[#1E293B] text-canvas-ivory rounded-3xl p-6 sm:p-8 relative overflow-hidden border border-white/20 shadow-[0_16px_40px_rgba(15,23,42,0.2)] backdrop-blur-2xl">
-                    <div
-                        class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-amber-action/15 blur-3xl pointer-events-none">
-                    </div>
-                    <div
-                        class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent">
-                    </div>
-                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div class="max-w-2xl">
-                            <div
-                                class="inline-flex items-center gap-2 text-amber-action font-label-eyebrow text-label-eyebrow uppercase font-bold tracking-wider mb-2 bg-white/10 px-3 py-1 rounded-full border border-white/15 backdrop-blur-sm">
-                                <span class="material-symbols-outlined text-label-eyebrow">verified_user</span>
-                                Device Certification Standard
-                            </div>
-                            <h3 class="font-headline-section text-headline-section font-bold tracking-tight text-white">
-                                Bazaario Electronics Escrow Guarantee
-                            </h3>
-                            <p class="font-body-regular text-body-regular text-white/75 mt-2 leading-relaxed">
-                                Every high-value electronic device is inspected for hardware integrity, battery state,
-                                clean IMEI, and serial matching before seller payout is unlocked. Return guarantee
-                                remains protected in smart escrow for 7 days.
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-3 shrink-0">
-                            <a class="bg-gradient-to-r from-amber-action to-amber-400 text-slate-authority font-button-text text-button-text px-6 py-3.5 rounded-2xl font-bold hover:shadow-[0_4px_20px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all shadow-lg border border-amber-200/60 inline-flex items-center gap-2"
-                                data-path="escrow-guarantee" href="#">
-                                <span>Learn About Escrow</span>
-                                <span class="material-symbols-outlined text-body-regular">arrow_forward</span>
-                            </a>
-                        </div>
-                    </div>
-                </section>
             </div>
-            <!-- Docked Floating Pill (3D Glass AI Shopping Assistant) -->
-            <aside class="fixed bottom-6 right-6 z-40">
-                <button
-                    class="group flex items-center gap-3 bg-slate-authority/85 backdrop-blur-2xl border border-white/25 hover:border-amber-action text-canvas-ivory px-4 py-2.5 rounded-full shadow-[0_12px_36px_rgba(15,23,42,0.35)] transition-all hover:scale-105 active:scale-95 relative overflow-hidden"
-                    type="button">
-                    <div
-                        class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent">
+
+            <!-- Category Hero Banner with 3D Dimensional Glass Atmosphere -->
+            <section class="relative w-full rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white overflow-hidden p-6 md:p-10 border border-white/10 shadow-2xl backdrop-blur-2xl">
+                <!-- Glowing Ambient Iridescent Accents -->
+                <div class="absolute -right-16 -top-16 w-[420px] h-[420px] rounded-full bg-gradient-to-bl from-amber-500/25 to-purple-500/15 blur-3xl pointer-events-none"></div>
+                <div class="absolute left-1/3 -bottom-24 w-80 h-80 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid md:grid-cols-12 gap-8 items-center">
+                    <div class="md:col-span-8 flex flex-col gap-3">
+                        <div class="inline-flex items-center gap-2 self-start bg-white/10 backdrop-blur-xl px-3.5 py-1.5 rounded-full border border-white/20 text-amber-400 font-mono text-[11px] uppercase tracking-wider font-bold shadow-inner">
+                            <span class="material-symbols-outlined text-sm">verified</span>
+                            <span>Verified Marketplace Taxonomy</span>
+                        </div>
+                        <h1 class="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight uppercase">
+                            {{ $category ? $category->name : 'ALL CATEGORIES' }}
+                        </h1>
+                        <p class="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
+                            {{ $category && $category->description ? $category->description : 'Explore authentic, handcrafted products from verified local makers and specialty merchants across India.' }}
+                        </p>
+                        <div class="flex flex-wrap items-center gap-3 pt-2 font-mono text-xs">
+                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md">
+                                <span class="material-symbols-outlined text-amber-400 text-base">inventory_2</span>
+                                <span class="text-white font-semibold">{{ $products->total() }} Active Listings</span>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md">
+                                <span class="material-symbols-outlined text-emerald-400 text-base">shield</span>
+                                <span class="text-white font-semibold">100% Escrow Protected</span>
+                            </div>
+                        </div>
                     </div>
-                    <div
-                        class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-action to-amber-300 flex items-center justify-center text-slate-authority shadow-[0_2px_8px_rgba(245,166,35,0.5)] shrink-0">
-                        <span class="material-symbols-outlined text-body-regular"
-                            style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+
+                    <div class="md:col-span-4 flex items-center justify-center md:justify-end">
+                        <div class="p-6 rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-xl text-center w-full max-w-xs">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto mb-3">
+                                <span class="material-symbols-outlined text-3xl">category</span>
+                            </div>
+                            <div class="font-display font-bold text-lg text-white mb-1">{{ $category ? $category->name : 'Catalog' }}</div>
+                            <p class="text-xs text-slate-400">Directly from independent regional workshops.</p>
+                        </div>
                     </div>
-                    <div class="flex flex-col text-left pr-1">
-                        <span
-                            class="font-label-micro text-label-micro text-amber-action font-bold uppercase tracking-wider flex items-center gap-1">
-                            <span>✦ AI Shopping Agent</span>
-                        </span>
-                        <span
-                            class="font-body-small text-body-small font-medium text-white/90 group-hover:text-amber-action transition-colors">
-                            "Help me choose an electronics item by budget"
-                        </span>
+                </div>
+            </section>
+
+            <!-- Subcategory Quick Filter Pill Bar -->
+            <div class="w-full bg-white/70 backdrop-blur-xl border border-slate-200/80 rounded-2xl p-2 shadow-2xs">
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
+                    <a href="{{ route('category.show', ['slug' => 'all']) }}" 
+                       class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs transition-all {{ ($slug ?? 'all') === 'all' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80' }}">
+                        <span class="material-symbols-outlined text-sm">grid_view</span>
+                        <span>All</span>
+                    </a>
+                    @foreach($categories as $cat)
+                        <a href="{{ route('category.show', ['slug' => $cat->slug]) }}" 
+                           class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs transition-all {{ ($slug ?? '') === $cat->slug ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80' }}">
+                            <span>{{ $cat->name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Catalog Filter & Sorting Bar -->
+            <form action="{{ route('category.show', ['slug' => $slug]) }}" method="GET" class="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-slate-200">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <h2 class="font-display font-bold text-xl text-slate-900 tracking-tight">
+                        {{ $category ? $category->name : 'All Catalog Items' }}
+                    </h2>
+                    <span class="font-mono text-xs font-bold bg-slate-900 text-white px-2.5 py-0.5 rounded-full">
+                        {{ $products->total() }} Products
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <!-- Compact Search -->
+                    <div class="relative flex-1 sm:w-64">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                        <input name="search" 
+                               value="{{ request('search') }}"
+                               class="w-full bg-white border border-slate-200/90 rounded-xl pl-9 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-amber-500 shadow-2xs"
+                               placeholder="Search in this category..." 
+                               type="text" />
                     </div>
-                    <span
-                        class="material-symbols-outlined text-body-small text-white/60 group-hover:translate-x-1 group-hover:text-amber-action transition-all">arrow_forward</span>
-                </button>
-            </aside>
+
+                    <!-- Sort Select -->
+                    <div class="relative">
+                        <select name="sort" 
+                                onchange="this.form.submit()"
+                                class="appearance-none bg-white border border-slate-200/90 rounded-xl pl-3.5 pr-8 py-2 text-xs font-semibold text-slate-800 hover:border-amber-500 cursor-pointer focus:outline-none focus:border-amber-500 shadow-2xs">
+                            <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Newest Arrivals</option>
+                            <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                            <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                            <option value="rating" {{ request('sort') === 'rating' ? 'selected' : '' }}>Highest Rating</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm">expand_more</span>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Dynamic Product Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @forelse($products as $product)
+                    @php
+                        $primaryImg = $product->primaryImage ? $product->primaryImage->image_path : ($product->images->first() ? $product->images->first()->image_path : null);
+                        $imgUrl = $primaryImg ? (Illuminate\Support\Str::startsWith($primaryImg, ['http://', 'https://']) ? $primaryImg : asset($primaryImg)) : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';
+                        $sellerName = $product->seller && $product->seller->sellerProfile ? $product->seller->sellerProfile->shop_name : ($product->seller ? $product->seller->name : 'Bazaario Artisan');
+                        $ratingDisplay = $product->average_rating ? number_format($product->average_rating, 1) : 'New';
+                        $reviewsDisplay = ($product->total_reviews ?? 0) . ' reviews';
+                        $originalPrice = round($product->price * 1.25);
+                    @endphp
+                    <article class="group bg-white rounded-3xl border border-slate-200/90 p-4 flex flex-col justify-between hover:border-amber-500/60 hover:-translate-y-1.5 shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+                        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-amber-300 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div>
+                            <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-100 mb-3.5 flex items-center justify-center shadow-inner">
+                                <a href="{{ route('products.show', ['slug' => $product->slug]) }}" class="w-full h-full block">
+                                    <img alt="{{ $product->name }}" 
+                                         class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" 
+                                         src="{{ $imgUrl }}" 
+                                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';">
+                                </a>
+                                <div class="absolute top-2.5 left-2.5">
+                                    <span class="font-mono text-[9px] uppercase font-bold bg-slate-900/90 backdrop-blur-md text-amber-400 px-2 py-0.5 rounded-md tracking-wider shadow-sm">
+                                        {{ $product->price > 10000 ? 'Premium' : (($product->average_rating && $product->average_rating >= 4.8) ? 'Top Pick' : 'Verified') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="font-mono text-[10px] uppercase text-amber-600 font-bold tracking-wider truncate">
+                                    {{ $product->category ? $product->category->name : 'General' }}
+                                </span>
+                                <div class="flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="text-amber-500 font-bold">★</span>
+                                    <span class="text-slate-900 font-bold">{{ $product->average_rating ? number_format($product->average_rating, 1) : 'New' }}</span>
+                                    <span class="text-slate-400 text-[10px]">({{ ($product->total_reviews ?? 0) . ' reviews' }})</span>
+                                </div>
+                            </div>
+
+                            <h3 class="font-display font-bold text-slate-900 text-sm line-clamp-1 group-hover:text-amber-600 transition-colors">
+                                <a href="{{ route('products.show', ['slug' => $product->slug]) }}">{{ $product->name }}</a>
+                            </h3>
+                            <p class="text-xs text-slate-500 line-clamp-1 mt-0.5 font-sans">
+                                {{ $product->short_description ?: $product->description }}
+                            </p>
+                            <p class="text-[11px] font-mono text-slate-400 mt-1 truncate">
+                                By <span class="text-slate-700 font-medium">{{ $sellerName }}</span>
+                            </p>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-3">
+                            <div class="flex items-baseline gap-2">
+                                <span class="font-mono font-bold text-base text-slate-900">₹{{ number_format($product->price, 2) }}</span>
+                                @if($originalPrice > $product->price)
+                                    <span class="font-mono text-xs line-through text-slate-400">₹{{ number_format($originalPrice, 2) }}</span>
+                                @endif
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <form action="{{ route('cart.store') }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-semibold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95" type="submit">
+                                        <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                </form>
+                                <form action="{{ route('cart.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <input type="hidden" name="buy_now" value="1">
+                                    <button class="p-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl transition-all shadow-sm active:scale-95" type="submit" title="Buy Now">
+                                        <span class="material-symbols-outlined text-sm">bolt</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                @empty
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-4 bg-white rounded-3xl p-12 text-center border border-slate-200/90 shadow-xs">
+                        <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">inventory_2</span>
+                        <h3 class="font-display font-bold text-slate-900 text-lg mb-1">No products found in this category</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-6">Explore our other curated categories or check back soon as regional artisans upload new collections.</p>
+                        <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-amber-500 hover:text-slate-950 transition-colors">
+                            <span>Browse All Products</span>
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </a>
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Server-Side Pagination Links -->
+            <div class="mt-8 flex justify-center">
+                {{ $products->links() }}
+            </div>
+
+            <!-- Category Escrow Guarantee Banner -->
+            <section class="w-full bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden border border-white/10 shadow-xl backdrop-blur-2xl mt-6">
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="max-w-2xl">
+                        <div class="inline-flex items-center gap-2 text-amber-400 font-mono text-[11px] uppercase font-bold tracking-wider mb-2 bg-white/10 px-3 py-1 rounded-full border border-white/15">
+                            <span class="material-symbols-outlined text-sm">verified_user</span>
+                            Authenticity &amp; Escrow Guarantee
+                        </div>
+                        <h3 class="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">
+                            Bazaario Decentralized Escrow Assurance
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed font-sans">
+                            Every purchase is held safely in smart escrow. Merchant payouts are released on a T+2 schedule only after courier delivery confirmation and your 7-day inspection window.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <a href="{{ route('pages.how-it-works') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm px-6 py-3 rounded-2xl transition-all shadow-md inline-flex items-center gap-2">
+                            <span>Learn How Escrow Works</span>
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
         </div>
     </main>
-    <!-- Footer -->
+
+    <!-- Global Footer -->
     <x-footer />
 </body>
-
 </html>

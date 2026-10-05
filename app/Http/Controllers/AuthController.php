@@ -9,7 +9,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -24,6 +26,10 @@ class AuthController extends Controller
 
     public function showLogin()
     {
+        if (Auth::guard('seller')->check()) {
+            return $this->redirectByRole(Auth::guard('seller')->user());
+        }
+
         if (Auth::guard('user')->check()) {
             return $this->redirectByRole(Auth::guard('user')->user());
         }
@@ -74,6 +80,7 @@ class AuthController extends Controller
             if ($user->status !== 'active') {
 
                 Auth::guard('user')->logout();
+                Auth::guard('seller')->logout();
 
                 return back()
                     ->withErrors([
@@ -91,12 +98,23 @@ class AuthController extends Controller
             if ($user->role === 'admin') {
 
                 Auth::guard('user')->logout();
+                Auth::guard('seller')->logout();
 
                 return back()
                     ->withErrors([
                         'email' => 'Please use the Admin Login page.',
                     ])
                     ->onlyInput('email');
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Authenticate seller guard if user is a seller
+            |--------------------------------------------------------------------------
+            */
+
+            if ($user->role === 'seller') {
+                Auth::guard('seller')->login($user, $remember);
             }
 
             /*
@@ -130,6 +148,10 @@ class AuthController extends Controller
 
     public function showRegister()
     {
+        if (Auth::guard('seller')->check()) {
+            return $this->redirectByRole(Auth::guard('seller')->user());
+        }
+
         if (Auth::guard('user')->check()) {
             return $this->redirectByRole(Auth::guard('user')->user());
         }
@@ -213,8 +235,12 @@ class AuthController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Mail::to($validated['email'])
-            ->send(new EmailOtpMail($otp));
+        try {
+            Mail::to($validated['email'])
+                ->send(new EmailOtpMail($otp));
+        } catch (\Throwable $e) {
+            logger()->error('Failed to send OTP email: ' . $e->getMessage());
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -285,7 +311,11 @@ class AuthController extends Controller
             'created_at' => now(),
         ]);
 
-        Mail::to($email)->send(new EmailOtpMail($otp));
+        try {
+            Mail::to($email)->send(new EmailOtpMail($otp));
+        } catch (\Throwable $e) {
+            logger()->error('Failed to send resend OTP email: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -475,7 +505,11 @@ class AuthController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Auth::guard('user')->login($user);
+        if ($user->role === 'seller') {
+            Auth::guard('seller')->login($user);
+        } else {
+            Auth::guard('user')->login($user);
+        }
 
         $request->session()->regenerate();
 
@@ -623,5 +657,99 @@ class AuthController extends Controller
         }
 
         return route('products.index');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show Forgot Password Form
+    |--------------------------------------------------------------------------
+    */
+
+    public function showForgotPassword()
+    {
+        if (Auth::guard('seller')->check()) {
+            return $this->redirectByRole(Auth::guard('seller')->user());
+        }
+
+        if (Auth::guard('user')->check()) {
+            return $this->redirectByRole(Auth::guard('user')->user());
+        }
+
+        return view('auth.forgot-password');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Send Password Reset Link
+    |--------------------------------------------------------------------------
+    */
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+        ], [
+            'email.exists' => 'We could not find an account associated with that email address.',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        $token = Password::broker()->createToken($user);
+        $resetUrl = route('password.reset', ['token' => $token, 'email' => $user->email]);
+
+        try {
+            Mail::send('auth.emails.reset-password', ['url' => $resetUrl, 'user' => $user], function ($message) use ($user) {
+                $message->to($user->email)->subject('Reset Your Bazaario Password');
+            });
+        } catch (\Throwable $e) {
+            logger()->error('Failed to send password reset email: ' . $e->getMessage());
+        }
+
+        return back()->with('status', 'We have emailed your password reset link!');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show Reset Password Form
+    |--------------------------------------------------------------------------
+    */
+
+    public function showResetPassword(Request $request, $token)
+    {
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email', ''),
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reset Password
+    |--------------------------------------------------------------------------
+    */
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'    => ['required'],
+            'email'    => ['required', 'email', 'exists:users,email'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $status = Password::broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('login')->with('success', 'Your password has been reset successfully. Please sign in with your new password.');
+        }
+
+        return back()->withErrors(['email' => __($status)])->onlyInput('email');
     }
 }

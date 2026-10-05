@@ -80,9 +80,14 @@ class Order extends Model
         return $this->hasOne(CouponUsage::class);
     }
 
-    public function winningAuction(): HasOne
+    public function invoice(): HasOne
     {
-        return $this->hasOne(Auction::class, 'winning_order_id');
+        return $this->hasOne(Invoice::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     // Scopes

@@ -4,8 +4,19 @@
 
 @section('content')
 <div class="flex flex-col w-full gap-space-lg">
+    @if(!$order)
+        <div class="bg-white rounded-xl p-8 text-center text-slate-500 border border-slate-200">
+            <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">receipt_long</span>
+            <h2 class="text-lg font-bold text-[#0F172A]">Order Not Found</h2>
+            <p class="text-xs text-slate-500 mt-1">The requested marketplace order could not be located in the database.</p>
+            <a href="{{ route('admin.orders.index') }}" class="mt-4 inline-block px-4 py-2 bg-[#0F172A] text-white rounded-xl text-xs font-semibold">
+                Back to Orders Directory
+            </a>
+        </div>
+    @else
     <!-- Breadcrumb & Top Actions -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
+
         <div class="flex flex-col gap-1.5">
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.orders.index') }}" class="font-body-sm text-xs text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1">
@@ -53,20 +64,27 @@
                 <span>Print Packing Slip</span>
             </button>
 
-            <!-- Status Modifier Form -->
-            <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-                @csrf
-                <span class="text-xs font-bold text-slate-700 pl-2">Status:</span>
-                <select name="order_status" class="py-1 px-2.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-[#0F172A] focus:outline-none focus:border-[#F5A623] cursor-pointer">
-                    <option value="pending" {{ $order->order_status === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="processing" {{ $order->order_status === 'processing' ? 'selected' : '' }}>Processing</option>
-                    <option value="completed" {{ $order->order_status === 'completed' ? 'selected' : '' }}>Completed</option>
-                    <option value="cancelled" {{ $order->order_status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                </select>
-                <button type="submit" class="px-3 py-1 bg-[#0F172A] text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition cursor-pointer">
-                    Save
-                </button>
-            </form>
+            @if(in_array($order->order_status, ['cancelled', 'refunded']))
+                <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
+                    STATUS: {{ strtoupper($order->order_status) }} (FINAL)
+                </span>
+            @else
+                <!-- Status Modifier Form -->
+                <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                    @csrf
+                    <span class="text-xs font-bold text-slate-700 pl-2">Status:</span>
+                    <select name="order_status" class="py-1 px-2.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-[#0F172A] focus:outline-none focus:border-[#F5A623] cursor-pointer">
+                        <option value="pending" {{ $order->order_status === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="processing" {{ $order->order_status === 'processing' ? 'selected' : '' }}>Processing</option>
+                        <option value="completed" {{ $order->order_status === 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="cancelled" {{ $order->order_status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="refunded" {{ $order->order_status === 'refunded' ? 'selected' : '' }}>Refunded</option>
+                    </select>
+                    <button type="submit" class="px-3 py-1 bg-[#0F172A] text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition cursor-pointer">
+                        Save
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 
@@ -84,10 +102,10 @@
                     <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-xs">
-                                {{ strtoupper(substr($so->seller->name ?? 'SL', 0, 2)) }}
+                                {{ strtoupper(substr((string)($so->seller?->name ?? 'SL'), 0, 2)) }}
                             </div>
                             <div>
-                                <span class="font-bold text-xs text-[#0F172A]">{{ $so->seller->sellerProfile->shop_name ?? ($so->seller->name ?? 'Direct Merchant') }}</span>
+                                <span class="font-bold text-xs text-[#0F172A]">{{ $so->seller?->sellerProfile?->shop_name ?? ($so->seller?->name ?? 'Direct Merchant') }}</span>
                                 <span class="text-[10px] text-slate-500 block">Sub-Order #{{ $so->seller_order_number ?? ('BZ-' . $order->id . '-S' . $so->id) }} • Commission: {{ $so->commission_rate ?? 8.5 }}%</span>
                             </div>
                         </div>
@@ -107,12 +125,12 @@
                                     <div>
                                         <span class="font-bold text-[#0F172A] block text-sm">{{ $item->product_name }}</span>
                                         <span class="font-label-sm text-[11px] text-slate-500">
-                                            SKU: {{ $item->sku ?? 'N/A' }} • {{ $item->quantity }} unit(s) × ₹{{ number_format($item->unit_price, 2) }}
+                                            SKU: {{ $item->sku ?? 'N/A' }} • {{ $item->quantity ?? 1 }} unit(s) × ₹{{ number_format((float)($item->unit_price ?? 0), 2) }}
                                         </span>
                                     </div>
                                 </div>
                                 <span class="font-label-md font-bold text-sm text-[#0F172A]">
-                                    ₹{{ number_format($item->total_price ?: ($item->unit_price * $item->quantity), 2) }}
+                                    ₹{{ number_format((float)($item->total_price ?: (($item->unit_price ?? 0) * ($item->quantity ?? 1))), 2) }}
                                 </span>
                             </div>
                         @empty
@@ -123,7 +141,7 @@
                     <!-- Tracking and Subtotal Footer -->
                     <div class="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
                         <span>Carrier Tracking: <strong class="text-[#0F172A]">{{ $so->tracking_number ?? 'Pending Dispatch Assignment' }}</strong></span>
-                        <span>Consignment Payout: <strong class="font-label-md text-emerald-700 font-bold">₹{{ number_format($so->payout_amount ?: ($so->subtotal * 0.915), 2) }}</strong></span>
+                        <span>Consignment Payout: <strong class="font-label-md text-emerald-700 font-bold">₹{{ number_format((float)($so->payout_amount ?: (($so->subtotal ?? 0) * 0.915)), 2) }}</strong></span>
                     </div>
                 </div>
             @empty
@@ -140,26 +158,26 @@
                 <span class="font-label-sm text-[10px] uppercase tracking-wider text-slate-400 font-bold">Buyer Dossier</span>
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-[#0F172A] text-[#F5A623] flex items-center justify-center font-bold text-sm">
-                        {{ strtoupper(substr($order->delivery_full_name ?? ($order->user->name ?? 'B'), 0, 2)) }}
+                        {{ strtoupper(substr((string)($order->delivery_full_name ?? ($order->user?->name ?? 'B')), 0, 2)) }}
                     </div>
                     <div>
-                        <h4 class="font-bold text-xs text-[#0F172A] text-sm">{{ $order->delivery_full_name ?? ($order->user->name ?? 'Guest Buyer') }}</h4>
-                        <span class="text-[11px] text-slate-500 font-label-sm">{{ $order->user->email ?? 'N/A' }}</span>
+                        <h4 class="font-bold text-xs text-[#0F172A] text-sm">{{ $order->delivery_full_name ?? ($order->user?->name ?? 'Guest Buyer') }}</h4>
+                        <span class="text-[11px] text-slate-500 font-label-sm">{{ $order->user?->email ?? 'N/A' }}</span>
                     </div>
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex flex-col gap-2 text-xs">
                     <div>
                         <span class="text-slate-400 text-[11px] block uppercase font-label-sm">Delivery Address</span>
                         <p class="font-medium text-[#0F172A] mt-0.5 leading-snug">
-                            {{ $order->delivery_address_line_1 }}
+                            {{ $order->delivery_address_line_1 ?? 'Address not specified' }}
                             @if($order->delivery_address_line_2), {{ $order->delivery_address_line_2 }} @endif
                             <br/>
-                            {{ $order->delivery_city }}, {{ $order->delivery_state }} - {{ $order->delivery_postal_code }}
+                            {{ $order->delivery_city ?? '' }}, {{ $order->delivery_state ?? '' }} - {{ $order->delivery_postal_code ?? '' }}
                         </p>
                     </div>
                     <div class="flex justify-between pt-1">
                         <span class="text-slate-500">Phone:</span>
-                        <span class="font-label-sm font-bold text-[#0F172A]">{{ $order->delivery_phone }}</span>
+                        <span class="font-label-sm font-bold text-[#0F172A]">{{ $order->delivery_phone ?? 'N/A' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Order Channel:</span>
@@ -174,21 +192,21 @@
                 <div class="flex flex-col gap-2 text-xs">
                     <div class="flex justify-between">
                         <span class="text-slate-500">Items Subtotal:</span>
-                        <span class="font-label-md font-bold text-[#0F172A]">₹{{ number_format($order->subtotal, 2) }}</span>
+                        <span class="font-label-md font-bold text-[#0F172A]">₹{{ number_format((float)($order->subtotal ?? 0), 2) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Shipping / Logistics:</span>
-                        <span class="font-label-md text-slate-700">₹{{ number_format($order->shipping_amount, 2) }}</span>
+                        <span class="font-label-md text-slate-700">₹{{ number_format((float)($order->shipping_amount ?? 0), 2) }}</span>
                     </div>
-                    @if($order->discount_amount > 0)
+                    @if(($order->discount_amount ?? 0) > 0)
                         <div class="flex justify-between">
                             <span class="text-slate-500">Voucher Discount:</span>
-                            <span class="font-label-md text-emerald-700 font-bold">- ₹{{ number_format($order->discount_amount, 2) }}</span>
+                            <span class="font-label-md text-emerald-700 font-bold">- ₹{{ number_format((float)($order->discount_amount ?? 0), 2) }}</span>
                         </div>
                     @endif
                     <div class="pt-2 border-t border-slate-200 flex justify-between text-sm">
                         <span class="font-bold text-[#0F172A]">Total Settlement:</span>
-                        <span class="font-label-md font-bold text-[#0F172A] text-base">₹{{ number_format($order->total_amount, 2) }}</span>
+                        <span class="font-label-md font-bold text-[#0F172A] text-base">₹{{ number_format((float)($order->total_amount ?? 0), 2) }}</span>
                     </div>
                 </div>
                 <div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium flex items-center gap-1.5 mt-1">
@@ -198,5 +216,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection
+

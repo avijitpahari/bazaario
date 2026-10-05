@@ -14,16 +14,16 @@
                 <div class="flex items-center space-x-2 pt-2">
                     <a aria-label="Instagram"
                         class="w-7 h-7 rounded-lg bg-surface-container-low border border-slate-authority/10 flex items-center justify-center text-slate-authority hover:bg-amber-action transition-colors text-[11px] font-mono font-bold"
-                        href="#">ig</a>
+                        href="https://instagram.com" target="_blank" rel="noopener noreferrer">ig</a>
                     <a aria-label="X Twitter"
                         class="w-7 h-7 rounded-lg bg-surface-container-low border border-slate-authority/10 flex items-center justify-center text-slate-authority hover:bg-amber-action transition-colors text-[11px] font-mono font-bold"
-                        href="#">x</a>
+                        href="https://x.com" target="_blank" rel="noopener noreferrer">x</a>
                     <a aria-label="YouTube"
                         class="w-7 h-7 rounded-lg bg-surface-container-low border border-slate-authority/10 flex items-center justify-center text-slate-authority hover:bg-amber-action transition-colors text-[11px] font-mono font-bold"
-                        href="#">yt</a>
+                        href="https://youtube.com" target="_blank" rel="noopener noreferrer">yt</a>
                     <a aria-label="GitHub"
                         class="w-7 h-7 rounded-lg bg-surface-container-low border border-slate-authority/10 flex items-center justify-center text-slate-authority hover:bg-amber-action transition-colors text-[11px] font-mono font-bold"
-                        href="#">gh</a>
+                        href="https://github.com" target="_blank" rel="noopener noreferrer">gh</a>
                 </div>
             </div>
             <!-- Links: Shop -->
@@ -34,7 +34,7 @@
                     <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index', ['filter' => 'auctions']) }}">Live Auctions</a></li>
                     <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index') }}">Categories</a></li>
                     <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index') }}">AI Compare</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index', ['filter' => 'escrow']) }}">Deals</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('products.index', ['filter' => 'deals']) }}">Deals</a></li>
                 </ul>
             </div>
             <!-- Links: Sell -->
@@ -49,18 +49,19 @@
             <div class="md:col-span-2">
                 <h5 class="font-mono font-bold text-slate-authority text-[11px] uppercase tracking-wider mb-3">Company</h5>
                 <ul class="space-y-2 text-xs font-medium text-slate-authority/70">
-                    <li><a class="hover:text-amber-action transition-colors" href="#">About Us</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Return Policy</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.how-it-works') }}">How It Works / About</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.how-it-works') }}">About Us</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.return-policy') }}">Return Policy</a></li>
                 </ul>
             </div>
             <!-- Links: Help & Escrow -->
             <div class="md:col-span-2">
                 <h5 class="font-mono font-bold text-slate-authority text-[11px] uppercase tracking-wider mb-3">Security</h5>
                 <ul class="space-y-2 text-xs font-medium text-slate-authority/70">
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Escrow Guarantee</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Dispute Center</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Privacy Policy</a></li>
-                    <li><a class="hover:text-amber-action transition-colors" href="#">Terms of Service</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.how-it-works') }}">Escrow Guarantee</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.how-it-works') }}">Dispute Center</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.privacy') }}">Privacy Policy</a></li>
+                    <li><a class="hover:text-amber-action transition-colors" href="{{ route('pages.terms') }}">Terms of Service</a></li>
                 </ul>
             </div>
         </div>
@@ -104,6 +105,36 @@
                             </button>
                         </template>
                     </div>
+                <!-- Currency Selector (P37) -->
+                <div class="relative">
+                    <button @click="currOpen = !currOpen" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-amber-500 text-slate-800 transition-colors shadow-xs active:scale-95"
+                            aria-label="Select Currency">
+                        <span class="font-mono font-bold text-amber-600" x-text="currentCurr.symbol"></span>
+                        <span class="font-semibold text-xs" x-text="currentCurr.code"></span>
+                        <span class="material-symbols-outlined text-[15px] text-slate-400 transition-transform duration-200" :class="{'rotate-180': currOpen}">expand_more</span>
+                    </button>
+
+                    <div x-cloak x-show="currOpen" @click.outside="currOpen = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                         class="absolute top-full mt-2 right-0 w-36 bg-white rounded-2xl shadow-2xl border border-slate-200/90 py-2 z-50 overflow-hidden">
+                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">Select Currency</div>
+                        <template x-for="curr in currencies" :key="curr.code">
+                            <button @click="setCurrency(curr)"
+                                    class="w-full text-left px-3 py-2 hover:bg-amber-50/80 flex items-center justify-between text-xs font-medium text-slate-800 transition-colors">
+                                <span class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-amber-600" x-text="curr.symbol"></span>
+                                    <span x-text="curr.code"></span>
+                                </span>
+                                <span x-show="currentCurr.code === curr.code" class="material-symbols-outlined text-xs text-amber-600 font-bold">check</span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,6 +147,7 @@
         Alpine.data('bazaarioLocalization', () => ({
             langOpen: false,
             currOpen: false,
+            textCache: new WeakMap(),
             languages: [
                 { code: 'en', label: 'English (IN)', name: 'English', flag: '🇮🇳' },
                 { code: 'bn', label: 'বাংলা (BN)', name: 'বাংলা', flag: '🇮🇳' },
@@ -175,11 +207,6 @@
             },
 
             applyTranslation(langCode) {
-                if (langCode === 'en') {
-                    window.location.reload();
-                    return;
-                }
-
                 const dictionary = {
                     bn: {
                         "Shop": "কেনাকাটা",
@@ -229,14 +256,26 @@
                     }
                 };
 
-                const dict = dictionary[langCode];
-                if (!dict) return;
+                const dict = dictionary[langCode] || null;
 
                 const walkNodes = (node) => {
                     if (node.nodeType === Node.TEXT_NODE) {
-                        let text = node.nodeValue.trim();
+                        let original = this.textCache.get(node);
+                        if (original === undefined) {
+                            original = node.nodeValue;
+                            this.textCache.set(node, original);
+                        }
+
+                        if (langCode === 'en' || !dict) {
+                            node.nodeValue = original;
+                            return;
+                        }
+
+                        let text = original.trim();
                         if (dict[text]) {
-                            node.nodeValue = node.nodeValue.replace(text, dict[text]);
+                            node.nodeValue = original.replace(text, dict[text]);
+                        } else {
+                            node.nodeValue = original;
                         }
                     } else if (node.nodeType === Node.ELEMENT_NODE && !['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA'].includes(node.tagName)) {
                         node.childNodes.forEach(walkNodes);
@@ -249,14 +288,80 @@
     });
 </script>
 
-<!-- ── FLOATING AI DOCKED BUTTON ── -->
-<div class="fixed bottom-6 right-6 z-40">
-    <button
-        class="bg-slate-900 text-white pl-4 pr-5 py-2.5 rounded-full font-semibold text-xs shadow-xl hover:bg-slate-800 transition-all flex items-center gap-2 ring-1 ring-white/20 active:scale-95 group"
-        type="button">
-        <span
-            class="material-symbols-outlined text-amber-400 text-[19px] group-hover:rotate-12 transition-transform">auto_awesome</span>
-        <span>✦ Ask Bazaario AI</span>
-    </button>
+<!-- ── FLOATING AI DOCKED BUTTON & COMING SOON MODAL ── -->
+<div x-data="{ aiModalOpen: false }" class="relative">
+    <div class="fixed bottom-6 right-6 z-40">
+        <button
+            @click="aiModalOpen = true"
+            class="bg-slate-900 text-white pl-4 pr-5 py-2.5 rounded-full font-semibold text-xs shadow-xl hover:bg-slate-800 transition-all flex items-center gap-2 ring-1 ring-white/20 active:scale-95 group cursor-pointer"
+            type="button">
+            <span
+                class="material-symbols-outlined text-amber-400 text-[19px] group-hover:rotate-12 transition-transform">auto_awesome</span>
+            <span>✦ Ask Bazaario AI</span>
+        </button>
+    </div>
+
+    <!-- AI Assistant Informative Modal -->
+    <div x-cloak x-show="aiModalOpen" 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div @click.outside="aiModalOpen = false"
+             class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative overflow-hidden"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="scale-95 translate-y-2"
+             x-transition:enter-end="scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="scale-100 translate-y-0"
+             x-transition:leave-end="scale-95 translate-y-2">
+            
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-xl">
+                        ✦
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-base text-slate-900">Bazaario AI Assistant</h3>
+                        <p class="font-mono text-[11px] text-amber-600 font-semibold uppercase tracking-wider">Autonomous Shopping Agent • Coming Soon</p>
+                    </div>
+                </div>
+                <button type="button" @click="aiModalOpen = false" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Our semantic marketplace agent is currently integrating multi-lingual catalog comparison, live mandi auction price predictions, and automated escrow dispute arbitration.
+            </p>
+
+            <div class="space-y-2.5 mb-5 text-xs text-slate-700 font-medium">
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-600 text-sm">compare_arrows</span>
+                    <span>Smart Multi-Seller Specification Comparison</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-600 text-sm">mic</span>
+                    <span>Vernacular Voice Search (Bengali, Hindi, English)</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-600 text-sm">trending_up</span>
+                    <span>Real-Time Wholesale Auction Bid Advisor</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-xl bg-slate-900 text-white font-sans text-xs font-semibold hover:bg-slate-800 transition">
+                    Browse Catalog Now
+                </a>
+                <button type="button" @click="aiModalOpen = false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-sans text-xs font-medium hover:bg-slate-200 transition">
+                    Got It
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 

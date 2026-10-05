@@ -26,7 +26,14 @@ class WishlistController extends Controller
         $user     = Auth::user();
         $wishlist = $user->wishlist()->firstOrCreate(['user_id' => $user->id]);
 
-        $wishlist->items()->firstOrCreate(['product_id' => $request->product_id]);
+        $item = $wishlist->items()->where('product_id', $request->product_id)->first();
+        
+        if ($item) {
+            $item->delete();
+            return redirect()->back()->with('success', 'Removed from wishlist!');
+        }
+
+        $wishlist->items()->create(['product_id' => $request->product_id]);
 
         return redirect()->back()->with('success', 'Added to wishlist!');
     }

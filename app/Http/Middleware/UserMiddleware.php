@@ -16,6 +16,24 @@ class UserMiddleware
 
         /*
         |--------------------------------------------------------------------------
+        | Admin Impersonation Bypass
+        |--------------------------------------------------------------------------
+        | If an admin is actively impersonating a user panel session, let them
+        | through without needing a real 'user' guard login.
+        */
+        $impersonating = session('impersonating');
+        if (
+            $impersonating &&
+            ($impersonating['panel'] ?? '') === 'user' &&
+            Auth::guard('admin')->check()
+        ) {
+            return $next($request);
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Check User Authentication
         |--------------------------------------------------------------------------
         */

@@ -59,12 +59,12 @@
                             🏺
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span class="font-mono text-xs text-amber-700 font-bold">LOT #AUC-{{ $auction->id }} • {{ $auction->product->category->name ?? 'GENERAL' }}</span>
-                            <h2 class="text-lg font-bold text-[#0F172A] mt-0.5">{{ $auction->product->name ?? 'Auction Item #' . $auction->product_id }}</h2>
-                            <p class="text-xs text-slate-500 mt-1">Consigned by <strong>{{ $auction->seller->name ?? 'Producer' }}</strong> ({{ $auction->seller->email ?? 'seller@bazaario.com' }}).</p>
+                            <span class="font-mono text-xs text-amber-700 font-bold">LOT #AUC-{{ $auction->id }} • {{ $auction->product?->category?->name ?? 'GENERAL' }}</span>
+                            <h2 class="text-lg font-bold text-[#0F172A] mt-0.5">{{ $auction->product?->name ?? 'Auction Item #' . $auction->product_id }}</h2>
+                            <p class="text-xs text-slate-500 mt-1">Consigned by <strong>{{ $auction->seller?->name ?? 'Producer' }}</strong> ({{ $auction->seller?->email ?? 'seller@bazaario.com' }}).</p>
                             <div class="flex flex-wrap items-center gap-4 mt-2 text-xs font-mono">
-                                <span class="text-slate-600">Reserve Price: <strong class="text-[#0F172A]">₹{{ number_format($auction->reserve_price, 2) }}</strong></span>
-                                <span class="text-slate-600">Min Increment: <strong class="text-[#0F172A]">₹{{ number_format($auction->minimum_increment, 2) }}</strong></span>
+                                <span class="text-slate-600">Reserve Price: <strong class="text-[#0F172A]">₹{{ number_format((float)($auction->reserve_price ?? 0), 2) }}</strong></span>
+                                <span class="text-slate-600">Min Increment: <strong class="text-[#0F172A]">₹{{ number_format((float)($auction->minimum_increment ?? 0), 2) }}</strong></span>
                                 <span class="text-emerald-700 font-bold">Bids Count: {{ $bids->count() }}</span>
                             </div>
                         </div>
@@ -98,14 +98,14 @@
                                                 @endif
                                             </td>
                                             <td class="py-2.5 px-3">
-                                                <span class="font-bold text-[#0F172A]">{{ $bid->user->name ?? 'User #' . $bid->user_id }}</span>
-                                                <span class="text-[10px] text-slate-400 block font-normal">{{ $bid->user->email ?? '' }}</span>
+                                                <span class="font-bold text-[#0F172A]">{{ $bid->user?->name ?? 'User #' . $bid->user_id }}</span>
+                                                <span class="text-[10px] text-slate-400 block font-normal">{{ $bid->user?->email ?? '' }}</span>
                                             </td>
                                             <td class="py-2.5 px-3">
                                                 <span class="text-emerald-700 font-bold text-[11px]">Verified Buyer</span>
                                             </td>
                                             <td class="py-2.5 px-3 text-right text-amber-700 text-sm font-bold">
-                                                ₹{{ number_format($bid->amount, 2) }}
+                                                ₹{{ number_format((float)($bid->amount ?? 0), 2) }}
                                             </td>
                                             <td class="py-2.5 px-3 text-right text-slate-500 text-[11px]">
                                                 {{ $bid->created_at ? $bid->created_at->format('M d, H:i:s') : 'Recorded' }}
@@ -132,19 +132,19 @@
                     <div class="flex flex-col gap-2.5 text-xs font-mono">
                         <div class="flex justify-between border-b border-slate-100 pb-2">
                             <span class="text-slate-500">Starting Price:</span>
-                            <span class="font-bold text-[#0F172A]">₹{{ number_format($auction->starting_price, 2) }}</span>
+                            <span class="font-bold text-[#0F172A]">₹{{ number_format((float)($auction->starting_price ?? 0), 2) }}</span>
                         </div>
                         <div class="flex justify-between border-b border-slate-100 pb-2">
                             <span class="text-slate-500">Reserve Price:</span>
-                            <span class="font-bold text-[#0F172A]">₹{{ number_format($auction->reserve_price, 2) }}</span>
+                            <span class="font-bold text-[#0F172A]">₹{{ number_format((float)($auction->reserve_price ?? 0), 2) }}</span>
                         </div>
                         <div class="flex justify-between border-b border-slate-100 pb-2">
                             <span class="text-slate-500">Current High Bid:</span>
-                            <span class="font-bold text-amber-700 text-sm">₹{{ number_format($auction->current_price ?? $auction->starting_price, 2) }}</span>
+                            <span class="font-bold text-amber-700 text-sm">₹{{ number_format((float)($auction->current_price ?? ($auction->starting_price ?? 0)), 2) }}</span>
                         </div>
                         <div class="flex justify-between border-b border-slate-100 pb-2">
                             <span class="text-slate-500">Reserve Met:</span>
-                            @if(($auction->current_price ?? 0) >= $auction->reserve_price)
+                            @if(($auction->current_price ?? 0) >= ($auction->reserve_price ?? 0))
                                 <span class="text-emerald-700 font-bold">YES ✓</span>
                             @else
                                 <span class="text-amber-600 font-bold">BELOW RESERVE</span>
@@ -161,7 +161,7 @@
                         @if($auction->winner_id)
                             <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 mt-2">
                                 <span class="text-[10px] uppercase font-bold text-emerald-800 block">Winning Bidder</span>
-                                <span class="font-bold text-emerald-950 text-xs mt-0.5 block">User #{{ $auction->winner_id }} ({{ $auction->winner->name ?? 'Verified Winner' }})</span>
+                                <span class="font-bold text-emerald-950 text-xs mt-0.5 block">User #{{ $auction->winner_id }} ({{ $auction->winner?->name ?? 'Verified Winner' }})</span>
                             </div>
                         @endif
                     </div>

@@ -4,7 +4,9 @@
     use Illuminate\Support\Facades\Storage;
     use App\Models\Category;
 
-    $currentUser = Auth::guard('user')->user() ?? Auth::guard('admin')->user() ?? Auth::guard('seller')->user() ?? Auth::user();
+    // On public pages, only delegate to nav-user if a real user/seller is logged in.
+    // Admin guard must NOT trigger nav-user on public pages.
+    $currentUser = Auth::guard('user')->user() ?? Auth::guard('seller')->user();
 
     if ($currentUser && !defined('NAV_DELEGATING')) {
         define('NAV_DELEGATING', true);
@@ -18,7 +20,16 @@
         return Category::where('status', 'active')->take(6)->get();
     });
 
-    $cartCount = count(session('cart', []));
+    $cartCount = 0;
+    if ($currentUser) {
+        $userCart = \App\Models\Cart::where('user_id', $currentUser->id)->with('items')->first();
+        if ($userCart) {
+            $cartCount = (int) $userCart->items->sum('quantity');
+        }
+    }
+    if ($cartCount === 0) {
+        $cartCount = count(session('cart', []));
+    }
     $wishlistCount = count(session('wishlist', []));
 @endphp
 
@@ -34,7 +45,7 @@
     class="sticky top-0 z-50 font-sans text-slate-900 selection:bg-amber-100 px-4 sm:px-6 pt-3 pb-2">
 
     <!-- ── LEVEL 1: MAIN DESKTOP NAVBAR ── -->
-    <div class="max-w-6xl mx-auto bg-white rounded-full border border-slate-200/80 shadow-md px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto bg-white rounded-full border border-slate-200/80 shadow-md px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 
         <!-- 1. BRAND LOGO -->
         <div class="flex items-center gap-6 shrink-0">
@@ -48,22 +59,74 @@
             </a>
         </div>
 
-        <!-- 2. MAIN NAVIGATION LINKS (Centered) -->
+        <!-- 2. MAIN NAVIGATION LINKS -->
         @php
             $isOnShop = in_array($currentRoute, ['products.index', 'products.show', 'products.category', 'user.wishlist.index']) && request()->path() !== '/';
             $isOnAuctions = in_array($currentRoute, ['auctions.index', 'auctions', 'user.bids', 'bids']) || request('sale_type') === 'auction';
             $isOnDeals = $currentRoute === 'products.index' && request('filter') === 'deals';
         @endphp
-        <nav class="hidden lg:flex items-center justify-center gap-2 text-sm font-semibold text-slate-700 mx-auto">
+        <nav class="hidden lg:flex items-center gap-1.5 text-sm font-semibold text-slate-700">
             <!-- Home → Products Catalog -->
             <a href="{{ route('products.index') }}" 
-               class="px-4 py-1.5 rounded-full transition-all {{ $isOnShop ? 'bg-slate-900 text-white font-bold' : 'hover:bg-slate-100 hover:text-slate-900' }}">
+               class="px-3.5 py-1.5 rounded-full transition-all {{ $isOnShop ? 'bg-slate-900 text-white font-bold' : 'hover:bg-slate-100 hover:text-slate-900' }}">
                 Shop
             </a>
 
+            <!-- Categories Mega Dropdown -->
+            <div class="relative" @mouseenter="categoriesOpen = true" @mouseleave="categoriesOpen = false">
+                <button @click="categoriesOpen = !categoriesOpen" 
+                        class="px-3.5 py-1.5 flex items-center gap-0.5 rounded-full transition-all hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
+                    <span>Categories</span>
+                    <span class="material-symbols-outlined text-base transition-transform duration-200" :class="categoriesOpen ? 'rotate-180' : ''">expand_more</span>
+                </button>
+
+                <!-- Mega Dropdown Panel (P36: Category slug routes) -->
+                <div x-cloak x-show="categoriesOpen"
+                     x-transition:enter="transition ease-out duration-150 transform"
+                     x-transition:enter-start="opacity-0 translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100 transform"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 translate-y-2"
+                     class="absolute top-full mt-2 left-0 w-[540px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 z-50 grid grid-cols-3 gap-6">
+                    
+                    <div>
+                        <h4 class="font-mono text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2.5 pb-1 border-b border-slate-100">Electronics</h4>
+                        <ul class="space-y-1.5 text-xs text-slate-600">
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">All Electronics</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">Smartphones & Audio</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">Laptops & Gadgets</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">Tech Accessories</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-mono text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2.5 pb-1 border-b border-slate-100">Fashion</h4>
+                        <ul class="space-y-1.5 text-xs text-slate-600">
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">All Fashion</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">Men's Wear</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">Women's Wear</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">Footwear & Bags</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-mono text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2.5 pb-1 border-b border-slate-100">Craft & Home</h4>
+                        <ul class="space-y-1.5 text-xs text-slate-600">
+                            <li><a href="{{ route('products.index', ['category' => 'artisan-craft']) }}" class="hover:text-amber-600 transition-colors">Handmade Crafts</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'home-living']) }}" class="hover:text-amber-600 transition-colors">Home & Living</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'collectibles']) }}" class="hover:text-amber-600 transition-colors">Rare Collectibles</a></li>
+                            <li><a href="{{ route('products.index') }}" class="font-bold text-amber-600 hover:underline flex items-center gap-0.5 mt-2">
+                                <span>Browse All</span> <span>→</span>
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- Auctions (Distinct Live Identity) -->
             <a href="{{ route('auctions.index') }}" 
-               class="px-4 py-1.5 rounded-full flex items-center gap-1.5 font-bold transition-all {{ $isOnAuctions ? 'bg-slate-900 text-white' : 'text-slate-900 hover:bg-slate-100' }}">
+               class="px-3.5 py-1.5 rounded-full flex items-center gap-1.5 font-bold transition-all {{ $isOnAuctions ? 'bg-slate-900 text-white' : 'text-slate-900 hover:bg-slate-100' }}">
                 <span class="flex h-2 w-2 relative">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
@@ -71,10 +134,81 @@
                 <span>⚡ Auctions</span>
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase bg-rose-100 text-rose-700">LIVE</span>
             </a>
+
+            <!-- Deals -->
+            <a href="{{ route('products.index', ['filter' => 'deals']) }}" 
+               class="px-3.5 py-1.5 rounded-full transition-all {{ $isOnDeals ? 'bg-slate-900 text-white font-bold' : 'hover:bg-slate-100 hover:text-amber-600' }}">
+                Deals
+            </a>
         </nav>
+
+        <!-- 3. PROMINENT SEARCH BAR WITH FOCUS DROPDOWN (P29 Parity) -->
+        <div class="flex-1 max-w-md mx-2 relative hidden md:block" @click.outside="searchFocus = false">
+            <form action="{{ route('products.index') }}" method="GET" class="relative">
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3.5 text-slate-400 text-xl pointer-events-none">search</span>
+                    <input type="text" 
+                           name="search"
+                           @focus="searchFocus = true"
+                           placeholder="Search products, brands & categories..."
+                           class="w-full bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-slate-900 text-xs sm:text-sm rounded-full pl-10 pr-4 py-2 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all shadow-inner">
+                </div>
+            </form>
+
+            <!-- Search Focus Dropdown -->
+            <div x-cloak x-show="searchFocus" 
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 text-xs">
+                
+                <div class="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Popular Categories</div>
+                <div class="grid grid-cols-3 gap-2">
+                    <a href="{{ route('products.index', ['category' => 'electronics']) }}" class="p-2 rounded-xl bg-slate-50 hover:bg-amber-50 border border-slate-100 font-semibold text-slate-800 flex items-center gap-1.5">
+                        <span>⚡ Electronics</span>
+                    </a>
+                    <a href="{{ route('products.index', ['category' => 'fashion']) }}" class="p-2 rounded-xl bg-slate-50 hover:bg-amber-50 border border-slate-100 font-semibold text-slate-800 flex items-center gap-1.5">
+                        <span>👗 Fashion</span>
+                    </a>
+                    <a href="{{ route('products.index', ['category' => 'artisan-craft']) }}" class="p-2 rounded-xl bg-slate-50 hover:bg-amber-50 border border-slate-100 font-semibold text-slate-800 flex items-center gap-1.5">
+                        <span>🏺 Crafts</span>
+                    </a>
+                </div>
+            </div>
+        </div>
 
         <!-- 4. CUSTOMER ACTION ICONS (Wishlist, Notifications, Cart, Profile) -->
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+
+            <!-- Wishlist ♡ -->
+            <a href="{{ route('user.wishlist.index') }}" 
+               class="relative p-2 text-slate-700 hover:text-red-500 rounded-full hover:bg-slate-100 transition-colors"
+               aria-label="Wishlist">
+                <span class="material-symbols-outlined text-2xl">favorite</span>
+                @if($wishlistCount > 0)
+                    <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs">
+                        {{ $wishlistCount }}
+                    </span>
+                @endif
+            </a>
+
+            <!-- Cart Icon (Touch & Desktop Friendly) -->
+            <div class="relative"
+                 @mouseenter="if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) cartOpen = true" 
+                 @mouseleave="if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) cartOpen = false" 
+                 @click.outside="cartOpen = false">
+                <a href="{{ route('cart.index') }}" 
+                   @click="if ('ontouchstart' in window || navigator.maxTouchPoints > 0) { if (!cartOpen) { $event.preventDefault(); cartOpen = true; } }"
+                   class="relative p-2 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors flex items-center"
+                   aria-label="Cart">
+                    <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                    @if($cartCount > 0)
+                        <span class="absolute top-1 right-1 w-4 h-4 bg-slate-900 text-amber-400 rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
+                </a>
+            </div>
 
             <!-- Customer Profile 👤 / Account Dropdown -->
             <div class="relative" @click.outside="accountOpen = false">

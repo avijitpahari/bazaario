@@ -300,7 +300,7 @@
                                 <span class="text-xs text-primary/75 font-medium">Remember me</span>
                             </label>
 
-                            <a href="#"
+                            <a href="{{ route('password.request') }}"
                                 class="text-xs font-semibold text-primary hover:text-accent transition-colors underline-offset-2 hover:underline">
                                 Forgot password?
                             </a>

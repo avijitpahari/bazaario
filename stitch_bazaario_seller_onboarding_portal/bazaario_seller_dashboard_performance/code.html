@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"primary":"#000000","surface-variant":"#e4e2de","on-tertiary-fixed-variant":"#005320","tertiary":"#000000","surface-tint":"#565e74","surface-dim":"#dbdad5","surface":"#fbf9f4","outline-variant":"#c6c6cd","on-tertiary-container":"#009842","on-surface":"#1b1c19","on-primary":"#ffffff","secondary":"#835500","on-error-container":"#93000a","primary-container":"#131b2e","on-tertiary-fixed":"#002109","on-secondary-fixed":"#291800","tertiary-fixed":"#7ffc97","inverse-primary":"#bec6e0","on-secondary-fixed-variant":"#633f00","secondary-fixed-dim":"#ffb955","on-tertiary":"#ffffff","surface-container":"#efeee9","on-secondary-container":"#6b4500","surface-container-lowest":"#ffffff","surface-bright":"#fbf9f4","tertiary-container":"#002109","primary-fixed":"#dae2fd","on-secondary":"#ffffff","surface-container-high":"#eae8e3","secondary-fixed":"#ffddb4","tertiary-fixed-dim":"#62df7d","on-error":"#ffffff","primary-fixed-dim":"#bec6e0","on-primary-fixed":"#131b2e","on-background":"#1b1c19","error-container":"#ffdad6","error":"#ba1a1a","inverse-surface":"#30312e","inverse-on-surface":"#f2f1ec","on-primary-fixed-variant":"#3f465c","surface-container-low":"#f5f3ee","secondary-container":"#feae2c","on-surface-variant":"#45464d","outline":"#76777d","surface-container-highest":"#e4e2de","on-primary-container":"#7c839b","background":"#fbf9f4"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","gutter-mobile":"1rem","margin-mobile":"1.25rem","margin":"3rem","space-xs":"0.25rem","gutter":"1.5rem","space-sm":"0.5rem","space-md":"1rem","space-xl":"2.5rem"},"fontFamily":{"system-code":["JetBrains Mono"],"headline-sm":["Space Grotesk"],"body-md":["Inter"],"headline-lg-mobile":["Space Grotesk"],"body-sm":["Inter"],"body-lg":["Inter"],"display-hero":["Space Grotesk"],"headline-md":["Space Grotesk"],"headline-lg":["Space Grotesk"],"display-hero-mobile":["Space Grotesk"],"system-label":["JetBrains Mono"]},"fontSize":{"system-code":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-hero":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"display-hero-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"system-label":["11px",{"lineHeight":"16px","letterSpacing":"0.06em","fontWeight":"500"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low z-50 flex flex-col justify-between py-space-md px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-md"><div class="px-space-md py-space-xs flex items-center gap-space-sm"><img alt="Brand logo. - Primary color: #0f172a
+- Font: spaceGrotesk
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XfXc9EvMu_fjYnNrz7Zwwv_KR5v8WQVLctdULxhU8Ph1QncDCZesGsyGv8V-tLmb1sZ56HsetOoJyJ-w_6aokB7CH5-ZstPxoEOpsDvIL5DbtCS26KAVgTqT42_k8mUyqL9dGTwEuhCk1HM8WQN_wcogOku-kE0zO5yviRPsdAFF1iQfNo_bsnDU3SWAv6TRVFjz874aqFSjEd6Cr_LoWXjkOx3ANz1kLG4lBvqauOngcxqpmG-NfP0tH7"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">BAZAARIO</span><span class="font-system-label text-system-label tracking-wider uppercase text-secondary font-medium">SELLER CENTER</span></div></div><nav class="flex flex-col gap-space-xs px-space-xs overflow-y-auto max-h-[calc(100vh-280px)]" data-active-classes="bg-secondary-container text-on-secondary-container font-medium rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm transition-all bg-secondary-container text-on-secondary-container font-medium rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.04)]" data-path="dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-body-md text-body-md">Dashboard</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="orders" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span class="font-body-md text-body-md">Orders</span></div><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-on-surface font-medium">12</span></a><div class="flex flex-col gap-0.5"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="products" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">shopping_bag</span><span class="font-body-md text-body-md">Products</span></div><span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span></a><div class="pl-9 pr-space-xs flex flex-col gap-0.5"><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="all-products" href="#">All Products</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="add-product" href="#">Add Product</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="inventory" href="#">Inventory</a></div></div><div class="flex flex-col gap-0.5"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="auctions" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">gavel</span><span class="font-body-md text-body-md">Auctions</span></div><span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span></a><div class="pl-9 pr-space-xs flex flex-col gap-0.5"><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="my-auctions" href="#">My Auctions</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="create-auction" href="#">Create Auction</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="live-auctions" href="#">Live Auctions</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="auction-history" href="#">Auction History</a></div></div><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="payouts" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span class="font-body-md text-body-md">Payouts</span></div><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-secondary font-medium">₹12.4k</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="trust-and-performance" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">verified_user</span><span class="font-body-md text-body-md">Trust &amp; Performance</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="shop-profile" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">storefront</span><span class="font-body-md text-body-md">Shop Profile</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="settings" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-md text-body-md">Settings</span></div></a></nav></div><div class="flex flex-col gap-space-xs px-space-xs pt-space-sm border-t border-surface-container-highest"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="help-and-support" href="#"><span class="material-symbols-outlined text-[20px]">help</span><span class="font-body-md text-body-md">Help &amp; Support</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="font-body-md text-body-md">Notifications</span></div><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-medium">3</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-error hover:bg-error-container hover:text-on-error-container transition-all" data-path="logout" href="#"><span class="material-symbols-outlined text-[20px]">logout</span><span class="font-body-md text-body-md">Logout / Switch Account</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center flex-1 max-w-lg"><div class="flex items-center w-full px-space-md py-space-xs bg-surface-container-lowest rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.02)] border border-surface-container-highest focus-within:border-primary"><span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-space-sm">search</span><input class="w-full bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant outline-none" placeholder="Search orders, products, auctions, payouts..." type="text"/><kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 font-system-code text-system-code bg-surface-container text-on-surface-variant rounded">⌘K</kbd></div></div><div class="flex items-center gap-space-lg"><button class="relative p-space-xs rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">notifications</span><span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-secondary-container text-on-secondary-container font-system-code text-system-label flex items-center justify-center font-bold">3</span></button><div class="flex items-center gap-space-sm pl-space-md border-l border-surface-container-highest"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-body-md text-body-md font-semibold text-on-surface leading-tight">Green Valley Farm</span><span class="material-symbols-outlined text-[16px] text-on-tertiary-container">check_circle</span></div><div class="flex items-center gap-1"><span class="font-body-sm text-body-sm text-on-surface-variant">Farmer</span><span class="text-outline-variant font-bold">•</span><span class="font-system-label text-system-label uppercase text-on-tertiary-container font-semibold">Verified Seller</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen w-full px-8"><div class="flex flex-col w-full">
+<!-- Content Canvas Container -->
+<div class="w-full max-w-[1400px] mx-auto py-space-lg flex flex-col gap-space-lg">
+<!-- Top Dashboard Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label uppercase tracking-widest text-secondary font-semibold">Merchant Operations • Live Feed</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-system-code text-body-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+            Synced 4m ago
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Welcome back, Green Valley Farm</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Here’s how your harvest inventory, orders, and wholesale auctions are performing today.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<button class="h-12 px-space-md rounded-[14px] bg-surface-container-lowest text-on-surface font-body-md font-medium shadow-sm hover:bg-surface-container-high transition-all flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant">receipt_long</span>
+<span>View Orders</span>
+<span class="font-system-code text-system-label px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold">12 New</span>
+</button>
+<button class="h-12 px-space-md rounded-[14px] bg-secondary-container text-on-secondary-container font-headline-sm text-headline-sm font-semibold shadow-sm hover:brightness-95 transition-all flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Add Product</span>
+</button>
+</div>
+</div>
+<!-- KPI Section: 6 High-Contrast Minimal Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-space-md">
+<!-- 1. Total Orders -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-system-label text-system-label uppercase font-medium">Total Orders</span>
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">248</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="inline-flex items-center font-system-code text-system-label font-medium text-on-tertiary-container bg-surface-container px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px] mr-0.5">trending_up</span>+18.4%
+            </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">vs last wk</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary font-medium pt-1">12 pending dispatch</p>
+</div>
+<!-- 2. Revenue -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-system-label text-system-label uppercase font-medium">Gross Revenue</span>
+<span class="material-symbols-outlined text-[18px]">currency_rupee</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight font-system-code">₹84,520</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="inline-flex items-center font-system-code text-system-label font-medium text-on-tertiary-container bg-surface-container px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px] mr-0.5">trending_up</span>+22.5%
+            </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">MoM</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">AOV ₹340.80</p>
+</div>
+<!-- 3. Active Catalog -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-system-label text-system-label uppercase font-medium">Active Catalog</span>
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight font-system-code">42</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">3 distinct categories</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium pt-1">+4 added this week</p>
+</div>
+<!-- 4. Low Stock Alerts -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between text-secondary">
+<span class="font-system-label text-system-label uppercase font-medium">Inventory Alert</span>
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-secondary font-semibold tracking-tight font-system-code">6</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">items low</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+<span class="font-body-sm text-body-sm text-secondary font-medium">Prompt restock</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-error font-medium truncate">2 critical (&lt;5 kg)</p>
+</div>
+<!-- 5. Seller Trust Score -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between text-on-tertiary-container">
+<span class="font-system-label text-system-label uppercase font-medium">Seller Trust</span>
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight font-system-code">94</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant font-system-code">/100</span>
+</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="font-system-label text-system-label uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-tertiary-container font-semibold">Tier 1 Prime</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">99.4% on-time SLA</p>
+</div>
+<!-- 6. Next Settlement -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-system-label text-system-label uppercase font-medium">Next Settlement</span>
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight font-system-code">₹12,450</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Payout Friday</span>
+</div>
+</div>
+<p class="font-system-code text-system-code text-on-surface-variant truncate">HDFC •••• 4092</p>
+</div>
+</div>
+<!-- Main Content Row 1: Revenue Chart & Order Pipeline -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<!-- Left: Revenue Overview (7 Cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm">
+<div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-semibold">Financial Pulse</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Revenue Overview</h2>
+</div>
+<div class="flex items-center p-1 bg-surface-container rounded-xl self-start sm:self-auto">
+<button class="px-3 py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface rounded-lg transition-colors">Today</button>
+<button class="px-3 py-1 font-body-sm text-body-sm font-semibold bg-secondary-container text-on-secondary-container rounded-lg shadow-xs">7 Days</button>
+<button class="px-3 py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface rounded-lg transition-colors">30 Days</button>
+<button class="px-3 py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface rounded-lg transition-colors">12 Mos</button>
+</div>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-wrap items-center justify-between gap-space-sm my-space-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">₹84,520 Total Revenue</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm flex items-center gap-2">
+<span>Peak: <strong class="text-on-surface font-semibold">Wed (₹16,400)</strong></span>
+<span>•</span>
+<span class="font-system-code text-system-code">248 Transactions</span>
+</div>
+</div>
+<!-- Custom SVG Bar & Trend Chart -->
+<div class="w-full pt-space-md">
+<div class="h-56 w-full flex items-end justify-between gap-2 px-2 relative">
+<!-- Background Guides -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+<div class="w-full h-px bg-outline"></div>
+<div class="w-full h-px bg-outline"></div>
+<div class="w-full h-px bg-outline"></div>
+<div class="w-full h-px bg-outline"></div>
+</div>
+<!-- Mon -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-on-primary font-system-code text-system-label px-2 py-0.5 rounded shadow">₹9,800</span>
+<div class="w-full max-w-[42px] bg-primary rounded-t-lg transition-all group-hover:bg-secondary-container" style="height: 98px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Mon</span>
+</div>
+<!-- Tue -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-on-primary font-system-code text-system-label px-2 py-0.5 rounded shadow">₹11,200</span>
+<div class="w-full max-w-[42px] bg-primary rounded-t-lg transition-all group-hover:bg-secondary-container" style="height: 112px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Tue</span>
+</div>
+<!-- Wed (Peak) -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-100 bg-secondary-container text-on-secondary-container font-system-code text-system-label font-bold px-2 py-0.5 rounded shadow">₹16,400</span>
+<div class="w-full max-w-[42px] bg-secondary-container rounded-t-lg shadow-sm" style="height: 164px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-secondary font-bold">Wed</span>
+</div>
+<!-- Thu -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-on-primary font-system-code text-system-label px-2 py-0.5 rounded shadow">₹13,100</span>
+<div class="w-full max-w-[42px] bg-primary rounded-t-lg transition-all group-hover:bg-secondary-container" style="height: 131px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Thu</span>
+</div>
+<!-- Fri -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-on-primary font-system-code text-system-label px-2 py-0.5 rounded shadow">₹14,800</span>
+<div class="w-full max-w-[42px] bg-primary rounded-t-lg transition-all group-hover:bg-secondary-container" style="height: 148px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Fri</span>
+</div>
+<!-- Sat -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-on-primary font-system-code text-system-label px-2 py-0.5 rounded shadow">₹10,500</span>
+<div class="w-full max-w-[42px] bg-primary rounded-t-lg transition-all group-hover:bg-secondary-container" style="height: 105px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Sat</span>
+</div>
+<!-- Sun -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group z-10">
+<div class="relative w-full flex items-end justify-center">
+<span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-on-primary font-system-code text-system-label px-2 py-0.5 rounded shadow">₹8,720</span>
+<div class="w-full max-w-[42px] bg-primary rounded-t-lg transition-all group-hover:bg-secondary-container" style="height: 87px;"></div>
+</div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-medium">Sun</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Order Pipeline & Fulfillment (5 Cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-sm">
+<div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-semibold">Logistics Status</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Order Pipeline</h2>
+</div>
+<span class="font-system-code text-system-code px-2.5 py-1 rounded bg-surface-container font-semibold text-on-surface">248 Total</span>
+</div>
+<!-- Segmented Fulfillment Progress Bar -->
+<div class="flex flex-col gap-2 my-space-sm">
+<div class="flex h-3 w-full rounded-full overflow-hidden bg-surface-container gap-1 p-0.5">
+<div class="bg-secondary-container rounded-l-full" style="width: 5%" title="12 Pending"></div>
+<div class="bg-surface-tint" style="width: 10%" title="24 Processing"></div>
+<div class="bg-primary-container" style="width: 7%" title="18 Ready for Pickup"></div>
+<div class="bg-on-tertiary-container rounded-r-full" style="width: 78%" title="194 Fulfilled"></div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-2">
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Pending</span>
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+</div>
+<span class="font-headline-sm text-headline-sm font-semibold font-system-code text-secondary">12</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Processing</span>
+<span class="w-2 h-2 rounded-full bg-surface-tint"></span>
+</div>
+<span class="font-headline-sm text-headline-sm font-semibold font-system-code text-on-surface">24</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ready Pickup</span>
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+</div>
+<span class="font-headline-sm text-headline-sm font-semibold font-system-code text-on-surface">18</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Delivered</span>
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span>
+</div>
+<span class="font-headline-sm text-headline-sm font-semibold font-system-code text-on-tertiary-container">194</span>
+</div>
+</div>
+</div>
+<!-- Quick Courier Handover & Batch Actions -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<div class="p-space-sm rounded-xl bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-on-surface">local_shipping</span>
+<div>
+<p class="font-body-sm text-body-sm font-medium text-on-surface">Express Courier Handover</p>
+<p class="font-system-code text-system-label text-on-surface-variant">Scheduled for today • 4:30 PM IST</p>
+</div>
+</div>
+<span class="font-system-label text-system-label uppercase px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface font-semibold">Bay 3</span>
+</div>
+<button class="w-full h-11 rounded-[14px] bg-primary text-on-primary font-body-md font-medium flex items-center justify-center gap-2 hover:bg-surface-tint transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">print</span>
+<span>Batch Print Shipping Labels (18)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Content Row 2: Low Stock Alerts & Seller Trust Breakdown -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<!-- Left: Prominent Low Stock Alerts (6 Cols) -->
+<div class="lg:col-span-6 bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container animate-ping"></span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Low Stock Alerts</h2>
+</div>
+<span class="font-system-label text-system-label uppercase px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-semibold">6 Requires Restock</span>
+</div>
+<div class="flex flex-col divide-y divide-surface-container-highest">
+<!-- Item 1 -->
+<div class="py-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary">agriculture</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-semibold text-on-surface truncate">Organic Alphonso Mango</p>
+<div class="flex items-center gap-2 font-system-code text-system-label text-on-surface-variant">
+<span>Current: <strong class="text-error font-semibold">8 kg</strong></span>
+<span>•</span>
+<span>Min: 10 kg</span>
+</div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-[14px] bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium transition-all flex-shrink-0">Update Stock</button>
+</div>
+<!-- Item 2 -->
+<div class="py-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary">water_drop</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-semibold text-on-surface truncate">Cold-Pressed Mustard Oil (1L)</p>
+<div class="flex items-center gap-2 font-system-code text-system-label text-on-surface-variant">
+<span>Current: <strong class="text-error font-semibold">4 btls</strong></span>
+<span>•</span>
+<span>Min: 15 btls</span>
+</div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-[14px] bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium transition-all flex-shrink-0">Update Stock</button>
+</div>
+<!-- Item 3 -->
+<div class="py-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary">local_florist</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-semibold text-on-surface truncate">Desi Cow Ghee (500ml)</p>
+<div class="flex items-center gap-2 font-system-code text-system-label text-on-surface-variant">
+<span>Current: <strong class="text-error font-semibold">2 jars</strong></span>
+<span>•</span>
+<span>Min: 8 jars</span>
+</div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-[14px] bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium transition-all flex-shrink-0">Update Stock</button>
+</div>
+<!-- Item 4 -->
+<div class="py-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary">grain</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-semibold text-on-surface truncate">Heirloom Basmati Rice</p>
+<div class="flex items-center gap-2 font-system-code text-system-label text-on-surface-variant">
+<span>Current: <strong class="text-secondary font-semibold">12 kg</strong></span>
+<span>•</span>
+<span>Min: 25 kg</span>
+</div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-[14px] bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium transition-all flex-shrink-0">Update Stock</button>
+</div>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center gap-space-sm mt-space-sm">
+<span class="material-symbols-outlined text-[18px] text-on-tertiary-container flex-shrink-0">sync_saved_locally</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Automated inventory sync active with IoT weighing scale &amp; Farm Gate POS.</p>
+</div>
+</div>
+<!-- Right: Dedicated Trust & Performance Card (6 Cols) -->
+<div class="lg:col-span-6 bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-sm">
+<div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-semibold">Compliance &amp; Quality</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Trust Score Breakdown</h2>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded bg-surface-container text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+<span class="font-system-label text-system-label font-bold uppercase">Prime Seller</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low my-space-xs">
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-display-hero text-headline-lg font-bold text-on-surface font-system-code">94</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant font-system-code">/100</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Overall Marketplace Health Score</p>
+</div>
+<div class="text-right">
+<span class="font-system-label text-system-label uppercase px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-semibold">Audit Passed</span>
+<p class="font-system-code text-system-label text-on-surface-variant mt-1">Next review in 18 days</p>
+</div>
+</div>
+<!-- Linear Meters -->
+<div class="flex flex-col gap-3 py-space-sm">
+<!-- Order Fulfillment -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface font-medium">Order Fulfillment (95%)</span>
+<span class="text-on-surface-variant font-system-code text-system-label">235 / 248 on time</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-on-tertiary-container h-full rounded-full" style="width: 95%"></div>
+</div>
+</div>
+<!-- Customer Rating -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface font-medium">Customer Rating (4.8 / 5.0)</span>
+<span class="text-on-surface-variant font-system-code text-system-label">182 verified reviews</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-on-tertiary-container h-full rounded-full" style="width: 96%"></div>
+</div>
+</div>
+<!-- Cancellation Rate -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface font-medium">Cancellation Rate (1.2%)</span>
+<span class="text-on-surface-variant font-system-code text-system-label">Industry SLA &lt; 3.0%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-on-tertiary-container h-full rounded-full" style="width: 98%"></div>
+</div>
+</div>
+<!-- Product Accuracy -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface font-medium">Batch Accuracy (96%)</span>
+<span class="text-on-surface-variant font-system-code text-system-label">Grade verified at mandi</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-on-tertiary-container h-full rounded-full" style="width: 96%"></div>
+</div>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Dispute Rate: <strong class="text-on-tertiary-container font-semibold">0.4% (Zero unresolved)</strong></span>
+<a class="font-body-sm text-body-sm font-semibold text-secondary hover:underline flex items-center gap-1" href="#">
+<span>Download Certificate (PDF)</span>
+<span class="material-symbols-outlined text-[16px]">download</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Main Content Row 3: Top Selling Velocity & Live Auction Lot -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<!-- Left: Top Selling Products (7 Cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-sm">
+<div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-semibold">Catalog Demand</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Top Products by Velocity</h2>
+</div>
+<button class="font-body-sm text-body-sm font-medium text-secondary hover:underline">Full Analytics</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container-highest">
+<th class="py-2.5 font-system-label text-system-label uppercase text-on-surface-variant font-medium">Product</th>
+<th class="py-2.5 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Units</th>
+<th class="py-2.5 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Revenue</th>
+<th class="py-2.5 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Stock</th>
+<th class="py-2.5 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Rating</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest font-body-sm text-body-sm">
+<tr>
+<td class="py-3 pr-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">nutrition</span>
+</div>
+<span class="font-semibold text-on-surface truncate">Organic Alphonso Mango (Grade A)</span>
+</div>
+</td>
+<td class="py-3 text-right font-system-code">128 sold</td>
+<td class="py-3 text-right font-system-code font-semibold text-on-surface">₹32,000</td>
+<td class="py-3 text-right"><span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-system-code text-system-label font-medium">8 kg Left</span></td>
+<td class="py-3 text-right font-system-code text-secondary font-semibold">4.9 ★</td>
+</tr>
+<tr>
+<td class="py-3 pr-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">eco</span>
+</div>
+<span class="font-semibold text-on-surface truncate">Fresh Farm Tomatoes (Hybrid)</span>
+</div>
+</td>
+<td class="py-3 text-right font-system-code">92 sold</td>
+<td class="py-3 text-right font-system-code font-semibold text-on-surface">₹6,440</td>
+<td class="py-3 text-right font-system-code text-on-surface-variant">45 kg</td>
+<td class="py-3 text-right font-system-code text-secondary font-semibold">4.8 ★</td>
+</tr>
+<tr>
+<td class="py-3 pr-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">hive</span>
+</div>
+<span class="font-semibold text-on-surface truncate">Raw Forest Honey (500g)</span>
+</div>
+</td>
+<td class="py-3 text-right font-system-code">46 sold</td>
+<td class="py-3 text-right font-system-code font-semibold text-on-surface">₹18,400</td>
+<td class="py-3 text-right font-system-code text-on-surface-variant">22 jars</td>
+<td class="py-3 text-right font-system-code text-secondary font-semibold">5.0 ★</td>
+</tr>
+<tr>
+<td class="py-3 pr-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">grass</span>
+</div>
+<span class="font-semibold text-on-surface truncate">Organic Sweet Corn (Dozen)</span>
+</div>
+</td>
+<td class="py-3 text-right font-system-code">38 sold</td>
+<td class="py-3 text-right font-system-code font-semibold text-on-surface">₹4,560</td>
+<td class="py-3 text-right font-system-code text-on-surface-variant">60 pcs</td>
+<td class="py-3 text-right font-system-code text-secondary font-semibold">4.7 ★</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pt-space-sm flex justify-between items-center text-on-surface-variant font-body-sm text-body-sm">
+<span>Displaying top 4 revenue drivers this month</span>
+<span class="font-system-code text-system-label">Inventory turnover: 4.2x</span>
+</div>
+</div>
+<!-- Right: Live Wholesale Auction Spotlight (5 Cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between pb-space-sm">
+<div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-semibold">Spot Bidding Engine</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Active Wholesale Lot</h2>
+</div>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-on-tertiary-container font-system-code text-system-label font-bold">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container animate-ping"></span>
+            LIVE AUCTION
+          </span>
+</div>
+<!-- Auction Banner Card -->
+<div class="rounded-xl bg-surface-container p-space-md flex flex-col gap-space-sm my-space-xs">
+<div class="flex items-start justify-between gap-2">
+<div>
+<p class="font-headline-sm text-headline-sm font-semibold text-on-surface">Premium Alphonso Mango</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Export Grade • 10 Dozen Crates (Lot #AUC-402)</p>
+</div>
+<span class="material-symbols-outlined text-secondary">gavel</span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-col">
+<span class="font-system-label text-system-label text-on-surface-variant uppercase">Current High Bid</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface font-system-code">₹14,200</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">24 verified buyers</span>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-col">
+<span class="font-system-label text-system-label text-on-surface-variant uppercase">Time Remaining</span>
+<span class="font-headline-md text-headline-md font-bold text-secondary font-system-code" id="auction-timer">01:42:18</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Min increment ₹250</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-1">
+<span class="text-on-surface-variant">Top Bidder:</span>
+<span class="font-semibold text-on-surface">Local Gourmet Kirana, Ward 4</span>
+</div>
+<button class="w-full h-12 rounded-[14px] bg-secondary-container text-on-secondary-container font-headline-sm text-headline-sm font-semibold hover:brightness-95 transition-all shadow-sm flex items-center justify-center gap-2">
+<span>Enter Live Auction Room</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs font-body-sm text-body-sm">
+<a class="text-on-surface-variant hover:text-on-surface" href="#">View History (18 closed)</a>
+<a class="font-semibold text-secondary hover:underline" href="#">+ Create New Lot</a>
+</div>
+</div>
+</div>
+<!-- Full Width Row 4: Recent Seller-Owned Orders -->
+<div class="w-full bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<span class="font-system-label text-system-label uppercase text-on-surface-variant font-semibold">Store Transactions</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Recent Seller Orders</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Showing authenticated seller-owned transactions only • End-to-end encrypted dispatch</p>
+</div>
+<!-- Filter Chips -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+<button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-medium">All (248)</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium">Pending (12)</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium">Processing (24)</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm font-medium">Fulfilled (194)</button>
+</div>
+</div>
+<!-- Orders Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container-highest">
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium">Order ID</th>
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium">Customer &amp; Location</th>
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium">Items Breakdown</th>
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Amount</th>
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-center">Fulfillment Status</th>
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Timestamp</th>
+<th class="py-3 font-system-label text-system-label uppercase text-on-surface-variant font-medium text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest font-body-sm text-body-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 font-system-code font-semibold text-on-surface">#BZ-8924</td>
+<td class="py-3.5">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Ananya Sharma</span>
+<span class="text-on-surface-variant font-system-code text-system-label">Green Park, 2.4 km away</span>
+</div>
+</td>
+<td class="py-3.5 text-on-surface">Organic Alphonso Mango (4 kg), Desi Cow Ghee (1)</td>
+<td class="py-3.5 text-right font-system-code font-bold text-on-surface">₹1,850</td>
+<td class="py-3.5 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-system-label text-system-label font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container"></span>
+                  Pending Dispatch
+                </span>
+</td>
+<td class="py-3.5 text-right font-system-code text-on-surface-variant">Today, 14:22</td>
+<td class="py-3.5 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 font-system-code font-semibold text-on-surface">#BZ-8921</td>
+<td class="py-3.5">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Rahul Mehta</span>
+<span class="text-on-surface-variant font-system-code text-system-label">Bandra West, 4.1 km away</span>
+</div>
+</td>
+<td class="py-3.5 text-on-surface">Raw Forest Honey (2), Sweet Corn (1 dz)</td>
+<td class="py-3.5 text-right font-system-code font-bold text-on-surface">₹1,180</td>
+<td class="py-3.5 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-system-label text-system-label font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+                  In Transit
+                </span>
+</td>
+<td class="py-3.5 text-right font-system-code text-on-surface-variant">Today, 13:05</td>
+<td class="py-3.5 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 font-system-code font-semibold text-on-surface">#BZ-8919</td>
+<td class="py-3.5">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">FreshBite Cloud Kitchen</span>
+<span class="text-on-surface-variant font-system-code text-system-label">Central Market, 1.8 km away</span>
+</div>
+</td>
+<td class="py-3.5 text-on-surface">Bulk Farm Tomatoes (25 kg Crate)</td>
+<td class="py-3.5 text-right font-system-code font-bold text-on-surface">₹1,750</td>
+<td class="py-3.5 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-tertiary-container font-system-label text-system-label font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                  Fulfilled
+                </span>
+</td>
+<td class="py-3.5 text-right font-system-code text-on-surface-variant">Today, 11:40</td>
+<td class="py-3.5 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 font-system-code font-semibold text-on-surface">#BZ-8915</td>
+<td class="py-3.5">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Priya Nair</span>
+<span class="text-on-surface-variant font-system-code text-system-label">Koramangala, 3.2 km away</span>
+</div>
+</td>
+<td class="py-3.5 text-on-surface">Organic Alphonso Mango (2 kg)</td>
+<td class="py-3.5 text-right font-system-code font-bold text-on-surface">₹680</td>
+<td class="py-3.5 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-tertiary-container font-system-label text-system-label font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                  Fulfilled
+                </span>
+</td>
+<td class="py-3.5 text-right font-system-code text-on-surface-variant">Today, 09:15</td>
+<td class="py-3.5 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pt-space-xs border-t border-surface-container-highest">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 4 of 248 validated store dispatches</span>
+<div class="flex items-center gap-space-sm">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm hover:bg-surface-container-high transition-colors">Export CSV</button>
+<a class="px-4 py-1.5 rounded-[14px] bg-primary text-on-primary font-body-sm text-body-sm font-semibold hover:bg-surface-tint transition-all" href="#">View All 248 Orders</a>
+</div>
+</div>
+</div>
+<!-- Performance Summary Footer Strip -->
+<div class="w-full bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant">
+<div class="flex flex-wrap items-center gap-x-space-md gap-y-1 font-system-code text-body-sm">
+<span>Revenue: <strong class="text-on-surface font-semibold">₹84,520</strong></span>
+<span class="hidden sm:inline">•</span>
+<span>Orders: <strong class="text-on-surface font-semibold">248</strong></span>
+<span class="hidden sm:inline">•</span>
+<span>AOV: <strong class="text-on-surface font-semibold">₹340.80</strong></span>
+<span class="hidden sm:inline">•</span>
+<span>Fulfillment: <strong class="text-on-tertiary-container font-semibold">95.0%</strong></span>
+<span class="hidden sm:inline">•</span>
+<span>Trust: <strong class="text-secondary font-semibold">94/100</strong></span>
+</div>
+<div class="flex items-center gap-space-md font-body-sm text-body-sm">
+<a class="hover:text-on-surface transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
+<span>Payouts Ledger</span>
+</a>
+<a class="hover:text-on-surface transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">inventory</span>
+<span>Full Inventory</span>
+</a>
+<a class="hover:text-on-surface transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">support_agent</span>
+<span>Priority Help</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple Countdown Timer simulation for Auction Lot
+  (function() {
+    let totalSeconds = 1 * 3600 + 42 * 60 + 18;
+    const timerEl = document.getElementById('auction-timer');
+    if (!timerEl) return;
+
+    setInterval(() => {
+      if (totalSeconds <= 0) return;
+      totalSeconds--;
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      timerEl.textContent = `${hours}:${minutes}:${seconds}`;
+    }, 1000);
+  })();
+</script></main></div></body></html>

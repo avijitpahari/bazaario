@@ -4,8 +4,19 @@
 
 @section('content')
 <div class="flex flex-col w-full gap-space-lg">
+    @if(!$seller)
+        <div class="bg-white rounded-xl p-8 text-center text-slate-500 border border-slate-200">
+            <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">storefront</span>
+            <h2 class="text-lg font-bold text-[#0F172A]">Merchant Dossier Not Found</h2>
+            <p class="text-xs text-slate-500 mt-1">The requested merchant profile could not be located in the database.</p>
+            <a href="{{ route('admin.sellers.index') }}" class="mt-4 inline-block px-4 py-2 bg-[#0F172A] text-white rounded-xl text-xs font-semibold">
+                Back to Sellers Directory
+            </a>
+        </div>
+    @else
     <!-- Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
+
         <div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.sellers.index') }}" class="font-body-sm text-xs text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1">
@@ -17,7 +28,7 @@
             </div>
             <h1 class="font-headline-lg text-2xl font-bold text-[#0F172A] mt-1 tracking-tight">{{ $seller->shop_name }}</h1>
             <p class="font-body-md text-xs text-slate-500">
-                Operated by <strong>{{ $seller->user->name ?? 'Merchant User' }}</strong> ({{ $seller->user->email ?? 'N/A' }}) • Regional Hub: {{ $seller->city ?? 'West Bengal' }}, {{ $seller->state ?? 'India' }}
+                Operated by <strong>{{ $seller->user?->name ?? 'Merchant User' }}</strong> ({{ $seller->user?->email ?? 'N/A' }}) • Regional Hub: {{ $seller->city ?? 'West Bengal' }}, {{ $seller->state ?? 'India' }}
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -41,6 +52,19 @@
                     {{ $seller->status === 'suspended' ? 'Reactivate Merchant' : 'Suspend Merchant' }}
                 </button>
             </form>
+
+            {{-- ── Admin Impersonation: Preview as this seller ── --}}
+            <form method="POST" action="{{ route('admin.impersonate', $seller->id) }}" onsubmit="return confirm('Enter the seller panel as {{ addslashes($seller->name) }}?');">
+                @csrf
+                <button type="submit"
+                        class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-2xs transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Preview as Seller
+                </button>
+            </form>
         </div>
     </div>
 
@@ -51,26 +75,26 @@
             <div class="bg-white rounded-xl p-5 border border-slate-200/90 shadow-2xs flex flex-col gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-lg shrink-0">
-                        {{ strtoupper(substr($seller->shop_name, 0, 2)) }}
+                        {{ strtoupper(substr((string)($seller->shop_name ?? 'SL'), 0, 2)) }}
                     </div>
                     <div>
                         <h3 class="font-bold text-sm text-[#0F172A]">{{ $seller->shop_name }}</h3>
-                        <span class="font-mono text-[11px] text-slate-400">Trust Score: ★ {{ number_format($seller->trust_score, 1) }}</span>
+                        <span class="font-mono text-[11px] text-slate-400">Trust Score: ★ {{ number_format((float)($seller->trust_score ?? 95.0), 1) }}</span>
                     </div>
                 </div>
 
                 <div class="pt-3 border-t border-slate-100 flex flex-col gap-2.5 text-xs">
                     <div class="flex justify-between">
                         <span class="text-slate-500">Contact Owner:</span>
-                        <span class="font-bold text-[#0F172A]">{{ $seller->user->name ?? 'N/A' }}</span>
+                        <span class="font-bold text-[#0F172A]">{{ $seller->user?->name ?? 'N/A' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Email:</span>
-                        <span class="font-mono text-[#0F172A]">{{ $seller->user->email ?? 'N/A' }}</span>
+                        <span class="font-mono text-[#0F172A]">{{ $seller->user?->email ?? 'N/A' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Phone:</span>
-                        <span class="font-mono text-[#0F172A]">{{ $seller->user->phone ?? 'N/A' }}</span>
+                        <span class="font-mono text-[#0F172A]">{{ $seller->user?->phone ?? 'N/A' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Location:</span>
@@ -197,12 +221,12 @@
                                 <tr>
                                     <td class="py-3 px-4 font-mono font-bold text-[#0F172A]">{{ $so->seller_order_number }}</td>
                                     <td class="py-3 px-4 font-mono text-amber-700 font-bold">
-                                        <a href="{{ route('admin.orders.show', $so->order->order_number ?? $so->order_id) }}" class="hover:underline">
-                                            #{{ $so->order->order_number ?? 'BZ-ORDER' }}
+                                        <a href="{{ route('admin.orders.show', $so->order?->order_number ?? $so->order_id) }}" class="hover:underline">
+                                            #{{ $so->order?->order_number ?? 'BZ-ORDER' }}
                                         </a>
                                     </td>
-                                    <td class="py-3 px-4 font-mono text-right text-slate-700">₹{{ number_format($so->subtotal, 2) }}</td>
-                                    <td class="py-3 px-4 font-mono font-bold text-right text-emerald-700">₹{{ number_format($so->payout_amount, 2) }}</td>
+                                    <td class="py-3 px-4 font-mono text-right text-slate-700">₹{{ number_format((float)($so->subtotal ?? 0), 2) }}</td>
+                                    <td class="py-3 px-4 font-mono font-bold text-right text-emerald-700">₹{{ number_format((float)($so->payout_amount ?? 0), 2) }}</td>
                                     <td class="py-3 px-4 text-center">
                                         <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-mono text-[10px] font-bold">
                                             {{ strtoupper($so->status) }}
@@ -222,5 +246,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection
+

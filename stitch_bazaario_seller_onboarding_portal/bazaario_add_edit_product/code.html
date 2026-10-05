@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"primary":"#000000","surface-variant":"#e4e2de","on-tertiary-fixed-variant":"#005320","tertiary":"#000000","surface-tint":"#565e74","surface-dim":"#dbdad5","surface":"#fbf9f4","outline-variant":"#c6c6cd","on-tertiary-container":"#009842","on-surface":"#1b1c19","on-primary":"#ffffff","secondary":"#835500","on-error-container":"#93000a","primary-container":"#131b2e","on-tertiary-fixed":"#002109","on-secondary-fixed":"#291800","tertiary-fixed":"#7ffc97","inverse-primary":"#bec6e0","on-secondary-fixed-variant":"#633f00","secondary-fixed-dim":"#ffb955","on-tertiary":"#ffffff","surface-container":"#efeee9","on-secondary-container":"#6b4500","surface-container-lowest":"#ffffff","surface-bright":"#fbf9f4","tertiary-container":"#002109","primary-fixed":"#dae2fd","on-secondary":"#ffffff","surface-container-high":"#eae8e3","secondary-fixed":"#ffddb4","tertiary-fixed-dim":"#62df7d","on-error":"#ffffff","primary-fixed-dim":"#bec6e0","on-primary-fixed":"#131b2e","on-background":"#1b1c19","error-container":"#ffdad6","error":"#ba1a1a","inverse-surface":"#30312e","inverse-on-surface":"#f2f1ec","on-primary-fixed-variant":"#3f465c","surface-container-low":"#f5f3ee","secondary-container":"#feae2c","on-surface-variant":"#45464d","outline":"#76777d","surface-container-highest":"#e4e2de","on-primary-container":"#7c839b","background":"#fbf9f4"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","gutter-mobile":"1rem","margin-mobile":"1.25rem","margin":"3rem","space-xs":"0.25rem","gutter":"1.5rem","space-sm":"0.5rem","space-md":"1rem","space-xl":"2.5rem"},"fontFamily":{"system-code":["JetBrains Mono"],"headline-sm":["Space Grotesk"],"body-md":["Inter"],"headline-lg-mobile":["Space Grotesk"],"body-sm":["Inter"],"body-lg":["Inter"],"display-hero":["Space Grotesk"],"headline-md":["Space Grotesk"],"headline-lg":["Space Grotesk"],"display-hero-mobile":["Space Grotesk"],"system-label":["JetBrains Mono"]},"fontSize":{"system-code":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-hero":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"display-hero-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"system-label":["11px",{"lineHeight":"16px","letterSpacing":"0.06em","fontWeight":"500"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low z-50 flex flex-col justify-between py-space-md px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-md"><div class="px-space-md py-space-xs flex items-center gap-space-sm"><img alt="Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XfXc9EvMu_fjYnNrz7Zwwv_KR5v8WQVLctdULxhU8Ph1QncDCZesGsyGv8V-tLmb1sZ56HsetOoJyJ-w_6aokB7CH5-ZstPxoEOpsDvIL5DbtCS26KAVgTqT42_k8mUyqL9dGTwEuhCk1HM8WQN_wcogOku-kE0zO5yviRPsdAFF1iQfNo_bsnDU3SWAv6TRVFjz874aqFSjEd6Cr_LoWXjkOx3ANz1kLG4lBvqauOngcxqpmG-NfP0tH7"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">BAZAARIO</span><span class="font-system-label text-system-label tracking-wider uppercase text-secondary font-medium">SELLER CENTER</span></div></div><nav class="flex flex-col gap-space-xs px-space-xs overflow-y-auto max-h-[calc(100vh-280px)]" data-active-classes="bg-secondary-container text-on-secondary-container font-medium rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dashboard" href="#"><span class="font-body-md text-body-md">Dashboard</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="orders" href="#"><span class="font-body-md text-body-md">Orders</span><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-on-surface font-medium">12</span></a><div class="flex flex-col gap-0.5 rounded-xl bg-surface-container/60 p-1"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface font-semibold bg-surface-container-high/70 hover:bg-surface-container-high transition-all" data-path="products" href="#"><span class="font-body-md text-body-md">Products</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span></a><div class="pl-4 pr-1 flex flex-col gap-0.5 mt-0.5"><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="all-products" href="#">All Products</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="add-edit-product" href="#">Add / Edit Product</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="inventory-and-stock-management" href="#">Inventory &amp; Stock Management</a></div></div><div class="flex flex-col gap-0.5"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="auctions" href="#"><span class="font-body-md text-body-md">Auctions</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span></a><div class="pl-4 pr-1 flex flex-col gap-0.5"><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="my-auctions" href="#">My Auctions</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="create-auction" href="#">Create Auction</a><a class="px-space-md py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="live-auctions" href="#">Live Auctions</a></div></div><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="payouts" href="#"><span class="font-body-md text-body-md">Payouts</span><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-secondary font-medium">₹12.4k</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="trust-and-performance" href="#"><span class="font-body-md text-body-md">Trust &amp; Performance</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="shop-profile" href="#"><span class="font-body-md text-body-md">Shop Profile</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="settings" href="#"><span class="font-body-md text-body-md">Settings</span></a></nav></div><div class="flex flex-col gap-space-xs px-space-xs pt-space-sm border-t border-surface-container-highest"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="help-and-support" href="#"><span class="font-body-md text-body-md">Help &amp; Support</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><span class="font-body-md text-body-md">Notifications</span><span class="font-system-code text-system-code px-space-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-medium">3</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl text-error hover:bg-error-container hover:text-on-error-container transition-all" data-path="logout" href="#"><span class="font-body-md text-body-md">Logout / Switch Account</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center flex-1 max-w-lg"><div class="flex items-center w-full px-space-md py-space-xs bg-surface-container-lowest rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.02)] border border-surface-container-highest focus-within:border-primary"><span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-space-sm">search</span><input class="w-full bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant outline-none" placeholder="Search orders, products, auctions, payouts..." type="text"/><kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 font-system-code text-system-code bg-surface-container text-on-surface-variant rounded">⌘K</kbd></div></div><div class="flex items-center gap-space-lg"><button aria-label="Notifications" class="relative p-space-xs rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">notifications</span><span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-secondary-container text-on-secondary-container font-system-code text-system-label flex items-center justify-center font-bold">3</span></button><div class="flex items-center gap-space-sm pl-space-md border-l border-surface-container-highest"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-body-md text-body-md font-semibold text-on-surface leading-tight">Green Valley Farm</span><span class="material-symbols-outlined text-[16px] text-on-tertiary-container">check_circle</span></div><div class="flex items-center gap-1"><span class="font-body-sm text-body-sm text-on-surface-variant">Farmer</span><span class="text-outline-variant font-bold">•</span><span class="font-system-label text-system-label uppercase text-on-tertiary-container font-semibold">Verified Seller</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen w-full px-8"><div class="flex flex-col w-full pb-16">
+<!-- Top Navigation & Sticky Status Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md py-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs font-system-code text-system-code text-on-surface-variant">
+<span>Products</span>
+<span>/</span>
+<span class="text-on-surface font-medium" id="breadcrumb-title">Add New Product</span>
+<button class="ml-space-sm px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors flex items-center gap-1 font-system-label text-system-label tracking-wide uppercase" id="toggle-mode-btn" onclick="toggleEditMode()">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+<span id="mode-badge-label">Switch to Edit Mode</span>
+</button>
+</div>
+<div class="flex items-baseline gap-space-md mt-1">
+<h1 class="font-headline-lg text-headline-lg tracking-tight text-on-surface" id="page-main-heading">Add New Product</h1>
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container-highest text-secondary uppercase font-semibold tracking-wider">SKU: BZ-RATG-2026</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        List a new farm harvest or artisan item to local buyers and auction wholesale pools.
+      </p>
+</div>
+<!-- Header Action CTAs -->
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<button class="px-space-md py-2.5 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors font-body-md text-body-md font-medium">
+        Cancel
+      </button>
+<button class="px-space-md py-2.5 rounded-[14px] bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-body-md text-body-md font-medium flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+<span>Save Draft</span>
+</button>
+<button class="px-space-lg py-2.5 rounded-[14px] bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim transition-all shadow-sm font-body-md text-body-md font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+<span>Publish Product</span>
+</button>
+</div>
+</div>
+<!-- Unsaved Changes Notice Strip -->
+<div class="mb-space-lg px-space-md py-space-sm rounded-[14px] bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container animate-pulse"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Auto-saved 2 minutes ago to local draft storage.</span>
+<span class="font-system-label text-system-label px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant uppercase">Version 1.4b</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-system-code text-system-code text-on-surface-variant text-xs">Origin Seller: Green Valley Farm (Ratnagiri)</span>
+</div>
+</div>
+<!-- Main Multi-Section Two-Column Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- ========================================== -->
+<!-- LEFT / MAIN COLUMN (7 cols) -->
+<!-- ========================================== -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- Section 1: Basic Information -->
+<section class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">SECTION 01</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Basic Information</h2>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">info</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="product-name">Product Title &amp; Botanical Strain</label>
+<input class="w-full h-12 px-space-md rounded-[14px] bg-surface-container-low text-on-surface font-body-md text-body-md outline-none focus:bg-surface-container-lowest transition-colors" id="product-name" oninput="syncPreviewTitle(this.value)" placeholder="e.g. Organic Ratnagiri Alphonso Mango" type="text" value="Organic Ratnagiri Alphonso Mango"/>
+<div class="flex justify-between items-center px-1">
+<span class="font-system-code text-system-code text-on-surface-variant text-xs">Recommended: Cultivar, Region, and Grade</span>
+<span class="font-system-code text-system-code text-on-surface-variant text-xs" id="title-char-count">33 / 80</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="category-select">Category</label>
+<div class="relative">
+<select class="w-full h-12 pl-space-md pr-10 rounded-[14px] bg-surface-container-low text-on-surface font-body-md text-body-md outline-none appearance-none cursor-pointer" id="category-select">
+<option selected="">Fresh Fruits</option>
+<option>Vegetables</option>
+<option>Cold-Pressed Oils</option>
+<option>Dairy &amp; Ghee</option>
+<option>Grains &amp; Pulses</option>
+<option>Spices &amp; Herbs</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-on-surface-variant text-[20px]">unfold_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="harvest-grade">Harvest Grade</label>
+<div class="relative">
+<select class="w-full h-12 pl-space-md pr-10 rounded-[14px] bg-surface-container-low text-on-surface font-body-md text-body-md outline-none appearance-none cursor-pointer" id="harvest-grade">
+<option selected="">Grade A+ Export (250g - 300g per pc)</option>
+<option>Grade A Table Quality (200g - 250g)</option>
+<option>Grade B Pulping &amp; Juice</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-on-surface-variant text-[20px]">unfold_more</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="product-desc">Detailed Description &amp; Farm Origin Notes</label>
+<span class="font-system-label text-system-label text-secondary uppercase font-semibold">Rich Text Enabled</span>
+</div>
+<div class="rounded-[14px] bg-surface-container-low p-2">
+<div class="flex items-center gap-1 pb-2 mb-2 bg-surface-container-lowest px-2 py-1.5 rounded-[10px]">
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface text-[14px] font-bold">B</button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface text-[14px] italic">I</button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface text-[14px] underline">U</button>
+<span class="text-outline-variant mx-1">|</span>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface flex items-center">
+<span class="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface flex items-center">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+</button>
+<span class="text-outline-variant mx-1">|</span>
+<span class="font-system-code text-system-code text-xs text-on-surface-variant">Tags: #GI-Tagged #CarbideFree</span>
+</div>
+<textarea class="w-full px-space-sm bg-transparent text-on-surface font-body-md text-body-md outline-none resize-y" id="product-desc" placeholder="Describe cultivation methods, taste notes, soil type, and ripeness state..." rows="4">Naturally ripened on tree branches without ethylene gas chambers or chemical carbides. Authentic GI-tagged Ratnagiri coastal soil profile yields an intense saffron hue, thin skin, and an average Brix sweetness rating over 19°. Packed in ventilated organic hay crates within 4 hours of twilight harvesting.</textarea>
+</div>
+</div>
+</section>
+<!-- Section 2: Pricing & Unit Type -->
+<section class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">SECTION 02</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Pricing &amp; Unit Type</h2>
+</div>
+<div class="flex items-center gap-1.5 px-space-sm py-1 rounded-[6px] bg-secondary-container/20 text-on-secondary-container">
+<span class="material-symbols-outlined text-[16px]">percent</span>
+<span class="font-system-label text-system-label font-bold uppercase">Dynamic Discount Engine</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="base-price">Base Selling Price</label>
+<div class="relative flex items-center">
+<span class="absolute left-space-md font-system-code text-system-code font-bold text-on-surface-variant">₹</span>
+<input class="w-full h-12 pl-8 pr-space-md rounded-[14px] bg-surface-container-low text-on-surface font-system-code text-system-code outline-none focus:bg-surface-container-lowest transition-colors" id="base-price" oninput="calculatePrice()" type="number" value="350"/>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="discount-pct">Seasonal Discount</label>
+<div class="relative flex items-center">
+<input class="w-full h-12 pl-space-md pr-8 rounded-[14px] bg-surface-container-low text-on-surface font-system-code text-system-code outline-none focus:bg-surface-container-lowest transition-colors" id="discount-pct" oninput="calculatePrice()" type="number" value="10"/>
+<span class="absolute right-space-md font-system-code text-system-code font-bold text-on-surface-variant">%</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Calculated Final Price</label>
+<div class="h-12 px-space-md rounded-[14px] bg-surface-container-high flex items-center justify-between">
+<span class="font-system-code text-system-code font-bold text-on-surface" id="final-price-display">₹315.00</span>
+<span class="font-system-label text-system-label uppercase px-1.5 py-0.5 rounded bg-surface-container-highest text-on-tertiary-container font-semibold">Saved ₹35</span>
+</div>
+</div>
+</div>
+<!-- Unit Type Selector -->
+<div class="flex flex-col gap-space-sm mt-2">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Commercial Unit of Measurement (UoM)</label>
+<div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="unit-selector-group">
+<button class="unit-btn active h-12 rounded-[14px] bg-primary text-on-primary font-system-code text-system-code font-medium flex flex-col items-center justify-center transition-all" onclick="selectUnit(this, 'kg')" type="button">
+<span>kg</span>
+<span class="text-[9px] uppercase tracking-wider opacity-75">Kilogram</span>
+</button>
+<button class="unit-btn h-12 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high font-system-code text-system-code font-medium flex flex-col items-center justify-center transition-all" onclick="selectUnit(this, 'dozen')" type="button">
+<span>dozen</span>
+<span class="text-[9px] uppercase tracking-wider text-on-surface-variant">12 Units</span>
+</button>
+<button class="unit-btn h-12 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high font-system-code text-system-code font-medium flex flex-col items-center justify-center transition-all" onclick="selectUnit(this, 'bundle')" type="button">
+<span>bundle</span>
+<span class="text-[9px] uppercase tracking-wider text-on-surface-variant">Bound pack</span>
+</button>
+<button class="unit-btn h-12 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high font-system-code text-system-code font-medium flex flex-col items-center justify-center transition-all" onclick="selectUnit(this, 'litre')" type="button">
+<span>litre</span>
+<span class="text-[9px] uppercase tracking-wider text-on-surface-variant">Volume</span>
+</button>
+<button class="unit-btn h-12 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high font-system-code text-system-code font-medium flex flex-col items-center justify-center transition-all" onclick="selectUnit(this, 'piece')" type="button">
+<span>piece</span>
+<span class="text-[9px] uppercase tracking-wider text-on-surface-variant">Per item</span>
+</button>
+<button class="unit-btn h-12 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high font-system-code text-system-code font-medium flex flex-col items-center justify-center transition-all" onclick="selectUnit(this, 'pack')" type="button">
+<span>pack</span>
+<span class="text-[9px] uppercase tracking-wider text-on-surface-variant">Boxed</span>
+</button>
+</div>
+</div>
+<!-- Live Listing displays as -->
+<div class="mt-2 p-space-sm rounded-[14px] bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">sell</span>
+<span class="font-body-sm text-body-sm text-on-surface">Listing displays to buyers as:</span>
+<span class="font-system-code text-system-code font-bold text-on-surface" id="price-unit-tag">₹315 / kg</span>
+</div>
+<span class="font-system-label text-system-label text-on-surface-variant">Taxes included (Mandatory APMC GST 0%)</span>
+</div>
+</section>
+<!-- Section 3: Inventory & Safety Thresholds -->
+<section class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">SECTION 03</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Inventory &amp; Stock Buffer</h2>
+</div>
+<div class="flex items-center gap-1.5 px-space-sm py-0.5 rounded-[6px] bg-tertiary-fixed-dim/20 text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">warehouse</span>
+<span class="font-system-label text-system-label font-bold uppercase">Automated Depletion</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="stock-qty">Current Available Stock Quantity</label>
+<div class="relative flex items-center">
+<input class="w-full h-12 px-space-md rounded-[14px] bg-surface-container-low text-on-surface font-system-code text-system-code outline-none focus:bg-surface-container-lowest transition-colors" id="stock-qty" oninput="updateStockStatus()" type="number" value="45"/>
+<span class="absolute right-space-md font-system-code text-system-code text-on-surface-variant unit-label-text">kg</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="threshold-qty">Minimum Stock Alert Threshold</label>
+<div class="relative flex items-center">
+<input class="w-full h-12 px-space-md rounded-[14px] bg-surface-container-low text-on-surface font-system-code text-system-code outline-none focus:bg-surface-container-lowest transition-colors" id="threshold-qty" oninput="updateStockStatus()" type="number" value="10"/>
+<span class="absolute right-space-md font-system-code text-system-code text-on-surface-variant unit-label-text">kg</span>
+</div>
+</div>
+</div>
+<!-- Dynamic Stock Status Card with Gauge Visual -->
+<div class="p-space-md rounded-[14px] bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<!-- Inline SVG Mini Donut Gauge -->
+<div class="relative w-12 h-12 flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-on-tertiary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" id="stock-gauge" stroke="currentColor" stroke-dasharray="78, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-system-label text-system-label font-bold text-on-surface">
+                78%
+              </div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-semibold text-on-surface" id="stock-status-title">Status: In Stock</span>
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-tertiary-fixed-dim/20 text-on-tertiary-container font-semibold uppercase">Healthy Level</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant" id="stock-buffer-note">
+                Safe buffer: +35 kg over minimum alert threshold.
+              </p>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-[10px] bg-surface-container-high text-on-surface font-body-sm text-body-sm font-medium hover:bg-surface-container-highest transition-colors self-start sm:self-auto">
+            Configure Batch Sync
+          </button>
+</div>
+</section>
+<!-- Section 4: Farmer-Specific Information -->
+<section class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">SECTION 04</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Farmer-Specific Agronomic Ledger</h2>
+</div>
+<div class="flex items-center gap-1.5 px-space-sm py-0.5 rounded-[6px] bg-tertiary-fixed-dim/20 text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span class="font-system-label text-system-label font-bold uppercase">Farmer Identity Verified</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="farm-origin">Farm Origin &amp; Plot Code</label>
+<input class="w-full h-12 px-space-md rounded-[14px] bg-surface-container-low text-on-surface font-body-md text-body-md outline-none focus:bg-surface-container-lowest transition-colors" id="farm-origin" type="text" value="Green Valley Farm, Sector 4 Block C, Ratnagiri"/>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="harvest-date">Harvest Date</label>
+<input class="w-full h-12 px-space-md rounded-[14px] bg-surface-container-low text-on-surface font-system-code text-system-code outline-none focus:bg-surface-container-lowest transition-colors" id="harvest-date" type="date" value="2026-05-20"/>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant" for="expiry-window">Peak Freshness Shelf Window</label>
+<div class="relative">
+<select class="w-full h-12 pl-space-md pr-10 rounded-[14px] bg-surface-container-low text-on-surface font-body-md text-body-md outline-none appearance-none cursor-pointer" id="expiry-window">
+<option>3 Days from harvest</option>
+<option selected="">5 Days from harvest</option>
+<option>7 Days from harvest</option>
+<option>10 Days from harvest</option>
+<option>14+ Days (Cold Storage Preserved)</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-on-surface-variant text-[20px]">schedule</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Quality Validation Index</label>
+<div class="h-12 px-space-md rounded-[14px] bg-surface-container-low flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Brix Sweetness Score</span>
+<span class="font-system-code text-system-code px-2 py-0.5 rounded bg-surface-container-highest font-bold text-on-tertiary-container">19.4° Bx</span>
+</div>
+</div>
+</div>
+<!-- Automated Stale Listing Options -->
+<div class="flex flex-col gap-space-sm mt-2 p-space-md rounded-[14px] bg-surface-container-low">
+<span class="font-headline-sm text-[15px] font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">rule_settings</span>
+            Automated Freshness Guardrails
+          </span>
+<div class="flex flex-col gap-3 mt-2">
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-0.5 w-[18px] h-[18px] rounded accent-primary cursor-pointer" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Automatically flag as STALE when within 24 hours of expiry window</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs">Sends urgent price markdown suggestions or wholesale auction prompt.</span>
+</div>
+</label>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-0.5 w-[18px] h-[18px] rounded accent-primary cursor-pointer" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Automatically hide listing when harvest expiry window lapses</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs">Protects farmer trust score against stale produce disputes.</span>
+</div>
+</label>
+</div>
+<div class="mt-2 pt-space-sm flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">shield</span>
+<span class="font-system-code text-system-code text-xs">Note: Bazaario never silently deletes products; expired goods will be moved to Hidden / Restock archive.</span>
+</div>
+</div>
+</section>
+</div>
+<!-- ========================================== -->
+<!-- RIGHT COLUMN / ASSET PANEL (5 cols) -->
+<!-- ========================================== -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- Section 5: Product Media & Visuals -->
+<section class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">SECTION 05</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Media &amp; Visuals</h2>
+</div>
+<span class="font-system-code text-system-code text-xs text-on-surface-variant">3 of 6 uploaded</span>
+</div>
+<!-- Drag & Drop Target Area -->
+<div class="p-space-lg rounded-[14px] bg-surface-container-low flex flex-col items-center justify-center text-center transition-all cursor-pointer group hover:bg-surface-container-high">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-sm mb-space-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-[24px]">cloud_upload</span>
+</div>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Drag &amp; drop high-resolution harvest photos here</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">or <span class="text-secondary font-medium underline">browse files</span> from your local device</span>
+<span class="font-system-label text-system-label text-on-surface-variant text-[10px] mt-space-sm tracking-wider uppercase">PNG, JPG up to 10MB each. Max 6 photos.</span>
+</div>
+<!-- Image Previews Mosaic -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-body-sm text-body-sm font-medium text-on-surface-variant">Harvest Gallery Stream</span>
+<div class="grid grid-cols-3 gap-space-sm">
+<!-- Photo 1: Primary Image -->
+<div class="relative group rounded-[12px] overflow-hidden bg-surface-container-high h-28">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Top view of hand-woven organic wooden crate packed with vibrant golden Alphonso mangoes nestled in golden dry rice hay, captured in clean natural orchard daylight with rich warm tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBQd7_TqgbT9Qhxh9QHfl3OkhYkydS5Et0CTRatMKHXXfnUuhcxVNRfOQ3xWtH1XQrByCodncbTQk978gZ58A8-FvCsZV4YOm8r_hLunAPVc5lcy5ZJiaN4c2_GRrFywn8zeqsRTRh_y7LRO95XgfiUvmLe2KqywMaAof2oTqloq4yEHKAOn4dWzO1hAvFN5x7n86xZFdL2SO6LhU5dhnr39I1rb8ddcipjTeHYMu2_OKwr8j5L2sbPg"/>
+<span class="absolute top-1.5 left-1.5 font-system-label text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-surface text-on-surface shadow-sm">
+                Primary
+              </span>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+<button class="p-1 rounded bg-surface text-on-surface hover:bg-surface-container-highest" title="Replace photo">
+<span class="material-symbols-outlined text-[16px]">autorenew</span>
+</button>
+<button class="p-1 rounded bg-surface text-error hover:bg-error-container" title="Remove photo">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Photo 2: Close-up Ripe Slice -->
+<div class="relative group rounded-[12px] overflow-hidden bg-surface-container-high h-28">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Sensory macro shot of a fresh cut juicy Alphonso mango half showing glistening deep saffron flesh and fiberless smooth texture, isolated on a warm terracotta background with morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc86tfBkQlurZe5hYtJOmtTFziCQtXa0PR6RLQ88n5KUXxkign5KE8C1-cUV_zcKlT83lYxng27gFhFy5TCCkugy13RPG9jXSCecsLQZT9PKBBA9AGmshgFcjIZ54fQmLKAmnM7pFzNxSyjH7MLmPN6i_ISvp2U-cfpsNkRPFo5o-9h5KJQMlNgjsNhQ8KxtBKDrFfvOKP1d9tc08b2VfDl3dUknoAAbr3SO6N6lQDsBr3bt5AQVoSBQ"/>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+<button class="px-2 py-0.5 rounded bg-surface text-on-surface text-[11px] font-system-label font-bold uppercase hover:bg-surface-container-highest">
+                  Set Primary
+                </button>
+<button class="p-1 rounded bg-surface text-error hover:bg-error-container" title="Remove">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Photo 3: Orchard Tree Branch -->
+<div class="relative group rounded-[12px] overflow-hidden bg-surface-container-high h-28">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Sunlit Alphonso mangoes hanging cluster from leafy green tree branches in Ratnagiri coastal mango orchard under bright blue sky, authentic agriculture photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzVBjcQUOHGJOLkxPK0v1dC8vmNfji1a7hg8hX1NNyRgiTIAGG0lNIPcm3XAD8JkyArn6kGS6sJ2MD-M8v6NohYNLxq7WOsETOW6yZxtPeoVeMDu-7bzajgz4CZidpyzh8mLQ-pcm20LqVqkflnNvARFnAaSWx-kYf61zoE3m2sYIqS7nI1Yzd_29w3ajAGJIGtvRbWxpPj6Wj7lVP1oyjIZGroB-MXPK_L7W11hmyJ7CNo4L3sr30wg"/>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+<button class="px-2 py-0.5 rounded bg-surface text-on-surface text-[11px] font-system-label font-bold uppercase hover:bg-surface-container-highest">
+                  Set Primary
+                </button>
+<button class="p-1 rounded bg-surface text-error hover:bg-error-container" title="Remove">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-[10px] bg-surface-container-low text-xs text-on-surface-variant font-system-code">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">check_circle</span>
+            High-res inspection pass
+          </span>
+<span>SRGB profile embedded</span>
+</div>
+</section>
+<!-- Section 6: Quick Live Listing Preview Card -->
+<section class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md sticky top-20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-system-label text-system-label px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">PREVIEW</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Buyer View Simulation</h2>
+</div>
+<span class="flex items-center gap-1 font-system-label text-system-label text-on-tertiary-container font-bold uppercase">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span> Live Synced
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          This preview dynamically renders the consumer product card as displayed in the Bazaario consumer app &amp; wholesale buyer auction portal.
+        </p>
+<!-- Simulated Consumer Marketplace Card -->
+<div class="w-full rounded-[14px] overflow-hidden bg-surface-container-low shadow-md transition-all hover:shadow-lg flex flex-col">
+<!-- Card Image with Badges -->
+<div class="relative w-full h-48 bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Handcrafted artisanal crate loaded with ripe golden yellow Ratnagiri Alphonso mangoes on organic clean background, professional marketplace consumer product thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAyOj1FeG66X9_GzWKUZGaUKhFr32HnCaklMsljrCgI3Uu80o3P3m_v4GDBY1ZFWkYyQoTVzPD7k6ezRjDkTCKz-dWMT_PmdWQApaLWJj5BXWvv_msPLTa1vNIkpDdNAyAznin3VTO3QYgnBVNQUlfdsEUV8vOxbvlu7Gnx_Xnp4nbJkOeAUnzNJFFa2l_BVHuAOZa8mDxP7mKBTMcC41MX7RFtCunw5GLD3i3ulfhhl-bqN_4CHio_w"/>
+<!-- Badges Layer -->
+<div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+<span class="font-system-label text-system-label font-bold px-2 py-0.5 rounded bg-on-tertiary-container text-on-tertiary shadow-sm uppercase">
+                Harvested Today
+              </span>
+<span class="font-system-label text-system-label font-bold px-2 py-0.5 rounded bg-surface text-on-surface shadow-sm uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-on-tertiary-container">verified</span>
+                GI Tagged
+              </span>
+</div>
+<!-- Trust Badge Overlaid -->
+<div class="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-[8px] bg-primary text-on-primary font-system-code text-[11px] font-semibold flex items-center gap-1 backdrop-blur-md shadow-md">
+<span class="material-symbols-outlined text-[13px] text-secondary-container">shield</span>
+<span>Score: 94/100</span>
+</div>
+</div>
+<!-- Card Content -->
+<div class="p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span class="font-system-label uppercase tracking-wider font-semibold">Green Valley Farm</span>
+<span class="flex items-center gap-1 font-system-code">
+<span class="material-symbols-outlined text-[14px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+                4.9 (128 reviews)
+              </span>
+</div>
+<h3 class="font-headline-sm text-[17px] text-on-surface font-semibold leading-tight line-clamp-1" id="preview-card-title">
+              Organic Ratnagiri Alphonso Mango
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              Naturally tree-ripened, chemical carbide free with Brix sweetness score above 19°.
+            </p>
+<!-- Price with Strike-through & Unit -->
+<div class="flex items-baseline justify-between pt-2">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface" id="preview-final-price">₹315</span>
+<span class="font-system-code text-system-code text-on-surface-variant line-through text-xs" id="preview-base-price">₹350</span>
+<span class="font-system-code text-system-code font-bold text-secondary text-xs" id="preview-unit-suffix">/ kg</span>
+</div>
+<span class="font-system-label text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-secondary-container/30 text-on-secondary-container">
+                10% OFF
+              </span>
+</div>
+<button class="w-full mt-2 h-10 rounded-[10px] bg-primary text-on-primary font-body-sm text-body-sm font-semibold flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Simulate Buyer Cart</span>
+</button>
+</div>
+</div>
+<!-- Sticky Card Bottom Actions -->
+<div class="flex items-center gap-space-sm pt-space-sm">
+<button class="flex-1 h-12 rounded-[14px] bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim transition-all shadow-sm font-body-md text-body-md font-semibold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">check</span>
+<span>Save Changes</span>
+</button>
+<button class="px-space-md h-12 rounded-[14px] bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-body-md text-body-md font-medium">
+            Reset
+          </button>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  let currentUnit = 'kg';
+  let isEditMode = false;
+
+  function calculatePrice() {
+    const baseInput = document.getElementById('base-price');
+    const discountInput = document.getElementById('discount-pct');
+    const finalDisplay = document.getElementById('final-price-display');
+    const priceUnitTag = document.getElementById('price-unit-tag');
+    const previewFinal = document.getElementById('preview-final-price');
+    const previewBase = document.getElementById('preview-base-price');
+
+    const base = parseFloat(baseInput.value) || 0;
+    const discount = parseFloat(discountInput.value) || 0;
+    const final = Math.max(0, base - (base * (discount / 100)));
+
+    finalDisplay.innerText = '₹' + final.toFixed(2);
+    priceUnitTag.innerText = '₹' + Math.round(final) + ' / ' + currentUnit;
+    previewFinal.innerText = '₹' + Math.round(final);
+    previewBase.innerText = '₹' + Math.round(base);
+  }
+
+  function selectUnit(element, unit) {
+    document.querySelectorAll('.unit-btn').forEach(btn => {
+      btn.classList.remove('bg-primary', 'text-on-primary', 'active');
+      btn.classList.add('bg-surface-container-low', 'text-on-surface');
+    });
+    element.classList.remove('bg-surface-container-low', 'text-on-surface');
+    element.classList.add('bg-primary', 'text-on-primary', 'active');
+
+    currentUnit = unit;
+    document.querySelectorAll('.unit-label-text').forEach(span => {
+      span.innerText = unit;
+    });
+
+    const previewUnit = document.getElementById('preview-unit-suffix');
+    if (previewUnit) {
+      previewUnit.innerText = '/ ' + unit;
+    }
+
+    calculatePrice();
+    updateStockStatus();
+  }
+
+  function syncPreviewTitle(text) {
+    const previewHeading = document.getElementById('preview-card-title');
+    const charCount = document.getElementById('title-char-count');
+    if (previewHeading) {
+      previewHeading.innerText = text || 'Untitled Product Harvest';
+    }
+    if (charCount) {
+      charCount.innerText = text.length + ' / 80';
+    }
+  }
+
+  function updateStockStatus() {
+    const stockQty = parseFloat(document.getElementById('stock-qty').value) || 0;
+    const thresholdQty = parseFloat(document.getElementById('threshold-qty').value) || 0;
+    const statusTitle = document.getElementById('stock-status-title');
+    const bufferNote = document.getElementById('stock-buffer-note');
+    const gauge = document.getElementById('stock-gauge');
+
+    const diff = stockQty - thresholdQty;
+    if (diff > 0) {
+      statusTitle.innerText = 'Status: In Stock';
+      bufferNote.innerText = 'Safe buffer: +' + diff + ' ' + currentUnit + ' over minimum alert threshold.';
+      gauge.setAttribute('class', 'text-on-tertiary-container');
+    } else if (diff === 0) {
+      statusTitle.innerText = 'Status: At Alert Level';
+      bufferNote.innerText = 'Inventory reached exact threshold level of ' + thresholdQty + ' ' + currentUnit + '.';
+      gauge.setAttribute('class', 'text-secondary');
+    } else {
+      statusTitle.innerText = 'Status: Low Stock Warning';
+      bufferNote.innerText = 'Critical shortage: ' + Math.abs(diff) + ' ' + currentUnit + ' deficit from minimum.';
+      gauge.setAttribute('class', 'text-error');
+    }
+  }
+
+  function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const breadcrumb = document.getElementById('breadcrumb-title');
+    const heading = document.getElementById('page-main-heading');
+    const badgeLabel = document.getElementById('mode-badge-label');
+
+    if (isEditMode) {
+      breadcrumb.innerText = 'Edit Mode: Organic Alphonso Mango (Grade A)';
+      heading.innerText = 'Edit Product: Alphonso Mango';
+      badgeLabel.innerText = 'Switch to Add Mode';
+    } else {
+      breadcrumb.innerText = 'Add New Product';
+      heading.innerText = 'Add New Product';
+      badgeLabel.innerText = 'Switch to Edit Mode';
+    }
+  }
+
+  // Initialize calculations on DOM mount
+  calculatePrice();
+  updateStockStatus();
+</script></main></div></body></html>

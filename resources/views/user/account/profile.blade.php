@@ -29,7 +29,7 @@
         <div class="flex flex-wrap items-center gap-3 font-label-micro text-label-micro">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-status-green/10 text-status-green font-medium border border-status-green/20">
                 <span class="w-2 h-2 rounded-full bg-status-green animate-pulse"></span>
-                <span>VERIFIED BUYER • UID: BZ-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}-IN</span>
+                <span>{{ $user->buyer_trust_rank ?? 'Tier-1 Verified Buyer' }} • UID: BZ-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}-IN</span>
             </div>
         </div>
     </div>
@@ -85,9 +85,12 @@
                 <h2 class="font-title-card text-title-card font-bold text-slate-authority">{{ $user->name }}</h2>
                 <span class="font-label-micro text-label-micro text-on-surface-variant mt-0.5">{{ $user->email }}</span>
 
-                <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-action/15 border border-amber-action/30 text-slate-authority font-label-micro text-label-micro font-semibold">
-                    <span class="material-symbols-outlined text-[14px] text-amber-action">award_star</span>
-                    Active Buyer • {{ ucfirst($user->status) }}
+                <div class="mt-3 flex flex-col items-center gap-1.5">
+                    <span class="px-3 py-1 rounded-full bg-amber-action/15 border border-amber-action/30 text-slate-authority font-label-micro text-label-micro font-bold flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[15px] text-amber-action" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                        <span>{{ $user->buyer_trust_rank ?? 'Tier-1 Verified Buyer' }}</span>
+                    </span>
+                    <span class="font-label-micro text-[11px] text-on-surface-variant font-medium">Active Buyer • {{ ucfirst($user->status) }}</span>
                 </div>
 
                 {{-- Upload Photo Form --}}
@@ -197,6 +200,16 @@
                         </div>
                         <p class="font-body-regular text-body-regular font-medium text-slate-authority">
                             {{ strtoupper($user->preferred_language ?? 'en') === 'EN' ? 'English' : strtoupper($user->preferred_language ?? 'EN') }}
+                        </p>
+                    </div>
+                    {{-- Bio --}}
+                    <div class="md:col-span-2 p-4 rounded-xl bg-surface-container-low/90 border border-slate-authority/10 flex flex-col gap-1 transition-all hover:border-amber-action">
+                        <div class="flex items-center justify-between text-on-surface-variant font-label-micro text-label-micro">
+                            <span>ABOUT / BIO</span>
+                            <span class="material-symbols-outlined text-[15px]">description</span>
+                        </div>
+                        <p class="font-body-regular text-body-regular text-slate-authority leading-relaxed">
+                            {{ $user->bio ?: 'No bio provided yet.' }}
                         </p>
                     </div>
                 </div>

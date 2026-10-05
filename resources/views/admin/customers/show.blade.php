@@ -38,6 +38,18 @@
                         {{ $customer->status === 'suspended' ? 'Reactivate Account' : 'Suspend Buyer' }}
                     </button>
                 </form>
+                {{-- ── Admin Impersonation: Preview as this user ── --}}
+                <form method="POST" action="{{ route('admin.impersonate', $customer->id) }}" onsubmit="return confirm('Enter the user panel as {{ addslashes($customer->name) }}?');">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-2xs transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Preview as User
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -47,7 +59,7 @@
                 <div class="bg-white rounded-xl p-5 border border-slate-200/90 shadow-2xs flex flex-col gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-full bg-[#0F172A] text-amber-400 flex items-center justify-center font-bold text-base shrink-0">
-                            {{ strtoupper(substr($customer->name, 0, 2)) }}
+                            {{ strtoupper(substr((string)($customer->name ?? 'CU'), 0, 2)) }}
                         </div>
                         <div>
                             <h3 class="font-bold text-sm text-[#0F172A]">{{ $customer->name }}</h3>
@@ -69,7 +81,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Lifetime Spend:</span>
-                            <span class="font-mono font-bold text-[#0F172A]">₹{{ number_format($customer->orders->sum('total_amount'), 2) }}</span>
+                            <span class="font-mono font-bold text-[#0F172A]">₹{{ number_format((float)($customer->orders->sum('total_amount') ?? 0), 2) }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Email Verified:</span>
@@ -85,11 +97,11 @@
                         @forelse($customer->addresses as $address)
                             <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs">
                                 <span class="font-bold text-[#0F172A] block">{{ $address->full_name ?? $customer->name }}</span>
-                                <span class="text-slate-600 block mt-0.5">{{ $address->address_line_1 }}</span>
+                                <span class="text-slate-600 block mt-0.5">{{ $address->address_line_1 ?? 'Address' }}</span>
                                 @if($address->address_line_2)
                                     <span class="text-slate-500 block">{{ $address->address_line_2 }}</span>
                                 @endif
-                                <span class="text-slate-500 block font-mono text-[11px]">{{ $address->city }}, {{ $address->state }} - {{ $address->postal_code }}</span>
+                                <span class="text-slate-500 block font-mono text-[11px]">{{ $address->city ?? '' }}, {{ $address->state ?? '' }} - {{ $address->postal_code ?? '' }}</span>
                             </div>
                         @empty
                             <p class="text-xs text-slate-400">No saved shipping addresses on file.</p>
@@ -123,8 +135,8 @@
                                                 #{{ $ord->order_number }}
                                             </a>
                                         </td>
-                                        <td class="py-3 px-4 uppercase font-mono text-slate-600">{{ $ord->payment_method }}</td>
-                                        <td class="py-3 px-4 font-mono font-bold text-right text-[#0F172A]">₹{{ number_format($ord->total_amount, 2) }}</td>
+                                        <td class="py-3 px-4 uppercase font-mono text-slate-600">{{ $ord->payment_method ?? 'N/A' }}</td>
+                                        <td class="py-3 px-4 font-mono font-bold text-right text-[#0F172A]">₹{{ number_format((float)($ord->total_amount ?? 0), 2) }}</td>
                                         <td class="py-3 px-4 text-center">
                                             @if($ord->order_status === 'completed')
                                                 <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[10px] font-bold">Completed</span>
@@ -173,8 +185,8 @@
                                                 #AUC-{{ $b->auction_id }}
                                             </a>
                                         </td>
-                                        <td class="py-3 px-4 text-slate-700">{{ $b->auction->product->name ?? 'Auction Lot #' . $b->auction_id }}</td>
-                                        <td class="py-3 px-4 font-mono font-bold text-right text-emerald-700">₹{{ number_format($b->amount, 2) }}</td>
+                                        <td class="py-3 px-4 text-slate-700">{{ $b->auction?->product?->name ?? 'Auction Lot #' . $b->auction_id }}</td>
+                                        <td class="py-3 px-4 font-mono font-bold text-right text-emerald-700">₹{{ number_format((float)($b->amount ?? 0), 2) }}</td>
                                         <td class="py-3 px-4 font-mono text-slate-400 text-right">{{ $b->created_at ? $b->created_at->format('M d, H:i') : 'Logged' }}</td>
                                     </tr>
                                 @empty

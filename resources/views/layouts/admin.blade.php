@@ -47,7 +47,7 @@
                     borderRadius: {
                         "DEFAULT": "0.25rem",
                         "lg": "0.5rem",
-                        "xl": "0.75rem",
+                        "xl": "0.875rem",
                         "2xl": "1rem",
                         "full": "9999px"
                     },
@@ -76,7 +76,11 @@
             }
         };
     </script>
+    <!-- Alpine.js for Mobile Drawer & Reactive UI -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
+        [x-cloak] { display: none !important; }
         @layer base {
             html, body { margin: 0; padding: 0; }
             body { overscroll-behavior: none; }
@@ -88,15 +92,19 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-[#FFFDF8] font-body-md text-on-surface antialiased selection:bg-amber-100 selection:text-amber-900">
+<body class="bg-[#FFFDF8] font-body-md text-on-surface antialiased selection:bg-amber-100 selection:text-amber-900" x-data="{ mobileMenuOpen: false }">
+
+    <!-- Mobile Drawer Overlay Backdrop -->
+    <div x-show="mobileMenuOpen" @click="mobileMenuOpen = false" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 md:hidden transition-opacity"></div>
 
     <!-- ── AUTHORITATIVE DEEP SLATE SIDEBAR (260px) ── -->
-    <aside class="fixed left-0 top-0 h-full w-[260px] bg-[#0F172A] z-50 flex flex-col justify-between border-r border-[#1E293B]">
+    <aside class="fixed left-0 top-0 h-full w-[260px] bg-[#0F172A] z-50 flex flex-col justify-between border-r border-[#1E293B] -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out"
+           :class="{ 'translate-x-0': mobileMenuOpen, '-translate-x-full': !mobileMenuOpen }">
         <div class="flex flex-col">
             <!-- Brand / Logo Area -->
-            <div class="p-space-lg border-b border-[#1E293B]">
+            <div class="p-space-lg border-b border-[#1E293B] flex items-center justify-between">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 44" fill="none" class="h-8 w-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 44" fill="none" class="h-8 w-auto">
                         <rect width="36" height="36" y="4" rx="10" fill="#F5A623"/>
                         <path d="M12 14H24C26.2 14 28 15.8 28 18C28 20.2 26.2 22 24 22M12 22H25C27.2 22 29 23.8 29 26C29 28.2 27.2 30 25 30H12V14Z" stroke="#0F172A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="27" cy="11" r="3" fill="#0F172A"/>
@@ -104,6 +112,10 @@
                         <rect x="46" y="34" width="28" height="2" rx="1" fill="#F5A623"/>
                     </svg>
                 </a>
+                <button @click="mobileMenuOpen = false" class="md:hidden text-slate-400 hover:text-white p-1">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
                 <p class="mt-2 font-body-sm text-[11px] text-[#94A3B8] leading-tight">Smarter Shopping. Local Sellers. Live Auctions.</p>
             </div>
 
@@ -276,37 +288,47 @@
     </aside>
 
     <!-- ── MAIN WRAPPER ── -->
-    <div class="pl-[260px]">
+    <div class="pl-0 md:pl-[260px]">
         <!-- ── STICKY TOP HEADER (68px) ── -->
-        <header class="fixed top-0 left-[260px] right-0 h-[68px] bg-white/90 backdrop-blur-md z-40 border-b border-[rgba(15,23,42,0.08)] flex items-center justify-between px-space-xl">
-            <!-- Global Search Bar -->
-            <div class="flex items-center w-full max-w-lg">
-                <div class="relative w-full flex items-center">
+        <header class="fixed top-0 left-0 md:left-[260px] right-0 h-[68px] bg-white/90 backdrop-blur-md z-40 border-b border-[rgba(15,23,42,0.08)] flex items-center justify-between px-4 md:px-space-xl">
+            <!-- Mobile Hamburger Button & Working Search Bar -->
+            <div class="flex items-center gap-2.5 w-full max-w-lg">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 shrink-0 focus:outline-none" aria-label="Toggle Navigation">
+                    <span class="material-symbols-outlined text-[24px]">menu</span>
+                </button>
+                @php
+                    $searchRoute = route('admin.products.index');
+                    if (request()->routeIs('admin.sellers.*')) {
+                        $searchRoute = route('admin.sellers.index');
+                    } elseif (request()->routeIs('admin.orders.*')) {
+                        $searchRoute = route('admin.orders.index');
+                    } elseif (request()->routeIs('admin.customers.*')) {
+                        $searchRoute = route('admin.customers.index');
+                    }
+                @endphp
+                <form action="{{ $searchRoute }}" method="GET" class="relative w-full flex items-center">
                     <span class="material-symbols-outlined absolute left-3 text-[20px] text-slate-400 pointer-events-none">search</span>
-                    <input class="w-full pl-10 pr-14 py-2 bg-white border border-[rgba(15,23,42,0.15)] rounded-xl font-body-sm text-xs text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:border-[#0F172A] transition-all" 
-                           placeholder="Search sellers, orders (#BZ-10482), SKUs, auctions..." 
+                    <input name="search" 
+                           value="{{ request('search') }}"
+                           class="w-full pl-10 pr-12 py-2 bg-white border border-[rgba(15,23,42,0.15)] rounded-xl font-body-sm text-xs text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:border-[#0F172A] transition-all" 
+                           placeholder="Search products, sellers, orders, SKUs..." 
                            type="text"/>
-                    <kbd class="absolute right-3 px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-label-sm text-[10px] text-slate-500">⌘K</kbd>
-                </div>
+                    <button type="submit" class="absolute right-2 p-1 text-slate-400 hover:text-[#0F172A] transition-colors" title="Execute Search">
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
+                </form>
             </div>
 
             <!-- Top Header Actions -->
-            <div class="flex items-center gap-space-md">
+            <div class="flex items-center gap-2 sm:gap-space-md ml-2 shrink-0">
                 <!-- Live Auctions Indicator -->
-                <a href="{{ route('admin.auctions.index') }}" class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 hover:bg-emerald-100 transition-colors">
+                <a href="{{ route('admin.auctions.index') }}" class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 hover:bg-emerald-100 transition-colors">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    <span class="font-label-sm text-[11px] font-semibold text-emerald-700">Live Auctions: Active</span>
+                    <span class="font-label-sm text-[11px] font-semibold text-emerald-700">Live Auctions</span>
                 </a>
-
-                <!-- Multilingual Pill -->
-                <div class="relative flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200/60">
-                    <button class="px-2 py-1 rounded font-label-sm text-[11px] font-semibold bg-white shadow-2xs text-[#0F172A]">EN</button>
-                    <button class="px-2 py-1 rounded font-label-sm text-[11px] text-slate-500 hover:text-slate-900">BN</button>
-                    <button class="px-2 py-1 rounded font-label-sm text-[11px] text-slate-500 hover:text-slate-900">HI</button>
-                </div>
 
                 <!-- Notifications -->
                 <button class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors">
@@ -314,23 +336,29 @@
                     <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F5A623] ring-2 ring-white"></span>
                 </button>
 
-                <div class="h-6 w-px bg-slate-200"></div>
+                <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
 
-                <!-- Admin Profile Pill -->
-                <div class="flex items-center gap-2.5 pl-1">
-                    <div class="w-8 h-8 rounded-full bg-[#0F172A] text-[#F5A623] flex items-center justify-center font-display font-bold text-xs ring-1 ring-slate-200">
+                <!-- Admin Profile Pill & Top Logout -->
+                <div class="flex items-center gap-2.5 pl-1 shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-[#0F172A] text-[#F5A623] flex items-center justify-center font-display font-bold text-xs ring-1 ring-slate-200 shrink-0">
                         {{ $adminInitial }}
                     </div>
-                    <div class="flex flex-col text-left">
+                    <div class="hidden xl:flex flex-col text-left">
                         <span class="font-body-sm text-xs font-bold text-[#0F172A] leading-tight">{{ $adminName }}</span>
                         <span class="font-label-sm text-[10px] text-slate-500 leading-tight">Chief Administrator</span>
                     </div>
+                    <form action="{{ route('admin.logout') }}" method="POST" class="inline-flex">
+                        @csrf
+                        <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Logout">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </header>
 
         <!-- ── CONTENT CANVAS ── -->
-        <main class="w-full pt-[68px] min-h-screen bg-[#FFFDF8] px-space-xl py-space-xl">
+        <main class="w-full pt-[68px] min-h-screen bg-[#FFFDF8] px-4 md:px-space-xl py-4 md:py-space-xl">
             <!-- Flash Notification Messages -->
             @if(session('success'))
                 <div id="flash-success" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 flex items-center justify-between shadow-2xs transition-all animate-fadeIn">
@@ -357,6 +385,25 @@
                         </div>
                     </div>
                     <button type="button" onclick="document.getElementById('flash-error').remove()" class="text-rose-700 hover:text-rose-900 p-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+            @endif
+
+            @if(isset($errors) && $errors->any())
+                <div id="flash-errors" class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 flex items-start justify-between shadow-2xs transition-all animate-fadeIn">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-amber-600 text-[22px] mt-0.5">warning</span>
+                        <div>
+                            <span class="font-headline-sm text-xs font-bold block mb-1">Validation Requirements</span>
+                            <ul class="list-disc list-inside text-xs text-amber-800 space-y-0.5 font-body-sm">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    <button type="button" onclick="document.getElementById('flash-errors').remove()" class="text-amber-700 hover:text-amber-900 p-1 cursor-pointer">
                         <span class="material-symbols-outlined text-[18px]">close</span>
                     </button>
                 </div>

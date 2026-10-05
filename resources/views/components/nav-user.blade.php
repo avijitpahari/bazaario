@@ -4,7 +4,14 @@
     use Illuminate\Support\Facades\Storage;
     use App\Models\Category;
 
-    $currentUser = Auth::guard('user')->user() ?? Auth::guard('admin')->user() ?? Auth::guard('seller')->user() ?? Auth::user();
+    // In the user panel, only resolve the 'user' guard.
+    // If an admin is impersonating, load the impersonated user by ID.
+    $impersonating = session('impersonating');
+    if ($impersonating && ($impersonating['panel'] ?? '') === 'user' && Auth::guard('admin')->check()) {
+        $currentUser = \App\Models\User::find($impersonating['user_id']);
+    } else {
+        $currentUser = Auth::guard('user')->user();
+    }
 
     if (!$currentUser && !defined('NAV_DELEGATING')) {
         define('NAV_DELEGATING', true);
@@ -18,7 +25,33 @@
         return Category::where('status', 'active')->take(6)->get();
     });
 
-    $cartCount = count(session('cart', []));
+    $unreadNotificationsCount = 0;
+    $recentNotifications = collect();
+    $cartCount = 0;
+    $userCart = null;
+    if ($currentUser) {
+        try {
+            $unreadNotificationsCount = (int) \Illuminate\Support\Facades\DB::table('notifications')
+                ->where('user_id', $currentUser->id)
+                ->whereNull('read_at')
+                ->count();
+            $recentNotifications = \Illuminate\Support\Facades\DB::table('notifications')
+                ->where('user_id', $currentUser->id)
+                ->orderByDesc('created_at')
+                ->take(5)
+                ->get();
+        } catch (\Throwable $e) {
+            $unreadNotificationsCount = 0;
+        }
+
+        $userCart = \App\Models\Cart::where('user_id', $currentUser->id)->with(['items.product.images', 'items.product.primaryImage'])->first();
+        if ($userCart) {
+            $cartCount = (int) $userCart->items->sum('quantity');
+        }
+    }
+    if ($cartCount === 0) {
+        $cartCount = count(session('cart', []));
+    }
     $wishlistCount = count(session('wishlist', []));
 @endphp
 
@@ -77,34 +110,34 @@
                      x-transition:leave="transition ease-in duration-100 transform"
                      x-transition:leave-start="opacity-100 translate-y-0"
                      x-transition:leave-end="opacity-0 translate-y-2"
-                     class="absolute top-full mt-2 left-0 w-[540px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 z-50 grid grid-cols-3 gap-6">
+                     class="absolute top-full mt-2 left-0 w-[540px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 z-50 grid grid-cols-3 gap-6">
                     
                     <div>
                         <h4 class="font-mono text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2.5 pb-1 border-b border-slate-100">Electronics</h4>
                         <ul class="space-y-1.5 text-xs text-slate-600">
-                            <li><a href="{{ route('products.index', ['search' => 'Smartphone']) }}" class="hover:text-amber-600 transition-colors">Smartphones</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Laptop']) }}" class="hover:text-amber-600 transition-colors">Laptops</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Headphones']) }}" class="hover:text-amber-600 transition-colors">Headphones</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Camera']) }}" class="hover:text-amber-600 transition-colors">Cameras</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">All Electronics</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">Smartphones & Audio</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">Laptops & Gadgets</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'electronics']) }}" class="hover:text-amber-600 transition-colors">Tech Accessories</a></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 class="font-mono text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2.5 pb-1 border-b border-slate-100">Fashion</h4>
                         <ul class="space-y-1.5 text-xs text-slate-600">
-                            <li><a href="{{ route('products.index', ['search' => 'Men']) }}" class="hover:text-amber-600 transition-colors">Men's Wear</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Women']) }}" class="hover:text-amber-600 transition-colors">Women's Wear</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Shoes']) }}" class="hover:text-amber-600 transition-colors">Shoes & Sneakers</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Leather']) }}" class="hover:text-amber-600 transition-colors">Leather Goods</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">All Fashion</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">Men's Wear</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">Women's Wear</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'fashion']) }}" class="hover:text-amber-600 transition-colors">Footwear & Bags</a></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 class="font-mono text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2.5 pb-1 border-b border-slate-100">Artisan & Home</h4>
                         <ul class="space-y-1.5 text-xs text-slate-600">
-                            <li><a href="{{ route('products.index', ['search' => 'Ceramic']) }}" class="hover:text-amber-600 transition-colors">Handmade Ceramics</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Furniture']) }}" class="hover:text-amber-600 transition-colors">Modern Furniture</a></li>
-                            <li><a href="{{ route('products.index', ['search' => 'Pottery']) }}" class="hover:text-amber-600 transition-colors">Traditional Pottery</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'artisan-craft']) }}" class="hover:text-amber-600 transition-colors">Handmade Crafts</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'home-living']) }}" class="hover:text-amber-600 transition-colors">Home & Living</a></li>
+                            <li><a href="{{ route('products.index', ['category' => 'collectibles']) }}" class="hover:text-amber-600 transition-colors">Rare Collectibles</a></li>
                             <li><a href="{{ route('products.index') }}" class="font-bold text-amber-600 hover:underline flex items-center gap-0.5 mt-2">
                                 <span>Browse All</span> <span>→</span>
                             </a></li>
@@ -179,6 +212,8 @@
         <!-- 4. CUSTOMER ACTION ICONS (Wishlist, Notifications, Cart, Profile) -->
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
 
+
+
             <!-- Wishlist ♡ -->
             <a href="{{ route('user.wishlist.index') }}" 
                class="relative p-2 text-slate-700 hover:text-red-500 rounded-full hover:bg-slate-100 transition-colors"
@@ -191,13 +226,17 @@
                 @endif
             </a>
 
-            <!-- Notifications 🔔 -->
+            <!-- Notifications 🔔 (P18: Dynamic count & conditional badge) -->
             <div class="relative" @click.outside="notificationsOpen = false">
                 <button @click="notificationsOpen = !notificationsOpen" 
                         class="relative p-2 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors"
                         aria-label="Notifications">
                     <span class="material-symbols-outlined text-2xl">notifications</span>
-                    <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white"></span>
+                    @if($unreadNotificationsCount > 0)
+                        <span class="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 bg-amber-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ring-white shadow-xs">
+                            {{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}
+                        </span>
+                    @endif
                 </button>
 
                 <!-- Notifications Popover -->
@@ -209,27 +248,31 @@
                     
                     <div class="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
                         <span class="font-display font-bold text-slate-900 text-sm">Notifications</span>
-                        <span class="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold">3 New</span>
+                        @if($unreadNotificationsCount > 0)
+                            <span class="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold">{{ $unreadNotificationsCount }} New</span>
+                        @else
+                            <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-semibold">0 New</span>
+                        @endif
                     </div>
 
                     <div class="divide-y divide-slate-100 max-h-64 overflow-y-auto">
-                        <a href="{{ route('user.orders.index') }}" class="p-3 block hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center gap-2 text-blue-600 font-semibold mb-0.5">
-                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                                <span>Order Shipped</span>
+                        @forelse($recentNotifications as $notif)
+                            <a href="{{ route('user.notifications.index') }}" class="p-3 block hover:bg-slate-50 transition-colors {{ is_null($notif->read_at) ? 'bg-amber-50/30' : '' }}">
+                                <div class="flex items-center gap-2 font-semibold mb-0.5 text-slate-900">
+                                    @if(is_null($notif->read_at))
+                                        <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                                    @endif
+                                    <span class="truncate">{{ $notif->title }}</span>
+                                </div>
+                                <p class="text-slate-600 line-clamp-1">{{ $notif->message }}</p>
+                                <span class="text-[10px] font-mono text-slate-400 mt-1 block">{{ \Carbon\Carbon::parse($notif->created_at)->diffForHumans() }}</span>
+                            </a>
+                        @empty
+                            <div class="py-6 px-4 text-center text-slate-400">
+                                <span class="material-symbols-outlined text-2xl mb-1 text-slate-300 block">notifications_none</span>
+                                <p class="text-xs">No notifications yet</p>
                             </div>
-                            <p class="text-slate-600 line-clamp-1">Your item BZ-104 has been dispatched by seller.</p>
-                            <span class="text-[10px] font-mono text-slate-400 mt-1 block">2 minutes ago</span>
-                        </a>
-
-                        <a href="{{ route('products.index', ['sale_type' => 'auction']) }}" class="p-3 block hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center gap-2 text-amber-600 font-semibold mb-0.5">
-                                <span class="w-2 h-2 rounded-full bg-amber-600"></span>
-                                <span>New Auction Bid</span>
-                            </div>
-                            <p class="text-slate-600 line-clamp-1">Someone outbid your bid on Vintage Leica M3.</p>
-                            <span class="text-[10px] font-mono text-slate-400 mt-1 block">1 hour ago</span>
-                        </a>
+                        @endforelse
                     </div>
 
                     <div class="pt-2 px-3 border-t border-slate-100 text-center">
@@ -240,12 +283,13 @@
                 </div>
             </div>
 
-            <!-- Cart 🛒 with Mini-Cart Popover -->
+            <!-- Cart 🛒 with Mini-Cart Popover (Touch & Desktop Friendly - P19) -->
             <div class="relative" 
-                 @mouseenter="cartOpen = true" 
-                 @mouseleave="cartOpen = false" 
+                 @mouseenter="if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) cartOpen = true" 
+                 @mouseleave="if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) cartOpen = false" 
                  @click.outside="cartOpen = false">
                 <a href="{{ route('cart.index') }}" 
+                   @click="if ('ontouchstart' in window || navigator.maxTouchPoints > 0) { if (!cartOpen) { $event.preventDefault(); cartOpen = true; } }"
                    class="relative p-2 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors flex items-center"
                    aria-label="Cart">
                     <span class="material-symbols-outlined text-2xl">shopping_cart</span>
@@ -268,22 +312,31 @@
                         <a href="{{ route('cart.index') }}" class="text-[11px] font-semibold text-amber-600 hover:underline">View Full Cart</a>
                     </div>
 
-                    @if($cartCount > 0)
+                    @if($userCart && $userCart->items->isNotEmpty())
                         <div class="py-3 space-y-3 max-h-56 overflow-y-auto">
+                            @foreach($userCart->items->take(4) as $popItem)
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-slate-100 shrink-0 overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+                                    @php $popImg = $popItem->product?->primaryImage?->url ?? $popItem->product?->images?->first()?->url; @endphp
+                                    @if($popImg)
+                                        <img src="{{ $popImg }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                            <span class="material-symbols-outlined text-sm">image</span>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h5 class="font-semibold text-slate-900 truncate">Handcrafted Leather Bag</h5>
-                                    <span class="text-slate-500 font-mono text-[11px]">₹2,499 × 1</span>
+                                    <h5 class="font-semibold text-slate-900 truncate">{{ $popItem->product->name ?? 'Product' }}</h5>
+                                    <span class="text-slate-500 font-mono text-[11px]">₹{{ number_format($popItem->product->price ?? 0, 2) }} × {{ $popItem->quantity }}</span>
                                 </div>
                             </div>
+                            @endforeach
                         </div>
                         <div class="pt-3 border-t border-slate-100 space-y-2">
                             <div class="flex items-center justify-between font-bold text-slate-900 text-sm">
                                 <span>Subtotal</span>
-                                <span class="font-mono">₹2,499</span>
+                                <span class="font-mono">₹{{ number_format($userCart->items->sum(fn ($i) => ($i->product->price ?? 0) * $i->quantity), 2) }}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <a href="{{ route('cart.index') }}" class="py-2 text-center bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-semibold transition-colors">
@@ -326,7 +379,8 @@
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 translate-y-2"
                          x-transition:enter-end="opacity-100 translate-y-0"
-                         class="absolute top-full mt-2 right-0 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 text-xs font-medium max-h-[calc(100vh-85px)] flex flex-col overflow-hidden">
+                         class="absolute top-full mt-2 right-0 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 text-xs font-medium flex flex-col overflow-hidden"
+                         style="max-height: min(480px, calc(100vh - 85px))">
 
                         {{-- Sticky User Identity Header --}}
                         <div class="px-4 py-2.5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80 backdrop-blur-xs shrink-0">
@@ -344,7 +398,8 @@
                         </div>
 
                         {{-- Scrollable Content Body --}}
-                        <div class="overflow-y-auto flex-1 py-1 divide-y divide-slate-100">
+                        <div class="overflow-y-auto flex-1 py-1 divide-y divide-slate-100"
+                             style="overflow-y: auto; scrollbar-width: thin; scrollbar-color: #f59e0b #f1f5f9;">
                             {{-- Dashboard --}}
                             @php
                                 $dashRoute = match($currentUser->role) {

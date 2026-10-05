@@ -158,13 +158,19 @@
                                             {{ $coupon->status === 'active' ? 'Deactivate' : 'Activate' }}
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ route('admin.coupons.destroy', $coupon->id) }}" onsubmit="return confirm('Delete coupon {{ $coupon->code }}?');" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors" title="Delete Coupon">
-                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    @if(($coupon->used_count ?? 0) === 0 && ($coupon->orders_count ?? 0) === 0)
+                                        <form method="POST" action="{{ route('admin.coupons.destroy', $coupon->id) }}" onsubmit="return confirm('Delete coupon {{ $coupon->code }}?');" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors" title="Delete Coupon">
+                                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button disabled class="p-1 rounded-lg text-slate-300 cursor-not-allowed" title="Cannot delete: coupon has {{ max($coupon->used_count ?? 0, $coupon->orders_count ?? 0) }} redemptions">
+                                            <span class="material-symbols-outlined text-[18px]">lock</span>
                                         </button>
-                                    </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

@@ -112,6 +112,14 @@
                                 <option value="te" {{ ($user->preferred_language ?? '') === 'te' ? 'selected' : '' }}>Telugu</option>
                             </select>
                         </div>
+
+                        <div class="flex flex-col gap-1.5 md:col-span-2">
+                            <label class="font-body-small text-body-small font-semibold text-slate-authority">About / Bio</label>
+                            <textarea name="bio" rows="3"
+                                class="bg-surface-container-low border border-slate-authority/20 rounded-xl px-4 py-3 text-slate-authority font-body-regular text-body-regular focus:outline-none focus:border-amber-action transition-colors @error('bio') border-error @enderror"
+                                placeholder="Tell us a little about yourself (e.g. hobbies, interests, shopping preferences)">{{ old('bio', $user->bio) }}</textarea>
+                            @error('bio')<p class="text-error font-body-small text-body-small mt-1">{{ $message }}</p>@enderror
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-3 pt-2 border-t border-surface-container mt-2">

@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bazaario Seller Portal - Registration &amp; Onboarding</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FFFDF8',
+              slate: '#0F172A',
+              amber: '#F5A623',
+              'amber-dark': '#D98205',
+              green: '#16A34A',
+              muted: '#45464D',
+              outline: '#E2DFD7',
+              surface: '#FFFFFF',
+              card: '#FFFFFF',
+              subtle: '#FAF8F2'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderRadius: {
+            'custom': '14px',
+            '14': '14px',
+          },
+          boxShadow: {
+            'subtle': '0 2px 10px rgba(15, 23, 42, 0.04)',
+            'card': '0 4px 20px -2px rgba(15, 23, 42, 0.06)',
+            'modal': '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #FFFDF8;
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-radius {
+      border-radius: 14px;
+    }
+    input, select, textarea {
+      border-radius: 14px !important;
+    }
+    /* Hide scrollbar for tabs */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .step-badge {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .step-transition {
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-brand-bg flex flex-col selection:bg-brand-amber selection:text-brand-slate">
+<!-- TOP HEADER / NAV -->
+<header class="border-b border-[#EAE6DC] bg-white/95 backdrop-blur sticky top-0 z-40">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-brand-slate rounded-[14px] flex items-center justify-center text-brand-amber font-bold font-heading text-2xl shadow-sm">
+            B
+          </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-heading font-bold text-xl tracking-tight text-brand-slate">BAZAARIO</span>
+<span class="bg-[#F5A623]/15 text-[#B45309] font-mono font-bold text-[10px] tracking-wider px-2 py-0.5 rounded-[6px] border border-[#F5A623]/30">SELLER</span>
+</div>
+<p class="text-[11px] text-brand-muted hidden sm:block">Smarter Shopping. Local Sellers. Live Auctions.</p>
+</div>
+</div>
+</div>
+<!-- Action status & Quick navigation pills for previewing all states -->
+<div class="flex items-center gap-3">
+<!-- Interactive State Sandbox Switcher -->
+<div class="hidden md:flex items-center bg-brand-subtle border border-brand-outline px-3 py-1.5 rounded-[14px] gap-2">
+<span class="text-xs font-mono text-brand-muted uppercase">Preview Step:</span>
+<div class="flex gap-1">
+<button class="px-2 py-0.5 text-xs font-mono rounded-[8px] bg-brand-slate text-white" id="pill-step-1" onclick="goToStep(1)">01</button>
+<button class="px-2 py-0.5 text-xs font-mono rounded-[8px] hover:bg-slate-200 text-brand-muted" id="pill-step-2" onclick="goToStep(2)">02</button>
+<button class="px-2 py-0.5 text-xs font-mono rounded-[8px] hover:bg-slate-200 text-brand-muted" id="pill-step-3" onclick="goToStep(3)">03</button>
+<button class="px-2 py-0.5 text-xs font-mono rounded-[8px] hover:bg-slate-200 text-brand-muted" id="pill-step-4" onclick="goToStep(4)">04</button>
+<button class="px-2 py-0.5 text-xs font-mono rounded-[8px] hover:bg-slate-200 text-brand-muted" id="pill-step-5" onclick="goToStep(5)">05</button>
+<button class="px-2 py-0.5 text-xs font-mono rounded-[8px] hover:bg-slate-200 text-brand-muted" id="pill-step-6" onclick="goToStep(6)">06 Status</button>
+</div>
+</div>
+<a class="text-xs font-medium text-brand-muted hover:text-brand-slate transition-colors py-2 px-3" href="#signin">
+          Sign In
+        </a>
+<a class="text-xs font-medium bg-brand-subtle hover:bg-brand-outline/40 text-brand-slate border border-brand-outline px-3.5 py-2 rounded-[14px] flex items-center gap-1.5 transition" href="#help">
+<svg class="w-3.5 h-3.5 text-brand-amber" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" fill-rule="evenodd"></path>
+</svg>
+          Seller Help
+        </a>
+</div>
+</div>
+</header>
+<!-- MAIN ONBOARDING CONTAINER -->
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+<!-- MOBILE TOP PROGRESS BAR (Shown only on small screens) -->
+<div class="lg:hidden mb-8 bg-white border border-brand-outline p-4 rounded-[14px] shadow-subtle">
+<div class="flex items-center justify-between mb-3">
+<span class="text-xs font-mono uppercase tracking-wider text-brand-muted" id="mobile-step-counter">STEP 01 OF 06</span>
+<span class="text-xs font-semibold font-heading text-brand-slate" id="mobile-step-name">Account Registration</span>
+</div>
+<div class="w-full bg-[#EAE6DC] h-2 rounded-full overflow-hidden">
+<div class="bg-brand-amber h-full transition-all duration-300 rounded-full" id="mobile-progress-fill" style="width: 16.66%;"></div>
+</div>
+<div class="grid grid-cols-6 gap-1 mt-3">
+<div class="h-1 rounded bg-brand-amber" id="mob-dot-1"></div>
+<div class="h-1 rounded bg-[#EAE6DC]" id="mob-dot-2"></div>
+<div class="h-1 rounded bg-[#EAE6DC]" id="mob-dot-3"></div>
+<div class="h-1 rounded bg-[#EAE6DC]" id="mob-dot-4"></div>
+<div class="h-1 rounded bg-[#EAE6DC]" id="mob-dot-5"></div>
+<div class="h-1 rounded bg-[#EAE6DC]" id="mob-dot-6"></div>
+</div>
+</div>
+<!-- TWO-COLUMN ONBOARDING GRID -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+<!-- LEFT SIDEBAR: STEP PROGRESS & ONBOARDING CONTEXT (Desktop) -->
+<aside class="hidden lg:block lg:col-span-4 sticky top-28 space-y-6">
+<div class="bg-white border border-brand-outline rounded-[14px] p-6 shadow-subtle">
+<div class="mb-6">
+<span class="text-xs font-mono text-brand-muted uppercase tracking-wider">Bazaario Seller Hub</span>
+<h2 class="text-xl font-heading font-bold text-brand-slate mt-1">Partner Onboarding</h2>
+<p class="text-xs text-brand-muted mt-1 leading-relaxed">
+              Join thousands of farmers, kirana shops, and independent merchants connecting with hyper-local buyers.
+            </p>
+</div>
+<!-- Vertical Timeline Steps -->
+<nav aria-label="Progress" class="space-y-1 relative">
+<!-- Connecting line -->
+<div class="absolute left-[19px] top-4 bottom-4 w-0.5 bg-[#EAE6DC] -z-0"></div>
+<!-- Step 1: Account -->
+<div class="relative z-10 flex items-start group cursor-pointer" onclick="goToStep(1)">
+<div class="w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-brand-amber text-brand-slate shadow-sm ring-4 ring-amber-100" id="step-marker-1">
+                01
+              </div>
+<div class="ml-4 flex-1 pt-1">
+<p class="text-sm font-semibold font-heading text-brand-slate" id="step-title-1">Account</p>
+<p class="text-xs text-brand-muted">Basic credentials &amp; verification</p>
+</div>
+</div>
+<!-- Step 2: Seller Type -->
+<div class="relative z-10 flex items-start group cursor-pointer pt-4" onclick="goToStep(2)">
+<div class="w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-[#FAF8F2] border border-brand-outline text-brand-muted" id="step-marker-2">
+                02
+              </div>
+<div class="ml-4 flex-1 pt-1">
+<p class="text-sm font-semibold font-heading text-brand-muted" id="step-title-2">Seller Type</p>
+<p class="text-xs text-brand-muted">Farmer, Kirana, Dark Store</p>
+</div>
+</div>
+<!-- Step 3: Shop/Farm -->
+<div class="relative z-10 flex items-start group cursor-pointer pt-4" onclick="goToStep(3)">
+<div class="w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-[#FAF8F2] border border-brand-outline text-brand-muted" id="step-marker-3">
+                03
+              </div>
+<div class="ml-4 flex-1 pt-1">
+<p class="text-sm font-semibold font-heading text-brand-muted" id="step-title-3">Shop / Farm</p>
+<p class="text-xs text-brand-muted">Business info &amp; catalogue profile</p>
+</div>
+</div>
+<!-- Step 4: Location -->
+<div class="relative z-10 flex items-start group cursor-pointer pt-4" onclick="goToStep(4)">
+<div class="w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-[#FAF8F2] border border-brand-outline text-brand-muted" id="step-marker-4">
+                04
+              </div>
+<div class="ml-4 flex-1 pt-1">
+<p class="text-sm font-semibold font-heading text-brand-muted" id="step-title-4">Location</p>
+<p class="text-xs text-brand-muted">Geo coordinates &amp; service district</p>
+</div>
+</div>
+<!-- Step 5: Review -->
+<div class="relative z-10 flex items-start group cursor-pointer pt-4" onclick="goToStep(5)">
+<div class="w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-[#FAF8F2] border border-brand-outline text-brand-muted" id="step-marker-5">
+                05
+              </div>
+<div class="ml-4 flex-1 pt-1">
+<p class="text-sm font-semibold font-heading text-brand-muted" id="step-title-5">Review</p>
+<p class="text-xs text-brand-muted">Verify submission packet</p>
+</div>
+</div>
+<!-- Step 6: Approval -->
+<div class="relative z-10 flex items-start group cursor-pointer pt-4" onclick="goToStep(6)">
+<div class="w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-[#FAF8F2] border border-brand-outline text-brand-muted" id="step-marker-6">
+                06
+              </div>
+<div class="ml-4 flex-1 pt-1">
+<p class="text-sm font-semibold font-heading text-brand-muted" id="step-title-6">Approval</p>
+<p class="text-xs text-brand-muted">Admin review &amp; live dashboard gate</p>
+</div>
+</div>
+</nav>
+</div>
+<!-- Trust Badges & Guarantee Card -->
+<div class="bg-brand-subtle border border-brand-outline rounded-[14px] p-5">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded-[10px] bg-brand-green/10 flex items-center justify-center text-brand-green">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<div>
+<p class="text-xs font-bold font-heading text-brand-slate">Verified Seller Guarantee</p>
+<p class="text-[11px] text-brand-muted">Zero commission for first 90 days</p>
+</div>
+</div>
+<p class="text-[11px] text-brand-muted leading-relaxed">
+            Your documents and GPS location are securely encrypted and checked by Bazaario regional team within 24-48 hours.
+          </p>
+</div>
+</aside>
+<!-- RIGHT COLUMN: DYNAMIC ONBOARDING STEP VIEWS -->
+<section class="lg:col-span-8">
+<!-- ============================================================== -->
+<!-- STEP 1: REGISTER AS SELLER -->
+<!-- ============================================================== -->
+<div class="step-card bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card" id="step-container-1">
+<div class="mb-8">
+<span class="inline-block bg-[#F5A623]/15 text-[#B45309] font-mono text-xs font-bold px-2.5 py-1 rounded-[8px] mb-2">STEP 01</span>
+<h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Start Selling with Bazaario</h1>
+<p class="text-brand-muted text-sm sm:text-base mt-2">
+              Create your seller account and start reaching customers in your area.
+            </p>
+</div>
+<form class="space-y-6" id="form-step-1" onsubmit="event.preventDefault(); handleStep1Submit();">
+<!-- Full Name -->
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2" for="reg-fullname">
+                Full Name <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="reg-fullname" placeholder="e.g. Rajesh Kumar" required="" type="text" value="Rajesh Kumar Patel"/>
+</div>
+<!-- Email & Phone Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2" for="reg-email">
+                  Email Address <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="reg-email" placeholder="name@domain.com" required="" type="email" value="rajesh.patel@agrofarm.in"/>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2" for="reg-phone">
+                  Phone Number <span class="text-red-500">*</span>
+</label>
+<div class="flex">
+<span class="inline-flex items-center px-3.5 border border-r-0 border-brand-outline bg-[#F3EFE6] text-brand-slate text-xs font-mono font-medium rounded-l-[14px]">
+                    +91
+                  </span>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-r-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="reg-phone" placeholder="98765 43210" required="" type="tel" value="9876543210"/>
+</div>
+</div>
+</div>
+<!-- Password & Confirm Password -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2" for="reg-password">
+                  Create Password <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="reg-password" oninput="checkPasswordStrength(this.value)" placeholder="••••••••••••" required="" type="password" value="KisanAgro@2025"/>
+<!-- Password Strength Indicator -->
+<div class="mt-2.5">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[11px] font-mono text-brand-muted">Password Strength:</span>
+<span class="text-[11px] font-mono font-semibold text-brand-green" id="strength-label">Strong (85%)</span>
+</div>
+<div class="w-full bg-[#EAE6DC] h-1.5 rounded-full overflow-hidden flex gap-1">
+<div class="h-full w-1/4 bg-brand-green transition-all" id="bar-1"></div>
+<div class="h-full w-1/4 bg-brand-green transition-all" id="bar-2"></div>
+<div class="h-full w-1/4 bg-brand-green transition-all" id="bar-3"></div>
+<div class="h-full w-1/4 bg-[#EAE6DC] transition-all" id="bar-4"></div>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2" for="reg-confirm-password">
+                  Confirm Password <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="reg-confirm-password" placeholder="••••••••••••" required="" type="password" value="KisanAgro@2025"/>
+<span class="text-[11px] text-brand-muted mt-2 block">Matches required security criteria.</span>
+</div>
+</div>
+<!-- Terms and Privacy Checkbox -->
+<div class="pt-2">
+<label class="flex items-start gap-3 cursor-pointer">
+<input checked="" class="mt-1 w-4 h-4 text-brand-amber border-brand-outline rounded focus:ring-brand-amber focus:ring-offset-0" required="" type="checkbox"/>
+<span class="text-xs text-brand-muted leading-relaxed">
+                  I agree to the Bazaario <a class="text-brand-slate font-medium underline underline-offset-2" href="#terms">Seller Terms of Service</a>, 
+                  <a class="text-brand-slate font-medium underline underline-offset-2" href="#privacy">Marketplace Policy</a>, and verify that all business registration info provided is genuine.
+                </span>
+</label>
+</div>
+<!-- Primary & Secondary Actions -->
+<div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-brand-outline/60">
+<p class="text-xs text-brand-muted">
+                Already have an account? 
+                <a class="text-brand-amber font-semibold hover:underline" href="#signin">Sign In</a>
+</p>
+<button class="w-full sm:w-auto px-8 py-3.5 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate font-heading font-bold text-sm rounded-[14px] shadow-sm transition-all duration-150 flex items-center justify-center gap-2" type="submit">
+<span>Continue</span>
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</form>
+</div>
+<!-- ============================================================== -->
+<!-- STEP 2: SELECT SELLER TYPE -->
+<!-- ============================================================== -->
+<div class="step-card hidden bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card" id="step-container-2">
+<div class="mb-8">
+<span class="inline-block bg-[#F5A623]/15 text-[#B45309] font-mono text-xs font-bold px-2.5 py-1 rounded-[8px] mb-2">STEP 02</span>
+<h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Choose Your Seller Type</h1>
+<p class="text-brand-muted text-sm sm:text-base mt-2">
+              Select the type that best describes your business.
+            </p>
+</div>
+<!-- 4 Large Selection Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-8">
+<!-- CARD 1: Farmer (Default selected) -->
+<div class="relative border-2 border-brand-amber bg-[#FFFDF7] p-6 rounded-[14px] cursor-pointer transition-all hover:shadow-md" id="type-card-farmer" onclick="selectSellerType('farmer')">
+<div class="flex items-start justify-between">
+<div class="w-12 h-12 rounded-[14px] bg-amber-100 flex items-center justify-center text-amber-800 text-2xl">
+                  🌾
+                </div>
+<!-- Selection indicator -->
+<div class="w-6 h-6 rounded-full bg-brand-amber flex items-center justify-center text-brand-slate shadow-sm" id="check-farmer">
+<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<h3 class="font-heading font-bold text-lg text-brand-slate mt-4">Farmer</h3>
+<p class="text-xs text-brand-muted mt-2 leading-relaxed">
+                Sell fresh farm products directly to local customers.
+              </p>
+<div class="mt-4 pt-3 border-t border-amber-200/60 flex items-center gap-2">
+<span class="text-[10px] font-mono uppercase bg-amber-100/70 text-amber-900 px-2 py-0.5 rounded-[6px]">Direct Harvest</span>
+<span class="text-[10px] font-mono uppercase bg-green-100 text-green-800 px-2 py-0.5 rounded-[6px]">Live Auctions</span>
+</div>
+</div>
+<!-- CARD 2: Kirana Store -->
+<div class="relative border border-brand-outline bg-white p-6 rounded-[14px] cursor-pointer transition-all hover:border-brand-amber/70 hover:shadow-md" id="type-card-kirana" onclick="selectSellerType('kirana')">
+<div class="flex items-start justify-between">
+<div class="w-12 h-12 rounded-[14px] bg-slate-100 flex items-center justify-center text-slate-800 text-2xl">
+                  🏪
+                </div>
+<!-- Selection indicator -->
+<div class="w-6 h-6 rounded-full border border-brand-outline flex items-center justify-center text-transparent" id="check-kirana">
+<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<h3 class="font-heading font-bold text-lg text-brand-slate mt-4">Kirana Store</h3>
+<p class="text-xs text-brand-muted mt-2 leading-relaxed">
+                Sell everyday grocery and household products.
+              </p>
+<div class="mt-4 pt-3 border-t border-brand-outline/60 flex items-center gap-2">
+<span class="text-[10px] font-mono uppercase bg-slate-100 text-brand-muted px-2 py-0.5 rounded-[6px]">Hyperlocal 30m</span>
+<span class="text-[10px] font-mono uppercase bg-slate-100 text-brand-muted px-2 py-0.5 rounded-[6px]">FMCG Stock</span>
+</div>
+</div>
+<!-- CARD 3: Dark Store -->
+<div class="relative border border-brand-outline bg-white p-6 rounded-[14px] cursor-pointer transition-all hover:border-brand-amber/70 hover:shadow-md" id="type-card-darkstore" onclick="selectSellerType('darkstore')">
+<div class="flex items-start justify-between">
+<div class="w-12 h-12 rounded-[14px] bg-slate-100 flex items-center justify-center text-slate-800 text-2xl">
+                  📦
+                </div>
+<!-- Selection indicator -->
+<div class="w-6 h-6 rounded-full border border-brand-outline flex items-center justify-center text-transparent" id="check-darkstore">
+<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<h3 class="font-heading font-bold text-lg text-brand-slate mt-4">Dark Store</h3>
+<p class="text-xs text-brand-muted mt-2 leading-relaxed">
+                Manage local inventory and fast fulfillment.
+              </p>
+<div class="mt-4 pt-3 border-t border-brand-outline/60 flex items-center gap-2">
+<span class="text-[10px] font-mono uppercase bg-slate-100 text-brand-muted px-2 py-0.5 rounded-[6px]">High Volume</span>
+<span class="text-[10px] font-mono uppercase bg-slate-100 text-brand-muted px-2 py-0.5 rounded-[6px]">Automated Dispatch</span>
+</div>
+</div>
+<!-- CARD 4: Individual -->
+<div class="relative border border-brand-outline bg-white p-6 rounded-[14px] cursor-pointer transition-all hover:border-brand-amber/70 hover:shadow-md" id="type-card-individual" onclick="selectSellerType('individual')">
+<div class="flex items-start justify-between">
+<div class="w-12 h-12 rounded-[14px] bg-slate-100 flex items-center justify-center text-slate-800 text-2xl">
+                  👤
+                </div>
+<!-- Selection indicator -->
+<div class="w-6 h-6 rounded-full border border-brand-outline flex items-center justify-center text-transparent" id="check-individual">
+<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<h3 class="font-heading font-bold text-lg text-brand-slate mt-4">Individual</h3>
+<p class="text-xs text-brand-muted mt-2 leading-relaxed">
+                Sell products independently through Bazaario.
+              </p>
+<div class="mt-4 pt-3 border-t border-brand-outline/60 flex items-center gap-2">
+<span class="text-[10px] font-mono uppercase bg-slate-100 text-brand-muted px-2 py-0.5 rounded-[6px]">Home Made</span>
+<span class="text-[10px] font-mono uppercase bg-slate-100 text-brand-muted px-2 py-0.5 rounded-[6px]">No GST Req.</span>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation -->
+<div class="pt-6 flex items-center justify-between border-t border-brand-outline/60">
+<button class="px-5 py-3 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-heading text-xs font-semibold rounded-[14px] transition" onclick="goToStep(1)">
+              Back
+            </button>
+<button class="px-8 py-3.5 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate font-heading font-bold text-sm rounded-[14px] shadow-sm transition flex items-center gap-2" onclick="goToStep(3)">
+<span>Continue</span>
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- STEP 3: SHOP / FARM DETAILS -->
+<!-- ============================================================== -->
+<div class="step-card hidden bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card" id="step-container-3">
+<div class="mb-8">
+<div class="flex items-center justify-between">
+<span class="inline-block bg-[#F5A623]/15 text-[#B45309] font-mono text-xs font-bold px-2.5 py-1 rounded-[8px] mb-2">STEP 03</span>
+<span class="text-xs font-mono bg-brand-slate text-brand-amber px-2.5 py-1 rounded-[8px] uppercase tracking-wide" id="badge-current-type">
+                FARMER PROFILE
+              </span>
+</div>
+<h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Tell Us About Your Business</h1>
+<p class="text-brand-muted text-sm sm:text-base mt-2">
+              These details help buyers identify your enterprise and receive transparent catalog information.
+            </p>
+</div>
+<form class="space-y-6" id="form-step-3" onsubmit="event.preventDefault(); goToStep(4);">
+<!-- COMMON FIELDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2" id="lbl-biz-name">
+                  Shop/Farm Name <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="biz-name" required="" type="text" value="Patel Organic Greens &amp; Agro"/>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  Owner / Representative Name <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="biz-owner" required="" type="text" value="Rajesh Kumar Patel"/>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  Business Contact Phone <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="biz-phone" required="" type="tel" value="+91 98765 43210"/>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  Public Contact Email <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="biz-email" required="" type="email" value="orders@patelgreens.in"/>
+</div>
+</div>
+<!-- DYNAMIC FIELDS PER SELLER TYPE -->
+<div class="p-5 bg-brand-subtle border border-brand-outline rounded-[14px] space-y-4" id="dynamic-type-fields">
+<!-- Content dynamically rendered via JS based on selected type -->
+</div>
+<!-- Description -->
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Business Description <span class="text-red-500">*</span>
+</label>
+<textarea class="w-full px-4 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="biz-description" required="" rows="3">Naturally grown chemical-free vegetables, seasonal pulses, and desi wheat directly harvested from our 14-acre farmland in Purba Medinipur.</textarea>
+</div>
+<!-- Shop/Farm Image Upload Component -->
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Shop/Farm Storefront Image <span class="text-red-500">*</span>
+</label>
+<!-- Upload Container -->
+<div class="border-2 border-dashed border-brand-outline hover:border-brand-amber bg-brand-subtle rounded-[14px] p-6 text-center transition" id="upload-dropzone">
+<input accept="image/*" class="hidden" id="file-input" onchange="handleImageFileSelected(this)" type="file"/>
+<div class="space-y-3" id="upload-empty-state">
+<div class="w-12 h-12 mx-auto rounded-full bg-amber-100/60 text-brand-amber flex items-center justify-center">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<button class="text-sm font-semibold font-heading text-brand-slate hover:text-brand-amber underline underline-offset-4" onclick="document.getElementById('file-input').click()" type="button">
+                      Browse Files
+                    </button>
+<span class="text-xs text-brand-muted"> or drag and drop storefront photos</span>
+</div>
+<p class="text-[11px] text-brand-muted font-mono">PNG, JPG or WEBP up to 5MB (1600x900 recommended)</p>
+</div>
+<!-- Preview State (Filled by default for high visual quality) -->
+<div class="flex flex-col sm:flex-row items-center gap-4 text-left" id="upload-preview-state">
+<div class="relative w-36 h-24 rounded-[10px] overflow-hidden bg-slate-200 border border-brand-outline shrink-0">
+<img alt="Farm Preview" class="w-full h-full object-cover" id="preview-img" src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+<span class="absolute bottom-1 right-1 bg-black/70 text-white font-mono text-[9px] px-1.5 py-0.5 rounded">1.4 MB</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold font-heading text-brand-slate truncate" id="preview-filename">farm_storefront_gate.jpg</p>
+<p class="text-[11px] text-brand-green font-mono flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-green"></span> Ready for upload
+                    </p>
+<div class="flex items-center gap-2 mt-3">
+<button class="px-2.5 py-1 text-[11px] font-mono bg-white border border-brand-outline hover:bg-slate-50 text-brand-slate rounded-[6px]" onclick="document.getElementById('file-input').click()" type="button">
+                        Replace
+                      </button>
+<button class="px-2.5 py-1 text-[11px] font-mono bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 rounded-[6px]" onclick="removeUploadedImage()" type="button">
+                        Remove
+                      </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Navigation Buttons -->
+<div class="pt-6 flex items-center justify-between border-t border-brand-outline/60">
+<button class="px-5 py-3 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-heading text-xs font-semibold rounded-[14px] transition" onclick="goToStep(2)" type="button">
+                Back
+              </button>
+<button class="px-8 py-3.5 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate font-heading font-bold text-sm rounded-[14px] shadow-sm transition flex items-center gap-2" type="submit">
+<span>Continue</span>
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</form>
+</div>
+<!-- ============================================================== -->
+<!-- STEP 4: LOCATION -->
+<!-- ============================================================== -->
+<div class="step-card hidden bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card" id="step-container-4">
+<div class="mb-8">
+<span class="inline-block bg-[#F5A623]/15 text-[#B45309] font-mono text-xs font-bold px-2.5 py-1 rounded-[8px] mb-2">STEP 04</span>
+<h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Set Your Business Location</h1>
+<p class="text-brand-muted text-sm sm:text-base mt-2">
+              Customers on Bazaario purchase from sellers within their radius. Set an accurate operating address.
+            </p>
+</div>
+<!-- Quick Action: Auto-Detect GPS -->
+<div class="mb-6 p-4 bg-[#FFF9ED] border border-brand-amber/40 rounded-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-[10px] bg-brand-amber/20 flex items-center justify-center text-amber-800 shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h4 class="text-xs font-bold font-heading text-brand-slate uppercase">Recommended Method</h4>
+<p class="text-xs text-brand-muted">Detect latitude &amp; longitude directly via browser sensor</p>
+</div>
+</div>
+<button class="px-4 py-2.5 bg-brand-slate text-brand-amber hover:bg-slate-800 text-xs font-mono font-bold rounded-[14px] transition flex items-center justify-center gap-2 shrink-0" id="btn-detect-loc" onclick="detectUserLocation()" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Use Current Location</span>
+</button>
+</div>
+<form class="space-y-6" id="form-step-4" onsubmit="event.preventDefault(); goToStep(5);">
+<!-- Address Field -->
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Street Address / Plot No. <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-4 py-3.5 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber focus:ring-2 focus:ring-brand-amber/20 transition" id="loc-address" required="" type="text" value="Plot 42, Tamluk Rural Sector, Near Kangsabati Canal"/>
+</div>
+<!-- City, District, State, PIN Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  City / Town <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-3.5 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px]" id="loc-city" required="" type="text" value="Tamluk"/>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  District <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-3.5 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px]" id="loc-district" required="" type="text" value="Purba Medinipur"/>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  State <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-3.5 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px]" id="loc-state" required="" type="text" value="West Bengal"/>
+</div>
+<div>
+<label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                  PIN Code <span class="text-red-500">*</span>
+</label>
+<input class="w-full px-3.5 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] font-mono" id="loc-pin" pattern="[0-9]{6}" required="" type="text" value="721636"/>
+</div>
+</div>
+<!-- Latitude & Longitude Preview (Non-technical presentation with precision data) -->
+<div class="p-5 bg-white border border-brand-outline rounded-[14px] shadow-sm">
+<div class="flex items-center justify-between mb-3">
+<span class="text-xs font-heading font-bold text-brand-slate uppercase tracking-wider">
+                  Location Preview &amp; Pin Coordinates
+                </span>
+<span class="text-[11px] font-mono text-brand-green bg-green-50 px-2 py-0.5 rounded border border-green-200">
+                  GPS Locked
+                </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+<!-- Map Mock Visual -->
+<div class="relative h-44 rounded-[10px] bg-[#E9E5DC] overflow-hidden border border-brand-outline flex items-center justify-center">
+<!-- Vector Map Pattern -->
+<div class="absolute inset-0 opacity-40" style="background-image: radial-gradient(#0F172A 1px, transparent 1px); background-size: 16px 16px;"></div>
+<div class="absolute w-28 h-28 rounded-full bg-brand-amber/20 border-2 border-brand-amber/50 animate-pulse"></div>
+<!-- Pin Marker -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-brand-slate border-2 border-brand-amber text-brand-amber flex items-center justify-center shadow-lg">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="mt-1 bg-brand-slate text-white text-[10px] font-mono px-2 py-0.5 rounded-[6px] shadow">
+                      Patel Organic Greens
+                    </span>
+</div>
+<div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-mono text-brand-muted border border-brand-outline/80">
+                    Radius: 15 km delivery
+                  </div>
+</div>
+<!-- Coordinates and Edit Controls -->
+<div class="space-y-3">
+<div>
+<label class="block text-[11px] font-mono uppercase text-brand-muted">Latitude</label>
+<input class="w-full mt-1 px-3 py-2 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs text-brand-slate" id="loc-lat" type="text" value="22.2984"/>
+</div>
+<div>
+<label class="block text-[11px] font-mono uppercase text-brand-muted">Longitude</label>
+<input class="w-full mt-1 px-3 py-2 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs text-brand-slate" id="loc-lng" type="text" value="87.9251"/>
+</div>
+<p class="text-[11px] text-brand-muted leading-relaxed">
+                    Note: Sellers can drag or recalibrate coordinates at any time. Unnecessary raw telematics are shielded from customers.
+                  </p>
+</div>
+</div>
+</div>
+<!-- Navigation Buttons -->
+<div class="pt-6 flex items-center justify-between border-t border-brand-outline/60">
+<button class="px-5 py-3 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-heading text-xs font-semibold rounded-[14px] transition" onclick="goToStep(3)" type="button">
+                Back
+              </button>
+<button class="px-8 py-3.5 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate font-heading font-bold text-sm rounded-[14px] shadow-sm transition flex items-center gap-2" type="submit">
+<span>Continue</span>
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</form>
+</div>
+<!-- ============================================================== -->
+<!-- STEP 5: REVIEW APPLICATION -->
+<!-- ============================================================== -->
+<div class="step-card hidden bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card" id="step-container-5">
+<div class="mb-8">
+<span class="inline-block bg-[#F5A623]/15 text-[#B45309] font-mono text-xs font-bold px-2.5 py-1 rounded-[8px] mb-2">STEP 05</span>
+<h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Review Your Application</h1>
+<p class="text-brand-muted text-sm sm:text-base mt-2">
+              Please double check all submitted information before dispatching for marketplace compliance review.
+            </p>
+</div>
+<div class="space-y-6">
+<!-- SECTION 1: ACCOUNT -->
+<div class="border border-brand-outline rounded-[14px] p-5 bg-brand-subtle/50">
+<div class="flex items-center justify-between border-b border-brand-outline/80 pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+<h3 class="font-heading font-bold text-sm text-brand-slate uppercase tracking-wider">Account Credentials</h3>
+</div>
+<button class="text-xs font-mono font-semibold text-brand-amber hover:text-brand-amber-dark flex items-center gap-1" onclick="goToStep(1)">
+                  Edit ✏️
+                </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Full Name</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-acc-name">Rajesh Kumar Patel</span>
+</div>
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Email Address</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-acc-email">rajesh.patel@agrofarm.in</span>
+</div>
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Phone Number</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-acc-phone">+91 98765 43210</span>
+</div>
+</div>
+</div>
+<!-- SECTION 2: SELLER TYPE -->
+<div class="border border-brand-outline rounded-[14px] p-5 bg-brand-subtle/50">
+<div class="flex items-center justify-between border-b border-brand-outline/80 pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+<h3 class="font-heading font-bold text-sm text-brand-slate uppercase tracking-wider">Seller Type</h3>
+</div>
+<button class="text-xs font-mono font-semibold text-brand-amber hover:text-brand-amber-dark flex items-center gap-1" onclick="goToStep(2)">
+                  Edit ✏️
+                </button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-2xl" id="rev-type-icon">🌾</span>
+<div>
+<p class="font-heading font-bold text-base text-brand-slate" id="rev-type-title">Farmer</p>
+<p class="text-xs text-brand-muted" id="rev-type-desc">Sell fresh farm products directly to local customers.</p>
+</div>
+</div>
+</div>
+<!-- SECTION 3: BUSINESS -->
+<div class="border border-brand-outline rounded-[14px] p-5 bg-brand-subtle/50">
+<div class="flex items-center justify-between border-b border-brand-outline/80 pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+<h3 class="font-heading font-bold text-sm text-brand-slate uppercase tracking-wider">Business Details</h3>
+</div>
+<button class="text-xs font-mono font-semibold text-brand-amber hover:text-brand-amber-dark flex items-center gap-1" onclick="goToStep(3)">
+                  Edit ✏️
+                </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-3">
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Shop / Farm Name</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-biz-name">Patel Organic Greens &amp; Agro</span>
+</div>
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Operating Capacity / Produce</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-biz-extra">Organic Vegetables, 14 Acres</span>
+</div>
+</div>
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Description</span>
+<p class="text-xs text-brand-slate mt-1 leading-relaxed" id="rev-biz-desc">
+                  Naturally grown chemical-free vegetables, seasonal pulses, and desi wheat directly harvested from our 14-acre farmland in Purba Medinipur.
+                </p>
+</div>
+</div>
+<!-- SECTION 4: LOCATION -->
+<div class="border border-brand-outline rounded-[14px] p-5 bg-brand-subtle/50">
+<div class="flex items-center justify-between border-b border-brand-outline/80 pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+<h3 class="font-heading font-bold text-sm text-brand-slate uppercase tracking-wider">Location &amp; Geo Pin</h3>
+</div>
+<button class="text-xs font-mono font-semibold text-brand-amber hover:text-brand-amber-dark flex items-center gap-1" onclick="goToStep(4)">
+                  Edit ✏️
+                </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Street Address</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-loc-address">Plot 42, Tamluk Rural Sector</span>
+</div>
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">District / State / PIN</span>
+<span class="font-semibold text-brand-slate text-sm" id="rev-loc-geo">Purba Medinipur, WB - 721636</span>
+</div>
+<div>
+<span class="font-mono text-brand-muted block uppercase text-[10px]">Coordinates</span>
+<span class="font-mono font-semibold text-brand-slate text-sm" id="rev-loc-coords">22.2984° N, 87.9251° E</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary Submit CTA with Confirmation Trigger -->
+<div class="pt-8 flex items-center justify-between border-t border-brand-outline/60 mt-8">
+<button class="px-5 py-3 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-heading text-xs font-semibold rounded-[14px] transition" onclick="goToStep(4)">
+              Back
+            </button>
+<button class="px-8 py-4 bg-brand-green hover:bg-green-700 text-white font-heading font-bold text-sm rounded-[14px] shadow-sm transition flex items-center gap-2" onclick="openConfirmationModal()">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Submit for Approval</span>
+</button>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- STEP 6: SUBMITTED / AWAITING APPROVAL (STATUS & SIMULATION) -->
+<!-- ============================================================== -->
+<div class="step-card hidden space-y-6" id="step-container-6">
+<!-- State Switcher Bar to demonstrate all required states -->
+<div class="bg-white border border-brand-outline p-4 rounded-[14px] flex flex-wrap items-center justify-between gap-3 shadow-subtle">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-brand-amber animate-ping"></span>
+<span class="text-xs font-mono font-bold text-brand-slate uppercase">Simulate Account State:</span>
+</div>
+<div class="flex flex-wrap gap-1.5">
+<button class="px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-slate text-brand-amber font-bold" id="btn-state-pending" onclick="setApprovalState('pending')">
+                Awaiting Review
+              </button>
+<button class="px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-subtle hover:bg-slate-200 text-brand-slate" id="btn-state-approved" onclick="setApprovalState('approved')">
+                Approved
+              </button>
+<button class="px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-subtle hover:bg-slate-200 text-brand-slate" id="btn-state-more_info" onclick="setApprovalState('more_info')">
+                More Info Required
+              </button>
+<button class="px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-subtle hover:bg-slate-200 text-brand-slate" id="btn-state-rejected" onclick="setApprovalState('rejected')">
+                Rejected
+              </button>
+<button class="px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-subtle hover:bg-slate-200 text-brand-slate" id="btn-state-suspended" onclick="setApprovalState('suspended')">
+                Suspended
+              </button>
+</div>
+</div>
+<!-- Main Status Card -->
+<div class="bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card">
+<!-- Dynamic State Header -->
+<div class="mb-8" id="status-card-header">
+<div class="inline-flex items-center gap-2 bg-amber-50 border border-brand-amber/30 text-amber-800 text-xs font-mono font-bold px-3 py-1 rounded-[8px] mb-3">
+<span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+<span>STATUS: AWAITING ADMIN APPROVAL</span>
+</div>
+<h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate" id="status-heading">Application Submitted</h1>
+<p class="text-brand-muted text-sm sm:text-base mt-2" id="status-desc">
+                Your seller application is being reviewed. We’ll notify you when your account is approved.
+              </p>
+</div>
+<!-- Key Summary Info Strip -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-brand-subtle border border-brand-outline rounded-[14px] mb-8">
+<div>
+<span class="text-[10px] font-mono text-brand-muted uppercase block">Application ID</span>
+<span class="font-mono font-bold text-brand-slate text-xs sm:text-sm">BZ-2025-8834</span>
+</div>
+<div>
+<span class="text-[10px] font-mono text-brand-muted uppercase block">Submission Date</span>
+<span class="font-mono font-bold text-brand-slate text-xs sm:text-sm" id="live-submission-date">Oct 24, 2025</span>
+</div>
+<div>
+<span class="text-[10px] font-mono text-brand-muted uppercase block">Seller Type</span>
+<span class="font-mono font-bold text-brand-slate text-xs sm:text-sm" id="status-badge-type">Farmer</span>
+</div>
+<div>
+<span class="text-[10px] font-mono text-brand-muted uppercase block">Shop / Farm</span>
+<span class="font-mono font-bold text-brand-slate text-xs sm:text-sm truncate block" id="status-shop-name">Patel Organic Greens</span>
+</div>
+</div>
+<!-- STATUS TIMELINE (Submitted -> Under Review -> Approved) -->
+<div class="mb-8">
+<h4 class="text-xs font-heading font-bold text-brand-slate uppercase tracking-wider mb-4">Review Progress Timeline</h4>
+<div class="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-white border border-brand-outline rounded-[14px]">
+<!-- Stage 1: Submitted -->
+<div class="flex items-center gap-3 relative z-10">
+<div class="w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-mono text-xs font-bold shadow" id="timeline-dot-1">
+                    ✓
+                  </div>
+<div>
+<p class="text-xs font-bold font-heading text-brand-slate">Application Submitted</p>
+<p class="text-[11px] text-brand-muted">Uploaded &amp; encrypted</p>
+</div>
+</div>
+<!-- Connector Line 1 -->
+<div class="hidden sm:block flex-1 h-0.5 bg-brand-green mx-2" id="timeline-line-1"></div>
+<!-- Stage 2: Under Review -->
+<div class="flex items-center gap-3 relative z-10">
+<div class="w-8 h-8 rounded-full bg-brand-amber text-brand-slate flex items-center justify-center font-mono text-xs font-bold ring-4 ring-amber-100 shadow" id="timeline-dot-2">
+                    ⏳
+                  </div>
+<div>
+<p class="text-xs font-bold font-heading text-brand-slate">Under Review</p>
+<p class="text-[11px] text-brand-muted">Regional verification desk</p>
+</div>
+</div>
+<!-- Connector Line 2 -->
+<div class="hidden sm:block flex-1 h-0.5 bg-[#EAE6DC] mx-2" id="timeline-line-2"></div>
+<!-- Stage 3: Approved -->
+<div class="flex items-center gap-3 relative z-10">
+<div class="w-8 h-8 rounded-full bg-[#FAF8F2] border border-brand-outline text-brand-muted flex items-center justify-center font-mono text-xs font-bold" id="timeline-dot-3">
+                    03
+                  </div>
+<div>
+<p class="text-xs font-bold font-heading text-brand-muted" id="timeline-text-3">Approved</p>
+<p class="text-[11px] text-brand-muted">Marketplace live clearance</p>
+</div>
+</div>
+</div>
+</div>
+<!-- DYNAMIC NOTICE BOX FOR REJECTED / MORE INFO / APPROVED STATES -->
+<div class="p-5 rounded-[14px] bg-brand-subtle border border-brand-outline space-y-3" id="status-action-box">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-brand-amber/20 text-brand-slate flex items-center justify-center shrink-0">
+                  ℹ️
+                </div>
+<div>
+<h4 class="text-xs font-bold font-heading text-brand-slate">What happens next?</h4>
+<p class="text-xs text-brand-muted mt-1 leading-relaxed">
+                    Our compliance team is verifying your land plot coordinates and farmer credential certificate. Verification typically completes within 24 to 48 hours. You will receive an SMS and email notification once activated.
+                  </p>
+</div>
+</div>
+</div>
+<!-- SECURITY GATE NOTICE: NON-APPROVED SELLER CANNOT ACCESS SELLER OPERATING DASHBOARD -->
+<div class="mt-8 pt-6 border-t border-brand-outline/70 flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<p class="text-xs font-mono text-brand-muted">
+                  Restricted Access: Live Seller Operating Dashboard locked until admin approval.
+                </p>
+</div>
+<!-- Dynamic CTA based on State -->
+<div id="status-primary-cta">
+<button class="px-5 py-2.5 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-mono text-xs font-semibold rounded-[14px] transition" onclick="goToStep(5)">
+                  Review Submission Summary
+                </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- CONFIRMATION MODAL (Step 5 -> Step 6) -->
+<div class="fixed inset-0 z-50 bg-brand-slate/60 backdrop-blur-sm hidden items-center justify-center p-4" id="confirmation-modal">
+<div class="bg-white border border-brand-outline rounded-[14px] max-w-md w-full p-6 shadow-modal transform transition-all">
+<div class="w-12 h-12 rounded-[14px] bg-amber-100 text-brand-amber flex items-center justify-center text-xl mb-4">
+        📋
+      </div>
+<h3 class="text-xl font-heading font-bold text-brand-slate">Submit Application?</h3>
+<p class="text-xs text-brand-muted mt-2 leading-relaxed">
+        By submitting, you certify that all farm/shop details and geographic coordinates provided are true and accurate. Your application will be sent to the Bazaario Regional Compliance team for verification.
+      </p>
+<div class="mt-6 flex items-center justify-end gap-3">
+<button class="px-4 py-2.5 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate text-xs font-semibold font-heading rounded-[14px] transition" onclick="closeConfirmationModal()" type="button">
+          Go Back &amp; Edit
+        </button>
+<button class="px-6 py-2.5 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate text-xs font-bold font-heading rounded-[14px] shadow-sm transition" onclick="confirmAndSubmitApplication()" type="button">
+          Yes, Submit Now
+        </button>
+</div>
+</div>
+</div>
+<!-- SCRIPT FOR DYNAMIC ONBOARDING INTERACTIONS -->
+<script>
+    let currentStep = 1;
+    let selectedSellerType = 'farmer';
+
+    // Type metadata dictionary
+    const sellerTypeData = {
+      farmer: {
+        title: "Farmer",
+        icon: "🌾",
+        desc: "Sell fresh farm products directly to local customers.",
+        nameLabel: "Farm / Agro Enterprise Name",
+        defaultName: "Patel Organic Greens & Agro",
+        badge: "FARMER PROFILE",
+        extraLabel: "Organic Vegetables, 14 Acres",
+        renderFields: () => `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Farm Type <span class="text-red-500">*</span>
+              </label>
+              <select id="farm-type" class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+                <option selected>Organic Agriculture</option>
+                <option>Hydroponic / Vertical Farming</option>
+                <option>Dairy & Cattle</option>
+                <option>Horticulture & Fruits</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Main Produce <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="farm-produce" value="Seasonal Vegetables, Basmati Paddy, Pulses" 
+                class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+              Operating Area & Land Holdings <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="farm-area" value="14.5 Acres (Freehold farmland)" 
+              class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+          </div>
+        `
+      },
+      kirana: {
+        title: "Kirana Store",
+        icon: "🏪",
+        desc: "Sell everyday grocery and household products.",
+        nameLabel: "Kirana Store Name",
+        defaultName: "Sri Lakshmi Kirana & General Provision",
+        badge: "KIRANA STORE PROFILE",
+        extraLabel: "Daily Essentials & Groceries",
+        renderFields: () => `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Store Category <span class="text-red-500">*</span>
+              </label>
+              <select id="kirana-cat" class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+                <option selected>Grocery & Staples (FMCG)</option>
+                <option>Packaged Foods & Dairy</option>
+                <option>Household & Personal Care</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Daily Operating Hours <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="kirana-hours" value="07:00 AM – 10:30 PM (All 7 Days)" 
+                class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+            </div>
+          </div>
+        `
+      },
+      darkstore: {
+        title: "Dark Store",
+        icon: "📦",
+        desc: "Manage local inventory and fast fulfillment.",
+        nameLabel: "Dark Store / Fulfillment Hub Name",
+        defaultName: "Bazaario Hub #04 South District",
+        badge: "DARK STORE PROFILE",
+        extraLabel: "Fast Express Dispatch (15m)",
+        renderFields: () => `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Fulfillment Type <span class="text-red-500">*</span>
+              </label>
+              <select id="dark-type" class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+                <option selected>15-Minute Express Delivery</option>
+                <option>Cold Chain Storage</option>
+                <option>Regional Bulk Hub</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Facility Operating Hours <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="dark-hours" value="24 Hours (3 Shifts)" 
+                class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+            </div>
+          </div>
+        `
+      },
+      individual: {
+        title: "Individual",
+        icon: "👤",
+        desc: "Sell products independently through Bazaario.",
+        nameLabel: "Seller Display Name",
+        defaultName: "Priya Handcrafted Crafts",
+        badge: "INDIVIDUAL SELLER PROFILE",
+        extraLabel: "Artisanal & Home Made",
+        renderFields: () => `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Primary Product Category <span class="text-red-500">*</span>
+              </label>
+              <select id="ind-cat" class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+                <option selected>Home Made Food & Pickles</option>
+                <option>Handicrafts & Art</option>
+                <option>Handloom & Apparel</option>
+                <option>Pottery & Decor</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
+                Fulfillment Capacity <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="ind-capacity" value="10 - 25 packages per day" 
+                class="w-full px-3.5 py-3 bg-white border border-brand-outline text-brand-slate text-sm rounded-[14px]">
+            </div>
+          </div>
+        `
+      }
+    };
+
+    // Initialize Dynamic Fields
+    function updateDynamicFields() {
+      const config = sellerTypeData[selectedSellerType];
+      const container = document.getElementById('dynamic-type-fields');
+      const badge = document.getElementById('badge-current-type');
+      const nameLbl = document.getElementById('lbl-biz-name');
+      
+      if (container) container.innerHTML = config.renderFields();
+      if (badge) badge.innerText = config.badge;
+      if (nameLbl) nameLbl.innerHTML = `${config.nameLabel} <span class="text-red-500">*</span>`;
+    }
+
+    // Step Navigation
+    function goToStep(stepNumber) {
+      currentStep = stepNumber;
+
+      // Hide all step containers
+      for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById(`step-container-${i}`);
+        if (el) el.classList.add('hidden');
+      }
+
+      // Show current step container
+      const currentEl = document.getElementById(`step-container-${stepNumber}`);
+      if (currentEl) currentEl.classList.remove('hidden');
+
+      // Update Desktop Timeline Markers
+      for (let i = 1; i <= 6; i++) {
+        const marker = document.getElementById(`step-marker-${i}`);
+        const title = document.getElementById(`step-title-${i}`);
+        const pill = document.getElementById(`pill-step-${i}`);
+
+        if (marker && title) {
+          if (i < stepNumber) {
+            // Completed Step -> Success Green
+            marker.className = "w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-brand-green text-white shadow-sm";
+            marker.innerHTML = "✓";
+            title.className = "text-sm font-semibold font-heading text-brand-slate";
+          } else if (i === stepNumber) {
+            // Current Step -> Amber
+            marker.className = "w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-brand-amber text-brand-slate shadow-sm ring-4 ring-amber-100";
+            marker.innerHTML = (i < 10 ? '0' + i : i);
+            title.className = "text-sm font-semibold font-heading text-brand-slate";
+          } else {
+            // Upcoming Step -> Muted Slate
+            marker.className = "w-10 h-10 rounded-[14px] flex items-center justify-center font-mono text-xs font-bold transition-all bg-[#FAF8F2] border border-brand-outline text-brand-muted";
+            marker.innerHTML = (i < 10 ? '0' + i : i);
+            title.className = "text-sm font-semibold font-heading text-brand-muted";
+          }
+        }
+
+        if (pill) {
+          if (i === stepNumber) {
+            pill.className = "px-2 py-0.5 text-xs font-mono rounded-[8px] bg-brand-slate text-white";
+          } else {
+            pill.className = "px-2 py-0.5 text-xs font-mono rounded-[8px] hover:bg-slate-200 text-brand-muted";
+          }
+        }
+      }
+
+      // Update Mobile Progress
+      const mobileCounter = document.getElementById('mobile-step-counter');
+      const mobileName = document.getElementById('mobile-step-name');
+      const mobileFill = document.getElementById('mobile-progress-fill');
+      const stepNames = ["Account", "Seller Type", "Shop/Farm", "Location", "Review", "Approval"];
+      
+      if (mobileCounter) mobileCounter.innerText = `STEP 0${stepNumber} OF 06`;
+      if (mobileName) mobileName.innerText = stepNames[stepNumber - 1];
+      if (mobileFill) mobileFill.style.width = `${(stepNumber / 6) * 100}%`;
+
+      for (let i = 1; i <= 6; i++) {
+        const dot = document.getElementById(`mob-dot-${i}`);
+        if (dot) {
+          if (i < stepNumber) dot.className = "h-1 rounded bg-brand-green";
+          else if (i === stepNumber) dot.className = "h-1 rounded bg-brand-amber";
+          else dot.className = "h-1 rounded bg-[#EAE6DC]";
+        }
+      }
+
+      // Sync Review screen if going to step 5
+      if (stepNumber === 5) {
+        syncReviewData();
+      }
+
+      // Scroll smoothly to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Step 1 Handler
+    function handleStep1Submit() {
+      goToStep(2);
+    }
+
+    // Step 2 Type Selection
+    function selectSellerType(typeKey) {
+      selectedSellerType = typeKey;
+      const types = ['farmer', 'kirana', 'darkstore', 'individual'];
+
+      types.forEach(key => {
+        const card = document.getElementById(`type-card-${key}`);
+        const check = document.getElementById(`check-${key}`);
+        if (key === typeKey) {
+          card.className = "relative border-2 border-brand-amber bg-[#FFFDF7] p-6 rounded-[14px] cursor-pointer transition-all hover:shadow-md";
+          check.className = "w-6 h-6 rounded-full bg-brand-amber flex items-center justify-center text-brand-slate shadow-sm";
+          check.innerHTML = `<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+        } else {
+          card.className = "relative border border-brand-outline bg-white p-6 rounded-[14px] cursor-pointer transition-all hover:border-brand-amber/70 hover:shadow-md";
+          check.className = "w-6 h-6 rounded-full border border-brand-outline flex items-center justify-center text-transparent";
+          check.innerHTML = "";
+        }
+      });
+
+      updateDynamicFields();
+    }
+
+    // Password strength evaluator
+    function checkPasswordStrength(val) {
+      const bar1 = document.getElementById('bar-1');
+      const bar2 = document.getElementById('bar-2');
+      const bar3 = document.getElementById('bar-3');
+      const bar4 = document.getElementById('bar-4');
+      const label = document.getElementById('strength-label');
+
+      let strength = 0;
+      if (val.length >= 8) strength++;
+      if (/[A-Z]/.test(val)) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+      const colors = ['#EAE6DC', '#EF4444', '#F5A623', '#16A34A', '#16A34A'];
+      const texts = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Secure'];
+
+      bar1.style.backgroundColor = strength >= 1 ? colors[strength] : '#EAE6DC';
+      bar2.style.backgroundColor = strength >= 2 ? colors[strength] : '#EAE6DC';
+      bar3.style.backgroundColor = strength >= 3 ? colors[strength] : '#EAE6DC';
+      bar4.style.backgroundColor = strength >= 4 ? colors[strength] : '#EAE6DC';
+
+      label.innerText = `${texts[strength]} (${strength * 25}%)`;
+      label.style.color = colors[strength] === '#EAE6DC' ? '#45464D' : colors[strength];
+    }
+
+    // Image Upload Handlers
+    function handleImageFileSelected(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview-img').src = e.target.result;
+          document.getElementById('preview-filename').innerText = file.name;
+          document.getElementById('upload-empty-state').classList.add('hidden');
+          document.getElementById('upload-preview-state').classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeUploadedImage() {
+      document.getElementById('file-input').value = "";
+      document.getElementById('upload-empty-state').classList.remove('hidden');
+      document.getElementById('upload-preview-state').classList.add('hidden');
+    }
+
+    // Location Detection Simulation
+    function detectUserLocation() {
+      const btn = document.getElementById('btn-detect-loc');
+      btn.innerHTML = `<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Locating GPS...</span>`;
+      
+      setTimeout(() => {
+        document.getElementById('loc-lat').value = "22.2984";
+        document.getElementById('loc-lng').value = "87.9251";
+        document.getElementById('loc-city').value = "Tamluk";
+        document.getElementById('loc-district').value = "Purba Medinipur";
+        document.getElementById('loc-state').value = "West Bengal";
+        document.getElementById('loc-pin').value = "721636";
+        btn.innerHTML = `✓ <span>GPS Synced (22.2984, 87.9251)</span>`;
+        btn.classList.add('bg-brand-green');
+      }, 700);
+    }
+
+    // Sync Review Step with Entered Values
+    function syncReviewData() {
+      const config = sellerTypeData[selectedSellerType];
+      document.getElementById('rev-acc-name').innerText = document.getElementById('reg-fullname').value || "Rajesh Kumar Patel";
+      document.getElementById('rev-acc-email').innerText = document.getElementById('reg-email').value || "rajesh.patel@agrofarm.in";
+      document.getElementById('rev-acc-phone').innerText = "+91 " + (document.getElementById('reg-phone').value || "9876543210");
+      
+      document.getElementById('rev-type-icon').innerText = config.icon;
+      document.getElementById('rev-type-title').innerText = config.title;
+      document.getElementById('rev-type-desc').innerText = config.desc;
+
+      document.getElementById('rev-biz-name').innerText = document.getElementById('biz-name').value || config.defaultName;
+      document.getElementById('rev-biz-extra').innerText = config.extraLabel;
+      document.getElementById('rev-biz-desc').innerText = document.getElementById('biz-description').value;
+
+      document.getElementById('rev-loc-address').innerText = document.getElementById('loc-address').value;
+      document.getElementById('rev-loc-geo').innerText = `${document.getElementById('loc-district').value}, ${document.getElementById('loc-state').value} - ${document.getElementById('loc-pin').value}`;
+      document.getElementById('rev-loc-coords').innerText = `${document.getElementById('loc-lat').value}° N, ${document.getElementById('loc-lng').value}° E`;
+    }
+
+    // Modal Control
+    function openConfirmationModal() {
+      const modal = document.getElementById('confirmation-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConfirmationModal() {
+      const modal = document.getElementById('confirmation-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmAndSubmitApplication() {
+      closeConfirmationModal();
+      goToStep(6);
+      setApprovalState('pending');
+    }
+
+    // Interactive Account States (Pending, Approved, More Info, Rejected, Suspended)
+    function setApprovalState(state) {
+      const states = ['pending', 'approved', 'more_info', 'rejected', 'suspended'];
+      states.forEach(s => {
+        const btn = document.getElementById(`btn-state-${s}`);
+        if (s === state) {
+          btn.className = "px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-slate text-brand-amber font-bold";
+        } else {
+          btn.className = "px-3 py-1 text-xs font-mono rounded-[8px] bg-brand-subtle hover:bg-slate-200 text-brand-slate";
+        }
+      });
+
+      const header = document.getElementById('status-card-header');
+      const dot1 = document.getElementById('timeline-dot-1');
+      const dot2 = document.getElementById('timeline-dot-2');
+      const dot3 = document.getElementById('timeline-dot-3');
+      const line1 = document.getElementById('timeline-line-1');
+      const line2 = document.getElementById('timeline-line-2');
+      const timelineText3 = document.getElementById('timeline-text-3');
+      const actionBox = document.getElementById('status-action-box');
+      const primaryCta = document.getElementById('status-primary-cta');
+
+      if (state === 'pending') {
+        header.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-amber-50 border border-brand-amber/30 text-amber-800 text-xs font-mono font-bold px-3 py-1 rounded-[8px] mb-3">
+            <span class="w-2 h-2 rounded-full bg-brand-amber animate-pulse"></span>
+            <span>STATUS: AWAITING ADMIN APPROVAL</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Application Submitted</h1>
+          <p class="text-brand-muted text-sm sm:text-base mt-2">
+            Your seller application is being reviewed. We’ll notify you when your account is approved.
+          </p>
+        `;
+        dot1.className = "w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-mono text-xs font-bold shadow";
+        dot2.className = "w-8 h-8 rounded-full bg-brand-amber text-brand-slate flex items-center justify-center font-mono text-xs font-bold ring-4 ring-amber-100 shadow";
+        dot3.className = "w-8 h-8 rounded-full bg-[#FAF8F2] border border-brand-outline text-brand-muted flex items-center justify-center font-mono text-xs font-bold";
+        line1.className = "hidden sm:block flex-1 h-0.5 bg-brand-green mx-2";
+        line2.className = "hidden sm:block flex-1 h-0.5 bg-[#EAE6DC] mx-2";
+        timelineText3.innerText = "Approved";
+
+        actionBox.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-brand-amber/20 text-brand-slate flex items-center justify-center shrink-0">ℹ️</div>
+            <div>
+              <h4 class="text-xs font-bold font-heading text-brand-slate">What happens next?</h4>
+              <p class="text-xs text-brand-muted mt-1 leading-relaxed">
+                Our compliance team is verifying your land plot coordinates and farmer credential certificate. Verification typically completes within 24 to 48 hours. You will receive an SMS and email notification once activated.
+              </p>
+            </div>
+          </div>
+        `;
+        primaryCta.innerHTML = `
+          <button onclick="goToStep(5)" class="px-5 py-2.5 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-mono text-xs font-semibold rounded-[14px] transition">
+            Review Submission Summary
+          </button>
+        `;
+
+      } else if (state === 'approved') {
+        header.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-green-50 border border-green-300 text-brand-green text-xs font-mono font-bold px-3 py-1 rounded-[8px] mb-3">
+            <span class="w-2 h-2 rounded-full bg-brand-green"></span>
+            <span>STATUS: APPLICATION APPROVED & VERIFIED</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Welcome to Bazaario Marketplace!</h1>
+          <p class="text-brand-muted text-sm sm:text-base mt-2">
+            Congratulations! Your seller credentials and GPS boundary are verified. Your shop is activated.
+          </p>
+        `;
+        dot1.className = "w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-mono text-xs font-bold shadow";
+        dot2.className = "w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-mono text-xs font-bold shadow";
+        dot3.className = "w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-mono text-xs font-bold ring-4 ring-green-100 shadow";
+        dot3.innerHTML = "✓";
+        line1.className = "hidden sm:block flex-1 h-0.5 bg-brand-green mx-2";
+        line2.className = "hidden sm:block flex-1 h-0.5 bg-brand-green mx-2";
+        timelineText3.innerText = "Verified & Active";
+
+        actionBox.innerHTML = `
+          <div class="flex items-start gap-3 bg-green-50/70 p-4 rounded-[12px] border border-green-200">
+            <div class="w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center shrink-0">🎉</div>
+            <div>
+              <h4 class="text-xs font-bold font-heading text-brand-slate">Seller Onboarding Complete (PART 1 Delivered)</h4>
+              <p class="text-xs text-brand-muted mt-1 leading-relaxed">
+                You are eligible to participate in live local auctions, catalog management, and payout setups in subsequent parts.
+              </p>
+            </div>
+          </div>
+        `;
+        primaryCta.innerHTML = `
+          <a href="#seller-dashboard" class="px-6 py-3 bg-brand-slate hover:bg-slate-800 text-brand-amber font-heading font-bold text-xs rounded-[14px] shadow transition inline-flex items-center gap-2">
+            <span>Proceed to Seller Terminal</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        `;
+
+      } else if (state === 'more_info') {
+        header.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-300 text-blue-800 text-xs font-mono font-bold px-3 py-1 rounded-[8px] mb-3">
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
+            <span>STATUS: MORE INFORMATION REQUIRED</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Admin Action Requested</h1>
+          <p class="text-brand-muted text-sm sm:text-base mt-2">
+            The verification desk needs additional clarification regarding your farm coordinates and plot lease.
+          </p>
+        `;
+        actionBox.innerHTML = `
+          <div class="p-4 bg-blue-50 border border-blue-200 rounded-[12px] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono font-bold text-blue-900 uppercase">Compliance Desk Remark</span>
+              <span class="text-[10px] font-mono text-blue-700">Today at 11:20 AM</span>
+            </div>
+            <p class="text-xs text-blue-900 leading-relaxed">
+              "Please provide a clearer storefront or gate photo showing plot boundaries for Patel Organic Greens. The current photo has high glare on the registration number."
+            </p>
+          </div>
+        `;
+        primaryCta.innerHTML = `
+          <button onclick="goToStep(3)" class="px-6 py-3 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate font-heading font-bold text-xs rounded-[14px] shadow transition">
+            Update Application Now
+          </button>
+        `;
+
+      } else if (state === 'rejected') {
+        header.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 text-xs font-mono font-bold px-3 py-1 rounded-[8px] mb-3">
+            <span class="w-2 h-2 rounded-full bg-red-600"></span>
+            <span>STATUS: APPLICATION REJECTED</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Application Not Approved</h1>
+          <p class="text-brand-muted text-sm sm:text-base mt-2">
+            Unfortunately, your seller registration could not be verified under the Bazaario Merchant Policy.
+          </p>
+        `;
+        dot2.className = "w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-mono text-xs font-bold";
+        dot2.innerHTML = "✕";
+        timelineText3.innerText = "Rejected";
+
+        actionBox.innerHTML = `
+          <div class="p-4 bg-red-50 border border-red-200 rounded-[12px] space-y-2">
+            <span class="text-[11px] font-mono font-bold text-red-900 uppercase">Rejection Reason & Required Changes</span>
+            <p class="text-xs text-red-800 leading-relaxed">
+              Coordinates pinpoint outside the designated agricultural trade corridor for Purba Medinipur. To sell under the Farmer category, please submit a valid Kisan Credit Card (KCC) or Land Revenue Khaitan copy.
+            </p>
+          </div>
+        `;
+        primaryCta.innerHTML = `
+          <button onclick="goToStep(4)" class="px-6 py-3 bg-brand-slate hover:bg-slate-800 text-white font-heading font-bold text-xs rounded-[14px] shadow transition">
+            Correct Location & Resubmit
+          </button>
+        `;
+
+      } else if (state === 'suspended') {
+        header.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-slate-100 border border-slate-300 text-slate-800 text-xs font-mono font-bold px-3 py-1 rounded-[8px] mb-3">
+            <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+            <span>STATUS: ACCOUNT TEMPORARILY SUSPENDED</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-heading font-bold text-brand-slate">Account Access Suspended</h1>
+          <p class="text-brand-muted text-sm sm:text-base mt-2">
+            This seller account has been paused by the marketplace operations team due to pending compliance audits.
+          </p>
+        `;
+        actionBox.innerHTML = `
+          <div class="p-4 bg-slate-100 border border-slate-300 rounded-[12px]">
+            <p class="text-xs text-brand-muted leading-relaxed">
+              If you believe this is in error, contact Bazaario Merchant Concierge at <strong>support@bazaario.in</strong> or speak with your regional field coordinator.
+            </p>
+          </div>
+        `;
+        primaryCta.innerHTML = `
+          <a href="mailto:support@bazaario.in" class="px-6 py-3 bg-brand-slate text-brand-amber font-heading font-bold text-xs rounded-[14px] transition">
+            Contact Support
+          </a>
+        `;
+      }
+    }
+
+    // Set initial dynamic fields on load
+    document.addEventListener('DOMContentLoaded', () => {
+      updateDynamicFields();
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const el = document.getElementById('live-submission-date');
+      if (el) el.innerText = formattedDate;
+    });
+  </script>
+</body>
+</html>

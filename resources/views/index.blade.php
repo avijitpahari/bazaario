@@ -12,9 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
-    <!-- Compiled Tailwind CSS & App JS via Vite + Production Fallback -->
+    <!-- Compiled Tailwind CSS & App JS via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C-FKvfT_.css') }}">
 
     <style>
         body {
@@ -59,7 +58,7 @@
     <!-- 1. FLOATING PILL CUSTOMER NAVBAR -->
     @include('components.nav')
 
-    <main class="flex-1 w-full pb-16">
+    <main class="flex-1 w-full pb-24 lg:pb-16">
         <!-- 2. HERO SECTION - 3D DIMENSIONAL SHOWCASE -->
         <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-2 pb-12">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
@@ -94,28 +93,31 @@
                         </button>
                     </form>
 
-                    <!-- Popular Search Chips -->
+                    <!-- Popular Search Chips (P30: Real catalog categories and terms) -->
                     <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600 pt-1">
                         <span class="font-bold text-slate-900">Popular:</span>
                         <a class="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 hover:border-amber-500 hover:text-amber-600 text-slate-700 transition-colors"
-                           href="{{ route('products.index', ['search' => 'iPhone 16 Pro']) }}">iPhone 16 Pro</a>
+                           href="{{ route('products.index', ['category' => 'electronics']) }}">Electronics</a>
                         <a class="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 hover:border-amber-500 hover:text-amber-600 text-slate-700 transition-colors"
-                           href="{{ route('products.index', ['search' => 'Leica M3']) }}">Leica M3</a>
+                           href="{{ route('products.index', ['search' => 'Fresh Vegetables']) }}">Fresh Vegetables</a>
                         <a class="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 hover:border-amber-500 hover:text-amber-600 text-slate-700 transition-colors"
-                           href="{{ route('products.index', ['search' => 'Mechanical Keys']) }}">Mechanical Keys</a>
+                           href="{{ route('products.index', ['category' => 'artisan-craft']) }}">Handcrafted</a>
                         <a class="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 hover:border-amber-500 hover:text-amber-600 text-slate-700 transition-colors"
-                           href="{{ route('products.index', ['search' => 'Sneakers']) }}">Sneakers</a>
+                           href="{{ route('products.index', ['search' => 'Spices']) }}">Spices</a>
+                        <a class="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 hover:border-amber-500 hover:text-amber-600 text-slate-700 transition-colors"
+                           href="{{ route('products.index', ['category' => 'fashion']) }}">Fashion</a>
                     </div>
                 </div>
 
                 <!-- Right Column: 3D Dimensional Visual Card with HUD Badges -->
                 <div class="lg:col-span-6 relative">
                     <div class="relative glass-panel rounded-3xl p-3 shadow-glass group overflow-hidden border border-white">
-                        <div class="relative aspect-[16/11] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-amber-50/60 to-orange-50/40">
-                            <!-- Official 3D Isometric Artwork -->
+                        <div class="relative aspect-[16/11] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-amber-100/70 via-orange-50/50 to-amber-200/40">
+                            <!-- Official 3D Isometric Artwork with graceful fallback -->
                             <img alt="Bazaario 3D Marketplace Platform"
                                  class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                                 src="{{ asset('images/screen.png') }}">
+                                 src="{{ asset('images/screen.png') }}"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80';">
                             
                             <!-- Floating HUD Badge 1 (Top-Left) -->
                             <div class="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-200/80 shadow-md flex items-center gap-2 pointer-events-none">
@@ -230,18 +232,18 @@
                 ];
             @endphp
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3.5">
+            <div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3.5">
                 @forelse(($dbCategories ?? collect())->take(8) as $catIndex => $cat)
                     @php
                         $catEmoji = $catEmojis[$cat->name] ?? '🛍️';
                         $catColor = $catColors[$catIndex % count($catColors)];
                     @endphp
-                    <a class="glass-panel hover:bg-white p-4 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group"
+                    <a class="glass-panel hover:bg-white p-3 sm:p-4 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group"
                        href="{{ route('products.index', ['category' => $cat->slug]) }}">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $catColor }} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-xs">
-                            <span class="text-2xl">{{ $catEmoji }}</span>
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br {{ $catColor }} flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-xs">
+                            <span class="text-xl sm:text-2xl">{{ $catEmoji }}</span>
                         </div>
-                        <span class="font-display font-bold text-xs text-slate-900 line-clamp-1">{{ $cat->name }}</span>
+                        <span class="font-display font-bold text-xs text-slate-900 line-clamp-1 break-words leading-snug w-full px-0.5" title="{{ $cat->name }}">{{ $cat->name }}</span>
                         <span class="font-mono text-[10px] text-slate-500 mt-0.5">{{ $cat->products_count ?? 0 }} items</span>
                     </a>
                 @empty
@@ -287,14 +289,12 @@
                             <div class="h-32 w-full rounded-xl overflow-hidden mb-2 relative bg-slate-950">
                                 @if($featuredAuction ?? null)
                                     @php
-                                        $auctionImgPath = $featuredAuction->product->primaryImage->image_path ?? null;
-                                        $auctionImg = $auctionImgPath
-                                            ? (str_starts_with($auctionImgPath, 'http') ? $auctionImgPath : \Illuminate\Support\Facades\Storage::url($auctionImgPath))
-                                            : asset('images/products/keyboard_1.jpg');
+                                        $auctionProd = $featuredAuction->product ?? null;
+                                        $auctionImg = $auctionProd ? $auctionProd->main_image_url : asset('images/products/keyboard_1.jpg');
                                     @endphp
                                     <img alt="{{ $featuredAuction->product->name ?? 'Featured Auction' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $auctionImg }}">
                                     <span class="absolute bottom-2 right-2 bg-slate-900/90 text-white font-mono text-[10px] px-2 py-0.5 rounded border border-white/10">
-                                        {{ $featuredAuction->bids->count() }} Bids
+                                        {{ $featuredAuction->bids_count ?? $featuredAuction->bids->count() }} Bids
                                     </span>
                                 @else
                                     <img alt="Vintage 1954 Leica M3" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ asset('images/products/keyboard_1.jpg') }}">
@@ -361,7 +361,7 @@
                             </p>
                             <a class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-full transition-all shadow-md active:scale-95" 
                                href="{{ route('products.index') }}">
-                                <span>Try AI Compare</span>
+                                <span>Explore Products</span>
                                 <span class="material-symbols-outlined text-[16px] text-amber-400">auto_awesome</span>
                             </a>
                         </div>
@@ -407,12 +407,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
                 @forelse(($trendingProducts ?? []) as $index => $prod)
                     @php
-                        $prodImage = $prod->primaryImage->image_path 
-                            ?? ($prod->images->first()->image_path ?? ($prod->image_url ?? ($prod->image ?? null)));
-                        
-                        if ($prodImage && !str_starts_with($prodImage, 'http')) {
-                            $prodImage = \Illuminate\Support\Facades\Storage::url($prodImage);
-                        }
+                        $prodImage = $prod->main_image_url;
                         
                         $badgeColors = [
                             'bg-slate-900/90 text-amber-400 border border-amber-400/30',
@@ -522,8 +517,8 @@
                         $shopName = $profile->shop_name ?? ($seller->name . "'s Store");
                         $city = $profile->city ?? 'Marketplace Seller';
                         $bio = $profile->bio ?? 'Verified seller on Bazaario offering authentic products with fast delivery.';
-                        $logo = $profile->logo_path ? Storage::url($profile->logo_path) : null;
-                        $banner = $profile->banner_path ? Storage::url($profile->banner_path) : null;
+                        $logo = $profile && $profile->logo_path ? \Illuminate\Support\Facades\Storage::url($profile->logo_path) : null;
+                        $banner = $profile && $profile->banner_path ? \Illuminate\Support\Facades\Storage::url($profile->banner_path) : null;
                         $trustScore = $profile->trust_score ?? 98;
                     @endphp
                     <div class="glass-panel rounded-3xl p-5 hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl group flex flex-col justify-between relative overflow-hidden bg-white/70 backdrop-blur-md">
@@ -801,6 +796,118 @@
             </div>
         </section>
 
+        <!-- 5.6 NEARBY STALLS & HYPERLOCAL DISCOVERY -->
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12" id="nearby-stalls">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+                <div>
+                    <div class="font-mono text-[11px] uppercase tracking-wider text-amber-600 font-bold mb-1 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[15px] text-amber-600">near_me</span>
+                        <span>HYPERLOCAL COMMERCE · REAL-TIME SPATIAL PROXIMITY</span>
+                    </div>
+                    <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-900 tracking-tight">Nearby Stalls &amp; Local Creators</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
+                        Discover verified neighbourhood merchants and artisan workshops within your vicinity with real spatial distance calculations.
+                    </p>
+                </div>
+                
+                <!-- Radius Filter Pills -->
+                <div class="flex items-center gap-1.5 bg-white/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/90 shadow-2xs">
+                    <span class="font-mono text-[10px] uppercase font-bold text-slate-400 px-2">Radius:</span>
+                    @foreach([15 => '15 km', 50 => '50 km', 100 => '100 km', 500 => 'Statewide'] as $rVal => $rLabel)
+                        <a href="{{ route('home', ['radius' => $rVal, 'lat' => $lat ?? 22.572646, 'lng' => $lng ?? 88.363895]) }}#nearby-stalls" 
+                           class="px-3 py-1 rounded-xl text-xs font-semibold transition-all {{ ($radius ?? 100) == $rVal ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                            {{ $rLabel }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse(($nearbyStalls ?? []) as $seller)
+                    @php
+                        $profile = $seller->sellerProfile;
+                        $shopName = $profile->shop_name ?? ($seller->name . "'s Stall");
+                        $city = $profile->city ?? 'Local Market';
+                        $bio = $profile->bio ?? 'Verified neighbourhood artisan offering fresh goods and crafts.';
+                        $logo = $profile && $profile->logo_path ? Storage::url($profile->logo_path) : null;
+                        $trustScore = $profile->trust_score ?? 98;
+                        $distance = isset($seller->distance_km) ? number_format($seller->distance_km, 1) : '1.2';
+                    @endphp
+                    <div class="glass-panel rounded-3xl p-5 hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl group flex flex-col justify-between relative overflow-hidden bg-white/80 backdrop-blur-md">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div>
+                            <!-- Header with Proximity Tag -->
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 text-[11px] font-mono font-bold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span>{{ $distance }} km away</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-[11px] font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+                                    <span class="material-symbols-outlined text-[13px]">location_on</span>
+                                    <span>{{ $city }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Stall Title & Identity -->
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-display font-extrabold flex items-center justify-center text-lg shadow-sm shrink-0">
+                                    @if($logo)
+                                        <img src="{{ $logo }}" alt="{{ $shopName }}" class="w-full h-full object-cover rounded-2xl">
+                                    @else
+                                        {{ strtoupper(mb_substr($shopName, 0, 1)) }}
+                                    @endif
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1">
+                                        <h3 class="font-display font-bold text-slate-900 text-base group-hover:text-amber-600 transition-colors truncate">
+                                            {{ $shopName }}
+                                        </h3>
+                                        <span class="material-symbols-outlined text-blue-600 text-[15px] shrink-0" title="Verified Stall">verified</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 line-clamp-1 font-sans">
+                                        {{ $bio }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Micro Specs -->
+                            <div class="grid grid-cols-2 gap-2 my-3 p-2.5 rounded-xl bg-slate-50/80 border border-slate-100 font-mono text-[11px]">
+                                <div class="text-slate-600">
+                                    <span class="block text-[10px] text-slate-400 uppercase">Trust Score</span>
+                                    <strong class="text-emerald-700 font-bold">{{ $trustScore }}%</strong>
+                                </div>
+                                <div class="text-slate-600">
+                                    <span class="block text-[10px] text-slate-400 uppercase">Catalog</span>
+                                    <strong class="text-slate-900 font-bold">{{ $seller->products_count ?? 0 }} Items</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA -->
+                        <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+                            <a href="{{ route('products.index', ['seller' => $seller->id]) }}" class="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                                <span>Browse Stall Items</span>
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                            <a href="{{ route('products.index', ['radius' => 25, 'lat' => $profile->latitude ?? ($lat ?? 22.572646), 'lng' => $profile->longitude ?? ($lng ?? 88.363895)]) }}" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors" title="Explore Stalls Nearby This Seller">
+                                <span class="material-symbols-outlined text-[16px]">radar</span>
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-3 text-center py-10 glass-panel rounded-3xl p-8">
+                        <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">near_me_disabled</span>
+                        <h4 class="font-display font-bold text-slate-900 text-base">No nearby stalls found within {{ $radius ?? 100 }} km</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Try expanding your search radius to explore sellers in surrounding regions.</p>
+                        <a href="{{ route('home', ['radius' => 500]) }}#nearby-stalls" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-amber-500 hover:text-slate-950 transition-colors">
+                            <span>Expand to Statewide (500 km)</span>
+                        </a>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
         <!-- 6. WHY CHOOSE BAZAARIO - 5-PILLAR FLOATING GLASS HUB -->
         <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
             <div class="glass-panel rounded-3xl p-8 sm:p-10 shadow-glass">
@@ -1006,20 +1113,9 @@
         </section>
     </main>
 
-    <!-- 10. FLOATING AI DOCKED BUTTON -->
-    <div class="fixed bottom-6 right-6 z-40">
-        <a href="{{ route('products.index') }}"
-           class="bg-slate-900 text-white pl-4 pr-5 py-2.5 rounded-full font-semibold text-xs shadow-xl hover:bg-slate-800 transition-all flex items-center gap-2 ring-1 ring-white/20 active:scale-95 group">
-            <span class="material-symbols-outlined text-amber-400 text-[19px] group-hover:rotate-12 transition-transform">auto_awesome</span>
-            <span>✦ Ask Bazaario AI</span>
-        </a>
-    </div>
-
-    <!-- 11. GLOBAL GLASS FOOTER -->
+    <!-- 10. GLOBAL GLASS FOOTER -->
     <x-footer />
 
-    <!-- Alpine.js script for interactive popovers/drawers -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 
 </html>

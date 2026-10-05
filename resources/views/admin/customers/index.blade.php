@@ -87,7 +87,7 @@
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-8 h-8 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
-                                        {{ strtoupper(substr($customer->name, 0, 2)) }}
+                                        {{ strtoupper(substr((string)($customer->name ?? 'CU'), 0, 2)) }}
                                     </div>
                                     <div>
                                         <span class="font-bold text-[#0F172A] block">{{ $customer->name }}</span>

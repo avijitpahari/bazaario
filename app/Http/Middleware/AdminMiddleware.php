@@ -15,18 +15,26 @@ class AdminMiddleware
     ): Response {
 
         if (!Auth::guard('admin')->check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
             return redirect()->route('admin.login');
         }
 
         $user = Auth::guard('admin')->user();
 
-        if ($user->role !== 'admin') {
-
+        if (!$user || $user->role !== 'admin' || $user->status !== 'active') {
             Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized access. Administrator privileges required.'], 403);
+            }
 
             return redirect()->route('admin.login')
                 ->withErrors([
-                    'email' => 'Unauthorized access.'
+                    'email' => 'Unauthorized access. Administrator privileges required.'
                 ]);
         }
 

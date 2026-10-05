@@ -6,21 +6,89 @@
 @source '../**/*.js';
 
 @theme {
+    /* Typography */
     --font-sans: 'Inter', system-ui, sans-serif;
     --font-display: 'Space Grotesk', sans-serif;
+    --font-heading: 'Space Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
+    /* Customer Core Tokens */
     --color-slate-authority: #0F172A;
     --color-amber-action: #F5A623;
     --color-status-green: #16A34A;
     --color-canvas-ivory: #FFFDF8;
     --color-card-white: #FFFFFF;
-    --color-surface-container: #F1F5F9;
-    --color-surface-container-low: #F8FAFC;
-    --color-surface-container-high: #E2E8F0;
 
+    /* Brand & Role Colors */
+    --color-brand-primary: #0F172A;
+    --color-brand-bg: #FFFDF8;
+    --color-brand-slate: #0F172A;
+    --color-brand-amber: #F5A623;
+    --color-brand-amber-dark: #D98205;
+    --color-brand-green: #16A34A;
+    --color-brand-muted: #45464D;
+    --color-brand-outline: #E2DFD7;
+
+    /* Material 3 & Seller Theme Palette */
+    --color-primary: #0F172A;
+    --color-primary-container: #131B2E;
+    --color-secondary: #835500;
+    --color-secondary-container: #FEAE2C;
+    --color-secondary-fixed: #FFDDB4;
+    --color-secondary-fixed-dim: #FFB955;
+    --color-on-secondary-container: #6B4500;
+    --color-tertiary-container: #002109;
+    --color-tertiary-fixed: #7FFC97;
+    --color-tertiary-fixed-dim: #62DF7D;
+    --color-on-tertiary-container: #009842;
+
+    /* Surface Tokens */
+    --color-surface: #FBF9F4;
+    --color-surface-dim: #DBDAD5;
+    --color-surface-bright: #FBF9F4;
+    --color-surface-tint: #565E74;
+    --color-surface-container-lowest: #FFFFFF;
+    --color-surface-container-low: #F5F3EE;
+    --color-surface-container: #EFEEE9;
+    --color-surface-container-high: #EAE8E3;
+    --color-surface-container-highest: #E4E2DE;
+
+    /* Spacing Tokens */
+    --spacing-space-xs: 0.25rem;
+    --spacing-space-sm: 0.5rem;
+    --spacing-space-md: 1rem;
+    --spacing-space-lg: 1.5rem;
+    --spacing-space-xl: 2.5rem;
+
+    /* Stitch Typography Aliases */
+    --font-system-code: 'JetBrains Mono', monospace;
+    --font-system-label: 'JetBrains Mono', monospace;
+    --font-headline-sm: 'Space Grotesk', sans-serif;
+    --font-headline-md: 'Space Grotesk', sans-serif;
+    --font-headline-lg: 'Space Grotesk', sans-serif;
+    --font-body-sm: 'Inter', sans-serif;
+    --font-body-md: 'Inter', sans-serif;
+    --font-body-lg: 'Inter', sans-serif;
+
+    /* Text & Outline Tokens */
+    --color-on-surface: #1B1C19;
+    --color-on-surface-variant: #45464D;
+    --color-outline: #76777D;
+    --color-outline-variant: #C6C6CD;
+
+    /* Error Tokens */
+    --color-error: #BA1A1A;
+    --color-error-container: #FFDAD6;
+    --color-on-error-container: #93000A;
+
+    /* Radius Tokens */
     --radius-card: 1rem;
+    --radius-custom: 14px;
+    --radius-14: 14px;
+
+    /* Elevation & Shadow Tokens */
     --shadow-dock: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.9) inset;
     --shadow-card-elevated: 0 12px 32px -8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-subtle: 0 1px 8px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
 }
-

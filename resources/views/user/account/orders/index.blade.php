@@ -23,6 +23,20 @@
         </div>
     </div>
 
+    {{-- Flash Notifications --}}
+    @if(session('success'))
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">error</span>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
     {{-- Status Filter Tabs --}}
     <div class="flex items-center gap-2 flex-wrap">
         @foreach(['all' => 'All Orders', 'pending' => 'Pending', 'processing' => 'Processing', 'completed' => 'Completed', 'cancelled' => 'Cancelled'] as $key => $label)
@@ -111,7 +125,22 @@
                     <span class="material-symbols-outlined text-[16px]">near_me</span>
                     Track Order
                 </a>
+                <form action="{{ route('user.orders.cancel', $order->id) }}" method="POST"
+                      onsubmit="return confirm('Are you sure you want to cancel this order? Any deducted inventory will be immediately restored.');">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-red-50 text-red-700 border border-red-200 font-button-text text-body-small font-semibold hover:bg-red-100 transition-colors flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">cancel</span>
+                        Cancel
+                    </button>
+                </form>
                 @endif
+                <form action="{{ route('user.orders.reorder', $order->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-surface-container-low text-slate-authority font-button-text text-body-small font-semibold hover:bg-surface-container transition-colors flex items-center gap-1.5 border border-slate-200">
+                        <span class="material-symbols-outlined text-[16px]">replay</span>
+                        Reorder
+                    </button>
+                </form>
             </div>
         </div>
         @empty

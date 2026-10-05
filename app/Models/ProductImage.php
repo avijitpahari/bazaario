@@ -33,12 +33,12 @@ class ProductImage extends Model
     {
         $path = $this->image_path;
         if (empty($path)) {
-            return asset('images/products/leather_bag_1.jpg');
+            return asset('images/products/keyboard_1.jpg');
         }
         if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])) {
             return $path;
         }
-        if (\Illuminate\Support\Str::startsWith($path, 'storage/')) {
+        if (\Illuminate\Support\Str::startsWith($path, ['storage/', 'images/']) || file_exists(public_path($path))) {
             return asset($path);
         }
         return \Illuminate\Support\Facades\Storage::url($path);

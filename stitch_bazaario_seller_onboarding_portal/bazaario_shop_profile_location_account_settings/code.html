@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-fixed": "#ffddb4", "on-error-container": "#93000a", "on-secondary": "#ffffff", "inverse-primary": "#bec6e0", "surface-tint": "#565e74", "on-background": "#1b1c19", "background": "#fbf9f4", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#291800", "error": "#ba1a1a", "surface": "#fbf9f4", "surface-container-high": "#eae8e3", "on-secondary-container": "#6b4500", "on-primary-fixed": "#131b2e", "on-primary-container": "#7c839b", "tertiary-fixed": "#7ffc97", "surface-dim": "#dbdad5", "tertiary": "#000000", "on-tertiary": "#ffffff", "on-secondary-fixed-variant": "#633f00", "on-surface-variant": "#45464d", "on-error": "#ffffff", "on-tertiary-fixed-variant": "#005320", "surface-variant": "#e4e2de", "primary-container": "#131b2e", "primary-fixed": "#dae2fd", "outline-variant": "#c6c6cd", "on-tertiary-container": "#009842", "on-surface": "#1b1c19", "surface-container": "#efeee9", "primary": "#000000", "surface-container-low": "#f5f3ee", "error-container": "#ffdad6", "secondary-fixed-dim": "#ffb955", "inverse-surface": "#30312e", "secondary-container": "#feae2c", "surface-container-highest": "#e4e2de", "on-tertiary-fixed": "#002109", "on-primary-fixed-variant": "#3f465c", "inverse-on-surface": "#f2f1ec", "tertiary-container": "#002109", "outline": "#76777d", "surface-bright": "#fbf9f4", "secondary": "#835500", "on-primary": "#ffffff", "tertiary-fixed-dim": "#62df7d", "primary-fixed-dim": "#bec6e0" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "margin-mobile": "1.25rem", "space-sm": "0.5rem", "gutter": "1.5rem", "space-md": "1rem", "space-xs": "0.25rem", "gutter-mobile": "1rem", "space-xl": "2.5rem", "margin": "3rem" }, "fontFamily": { "headline-lg": [ "Space Grotesk" ], "body-sm": [ "Inter" ], "display-hero-mobile": [ "Space Grotesk" ], "body-md": [ "Inter" ], "system-code": [ "JetBrains Mono" ], "display-hero": [ "Space Grotesk" ], "body-lg": [ "Inter" ], "headline-sm": [ "Space Grotesk" ], "system-label": [ "JetBrains Mono" ], "headline-md": [ "Space Grotesk" ], "headline-lg-mobile": [ "Space Grotesk" ] }, "fontSize": { "headline-lg": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" } ], "display-hero-mobile": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "system-code": [ "13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" } ], "display-hero": [ "48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "500" } ], "system-label": [ "11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "500" } ], "headline-md": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500" } ], "headline-lg-mobile": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col flex-1 overflow-y-auto px-space-md pt-space-lg"><div class="flex items-center gap-space-sm px-space-sm pb-space-lg"><img alt="Bazaario Seller Center logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XfXc9EvMu_fjYnNrz7Zwwv_KR5v8WQVLctdULxhU8Ph1QncDCZesGsyGv8V-tLmb1sZ56HsetOoJyJ-w_6aokB7CH5-ZstPxoEOpsDvIL5DbtCS26KAVgTqT42_k8mUyqL9dGTwEuhCk1HM8WQN_wcogOku-kE0zO5yviRPsdAFF1iQfNo_bsnDU3SWAv6TRVFjz874aqFSjEd6Cr_LoWXjkOx3ANz1kLG4lBvqauOngcxqpmG-NfP0tH7"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface leading-none">Bazaario</span><span class="font-system-label text-system-label text-on-surface-variant tracking-wider uppercase mt-space-xs">Seller Center</span></div></div><div class="px-space-sm pb-space-sm"><span class="font-system-label text-system-label text-outline uppercase tracking-wider">Navigation</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-secondary-container/20 text-on-secondary-container font-medium border-l-4 border-secondary-container shadow-[0_2px_8px_rgba(245,166,35,0.08)]"><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="font-body-md text-body-md">Dashboard</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="orders" href="#"><span class="font-body-md text-body-md">Orders</span><span class="px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-container font-system-label text-system-label font-bold">12</span></a><div class="flex flex-col gap-space-xs"><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="all-products" href="#"><span class="font-body-md text-body-md">Products</span></a><div class="pl-space-xl flex flex-col gap-space-xs"><a class="px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-sm text-body-sm transition-colors" data-path="all-products" href="#">All Products</a><a class="px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-sm text-body-sm transition-colors" data-path="add-product" href="#">Add Product</a><a class="px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-sm text-body-sm transition-colors" data-path="inventory" href="#">Inventory</a></div></div><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="auctions" href="#"><span class="font-body-md text-body-md">Auctions</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="payouts" href="#"><span class="font-body-md text-body-md">Payouts &amp; Commission</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="trust-and-performance" href="#"><span class="font-body-md text-body-md">Trust &amp; Performance</span></a><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm rounded-lg transition-colors bg-secondary-container/20 text-on-secondary-container font-medium border-l-4 border-secondary-container shadow-[0_2px_8px_rgba(245,166,35,0.08)]" data-path="shop-profile" href="#"><span class="font-body-md text-body-md">Shop Profile</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="font-body-md text-body-md">Settings</span></a></nav></div><div class="p-space-md bg-surface-container-high/60 m-space-sm rounded-xl flex flex-col gap-space-xs"><a class="flex items-center justify-between px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="help-and-support" href="#"><span class="font-body-sm text-body-sm">Help &amp; Support</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="notifications" href="#"><span class="font-body-sm text-body-sm">Notifications</span><span class="px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-system-label text-system-label font-bold">3</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="switch-account" href="#"><span class="font-body-sm text-body-sm">Logout / Switch Account</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md flex-1 max-w-md"><div class="relative w-full flex items-center"><span class="material-symbols-outlined absolute left-space-md text-outline text-[20px]">search</span><input class="w-full h-10 pl-10 pr-space-md bg-surface-container-lowest border border-outline/25 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-on-surface" placeholder="Search orders, product SKUs, buyers..." type="text"/></div></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><button class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors relative"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-secondary-container"></span></button><button class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">help_outline</span></button></div><div class="h-8 w-px bg-outline-variant"></div><div class="flex items-center gap-space-md"><div class="flex flex-col text-right"><span class="font-headline-sm text-headline-sm font-semibold text-on-surface leading-tight">Green Valley Farm</span><div class="flex items-center justify-end gap-1.5"><span class="font-system-label text-system-label text-on-surface-variant">Farmer</span><span class="w-1 h-1 rounded-full bg-outline"></span><span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-tertiary-fixed/30 text-on-tertiary-fixed-variant font-system-label text-system-label font-medium"><span class="material-symbols-outlined text-[12px]">check_circle</span>Verified Seller</span></div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Breadcrumb & Action Header -->
+<div class="px-space-lg py-space-md bg-surface-container-lowest/80 backdrop-blur-md shadow-sm">
+<div class="max-w-[1280px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-system-label text-system-label text-on-surface-variant uppercase tracking-wider">Seller Center</span>
+<span class="text-outline-variant font-system-label text-system-label">/</span>
+<span class="font-system-label text-system-label text-on-surface-variant uppercase tracking-wider">Account</span>
+<span class="text-outline-variant font-system-label text-system-label">/</span>
+<span class="font-system-label text-system-label text-on-secondary-container font-semibold uppercase tracking-wider">Shop Profile &amp; Settings</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Shop Profile &amp; Settings</h1>
+<span class="px-2 py-0.5 rounded-[6px] bg-secondary-fixed/50 text-on-secondary-container font-system-label text-system-label font-medium tracking-wide">ID: #BZ-SLR-9021</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your verified business identity, farm origin coordinates, dispatch operating hours, and authentication credentials.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto shrink-0">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] bg-surface-container-high/70 text-on-surface-variant font-system-label text-system-label">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span>Draft autosaved 2m ago</span>
+</div>
+<button class="h-[48px] px-space-md rounded-[14px] bg-surface-container-lowest text-on-surface hover:bg-surface-container-low transition-colors font-body-md text-body-md shadow-sm flex items-center gap-2" id="btn-revert">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+<span>Cancel / Revert</span>
+</button>
+<button class="h-[48px] px-space-lg rounded-[14px] bg-secondary-container text-on-secondary-container hover:brightness-105 active:scale-[0.99] transition-all font-headline-sm text-headline-sm font-semibold shadow-sm flex items-center gap-2" id="btn-save-top">
+<span class="material-symbols-outlined text-[20px]">check</span>
+<span>Save All Changes</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Body Content Grid -->
+<div class="max-w-[1280px] w-full mx-auto px-space-lg py-space-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: Navigation & Merchant Trust Card (~25%) -->
+<aside class="lg:col-span-3 flex flex-col gap-space-lg sticky top-24">
+<!-- Navigation Menu -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-sm shadow-sm flex flex-col gap-1">
+<div class="px-space-sm py-2">
+<span class="font-system-label text-system-label uppercase tracking-widest text-outline">Configuration Suite</span>
+</div>
+<button class="tab-nav-btn w-full text-left flex items-center justify-between px-space-md py-3 rounded-[10px] bg-secondary-fixed/40 text-on-secondary-container font-medium transition-all" id="nav-btn-profile" onclick="switchTab('profile')">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">storefront</span>
+<span class="font-body-md text-body-md font-medium">Shop Profile</span>
+</div>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</button>
+<button class="tab-nav-btn w-full text-left flex items-center justify-between px-space-md py-3 rounded-[10px] text-on-surface-variant hover:bg-surface-container-low transition-all" id="nav-btn-location" onclick="switchTab('location')">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+<span class="font-body-md text-body-md">Location &amp; Geofence</span>
+</div>
+<span class="px-1.5 py-0.5 rounded-[4px] bg-tertiary-fixed/40 text-on-tertiary-fixed-variant font-system-label text-system-label">GPS OK</span>
+</button>
+<button class="tab-nav-btn w-full text-left flex items-center justify-between px-space-md py-3 rounded-[10px] text-on-surface-variant hover:bg-surface-container-low transition-all" id="nav-btn-security" onclick="switchTab('security')">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+<span class="font-body-md text-body-md">Security &amp; Password</span>
+</div>
+<span class="px-1.5 py-0.5 rounded-[4px] bg-tertiary-fixed/40 text-on-tertiary-fixed-variant font-system-label text-system-label">2FA On</span>
+</button>
+<div class="my-1 h-px bg-surface-container"></div>
+<a class="w-full text-left flex items-center justify-between px-space-md py-2.5 rounded-[10px] text-on-surface-variant hover:bg-surface-container-low transition-all opacity-80" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[19px]">notifications_active</span>
+<span class="font-body-sm text-body-sm">Notifications</span>
+</div>
+<span class="font-system-label text-system-label text-outline">SMS/App</span>
+</a>
+<a class="w-full text-left flex items-center justify-between px-space-md py-2.5 rounded-[10px] text-on-surface-variant hover:bg-surface-container-low transition-all opacity-80" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[19px]">verified_user</span>
+<span class="font-body-sm text-body-sm">Compliance &amp; Legal</span>
+</div>
+<span class="px-1.5 py-0.5 rounded-[4px] bg-tertiary-fixed/30 text-on-tertiary-fixed-variant font-system-label text-system-label">Verified</span>
+</a>
+</div>
+<!-- Trust & Verification Widget -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center gap-3">
+<div class="relative w-12 h-12 rounded-[14px] overflow-hidden bg-surface-container shrink-0 shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Close up photographic portrait badge of lush green mango farm foliage with golden sunshine at Green Valley Farm Ratnagiri" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkz9Ivf2XvGI91NckkMkzhsjvlfUiscw74wmijn7rXhrGxxK1MNQWISXkJCIbwa9nYtMrOuz1GrJZ1iLOk1RMint65GhFsnu_7u3hnRYvmNz3xJRUTfBmJaaU_wUFvCnFFZt-aI117LzHmSScNzMuHHbbcMsknOqCbwIvpZay90v8sPq13wPhj5aPoioVNaF0N_3QKh3PZ9vDy5-4bXdOImenwWkUfInt_DicWeWb3ThutaygJstIzXA"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-tertiary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary-fixed text-[10px]">check</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface truncate">Green Valley Farm</h2>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="px-1.5 py-0.5 rounded-[4px] bg-tertiary-fixed/40 text-on-tertiary-fixed-variant font-system-label text-system-label font-medium inline-flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[11px]">verified</span> Verified Farmer
+                </span>
+</div>
+</div>
+</div>
+<div class="p-space-sm rounded-[10px] bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-system-label text-system-label">
+<span class="text-on-surface-variant">Merchant Tier</span>
+<span class="font-semibold text-on-surface">Prime Tier 1 (A+)</span>
+</div>
+<div class="flex items-center justify-between font-system-label text-system-label">
+<span class="text-on-surface-variant">Platform Tenure</span>
+<span class="text-on-surface font-system-code">Nov 2024 (Active)</span>
+</div>
+<div class="flex items-center justify-between font-system-label text-system-label">
+<span class="text-on-surface-variant">FSSAI License</span>
+<span class="font-system-code text-on-surface text-[10px]">#21524021000918</span>
+</div>
+</div>
+<!-- Trust Score Radial / Bar Meter -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Market Trust Index</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-secondary">94/100</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 94%;"></div>
+</div>
+<span class="font-system-label text-system-label text-outline">Eligible for 0% Escrow Hold and Instant Payouts</span>
+</div>
+<div class="p-3 rounded-[10px] bg-surface-container-high/60 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">help_center</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Entity Changes?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-[11px] leading-snug">Bank details and GST legal filings require compliance desk review.</span>
+<a class="font-system-label text-system-label font-bold text-on-secondary-container hover:underline mt-1" href="#">Contact Concierge Desk →</a>
+</div>
+</div>
+</div>
+</aside>
+<!-- RIGHT COLUMN: Interactive Settings Workspace (~75%) -->
+<section class="lg:col-span-9 flex flex-col gap-space-lg">
+<!-- Top Switcher Bar inside Workspace -->
+<div class="bg-surface-container-lowest p-1.5 rounded-[14px] shadow-sm flex items-center gap-1.5 overflow-x-auto">
+<button class="subtab-pill px- space-md py-2 rounded-[10px] bg-primary text-on-primary font-headline-sm text-headline-sm text-[14px] font-medium transition-all flex items-center gap-2" id="subtab-profile" onclick="switchTab('profile')">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+<span>1. Shop Profile &amp; Identity</span>
+</button>
+<button class="subtab-pill px-space-md py-2 rounded-[10px] text-on-surface-variant hover:bg-surface-container-high font-headline-sm text-headline-sm text-[14px] font-medium transition-all flex items-center gap-2" id="subtab-location" onclick="switchTab('location')">
+<span class="material-symbols-outlined text-[18px]">pin_drop</span>
+<span>2. Farm Location &amp; Coordinates</span>
+</button>
+<button class="subtab-pill px-space-md py-2 rounded-[10px] text-on-surface-variant hover:bg-surface-container-high font-headline-sm text-headline-sm text-[14px] font-medium transition-all flex items-center gap-2" id="subtab-security" onclick="switchTab('security')">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+<span>3. Security &amp; Credentials</span>
+</button>
+</div>
+<!-- PANEL 1: SHOP PROFILE (Default Active) -->
+<div class="tab-panel flex flex-col gap-space-lg" id="panel-profile">
+<!-- Section 1.1: Visual Brand & Farm Photography -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase tracking-widest text-outline">Section 1.1</span>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Visual Brand &amp; Farm Photography</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Store banner and verified orchard imagery shown to buyers in wholesale catalog and auction room listings.</p>
+</div>
+<!-- Cover Image Preview & Uploader -->
+<div class="relative w-full h-64 md:h-72 rounded-[14px] overflow-hidden bg-surface-container group shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Panoramic landscape photo of Ratnagiri organic mango orchard with vibrant green trees, rustic farm gates, and misty Western Ghats foothills under warm morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv8ZV1r6UNjgxMj4c1emlHTX_j5Rlqk_kifm_P8gnVHkRaftQ3zqqP6OErdD79vYZgDyWc6OAudqH2kHnCYdrQPUyDV2VUt1HdKZFT739upA9wf4g0jhzuQ8GpLtARzyoQ5zhiK0VMLXNGHTyNJKZ_xI5Kd3tNe66JNufLORPihptv15faLWSQNKF_dK4c0AwEN9pIH77OOmuIGsBarJnTztmjnFLRKIb6pP45qvTBhxzgtt95AtStGA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent flex flex-col justify-end p-space-lg text-on-primary">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-16 h-16 rounded-[14px] overflow-hidden bg-surface-container-lowest p-1 shadow-md shrink-0">
+<img class="w-full h-full object-cover rounded-[10px]" data-alt="Iconic square emblem for Green Valley Farm showing traditional Indian mango leaf and sun monogram in deep organic greens and gold" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiMP-cTo4t046-H8bG5fBcRXdiVR5x8dLr0nA9sEfFp9QlSZ-_jh7Kj1JKkbTEAhGk5v1_X-pGRGt1AARyPX8UWp_ej6U4nvdxb_MDcPxmFPNCnbLm2_difbhXUmTW9y24PADIpY04DJrulMNaljvzUlUHTnigwk8eTnHKe0P2FK7I4Ucnb_1xh3oL94ZtoTlHfqMP-2QeVfNLaRRFsE2tn0kD_yseEKvl40Tj9YUNlJhqvZApVkrVDw"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-bold text-on-primary">Ratnagiri Mango Orchard &amp; Processing Unit</span>
+<span class="font-system-label text-system-label text-surface-container-high">PRIMARY STOREFRONT COVER • 2560 × 720 PX</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-10 px-space-md rounded-[10px] bg-surface-container-lowest/90 hover:bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-medium backdrop-blur-sm transition-all shadow flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+<span>Replace Cover</span>
+</button>
+<button class="h-10 px-3 rounded-[10px] bg-primary/40 hover:bg-primary/70 text-on-primary font-body-sm text-body-sm backdrop-blur-sm transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Drag & Drop Secondary Uploader Strip -->
+<div class="p-space-md rounded-[14px] bg-surface-container-low flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-[10px] bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
+<span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Upload Batch Photos &amp; Certification Slips</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">PNG, JPG, or WEBP up to 15MB each. Recommended min 1600×900 resolution.</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-[38px] px-space-md rounded-[10px] bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-medium hover:bg-surface-container-high transition-colors shadow-sm">
+                  Select Files
+                </button>
+<button class="h-[38px] px-space-md rounded-[10px] bg-secondary-container text-on-secondary-container font-headline-sm text-headline-sm text-[13px] font-semibold hover:brightness-105 transition-all">
+                  Set Primary
+                </button>
+</div>
+</div>
+</div>
+<!-- Section 1.2: Core Business Identity & Seller Type Gating -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase tracking-widest text-outline">Section 1.2</span>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Core Business Identity &amp; Signatory Details</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Official marketplace identity tied to legal GSTIN #27AABCG1294F1Z8.</p>
+</div>
+<!-- Seller Type Notice Box (Gated) -->
+<div class="p-space-md rounded-[14px] bg-secondary-fixed/25 flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-[10px] bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">psychiatry</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Registered Role: Farmer &amp; Cultivator</span>
+<span class="px-2 py-0.5 rounded-[4px] bg-tertiary-fixed text-on-tertiary-fixed font-system-label text-system-label font-bold">VERIFIED PRODUCER</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                    Changing your merchant classification requires documentary review by Bazaario Agricultural Compliance. Existing auction bids and active harvests are locked during audit.
+                  </p>
+</div>
+</div>
+<button class="h-[38px] px-space-md rounded-[10px] bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-semibold transition-all shadow-sm shrink-0 whitespace-nowrap">
+                Request Classification Change
+              </button>
+</div>
+<!-- Form Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant flex items-center justify-between">
+<span>Farm / Shop Commercial Name</span>
+<span class="font-system-label text-system-label text-outline">Public Name</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-md text-outline text-[20px]">store</span>
+<input class="w-full h-[48px] pl-11 pr-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Green Valley Farm"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant flex items-center justify-between">
+<span>Registered Signatory / Proprietor</span>
+<span class="font-system-label text-system-label text-tertiary-container font-semibold">KYC Matched</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-md text-outline text-[20px]">badge</span>
+<input class="w-full h-[48px] pl-11 pr-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Rajesh Kumar Patel"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant flex items-center justify-between">
+<span>Primary Business Email</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed/30 text-on-tertiary-fixed-variant font-system-label text-system-label font-bold">VERIFIED</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-md text-outline text-[20px]">mail</span>
+<input class="w-full h-[48px] pl-11 pr-24 bg-surface-container-lowest rounded-[14px] font-system-code text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="email" value="rajesh.patel@agrofarm.in"/>
+<span class="absolute right-3 material-symbols-outlined text-tertiary-fixed text-[18px]">verified</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant flex items-center justify-between">
+<span>Primary Dispatch Phone</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed/30 text-on-tertiary-fixed-variant font-system-label text-system-label font-bold">OTP BOUND</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-md text-outline text-[20px]">call</span>
+<input class="w-full h-[48px] pl-11 pr-24 bg-surface-container-lowest rounded-[14px] font-system-code text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="tel" value="+91 98765 43210"/>
+<span class="absolute right-3 material-symbols-outlined text-tertiary-fixed text-[18px]">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 md:col-span-2">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant flex items-center justify-between">
+<span>Public Store &amp; Provenance Description</span>
+<span class="font-system-label text-system-label text-outline">Markdown Supported • 312/500 Chars</span>
+</label>
+<textarea class="w-full p-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors resize-none leading-relaxed" rows="4">Fourth-generation organic fruit and heirloom spice farm situated in the pristine foothills of Ratnagiri. Specializing in naturally tree-ripened GI-tagged Alphonso Mangoes, cold-pressed oils, and farm-fresh pure cow ghee.</textarea>
+</div>
+</div>
+</div>
+<!-- Section 1.3: Operating Hours & Logistics Dispatch -->
+<div class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase tracking-widest text-outline">Section 1.3</span>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Operating Hours &amp; Logistics Dispatch SLA</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Configure order acceptance cut-offs and daily courier harvest pickup handovers.</p>
+</div>
+<!-- Operating Days Selector -->
+<div class="flex flex-col gap-2">
+<span class="font-body-sm text-body-sm font-medium text-on-surface-variant">Active Operating Harvest Days</span>
+<div class="grid grid-cols-7 gap-2">
+<button class="h-11 rounded-[10px] bg-primary text-on-primary font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>MON</span>
+<span class="text-[9px] text-tertiary-fixed uppercase font-normal">Active</span>
+</button>
+<button class="h-11 rounded-[10px] bg-primary text-on-primary font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>TUE</span>
+<span class="text-[9px] text-tertiary-fixed uppercase font-normal">Active</span>
+</button>
+<button class="h-11 rounded-[10px] bg-primary text-on-primary font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>WED</span>
+<span class="text-[9px] text-tertiary-fixed uppercase font-normal">Active</span>
+</button>
+<button class="h-11 rounded-[10px] bg-primary text-on-primary font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>THU</span>
+<span class="text-[9px] text-tertiary-fixed uppercase font-normal">Active</span>
+</button>
+<button class="h-11 rounded-[10px] bg-primary text-on-primary font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>FRI</span>
+<span class="text-[9px] text-tertiary-fixed uppercase font-normal">Active</span>
+</button>
+<button class="h-11 rounded-[10px] bg-primary text-on-primary font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>SAT</span>
+<span class="text-[9px] text-tertiary-fixed uppercase font-normal">Active</span>
+</button>
+<button class="h-11 rounded-[10px] bg-secondary-fixed/40 text-on-secondary-container font-system-code text-[12px] font-bold flex flex-col items-center justify-center" type="button">
+<span>SUN</span>
+<span class="text-[9px] text-secondary uppercase font-normal">Partial</span>
+</button>
+</div>
+</div>
+<!-- Time Windows -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="p-space-md rounded-[14px] bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">schedule</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Order Acceptance Window</span>
+</div>
+<div class="font-system-code text-body-md font-bold text-on-surface bg-surface-container-lowest px-3 py-2 rounded-[8px] shadow-sm">
+                  06:00 AM – 08:00 PM
+                </div>
+<span class="font-system-label text-system-label text-on-surface-variant">Immediate SMS &amp; Portal Notification</span>
+</div>
+<div class="p-space-md rounded-[14px] bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">local_shipping</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Assigned Courier Dispatch</span>
+</div>
+<div class="font-system-code text-body-md font-bold text-on-surface bg-surface-container-lowest px-3 py-2 rounded-[8px] shadow-sm">
+                  04:00 PM – 06:00 PM
+                </div>
+<span class="font-system-label text-system-label text-on-surface-variant">Daily Hyperlocal Logistics Truck Hub</span>
+</div>
+<div class="p-space-md rounded-[14px] bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">timer</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Same-Day Harvest Cutoff</span>
+</div>
+<div class="font-system-code text-body-md font-bold text-on-surface bg-surface-container-lowest px-3 py-2 rounded-[8px] shadow-sm">
+                  12:00 PM (Noon)
+                </div>
+<span class="font-system-label text-system-label text-on-surface-variant">Orders after 12 PM ship next dawn</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PANEL 2: FARM LOCATION & COORDINATES (Hidden by default) -->
+<div class="tab-panel hidden flex flex-col gap-space-lg" id="panel-location">
+<div class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase tracking-widest text-outline">Section 2.1</span>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Business Location &amp; Dispatch Hub Geofence</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Precise farm telemetry calculates delivery estimates and farmer-to-door fresh supply chains.</p>
+</div>
+<!-- GPS Action triggers -->
+<div class="flex items-center gap-2 shrink-0">
+<button class="h-[48px] px-space-md rounded-[14px] bg-secondary-container text-on-secondary-container font-headline-sm text-headline-sm text-[13px] font-semibold hover:brightness-105 active:scale-95 transition-all shadow-sm flex items-center gap-2" id="btn-gps-detect" onclick="simulateGpsPulse()">
+<span class="material-symbols-outlined text-[18px]">my_location</span>
+<span>GPS Auto-Detect</span>
+</button>
+<button class="h-[48px] px-space-md rounded-[14px] bg-surface-container-low hover:bg-surface-container-high text-on-surface font-body-md text-body-md font-medium transition-all">
+                  Manual Edit
+                </button>
+</div>
+</div>
+<!-- Telemetry Status Ribbon -->
+<div class="p-3 rounded-[12px] bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed animate-ping"></span>
+<span class="font-system-label text-system-label font-bold text-on-surface">LIVE TELEMETRY ACTIVE: ±3m High-Precision GPS Lock</span>
+</div>
+<span class="font-system-code text-[11px] text-on-surface-variant">Source: ISRO NavIC / Global WGS84 Datum</span>
+</div>
+<!-- Form Grid for Postal Address -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Survey No. / Farm Lane</label>
+<input class="w-full h-[48px] px-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Survey No. 142/3, Mango Orchard Road, Village Dapoli"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Prominent Agricultural Landmark</label>
+<input class="w-full h-[48px] px-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Near Ratnagiri Horticultural Research Station Gate 2"/>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">City / Tehsil</label>
+<input class="w-full h-[48px] px-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Ratnagiri"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">District</label>
+<input class="w-full h-[48px] px-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Ratnagiri"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">State</label>
+<input class="w-full h-[48px] px-space-md bg-surface-container-lowest rounded-[14px] font-body-md text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="Maharashtra"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Postal PIN Code</label>
+<input class="w-full h-[48px] px-space-md bg-surface-container-lowest rounded-[14px] font-system-code text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" type="text" value="415712"/>
+</div>
+</div>
+</div>
+<!-- Coordinate Telemetry Inputs (3 columns) -->
+<div class="p-space-md rounded-[14px] bg-surface-container-low grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-system-label text-system-label text-outline uppercase">Latitude Coordinate</span>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-2 rounded-[10px] shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">north</span>
+<input class="w-full font-system-code text-body-md font-bold text-on-surface bg-transparent focus:outline-none" id="coord-lat" type="text" value="17.7534° N"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-system-label text-system-label text-outline uppercase">Longitude Coordinate</span>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-2 rounded-[10px] shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">east</span>
+<input class="w-full font-system-code text-body-md font-bold text-on-surface bg-transparent focus:outline-none" id="coord-lng" type="text" value="73.1895° E"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-system-label text-system-label text-outline uppercase">Altitude / Elevation</span>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-2 rounded-[10px] shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">landscape</span>
+<input class="w-full font-system-code text-body-md font-bold text-on-surface bg-transparent focus:outline-none cursor-default" readonly="" type="text" value="142m MSL"/>
+</div>
+</div>
+</div>
+<!-- Stylized Topographic Map Preview Card -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Interactive Topographic Corridors</span>
+<span class="font-system-label text-system-label text-tertiary-fixed font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">shield</span> COURIER DISPATCH ZONE A
+                </span>
+</div>
+<!-- Map Container with Data-Location -->
+<div class="relative w-full h-80 rounded-[14px] bg-cover bg-center overflow-hidden shadow-sm" data-location="Dapoli, Ratnagiri, Maharashtra, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAmi1NCvs8zcLdMMG7jc_2rB0PxCLt-F8G96YwLY1P3vV01KR3xsXHTk5PkYp7JL82K5qwA9X6y40ax4H69ybEMe9KgWxMcy95gs0hrZasv7-qq59GbaV6tk5HXlO3EfRcdBII6K_Y8rAF2B69GNhW0Csl9GM1P4Y50QYjPrYej7tLg9W8zMMpIFG1VABcdTT16FNsyFBMeLqlmFztJzuDM7NrqfkcM2rFJVMW585mWJePTlVAWlu-Tmg');">
+<!-- Overlay Gradients & Radii SVG -->
+<div class="absolute inset-0 bg-primary/20 backdrop-blur-[0.5px] pointer-events-none"></div>
+<!-- Animated Target Pulse on Farm Coordinates -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="relative flex items-center justify-center">
+<span class="absolute w-28 h-28 rounded-full bg-secondary-container/20 animate-ping"></span>
+<span class="absolute w-16 h-16 rounded-full bg-secondary-container/30"></span>
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-lg border-2 border-surface-container-lowest">
+<span class="material-symbols-outlined text-[20px]">agriculture</span>
+</div>
+</div>
+<div class="mt-2 px-3 py-1 rounded-[8px] bg-primary/90 text-on-primary font-system-label text-system-label font-bold tracking-wider backdrop-blur-md shadow-md">
+                    GREEN VALLEY FARM MAIN GATE
+                  </div>
+</div>
+<!-- Map Badges Overlay -->
+<div class="absolute top-4 left-4 flex flex-col gap-1.5">
+<span class="px-2.5 py-1 rounded-[6px] bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-system-label text-system-label font-semibold shadow flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+                    Hyperlocal Radius: 25 km Coverage
+                  </span>
+<span class="px-2.5 py-1 rounded-[6px] bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-system-label text-system-label font-semibold shadow">
+                    Nearest Cold-Chain Hub: Chiplun (34 km)
+                  </span>
+</div>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest/95 backdrop-blur-md px-3 py-2 rounded-[10px] shadow text-right">
+<div class="font-system-label text-system-label text-outline uppercase">Field Agent Signoff</div>
+<div class="font-body-sm text-body-sm font-bold text-on-surface">Verified by Bazaario Agri-Logistics #409</div>
+</div>
+</div>
+</div>
+<!-- Isolation Notice -->
+<div class="p-space-sm rounded-[10px] bg-surface-container-high/40 flex items-center gap-2 text-on-surface-variant font-system-label text-system-label">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container">lock</span>
+<span>Encrypted Data Isolation: Farm spatial geometry and harvest coordinates are isolated to Green Valley Farm (#BZ-SLR-9021).</span>
+</div>
+</div>
+</div>
+<!-- PANEL 3: SECURITY & PASSWORD (Hidden by default) -->
+<div class="tab-panel hidden flex flex-col gap-space-lg" id="panel-security">
+<div class="bg-surface-container-lowest rounded-[14px] p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col">
+<span class="font-system-label text-system-label uppercase tracking-widest text-outline">Section 3.1</span>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Account Security &amp; Access Credentials</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Update your merchant authentication keys and manage 2-factor hardware/SMS authentications.</p>
+</div>
+<!-- Password Change Form -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Current Password</label>
+<div class="relative flex items-center">
+<input class="w-full h-[48px] px-space-md pr-10 bg-surface-container-lowest rounded-[14px] font-system-code text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" id="pwd-curr" type="password" value="OldPassRatnagiri#2023"/>
+<button class="absolute right-3 text-outline hover:text-on-surface" onclick="togglePass('pwd-curr')" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">New Password</label>
+<div class="relative flex items-center">
+<input class="w-full h-[48px] px-space-md pr-10 bg-surface-container-lowest rounded-[14px] font-system-code text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" id="pwd-new" oninput="evalStrength(this.value)" type="password" value="AlphonsoHarvest$2025"/>
+<button class="absolute right-3 text-outline hover:text-on-surface" onclick="togglePass('pwd-new')" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-body-sm text-body-sm font-medium text-on-surface-variant">Confirm New Password</label>
+<div class="relative flex items-center">
+<input class="w-full h-[48px] px-space-md pr-10 bg-surface-container-lowest rounded-[14px] font-system-code text-body-md text-on-surface shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" id="pwd-conf" type="password" value="AlphonsoHarvest$2025"/>
+<button class="absolute right-3 text-outline hover:text-on-surface" onclick="togglePass('pwd-conf')" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dynamic Password Strength Widget -->
+<div class="p-space-md rounded-[14px] bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Password Complexity Score</span>
+<span class="font-system-label text-system-label font-bold text-on-tertiary-container" id="strength-label">STRONG (95%)</span>
+</div>
+<!-- 4-bar indicator -->
+<div class="grid grid-cols-4 gap-2">
+<div class="h-2 rounded-full bg-secondary-container"></div>
+<div class="h-2 rounded-full bg-secondary-container"></div>
+<div class="h-2 rounded-full bg-secondary-container"></div>
+<div class="h-2 rounded-full bg-secondary-container" id="bar-4"></div>
+</div>
+<!-- Checklist -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 font-system-label text-system-label">
+<div class="flex items-center gap-1.5 text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Minimum 8 characters (14 entered)</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Contains uppercase letter</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Contains numeral character (0-9)</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Contains special glyph (!@#$%^&amp;*)</span>
+</div>
+</div>
+</div>
+<!-- 2FA Multi-factor Section -->
+<div class="p-space-md rounded-[14px] bg-surface-container-lowest shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-[10px] bg-tertiary-fixed/30 text-on-tertiary-fixed-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">phonelink_lock</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Two-Factor Authentication (2FA)</span>
+<span class="px-2 py-0.5 rounded-[4px] bg-tertiary-fixed text-on-tertiary-fixed font-system-label text-system-label font-bold">ENFORCED</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Authenticator App (TOTP) + SMS fallback on +91 98765 43210. Mandatory for auction payouts.</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-[38px] px-space-md rounded-[10px] bg-surface-container-low hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-medium transition-all">
+                  Rotate Recovery Keys
+                </button>
+<button class="h-[38px] px-space-md rounded-[10px] bg-primary text-on-primary font-headline-sm text-headline-sm text-[13px] font-semibold hover:brightness-125 transition-all">
+                  Manage Devices (2 Active)
+                </button>
+</div>
+</div>
+<!-- Audit notification bar -->
+<div class="flex items-center justify-between px-space-md py-3 rounded-[10px] bg-surface-container-low font-system-label text-system-label text-on-surface-variant">
+<span>Password last refreshed: 42 days ago (29 Jan 2025)</span>
+<a class="text-on-surface font-bold hover:underline" href="#">View Authentication Audit Logs →</a>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Global Save Action Bar -->
+<div class="sticky bottom-6 z-30 bg-primary text-on-primary rounded-[14px] p-space-md shadow-xl flex flex-col sm:flex-row items-center justify-between gap-space-md backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">published_with_changes</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-primary">Unsaved Profile Changes Detected</span>
+<span class="font-body-sm text-body-sm text-surface-container-highest">Dispatch SLA and Telemetry coordinate modifications are pending submission.</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
+<button class="h-[44px] px-space-md rounded-[14px] bg-surface-container-highest/20 hover:bg-surface-container-highest/30 text-on-primary font-body-md text-body-md transition-colors">
+              Discard Changes
+            </button>
+<button class="h-[44px] px-space-lg rounded-[14px] bg-secondary-container text-on-secondary-container hover:brightness-105 active:scale-95 font-headline-sm text-headline-sm text-[14px] font-bold shadow-md transition-all flex items-center gap-2" onclick="commitAllChanges()">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Save Profile &amp; Settings</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  function switchTab(tabId) {
+    // Hide all panels
+    const panels = document.querySelectorAll('.tab-panel');
+    panels.forEach(p => p.classList.add('hidden'));
+
+    // Deactivate all subtab pills
+    const pills = document.querySelectorAll('.subtab-pill');
+    pills.forEach(p => {
+      p.classList.remove('bg-primary', 'text-on-primary');
+      p.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high');
+    });
+
+    // Deactivate all left-nav buttons
+    const navBtns = document.querySelectorAll('.tab-nav-btn');
+    navBtns.forEach(btn => {
+      btn.classList.remove('bg-secondary-fixed/40', 'text-on-secondary-container');
+      btn.classList.add('text-on-surface-variant', 'hover:bg-surface-container-low');
+    });
+
+    // Activate selected panel
+    const targetPanel = document.getElementById('panel-' + tabId);
+    if (targetPanel) {
+      targetPanel.classList.remove('hidden');
+    }
+
+    // Activate corresponding top pill
+    const activePill = document.getElementById('subtab-' + tabId);
+    if (activePill) {
+      activePill.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+      activePill.classList.add('bg-primary', 'text-on-primary');
+    }
+
+    // Activate corresponding nav button
+    const activeNav = document.getElementById('nav-btn-' + tabId);
+    if (activeNav) {
+      activeNav.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-low');
+      activeNav.classList.add('bg-secondary-fixed/40', 'text-on-secondary-container');
+    }
+  }
+
+  function togglePass(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.type = el.type === 'password' ? 'text' : 'password';
+    }
+  }
+
+  function simulateGpsPulse() {
+    const btn = document.getElementById('btn-gps-detect');
+    const origText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span><span>Triangulating...</span>';
+    setTimeout(() => {
+      document.getElementById('coord-lat').value = '17.7538° N';
+      document.getElementById('coord-lng').value = '73.1901° E';
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span><span>Locked (±1.8m)</span>';
+      setTimeout(() => { btn.innerHTML = origText; }, 2500);
+    }, 900);
+  }
+
+  function evalStrength(val) {
+    const label = document.getElementById('strength-label');
+    const bar4 = document.getElementById('bar-4');
+    if (val.length < 8) {
+      label.textContent = 'FAIR (50%)';
+      label.className = 'font-system-label text-system-label font-bold text-secondary';
+      if (bar4) bar4.className = 'h-2 rounded-full bg-surface-container';
+    } else {
+      label.textContent = 'STRONG (95%)';
+      label.className = 'font-system-label text-system-label font-bold text-on-tertiary-container';
+      if (bar4) bar4.className = 'h-2 rounded-full bg-secondary-container';
+    }
+  }
+
+  function commitAllChanges() {
+    const btn = document.getElementById('btn-save-top');
+    const origContent = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>Saving...</span>';
+    setTimeout(() => {
+      btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">done_all</span><span>All Saved!</span>';
+      setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+    }, 800);
+  }
+</script></main></div></body></html>

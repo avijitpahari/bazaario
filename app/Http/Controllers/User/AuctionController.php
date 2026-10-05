@@ -8,6 +8,7 @@ use App\Models\AuctionBid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AuctionController extends Controller
 {
@@ -276,44 +277,71 @@ class AuctionController extends Controller
     public function placeBid(Request $request, Auction $auction)
     {
         if (!Auth::check()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['message' => 'Please sign in to place a bid on live auctions.'], 401);
+            }
             return back()->with('error', 'Please sign in to place a bid on live auctions.');
         }
 
         $user = Auth::user();
 
-        if ($auction->status !== 'live' || now()->greaterThan($auction->ends_at)) {
-            return back()->with('error', 'This auction is no longer active.');
-        }
-
-        $minNextBid = (float) $auction->current_price + (float) $auction->minimum_increment;
-
         $request->validate([
-            'amount' => 'required|numeric|min:' . $minNextBid,
-        ], [
-            'amount.min' => 'Bid must be at least ₹' . number_format($minNextBid, 2),
+            'amount' => 'required|numeric|min:0.01',
         ]);
 
-        $bidAmount = (float) $request->input('amount');
+        $lockedAuction = null;
 
-        DB::transaction(function () use ($auction, $user, $bidAmount) {
-            AuctionBid::create([
-                'auction_id' => $auction->id,
-                'user_id'    => $user->id,
-                'amount'     => $bidAmount,
-            ]);
+        try {
+            DB::transaction(function () use ($request, $auction, $user, &$lockedAuction) {
+                $lockedAuction = Auction::where('id', $auction->id)->lockForUpdate()->firstOrFail();
 
-            $auction->current_price = $bidAmount;
+                if (!in_array($lockedAuction->status, ['live', 'active']) || now()->greaterThan($lockedAuction->ends_at)) {
+                    throw ValidationException::withMessages(['amount' => 'This auction is no longer active.']);
+                }
 
-            // Anti-sniping: if < 2 minutes left, extend by 2 minutes
-            $minutesLeft = now()->diffInSeconds($auction->ends_at, false);
-            if ($minutesLeft >= 0 && $minutesLeft <= 120) {
-                $auction->ends_at = $auction->ends_at->addMinutes(2);
+                $minNextBid = (float) $lockedAuction->current_price + (float) $lockedAuction->minimum_increment;
+                if ((float) $request->amount < $minNextBid) {
+                    throw ValidationException::withMessages(['amount' => 'Bid must be at least ₹' . number_format($minNextBid, 2)]);
+                }
+
+                $bidAmount = (float) $request->amount;
+
+                AuctionBid::create([
+                    'auction_id' => $lockedAuction->id,
+                    'user_id'    => $user->id,
+                    'amount'     => $bidAmount,
+                ]);
+
+                $lockedAuction->current_price = $bidAmount;
+
+                // Anti-sniping: if remaining time <= 120 seconds, extend by 2 minutes
+                $secondsLeft = now()->diffInSeconds($lockedAuction->ends_at, false);
+                if ($secondsLeft >= 0 && $secondsLeft <= 120) {
+                    $lockedAuction->ends_at = $lockedAuction->ends_at->addMinutes(2);
+                }
+
+                $lockedAuction->save();
+            });
+        } catch (ValidationException $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'errors'  => $e->errors(),
+                ], 422);
             }
 
-            $auction->save();
-        });
+            return back()->withErrors($e->errors())->withInput();
+        }
 
-        return back()->with('success', '✅ Bid placed! Vault collateral updated to ₹' . number_format($bidAmount, 2));
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success'       => true,
+                'message'       => 'Bid placed successfully!',
+                'current_price' => $lockedAuction ? $lockedAuction->current_price : (float) $request->amount,
+            ]);
+        }
+
+        return back()->with('success', '✅ Bid placed! Vault collateral updated to ₹' . number_format((float) $request->amount, 2));
     }
 
     /**
@@ -322,15 +350,19 @@ class AuctionController extends Controller
     public function quickBid(Request $request, Auction $auction)
     {
         if (!Auth::check()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['message' => 'Please sign in to place a bid.'], 401);
+            }
             return back()->with('error', 'Please sign in to place a bid.');
         }
 
-        $increment = (float) ($request->input('increment') ?: $auction->minimum_increment);
-        $newAmount = (float) $auction->current_price + $increment;
+        $freshAuction = Auction::find($auction->id) ?? $auction;
+        $increment = (float) ($request->input('increment') ?: $freshAuction->minimum_increment);
+        $newAmount = (float) $freshAuction->current_price + $increment;
 
         $request->merge(['amount' => $newAmount]);
 
-        return $this->placeBid($request, $auction);
+        return $this->placeBid($request, $freshAuction);
     }
 
     /**

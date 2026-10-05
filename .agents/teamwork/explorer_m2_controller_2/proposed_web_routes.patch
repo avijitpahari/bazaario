@@ -1,0 +1,13 @@
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -22,2 +22,3 @@
+ use App\Http\Controllers\Seller\SellerOnboardingController;
++use App\Http\Controllers\Seller\SellerDashboardController;
+ 
+@@ -198,4 +199,2 @@
+     // Approval-required routes (SellerMiddleware redirects unapproved sellers to seller.pending)
+-    Route::get('/dashboard', function () {
+-        $user = Auth::guard('seller')->user();
+-        return view('seller.dashboard', compact('user'));
+-    })->name('dashboard');
++    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');

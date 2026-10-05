@@ -257,25 +257,35 @@
 
                             <!-- Price -->
                             <td class="py-3.5 px-4 text-right font-label-md font-bold text-[#0F172A] text-sm">
-                                ₹{{ number_format((float)($product->price ?? 0), 2) }}
+                                <button type="button" 
+                                        onclick="openQuickStockModal({{ $product->id }}, '{{ addslashes($product->name) }}', {{ (float)($product->price ?? 0) }}, {{ (int)($product->stock ?? 0) }})"
+                                        class="hover:text-amber-600 hover:underline cursor-pointer inline-flex items-center gap-1 justify-end"
+                                        title="Click to edit price and stock">
+                                    <span>₹{{ number_format((float)($product->price ?? 0), 2) }}</span>
+                                </button>
                             </td>
 
                             <!-- Stock -->
                             <td class="py-3.5 px-4 text-center">
-                                @if(($product->stock ?? 0) <= 0)
-                                    <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-label-sm text-[10px] font-bold">
-                                        Out of Stock
-                                    </span>
-                                @elseif(($product->stock ?? 0) <= 4)
-                                    <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-label-sm text-[10px] font-bold flex items-center justify-center gap-1 w-fit mx-auto">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        {{ $product->stock }} left
-                                    </span>
-                                @else
-                                    <span class="font-label-sm font-semibold text-slate-700">
-                                        {{ $product->stock }} units
-                                    </span>
-                                @endif
+                                <button type="button" 
+                                        onclick="openQuickStockModal({{ $product->id }}, '{{ addslashes($product->name) }}', {{ (float)($product->price ?? 0) }}, {{ (int)($product->stock ?? 0) }})"
+                                        class="cursor-pointer hover:opacity-80 transition-opacity"
+                                        title="Click to edit stock quantity">
+                                    @if(($product->stock ?? 0) <= 0)
+                                        <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-label-sm text-[10px] font-bold">
+                                            Out of Stock
+                                        </span>
+                                    @elseif(($product->stock ?? 0) <= 4)
+                                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-label-sm text-[10px] font-bold flex items-center justify-center gap-1 w-fit mx-auto">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                            {{ $product->stock }} left
+                                        </span>
+                                    @else
+                                        <span class="font-label-sm font-semibold text-slate-700">
+                                            {{ $product->stock }} units
+                                        </span>
+                                    @endif
+                                </button>
                             </td>
 
                             <!-- Status -->
@@ -299,19 +309,25 @@
                             <!-- Actions -->
                             <td class="py-3.5 px-4 text-right">
                                 <div class="inline-flex items-center gap-1.5">
+                                    <button type="button" 
+                                            onclick="openQuickStockModal({{ $product->id }}, '{{ addslashes($product->name) }}', {{ (float)($product->price ?? 0) }}, {{ (int)($product->stock ?? 0) }})" 
+                                            class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer" 
+                                            title="Quick Edit Stock & Price">
+                                        <span class="material-symbols-outlined text-[18px]">tune</span>
+                                    </button>
                                     <a href="{{ url('/products/' . ($product->slug ?? $product->id)) }}" target="_blank" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0F172A] hover:bg-slate-100 transition-colors" title="View Listing Live">
                                         <span class="material-symbols-outlined text-[18px]">visibility</span>
                                     </a>
                                     <form method="POST" action="{{ route('admin.products.toggle-status', $product->id) }}" class="inline">
                                         @csrf
-                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="{{ $product->status === 'active' ? 'Deactivate SKU' : 'Activate SKU' }}">
+                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer" title="{{ $product->status === 'active' ? 'Deactivate SKU' : 'Activate SKU' }}">
                                             <span class="material-symbols-outlined text-[18px]">{{ $product->status === 'active' ? 'pause_circle' : 'play_circle' }}</span>
                                         </button>
                                     </form>
                                     <form method="POST" action="{{ route('admin.products.destroy', $product->id) }}" onsubmit="return confirm('Remove product SKU &quot;{{ addslashes($product->name) }}&quot; from catalog?');" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors" title="Delete Product">
+                                        <button type="submit" class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer" title="Delete Product">
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
                                         </button>
                                     </form>
@@ -358,5 +374,89 @@
             </div>
         @endif
     </div>
+
+    <!-- Interactive Quick Stock & Price Modal -->
+    <div id="quickStockModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full border border-slate-200 shadow-xl overflow-hidden animate-fadeIn">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-lg">tune</span>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="font-headline-sm text-sm font-bold text-[#0F172A] truncate">Update Stock & Price</h3>
+                        <p id="quickStockProductName" class="text-[11px] text-slate-500 font-body-sm truncate"></p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeQuickStockModal()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+            <form id="quickStockForm" method="POST" action="" class="p-5 flex flex-col gap-4">
+                @csrf
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="quick_stock_input" class="block font-headline-sm text-xs font-bold text-slate-700 mb-1">
+                            Available Stock *
+                        </label>
+                        <input 
+                            type="number" 
+                            id="quick_stock_input" 
+                            name="stock" 
+                            required 
+                            min="0" 
+                            max="1000000" 
+                            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-label-md font-bold text-[#0F172A] focus:outline-none focus:border-amber-500 focus:bg-white transition-all" />
+                        <p class="text-[10px] text-slate-400 mt-1 font-body-sm">Inventory units</p>
+                    </div>
+
+                    <div>
+                        <label for="quick_price_input" class="block font-headline-sm text-xs font-bold text-slate-700 mb-1">
+                            Unit Price (₹) *
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">₹</span>
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                id="quick_price_input" 
+                                name="price" 
+                                required 
+                                min="0" 
+                                max="10000000" 
+                                class="w-full pl-7 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-label-md font-bold text-[#0F172A] focus:outline-none focus:border-amber-500 focus:bg-white transition-all" />
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1 font-body-sm">Catalog price</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeQuickStockModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                        <span class="material-symbols-outlined text-[16px]">save</span>
+                        <span>Save Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openQuickStockModal(id, name, price, stock) {
+            const form = document.getElementById('quickStockForm');
+            form.action = '{{ url("admin/products") }}/' + id + '/update-stock';
+            document.getElementById('quickStockProductName').textContent = name;
+            document.getElementById('quick_price_input').value = price;
+            document.getElementById('quick_stock_input').value = stock;
+            document.getElementById('quickStockModal').classList.remove('hidden');
+        }
+
+        function closeQuickStockModal() {
+            document.getElementById('quickStockModal').classList.add('hidden');
+        }
+    </script>
 </div>
 @endsection

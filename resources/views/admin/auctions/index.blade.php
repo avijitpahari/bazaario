@@ -99,11 +99,11 @@
                         <div class="flex flex-col min-w-0">
                             <div class="flex items-center gap-2">
                                 <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">VERIFIED LOT</span>
-                                <span class="font-mono text-[10px] text-slate-500 uppercase">{{ $featured->product->category->name ?? 'Marketplace Consignment' }}</span>
+                                <span class="font-mono text-[10px] text-slate-500 uppercase">{{ $featured->product?->category?->name ?? 'Marketplace Consignment' }}</span>
                             </div>
-                            <h2 class="text-base font-bold text-[#0F172A] mt-1">{{ $featured->product->name ?? 'Consignment Lot #' . $featured->id }}</h2>
+                            <h2 class="text-base font-bold text-[#0F172A] mt-1">{{ $featured->product?->name ?? 'Consignment Lot #' . $featured->id }}</h2>
                             <div class="text-xs text-slate-500 mt-1">
-                                Seller: <strong class="text-[#0F172A]">{{ $featured->seller->name ?? 'Producer' }}</strong> • 
+                                Seller: <strong class="text-[#0F172A]">{{ $featured->seller?->name ?? 'Producer' }}</strong> • 
                                 Ends: <span class="font-mono text-slate-700">{{ $featured->ends_at ? $featured->ends_at->format('M d, Y H:i') : 'Open Lot' }}</span>
                             </div>
                         </div>
@@ -116,11 +116,11 @@
                             <span class="bg-[#F5A623] text-slate-950 px-1.5 py-0.2 rounded font-bold">{{ strtoupper($featured->status) }}</span>
                         </div>
                         <div class="text-3xl font-mono font-bold text-[#F5A623] my-1">
-                            ₹{{ number_format($featured->current_price ?? $featured->starting_price, 2) }}
+                            ₹{{ number_format((float)($featured->current_price ?? ($featured->starting_price ?? 0)), 2) }}
                         </div>
                         <div class="flex items-center justify-between w-full text-[10px] text-slate-400 font-mono">
-                            <span>Reserve: ₹{{ number_format($featured->reserve_price, 2) }}</span>
-                            <span>{{ $featured->bids_count }} Bids</span>
+                            <span>Reserve: ₹{{ number_format((float)($featured->reserve_price ?? 0), 2) }}</span>
+                            <span>{{ $featured->bids_count ?? 0 }} Bids</span>
                         </div>
                     </div>
                 </div>
@@ -128,9 +128,9 @@
                 <!-- Moderator Action Bar -->
                 <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3 text-xs font-mono">
-                        <span class="text-slate-500">Starting: <strong class="text-[#0F172A]">₹{{ number_format($featured->starting_price, 2) }}</strong></span>
+                        <span class="text-slate-500">Starting: <strong class="text-[#0F172A]">₹{{ number_format((float)($featured->starting_price ?? 0), 2) }}</strong></span>
                         <span class="text-slate-300">•</span>
-                        <span class="text-slate-500">Min Increment: <strong class="text-[#0F172A]">₹{{ number_format($featured->minimum_increment, 2) }}</strong></span>
+                        <span class="text-slate-500">Min Increment: <strong class="text-[#0F172A]">₹{{ number_format((float)($featured->minimum_increment ?? 0), 2) }}</strong></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('admin.auctions.show', $featured->id) }}" class="px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 text-xs font-semibold shadow-2xs">
@@ -184,21 +184,21 @@
                             </td>
                             <td class="py-3 px-4">
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-[#0F172A]">{{ $auc->product->name ?? 'Auction Item #' . $auc->product_id }}</span>
-                                    <span class="text-[10px] text-slate-400 font-mono">{{ $auc->product->category->name ?? 'Standard Category' }}</span>
+                                    <span class="font-bold text-[#0F172A]">{{ $auc->product?->name ?? 'Auction Item #' . $auc->product_id }}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">{{ $auc->product?->category?->name ?? 'Standard Category' }}</span>
                                 </div>
                             </td>
                             <td class="py-3 px-4 text-slate-600 font-medium">
-                                {{ $auc->seller->name ?? 'Seller #' . $auc->seller_id }}
+                                {{ $auc->seller?->name ?? 'Seller #' . $auc->seller_id }}
                             </td>
                             <td class="py-3 px-4 font-mono text-right text-slate-500">
-                                ₹{{ number_format($auc->starting_price, 2) }}
+                                ₹{{ number_format((float)($auc->starting_price ?? 0), 2) }}
                             </td>
                             <td class="py-3 px-4 font-mono text-right font-bold text-amber-700">
-                                ₹{{ number_format($auc->current_price ?? $auc->starting_price, 2) }}
+                                ₹{{ number_format((float)($auc->current_price ?? ($auc->starting_price ?? 0)), 2) }}
                             </td>
                             <td class="py-3 px-4 text-center font-mono font-bold">
-                                {{ $auc->bids_count }}
+                                {{ $auc->bids_count ?? 0 }}
                             </td>
                             <td class="py-3 px-4 text-center">
                                 @if($auc->status === 'live')

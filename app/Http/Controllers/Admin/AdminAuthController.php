@@ -11,7 +11,11 @@ class AdminAuthController extends Controller
     public function showLogin()
     {
         if (Auth::guard('admin')->check()) {
-            return redirect()->route('admin.dashboard');
+            $user = Auth::guard('admin')->user();
+            if ($user && $user->role === 'admin' && $user->status === 'active') {
+                return redirect()->route('admin.dashboard');
+            }
+            Auth::guard('admin')->logout();
         }
         return view('admin.auth.login');
     }
@@ -19,18 +23,33 @@ class AdminAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+            'email' => 'required|email|max:255',
+            'password' => 'required|string|min:6|max:255',
         ]);
+
+        $credentials['email'] = strtolower(trim((string)$credentials['email']));
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $user = Auth::guard('admin')->user();
 
-            if ($user->role !== 'admin') {
+            if (!$user || $user->role !== 'admin') {
                 Auth::guard('admin')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
                 return back()->withErrors([
                     'email' => 'This account does not have administrator privileges.',
+                ])->onlyInput('email');
+            }
+
+            if ($user->status !== 'active') {
+                Auth::guard('admin')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'This administrator account is suspended.',
                 ])->onlyInput('email');
             }
 
@@ -51,3 +70,4 @@ class AdminAuthController extends Controller
         return redirect()->route('admin.login');
     }
 }
+

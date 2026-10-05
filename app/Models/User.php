@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -22,6 +22,7 @@ class User extends Authenticatable
         'password',
         'role',
         'profile_image',
+        'bio',
         'email_verified_at',
         'preferred_language',
         'status',
@@ -139,5 +140,19 @@ class User extends Authenticatable
     public function getWishlistCountAttribute(): int
     {
         return $this->wishlist ? $this->wishlist->items()->count() : 0;
+    }
+
+    /**
+     * Buyer trust rank tier badge.
+     */
+    public function getBuyerTrustRankAttribute(): string
+    {
+        $completedOrders = $this->orders()->where('order_status', 'completed')->count();
+        if ($completedOrders >= 10) {
+            return 'Tier-3 Elite Buyer';
+        } elseif ($completedOrders >= 3) {
+            return 'Tier-2 Trusted Buyer';
+        }
+        return 'Tier-1 Verified Buyer';
     }
 }

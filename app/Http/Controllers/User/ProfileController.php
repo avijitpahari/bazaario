@@ -33,10 +33,17 @@ class ProfileController extends Controller
         $data = $request->validate([
             'name'               => 'required|string|max:100',
             'phone'              => ['nullable', 'string', 'max:30', Rule::unique('users')->ignore($user->id)],
+            'bio'                => 'nullable|string|max:1000',
             'preferred_language' => 'nullable|string|max:10',
         ]);
 
         $user->update($data);
+
+        if (!empty($data['preferred_language'])) {
+            session(['locale' => $data['preferred_language']]);
+            app()->setLocale($data['preferred_language']);
+            cookie()->queue(cookie('locale', $data['preferred_language'], 60 * 24 * 365));
+        }
 
         return redirect()->route('user.profile')
             ->with('success', 'Profile updated successfully.');
@@ -51,8 +58,12 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         // Delete old image
-        if ($user->profile_image && Storage::exists($user->profile_image)) {
-            Storage::delete($user->profile_image);
+        if ($user->profile_image) {
+            if (Storage::disk('public')->exists($user->profile_image)) {
+                Storage::disk('public')->delete($user->profile_image);
+            } elseif (Storage::exists($user->profile_image)) {
+                Storage::delete($user->profile_image);
+            }
         }
 
         $path = $request->file('profile_image')->store('profile-images', 'public');

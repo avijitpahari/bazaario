@@ -35,7 +35,7 @@ class SiteSetting extends Model
      */
     public static function set(string $key, mixed $value): static
     {
-        $encoded = is_array($value) || is_bool($value) ? json_encode($value) : (string)$value;
+        $encoded = is_null($value) ? null : ((is_array($value) || is_bool($value)) ? json_encode($value) : (string)$value);
         return static::updateOrCreate(
             ['setting_key' => $key],
             ['setting_value' => $encoded]

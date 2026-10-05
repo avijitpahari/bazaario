@@ -263,7 +263,7 @@
                                         </a>
                                     </td>
                                     <td class="py-3 px-3 font-medium whitespace-nowrap">
-                                        {{ $order->delivery_full_name ?? ($order->user->name ?? 'Buyer') }}
+                                        {{ $order->delivery_full_name ?? ($order->user?->name ?? 'Buyer') }}
                                     </td>
                                     <td class="py-3 px-3">
                                         <div class="flex items-center gap-1.5 flex-wrap">
@@ -276,12 +276,12 @@
                                         </div>
                                     </td>
                                     <td class="py-3 px-3 font-label-md text-right font-bold text-[#0F172A] whitespace-nowrap">
-                                        ₹ {{ number_format($order->total_amount, 2) }}
+                                        ₹ {{ number_format($order->total_amount ?? 0, 2) }}
                                     </td>
                                     <td class="py-3 px-3 whitespace-nowrap">
                                         <span class="font-label-sm text-slate-600 flex items-center gap-1 uppercase">
                                             <span class="material-symbols-outlined text-[15px] text-emerald-600">payments</span>
-                                            {{ str_replace('_', ' ', $order->payment_method) }}
+                                            {{ str_replace('_', ' ', (string)($order->payment_method ?? 'N/A')) }}
                                         </span>
                                     </td>
                                     <td class="py-3 px-3 whitespace-nowrap">
@@ -291,6 +291,8 @@
                                             <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-label-sm text-[10px] font-bold border border-blue-200/60">Processing</span>
                                         @elseif($order->order_status === 'cancelled')
                                             <span class="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 font-label-sm text-[10px] font-bold border border-rose-200/60">Cancelled</span>
+                                        @elseif($order->order_status === 'refunded')
+                                            <span class="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 font-label-sm text-[10px] font-bold border border-purple-200/60">Refunded</span>
                                         @else
                                             <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-label-sm text-[10px] font-bold border border-amber-200/60">In Escrow</span>
                                         @endif
@@ -334,7 +336,7 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex flex-col min-w-0">
                                     <span class="font-body-md text-xs font-bold text-[#0F172A] truncate">{{ $seller->shop_name }}</span>
-                                    <span class="font-label-sm text-[10px] text-slate-500">{{ $seller->user->name ?? 'Merchant' }} • {{ $seller->city ?? 'West Bengal' }}</span>
+                                    <span class="font-label-sm text-[10px] text-slate-500">{{ $seller->user?->name ?? 'Merchant' }} • {{ $seller->city ?? 'West Bengal' }}</span>
                                 </div>
                                 <span class="material-symbols-outlined text-[18px] text-amber-600 shrink-0">verified_user</span>
                             </div>
@@ -415,11 +417,11 @@
                                 </span>
                             </div>
                             <a href="{{ route('admin.auctions.show', $auc->id) }}" class="font-body-md text-xs font-bold text-white hover:text-amber-400 truncate">
-                                {{ $auc->product->name ?? 'Auction Lot' }}
+                                {{ $auc->product?->name ?? 'Auction Lot' }}
                             </a>
                             <div class="flex items-baseline justify-between mt-0.5">
-                                <span class="font-label-sm text-[10px] text-slate-400">Seller: {{ $auc->seller->name ?? 'Verified' }}</span>
-                                <span class="font-label-md text-xs font-bold text-[#F5A623]">₹{{ number_format($auc->current_price ?: $auc->starting_price) }}</span>
+                                <span class="font-label-sm text-[10px] text-slate-400">Seller: {{ $auc->seller?->name ?? 'Verified' }}</span>
+                                <span class="font-label-md text-xs font-bold text-[#F5A623]">₹{{ number_format((float)($auc->current_price ?: ($auc->starting_price ?? 0))) }}</span>
                             </div>
                         </div>
                     @empty

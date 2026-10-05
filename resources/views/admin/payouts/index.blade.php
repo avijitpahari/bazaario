@@ -114,10 +114,11 @@
                 <tbody class="divide-y divide-slate-100 font-body-sm text-[#0F172A]">
                     @forelse($payouts as $payout)
                         @php
-                            $sellerShop = $payout->seller->sellerProfile->shop_name ?? ($payout->seller->name ?? 'Merchant #' . $payout->seller_id);
-                            $bankAcc = $payout->seller->sellerProfile->bank_account_number ?? null;
-                            $bankIfsc = $payout->seller->sellerProfile->bank_ifsc ?? null;
+                            $sellerShop = $payout->seller?->sellerProfile?->shop_name ?? ($payout->seller?->name ?? 'Merchant #' . $payout->seller_id);
+                            $bankAcc = $payout->seller?->sellerProfile?->bank_account_number ?? null;
+                            $bankIfsc = $payout->seller?->sellerProfile?->bank_ifsc ?? null;
                         @endphp
+
                         <tr class="hover:bg-slate-50/70 transition-colors">
                             <td class="py-3 px-4 font-mono font-bold text-[#0F172A]">
                                 #PO-{{ str_pad($payout->id, 5, '0', STR_PAD_LEFT) }}
@@ -125,7 +126,7 @@
                             <td class="py-3 px-4 font-medium">
                                 <div class="flex flex-col">
                                     <span class="font-bold text-[#0F172A]">{{ $sellerShop }}</span>
-                                    <span class="text-[10px] text-slate-400 font-mono">{{ $payout->seller->email ?? 'seller@bazaario.com' }}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">{{ $payout->seller?->email ?? 'seller@bazaario.com' }}</span>
                                 </div>
                             </td>
                             <td class="py-3 px-4 font-mono text-slate-600">
@@ -136,9 +137,9 @@
                                     <span class="text-amber-600 text-[11px] font-sans">A/C Pending Verification</span>
                                 @endif
                             </td>
-                            <td class="py-3 px-4 font-mono text-right">₹{{ number_format($payout->gross_amount, 2) }}</td>
-                            <td class="py-3 px-4 font-mono text-right text-emerald-700">- ₹{{ number_format($payout->commission_amount, 2) }}</td>
-                            <td class="py-3 px-4 font-mono text-right font-bold text-[#0F172A]">₹{{ number_format($payout->net_amount, 2) }}</td>
+                            <td class="py-3 px-4 font-mono text-right">₹{{ number_format((float)($payout->gross_amount ?? 0), 2) }}</td>
+                            <td class="py-3 px-4 font-mono text-right text-emerald-700">- ₹{{ number_format((float)($payout->commission_amount ?? 0), 2) }}</td>
+                            <td class="py-3 px-4 font-mono text-right font-bold text-[#0F172A]">₹{{ number_format((float)($payout->net_amount ?? 0), 2) }}</td>
                             <td class="py-3 px-4 text-center">
                                 @if($payout->status === 'paid')
                                     <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[10px] font-bold border border-emerald-200/60">Disbursed</span>
@@ -148,7 +149,7 @@
                             </td>
                             <td class="py-3 px-4 text-right">
                                 @if($payout->status === 'pending')
-                                    <form method="POST" action="{{ route('admin.payouts.release', $payout->id) }}" onsubmit="return confirm('Release ₹{{ number_format($payout->net_amount, 2) }} to {{ addslashes($sellerShop) }}?');" class="inline-block">
+                                    <form method="POST" action="{{ route('admin.payouts.release', $payout->id) }}" onsubmit="return confirm('Release ₹{{ number_format((float)($payout->net_amount ?? 0), 2) }} to {{ addslashes($sellerShop) }}?');" class="inline-block">
                                         @csrf
                                         <button type="submit" class="px-3 py-1 rounded-lg bg-[#F5A623] hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-2xs transition-colors">
                                             Release Payout
