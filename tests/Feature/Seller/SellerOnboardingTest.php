@@ -331,7 +331,7 @@ class SellerOnboardingTest extends TestCase
         $response = $this->actingAs($seller, 'seller')->get(route('seller.pending'));
 
         $response->assertStatus(200);
-        $response->assertSee('Awaiting Review');
+        $response->assertSee('STATUS: AWAITING ADMIN APPROVAL');
         $response->assertSee('Application Submitted');
         $response->assertSee('Review Progress Timeline');
         $response->assertSee('Maa Tara Grocery');

@@ -870,8 +870,8 @@ class SellerProductController extends Controller
 
                 foreach ($sellerProducts as $prod) {
                     $hasActiveOrders = OrderItem::where('product_id', $prod->id)
-                        ->whereHas('order', function ($q) {
-                            $q->whereIn('order_status', ['placed', 'processing', 'packed', 'ready_for_pickup', 'shipped']);
+                        ->whereHas('sellerOrder', function ($q) {
+                            $q->whereNotIn('status', ['delivered', 'cancelled', 'returned']);
                         })
                         ->exists();
 

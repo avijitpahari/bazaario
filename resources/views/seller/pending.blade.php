@@ -6,7 +6,7 @@
     $user = $user ?? Auth::guard('seller')->user() ?? Auth::user();
     $profile = $user?->sellerProfile;
     $initialState = request()->query('preview_state', $profile?->status ?? 'pending');
-    $rejectionReason = $profile?->rejection_reason ?? 'Incomplete land survey or geolocation coordinates could not be confirmed by regional mapping.';
+    $rejectionReason = $profile?->rejection_reason ?? 'Your application packet is currently under regional admin verification.';
 @endphp
 
 @section('content')
@@ -19,40 +19,6 @@
     rejectionReason: '{{ addslashes($rejectionReason) }}'
 })" class="max-w-4xl mx-auto space-y-6">
 
-    <!-- DEV STATE SIMULATOR BAR -->
-    <div class="bg-white border border-brand-outline p-4 rounded-[14px] flex flex-wrap items-center justify-between gap-3 shadow-subtle">
-        <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-brand-amber animate-ping"></span>
-            <span class="text-xs font-mono font-bold text-brand-slate uppercase tracking-wider">Simulate Account State:</span>
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-            <button type="button" @click="setState('pending')" 
-                    class="px-3 py-1.5 text-xs font-mono rounded-[8px] transition font-bold"
-                    :class="currentState === 'pending' ? 'bg-brand-slate text-brand-amber' : 'bg-brand-subtle hover:bg-slate-200 text-brand-slate'">
-                Awaiting Review
-            </button>
-            <button type="button" @click="setState('approved')" 
-                    class="px-3 py-1.5 text-xs font-mono rounded-[8px] transition font-bold"
-                    :class="currentState === 'approved' ? 'bg-brand-green text-white' : 'bg-brand-subtle hover:bg-slate-200 text-brand-slate'">
-                Approved
-            </button>
-            <button type="button" @click="setState('more_info')" 
-                    class="px-3 py-1.5 text-xs font-mono rounded-[8px] transition font-bold"
-                    :class="currentState === 'more_info' ? 'bg-blue-600 text-white' : 'bg-brand-subtle hover:bg-slate-200 text-brand-slate'">
-                More Info Required
-            </button>
-            <button type="button" @click="setState('rejected')" 
-                    class="px-3 py-1.5 text-xs font-mono rounded-[8px] transition font-bold"
-                    :class="currentState === 'rejected' ? 'bg-red-600 text-white' : 'bg-brand-subtle hover:bg-slate-200 text-brand-slate'">
-                Rejected
-            </button>
-            <button type="button" @click="setState('suspended')" 
-                    class="px-3 py-1.5 text-xs font-mono rounded-[8px] transition font-bold"
-                    :class="currentState === 'suspended' ? 'bg-slate-800 text-white' : 'bg-brand-subtle hover:bg-slate-200 text-brand-slate'">
-                Suspended
-            </button>
-        </div>
-    </div>
 
     <!-- MAIN STATUS CARD -->
     <div class="bg-white border border-brand-outline rounded-[14px] p-6 sm:p-10 shadow-card">
@@ -307,17 +273,13 @@ function pendingTerminal(config) {
         shopName: config.shopName || 'Enterprise',
         rejectionReason: config.rejectionReason || 'Plot boundary not verified.',
 
-        setState(newState) {
-            this.currentState = newState;
-        },
-
         getStatusBadgeText() {
             switch(this.currentState) {
                 case 'approved': return 'STATUS: ACCOUNT APPROVED';
                 case 'more_info': return 'STATUS: MORE INFO REQUIRED';
                 case 'rejected': return 'STATUS: APPLICATION REJECTED';
                 case 'suspended': return 'STATUS: ACCOUNT SUSPENDED';
-                default: return 'STATUS: AWAITING ADMIN APPROVAL';
+                default: return 'STATUS: AWAITING REVIEW / ADMIN APPROVAL';
             }
         },
 

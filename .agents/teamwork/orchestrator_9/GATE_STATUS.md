@@ -57,3 +57,49 @@ Certified: 2026-10-05T07:05:00Z
 
 Gate Result: **PASS**
 Certified: 2026-10-05T08:48:00Z
+
+---
+
+## Gate — Milestone 4 (Design System Unification & UI Components: P18, P19, P23–P25, P27, P29–P30, P36–P38, P40)
+
+| Agent | Role | Verdict | Source |
+|-------|------|---------|--------|
+| worker_m4_ui | teamwork_preview_worker | DONE (build clean, tests pass, UI verified) | handoff.md, changes.md |
+
+### Verification Evidence:
+- **CSS Design Tokens**: Missing stitch color tokens (`--color-surface-tint`, `--color-primary-container`, `--color-secondary-fixed`, `--color-secondary-fixed-dim`, `--color-tertiary-fixed`, `--color-tertiary-fixed-dim`, `--color-tertiary-container`, `--color-on-tertiary-container`) added to `@theme` in `resources/css/app.css`. Rebuilt cleanly via Vite (`npm run build` completed in 1.16s).
+- **P18 (Dynamic Notification Badge)**: Bound unread notifications dynamically via `$unreadNotificationsCount` / `$sellerUnreadNotificationsCount` in `nav-user.blade.php` and `seller.blade.php`. Removed hardcoded "3 New" text; badge hides when count is 0.
+- **P19 (Touch-Friendly Cart Popover)**: Refactored mini-cart popover from pure CSS hover to touch-compatible Alpine.js dropdown (`x-data="{ cartOpen: false }"` with touch toggle, click-outside dismissal, and hover fallback) in both `nav-user.blade.php` and `nav.blade.php`.
+- **P23 (Seller Products Scopes)**: Verified `scopeLowStock()` and `scopeStale()` exist in `App\Models\Product.php` and execute properly without 500 errors.
+- **P24 (Seller Products Bulk Actions)**: Registered route `seller.products.bulk` mapped to `SellerProductController@bulkAction`. Implemented batch activation, deactivation/drafting, archiving, and deletion with strict multi-tenant scoping (`seller_id === auth()->id()`) and active order / auction protection. Added 7 automated tests in `tests/Feature/Seller/SellerProductBulkActionTest.php` (all 7 passing). Wired checkboxes and bulk action dropdown in `seller/products/index.blade.php`.
+- **P25 (Seller Dashboard Dynamic Chart)**: Implemented dynamic 7-day revenue calculation (`$pastSevenDaysRevenue`) in `seller/dashboard.blade.php` with chart heights scaled to actual sales, plus an elegant SVG empty state when 7-day sales are 0.
+- **P27 (Seller Notification Bell)**: Wired header notification bell button to `route('seller.account.notifications')`.
+- **P29 (Navbar Feature Parity)**: Brought `components/nav.blade.php` to complete feature parity with `nav-user.blade.php` (unified `max-w-7xl` container, category dropdown, search bar, and touch-friendly cart popover).
+- **P30 (Popular Search Chips)**: Replaced mock non-existent categories with real catalog search terms ("Electronics", "Fresh Vegetables", "Handcrafted", "Spices", "Fashion") bound to search routes in `index.blade.php`.
+- **P36 (Category Slug Routes)**: Converted category nav links from query parameter search strings to slug routes (`route('products.category', $cat->slug)`).
+- **P37 (Currency Selector)**: Rendered visible currency toggle button with Alpine.js dropdown menu in `components/footer.blade.php`.
+- **P38 (Translation Caching)**: Replaced `window.location.reload()` with in-memory `WeakMap` (`textCache`) in `components/footer.blade.php` restoring English text without reloading page.
+- **P40 (Seller Auth Guard)**: Strengthened authorization check in `layouts/seller.blade.php`, `seller/dashboard.blade.php`, and `seller/products/index.blade.php` verifying authenticated seller role and approved profile status.
+- **Automated Tests**: 757 tests pass with 0 failures (5,376 assertions).
+
+Gate Result: **PASS**
+Certified: 2026-10-05T09:25:00Z
+
+---
+
+## Gate — Milestone 5 (Full E2E Regression Pass & System Certification: All 6 Acceptance Criteria)
+
+| Agent | Role | Verdict | Source |
+|-------|------|---------|--------|
+| worker_m5_certification | teamwork_preview_worker | DONE (100% PASS across all 6 Acceptance Criteria) | handoff.md |
+
+### Verification Evidence:
+- **Acceptance Criterion 1 (Automated Test Suite)**: `php artisan test` executed with 757 passed, 0 failed, 5,376 assertions (100% pass rate, 0 failures, 0 warnings).
+- **Acceptance Criterion 2 (Route Compilation Check)**: `php artisan route:list` compiled cleanly with 161 routes, 0 errors, 0 missing controller actions, and 0 broken model bindings.
+- **Acceptance Criterion 3 (Clean DOM Assets)**: Inspected `index.blade.php`, `layouts/app.blade.php`, `layouts/seller.blade.php`, and `user/products/index.blade.php`. Verified 0 duplicate CSS links, 0 Tailwind CDN scripts, and 0 duplicate Alpine CDN scripts. Production bundle built cleanly with Vite in 5.46s (`app-BnhgLClM.css` 228.58 kB, `app-WC-ZjLzv.js` 106.90 kB).
+- **Acceptance Criterion 4 (Seller Layout Responsiveness)**: Verified `layouts/seller.blade.php` renders responsive hamburger button, mobile drawer slide-over with backdrop blur overlay on screens `< lg` (< 1024px), close button, and `pl-0 lg:pl-72` main content container offsets.
+- **Acceptance Criterion 5 (Seller Dashboard Zero State Integrity)**: Verified `seller/dashboard.blade.php` has zero hardcoded demo data or fake numbers (no 248 orders, 84k revenue, or 6 low stock). Neutral zero defaults and accessible empty states verified for 7-day revenue chart, inventory alerts, velocity tables, live auctions, and recent orders.
+- **Acceptance Criterion 6 (Legal Policy Routes)**: Verified `/privacy`, `/terms`, and `/return-policy` routes registered under `pages.*`, served by `ProductController`, rendered with full Blade views, wired in footer links, and responding with HTTP 200.
+
+Gate Result: **PASS**
+Certified: 2026-10-05T09:37:00Z

@@ -442,6 +442,42 @@
                                   class="w-full px-4 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber transition"></textarea>
                     </div>
 
+                    <!-- Business Verification, Tax & Bank Details Section -->
+                    <div class="p-5 bg-brand-subtle border border-brand-outline rounded-[14px] space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-brand-amber text-[18px]">verified_user</span>
+                            <h4 class="text-xs font-bold font-heading text-brand-slate uppercase tracking-wider">Business Verification &amp; Bank Details</h4>
+                        </div>
+                        <p class="text-xs text-brand-muted">Provide your registration details and escrow bank credentials for admin clearance.</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block font-medium text-brand-slate mb-1">GSTIN Number (Optional)</label>
+                                <input type="text" name="gstin" x-model="gstin" placeholder="e.g. 19AAACG1234A1Z5" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-brand-slate mb-1">PAN Number (Optional)</label>
+                                <input type="text" name="pan_number" x-model="panNumber" placeholder="e.g. ABCDE1234F" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-brand-slate mb-1">Trade License Number (Optional)</label>
+                                <input type="text" name="trade_license_number" x-model="tradeLicense" placeholder="e.g. TL-MED-2024-8841" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-brand-slate mb-1">FSSAI / GI Certification (Optional)</label>
+                                <input type="text" name="fssai_number" x-model="fssaiNumber" placeholder="e.g. 10020031000123" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-brand-slate mb-1">Escrow Bank Account Number</label>
+                                <input type="text" name="bank_account_number" x-model="bankAccount" placeholder="e.g. 918010023456789" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-brand-slate mb-1">Bank IFSC Code</label>
+                                <input type="text" name="bank_ifsc" x-model="bankIfsc" placeholder="e.g. HDFC0001234" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Storefront Image Drag-and-Drop Dropzone -->
                     <div>
                         <label class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">

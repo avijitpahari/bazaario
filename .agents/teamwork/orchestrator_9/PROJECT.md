@@ -66,18 +66,18 @@
 | 28 | P33 | Replace hardcoded Kolkata default location in Nearby Stalls with graceful fallback logic | M3 | UI_LOGIC_PROBLEMS.md (DONE) |
 | 29 | P35 | Replace hardcoded Unsplash leather bag fallback images with generic product placeholders | M3 | UI_LOGIC_PROBLEMS.md (DONE) |
 | 30 | P42 | Prevent category mega-menu width (w-[540px]) overflow on smaller laptop displays | M3 | UI_LOGIC_PROBLEMS.md (DONE) |
-| 31 | P18 | Dynamically bind notification bell badge count (remove hardcoded "3 New") | M4 | UI_LOGIC_PROBLEMS.md |
-| 32 | P19 | Fix cart popover trigger on touch devices (avoid pure hover @mouseenter breaking touch) | M4 | UI_LOGIC_PROBLEMS.md |
-| 33 | P23 | Verify and validate scopeLowStock() and scopeStale() queries in seller products view | M4 | UI_LOGIC_PROBLEMS.md |
-| 34 | P24 | Wire bulk actions in seller products view to genuine form submission/routes (replace alerts) | M4 | UI_LOGIC_PROBLEMS.md |
-| 35 | P25 | Make seller dashboard 7-day revenue chart dynamic with real data and clean empty state | M4 | UI_LOGIC_PROBLEMS.md |
-| 36 | P27 | Wire seller header notification bell button to dropdown or notifications route | M4 | UI_LOGIC_PROBLEMS.md |
-| 37 | P29 | Ensure complete navbar feature parity between home page and customer pages | M4 | UI_LOGIC_PROBLEMS.md |
-| 38 | P30 | Replace non-existent popular search chips (iPhone 16 Pro, Leica M3) with catalog items | M4 | UI_LOGIC_PROBLEMS.md |
-| 39 | P36 | Fix category nav-user dropdown links to use category slug routes instead of search query | M4 | UI_LOGIC_PROBLEMS.md |
-| 40 | P37 | Render visible toggle button for currency selector in components/footer.blade.php | M4 | UI_LOGIC_PROBLEMS.md |
-| 41 | P38 | Implement non-destructive translation text cache avoiding window.location.reload() on 'en' | M4 | UI_LOGIC_PROBLEMS.md |
-| 42 | P40 | Strengthen seller layout authentication guard check to avoid customer data leakage | M4 | UI_LOGIC_PROBLEMS.md |
+| 31 | P18 | Dynamically bind notification bell badge count (remove hardcoded "3 New") | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 32 | P19 | Fix cart popover trigger on touch devices (avoid pure hover @mouseenter breaking touch) | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 33 | P23 | Verify and validate scopeLowStock() and scopeStale() queries in seller products view | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 34 | P24 | Wire bulk actions in seller products view to genuine form submission/routes (replace alerts) | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 35 | P25 | Make seller dashboard 7-day revenue chart dynamic with real data and clean empty state | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 36 | P27 | Wire seller header notification bell button to dropdown or notifications route | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 37 | P29 | Ensure complete navbar feature parity between home page and customer pages | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 38 | P30 | Replace non-existent popular search chips (iPhone 16 Pro, Leica M3) with catalog items | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 39 | P36 | Fix category nav-user dropdown links to use category slug routes instead of search query | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 40 | P37 | Render visible toggle button for currency selector in components/footer.blade.php | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 41 | P38 | Implement non-destructive translation text cache avoiding window.location.reload() on 'en' | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
+| 42 | P40 | Strengthen seller layout authentication guard check to avoid customer data leakage | M4 | UI_LOGIC_PROBLEMS.md (DONE) |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
@@ -85,5 +85,5 @@
 | M1 | Asset & Infrastructure Optimization | P1, P2, P3, P4, P17, P34 | None | DONE |
 | M2 | Logic, Route & Data Reliability | P5, P6, P7, P8, P9, P10, P20, P21, P22, P26, P28, P31, P32, P39, P41 | M1 | DONE |
 | M3 | Responsive Layout & Mobile Navigation | P11, P12, P13, P14, P15, P16, P33, P35, P42 | M1, M2 | DONE |
-| M4 | UI Interactive Components & Seller Workstation | P18, P19, P23, P24, P25, P27, P29, P30, P36, P37, P38, P40 | M2, M3 | IN_PROGRESS |
-| M5 | E2E Regression Pass & System Certification | All 42 issues, full 738+ test suite, route compilation, DOM validation | M1-M4 | PLANNED |
+| M4 | UI Interactive Components & Seller Workstation | P18, P19, P23, P24, P25, P27, P29, P30, P36, P37, P38, P40 | M2, M3 | DONE |
+| M5 | E2E Regression Pass & System Certification | All 42 issues, full 738+ test suite, route compilation, DOM validation | M1-M4 | DONE |

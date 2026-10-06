@@ -1,7 +1,7 @@
-# BRIEFING — 2026-10-05T08:52:00Z
+# BRIEFING — 2026-10-05T09:15:00Z
 
 ## Mission
-Implement Milestone 4: Design System Unification & UI Components (P18, P19, P23–P25, P27, P29–P30, P36–P38, P40).
+Implement Milestone 4: Design System Unification & UI Components (P18, P19, P23–P25, P27, P29–P30, P36–P38, P40). [COMPLETE]
 
 ## 🔒 My Identity
 - Archetype: worker
@@ -18,7 +18,7 @@ Implement Milestone 4: Design System Unification & UI Components (P18, P19, P23�
 
 ## Current Parent
 - Conversation ID: 70bc0236-b504-4d06-a5f6-f183cf1120fd
-- Updated: 2026-10-05T08:52:00Z
+- Updated: 2026-10-05T09:15:00Z
 
 ## Task Summary
 - **What to build**: Design system unification, notification badge binding (P18), touch-friendly cart popover (P19), Product low stock/stale scopes (P23), seller bulk actions (P24), 7-day revenue chart with empty state (P25), seller notification bell wireup (P27), navbar parity (P29), search chip real categories (P30), category dropdown slug routes (P36), currency selector toggle (P37), client-side translation caching without reload (P38), seller layout auth guard hardening (P40), and CSS theme token aliases.
@@ -27,7 +27,9 @@ Implement Milestone 4: Design System Unification & UI Components (P18, P19, P23�
 - **Code layout**: Laravel views in resources/views, models in app/Models, controllers in app/Http/Controllers, CSS in resources/css.
 
 ## Key Decisions Made
-- [TBD - starting investigation]
+- Used native HTML5 `form="bulkActionForm"` to allow checkboxes inside `<table>` to bind directly to the action form without invalid nesting.
+- Added in-memory `WeakMap` for text caching in Google Translate integration to restore original English text nodes without triggering page reloads.
+- Scoped all bulk product actions to authenticated seller ID with checks on order fulfillment status and auction status to prevent cascading data integrity issues.
 
 ## Artifact Index
 - DISPATCH.md — Dispatch assignment
@@ -37,14 +39,25 @@ Implement Milestone 4: Design System Unification & UI Components (P18, P19, P23�
 - handoff.md — Final handoff report
 
 ## Change Tracker
-- **Files modified**: None yet
-- **Build status**: Pending
+- **Files modified**:
+  - `resources/css/app.css` — Stitch theme color tokens
+  - `resources/views/components/footer.blade.php` — Currency selector & non-destructive translation
+  - `resources/views/index.blade.php` — Authentic catalog search chips
+  - `resources/views/components/nav-user.blade.php` — Dynamic notification badge, touch cart popover, category slug routes
+  - `resources/views/components/nav.blade.php` — Navbar parity, search bar, category dropdown, touch cart popover
+  - `resources/views/layouts/seller.blade.php` — Seller auth guard, dynamic notification badge, notification route wireup
+  - `resources/views/seller/dashboard.blade.php` — Dynamic 7-day revenue chart with empty state, auth guard
+  - `routes/web.php` — Registered seller.products.bulk route
+  - `app/Http/Controllers/Seller/SellerProductController.php` — bulkAction method with multi-tenant isolation and safe deletion guardrails
+  - `resources/views/seller/products/index.blade.php` — Bulk actions form, row checkboxes, JS submitBulkAction handler
+  - `tests/Feature/Seller/SellerProductBulkActionTest.php` — 7 automated feature tests for bulk actions
+- **Build status**: PASS (Vite built in 1.16s, 0 errors)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: Pending
-- **Lint status**: Pending
-- **Tests added/modified**: Pending
+- **Build/test result**: PASS (757 passed, 5376 assertions)
+- **Lint status**: PASS (PHP syntax verified clean across all modified files)
+- **Tests added/modified**: `tests/Feature/Seller/SellerProductBulkActionTest.php` (7 tests, all passing)
 
 ## Loaded Skills
 - None specified

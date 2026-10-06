@@ -161,16 +161,17 @@ class AdminDashboardController extends Controller
      */
     public function rejectSeller(Request $request, $id)
     {
-        $rawReason = (string)$request->input('reason', '');
+        $rawReason = (string) ($request->input('rejection_reason') ?? $request->input('reason') ?? '');
         $cleanReason = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $rawReason);
         $cleanReason = trim(strip_tags($cleanReason));
         if (empty($cleanReason)) {
-            $cleanReason = 'Submitted business documents did not satisfy GSTIN or trade licensing compliance.';
+            $cleanReason = 'Submitted business registration details require further verification by regional compliance team.';
         }
-        $request->merge(['reason' => $cleanReason]);
+        $request->merge(['reason' => $cleanReason, 'rejection_reason' => $cleanReason]);
 
         $request->validate([
-            'reason' => 'nullable|string|max:1000',
+            'rejection_reason' => 'nullable|string|max:1000',
+            'reason'           => 'nullable|string|max:1000',
         ]);
 
         try {

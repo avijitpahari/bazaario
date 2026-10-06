@@ -116,7 +116,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Trade License:</span>
-                            <span class="font-bold text-[#0F172A]">{{ $seller->trade_license_number ?? 'Verified Municipality' }}</span>
+                            <span class="font-bold text-[#0F172A]">{{ $seller->trade_license_number ?? 'Not Provided' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Bank IFSC:</span>

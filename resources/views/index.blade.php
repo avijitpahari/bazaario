@@ -408,17 +408,22 @@
                 @forelse(($trendingProducts ?? []) as $index => $prod)
                     @php
                         $prodImage = $prod->main_image_url;
-                        
-                        $badgeColors = [
-                            'bg-slate-900/90 text-amber-400 border border-amber-400/30',
-                            'bg-emerald-600 text-white',
-                            'bg-amber-500 text-slate-950 font-bold',
-                            'bg-rose-600 text-white',
-                            'bg-indigo-600 text-white'
-                        ];
-                        $badgeLabels = ['✦ AI PICK', 'NEW', 'BESTSELLER', 'HOT DEAL', 'FEATURED'];
-                        $badgeStyle = $badgeColors[$index % count($badgeColors)];
-                        $badgeText = $badgeLabels[$index % count($badgeLabels)];
+                        if ($prod->created_at && $prod->created_at->diffInDays() <= 7) {
+                            $badgeText = 'NEW';
+                            $badgeStyle = 'bg-emerald-600 text-white';
+                        } elseif ((float)($prod->average_rating ?? 0) >= 4.8) {
+                            $badgeText = '✦ AI PICK';
+                            $badgeStyle = 'bg-slate-900/90 text-amber-400 border border-amber-400/30';
+                        } elseif ($prod->stock > 0 && $prod->stock <= 10) {
+                            $badgeText = 'HOT DEAL';
+                            $badgeStyle = 'bg-rose-600 text-white';
+                        } elseif (($prod->total_reviews ?? 0) > 5) {
+                            $badgeText = 'BESTSELLER';
+                            $badgeStyle = 'bg-amber-500 text-slate-950 font-bold';
+                        } else {
+                            $badgeText = 'FEATURED';
+                            $badgeStyle = 'bg-indigo-600 text-white';
+                        }
                         
                         $productSlugOrId = $prod->slug ?? $prod->id;
                     @endphp

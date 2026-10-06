@@ -186,21 +186,31 @@
 
                         <!-- KYC Documents Checklist -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Doc 1: GSTIN -->
+                            <!-- Doc 1: GSTIN & PAN -->
                             <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold">Document 01</span>
                                         <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">GSTIN Registration Certificate</h4>
-                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1 tracking-wider">{{ $activeSeller->gstin ?? '19AAACG1234A1Z5' }}</p>
+                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1 tracking-wider">
+                                            {{ $activeSeller->gstin ?: 'Not Provided' }}
+                                        </p>
                                     </div>
-                                    <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
+                                    <span class="material-symbols-outlined {{ $activeSeller->gstin ? 'text-emerald-600' : 'text-slate-400' }} text-lg">
+                                        {{ $activeSeller->gstin ? 'verified' : 'pending' }}
+                                    </span>
                                 </div>
                                 <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
-                                    <span class="text-emerald-700 font-semibold text-[11px]">PAN: {{ $activeSeller->pan_number ?? 'Verified' }}</span>
-                                    <span class="text-amber-700 font-bold text-[11px] flex items-center gap-0.5">
-                                        <span class="material-symbols-outlined text-[14px]">check</span> Validated
+                                    <span class="{{ $activeSeller->pan_number ? 'text-emerald-700 font-semibold' : 'text-slate-500' }} text-[11px]">
+                                        PAN: {{ $activeSeller->pan_number ?: 'Not Provided' }}
                                     </span>
+                                    @if($activeSeller->gstin || $activeSeller->pan_number)
+                                        <span class="text-amber-700 font-bold text-[11px] flex items-center gap-0.5">
+                                            <span class="material-symbols-outlined text-[14px]">check</span> Validated
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400 text-[11px]">Pending Upload</span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -210,47 +220,67 @@
                                     <div>
                                         <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold">Document 02</span>
                                         <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">Municipality Trade License</h4>
-                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1 tracking-wider">{{ $activeSeller->trade_license_number ?? 'TL-MED-2024-8841' }}</p>
+                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1 tracking-wider">
+                                            {{ $activeSeller->trade_license_number ?: 'Not Provided' }}
+                                        </p>
                                     </div>
-                                    <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
+                                    <span class="material-symbols-outlined {{ $activeSeller->trade_license_number ? 'text-emerald-600' : 'text-slate-400' }} text-lg">
+                                        {{ $activeSeller->trade_license_number ? 'verified' : 'pending' }}
+                                    </span>
                                 </div>
                                 <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
-                                    <span class="text-slate-500 text-[11px]">Valid Fiscal Year 2026</span>
-                                    <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-0.5">
-                                        <span class="material-symbols-outlined text-[14px]">verified</span> Active
-                                    </span>
+                                    <span class="text-slate-500 text-[11px]">Fiscal Year {{ now()->year }}</span>
+                                    @if($activeSeller->trade_license_number)
+                                        <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-0.5">
+                                            <span class="material-symbols-outlined text-[14px]">verified</span> Active
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400 text-[11px]">Pending Verification</span>
+                                    @endif
                                 </div>
                             </div>
 
-                            <!-- Doc 3: Bank Passbook -->
+                            <!-- Doc 3: Bank Verification -->
                             <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold">Document 03</span>
                                         <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">Escrow Bank Account Verification</h4>
-                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1">IFSC: {{ $activeSeller->bank_ifsc ?? 'HDFC0001234' }}</p>
+                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1">
+                                            IFSC: {{ $activeSeller->bank_ifsc ?: 'Not Provided' }}
+                                        </p>
                                     </div>
-                                    <span class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
+                                    <span class="material-symbols-outlined {{ $activeSeller->bank_account_number ? 'text-emerald-600' : 'text-slate-400' }} text-lg">
+                                        {{ $activeSeller->bank_account_number ? 'check_circle' : 'pending' }}
+                                    </span>
                                 </div>
                                 <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
-                                    <span class="text-slate-600 text-[11px] font-label-sm">A/C: {{ $activeSeller->bank_account_number ?? '••••4819' }}</span>
-                                    <span class="text-emerald-700 font-semibold text-[11px]">Penny Drop Verified</span>
+                                    <span class="text-slate-600 text-[11px] font-label-sm">
+                                        A/C: {{ $activeSeller->bank_account_number ? (strlen($activeSeller->bank_account_number) > 4 ? '••••' . substr($activeSeller->bank_account_number, -4) : $activeSeller->bank_account_number) : 'Not Provided' }}
+                                    </span>
+                                    @if($activeSeller->bank_account_number)
+                                        <span class="text-emerald-700 font-semibold text-[11px]">Penny Drop Verified</span>
+                                    @else
+                                        <span class="text-slate-400 text-[11px]">Awaiting Bank Details</span>
+                                    @endif
                                 </div>
                             </div>
 
-                            <!-- Doc 4: Organic Certification -->
+                            <!-- Doc 4: FSSAI / GI Certification -->
                             <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold">Document 04</span>
                                         <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">FSSAI / GI Certification</h4>
-                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1">{{ $activeSeller->fssai_number ? 'FSSAI: ' . $activeSeller->fssai_number : 'Standard Artisan Clearance' }}</p>
+                                        <p class="font-label-md text-xs text-slate-800 font-bold mt-1">
+                                            {{ $activeSeller->fssai_number ? 'FSSAI: ' . $activeSeller->fssai_number : 'Standard Clearance' }}
+                                        </p>
                                     </div>
                                     <span class="material-symbols-outlined text-emerald-600 text-lg">eco</span>
                                 </div>
                                 <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
                                     <span class="text-emerald-700 font-semibold text-[11px]">Auction Eligible</span>
-                                    <span class="text-slate-400 text-[11px]">Cleared</span>
+                                    <span class="text-slate-500 text-[11px]">{{ $activeSeller->fssai_number ? 'Cleared' : 'Standard' }}</span>
                                 </div>
                             </div>
                         </div>
