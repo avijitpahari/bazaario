@@ -243,7 +243,7 @@
                     @endphp
                     <tr class="product-row hover:bg-surface-container-low/60 transition-colors" data-category="{{ $product->category?->name ?? 'General' }}" data-name="{{ $product->name }}" data-status="{{ $statusTags }}">
                         <td class="py-4 pl-6 pr-3 align-middle">
-                            <input type="checkbox" class="product-check w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer">
+                            <input type="checkbox" form="bulkActionForm" name="product_ids[]" value="{{ $product->id }}" class="product-check w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer">
                         </td>
                         <td class="py-4 px-4 align-middle">
                             <div class="flex items-center gap-3">
@@ -589,6 +589,27 @@
         const checked = document.querySelectorAll('.product-check:checked').length;
         const counter = document.getElementById('selectedCounter');
         if (counter) counter.textContent = checked;
+    }
+
+    function submitBulkAction(actionName) {
+        const checked = document.querySelectorAll('.product-check:checked');
+        if (checked.length === 0) {
+            alert('Please select at least one product.');
+            return;
+        }
+
+        if (actionName === 'delete') {
+            if (!confirm(`Are you sure you want to delete ${checked.length} selected product(s)? This action cannot be undone.`)) {
+                return;
+            }
+        }
+
+        const actionInput = document.getElementById('bulkActionInput');
+        const form = document.getElementById('bulkActionForm');
+        if (actionInput && form) {
+            actionInput.value = actionName;
+            form.submit();
+        }
     }
 </script>
 @endpush
