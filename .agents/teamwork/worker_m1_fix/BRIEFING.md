@@ -1,55 +1,56 @@
-# BRIEFING — 2026-09-29T06:37:30Z
+# BRIEFING — 2026-10-12T05:59:00Z
 
 ## Mission
-Resolve the gate failure for Milestone 1 by creating `resources/views/seller/pending.blade.php` with full design fidelity, data integration, and passing tests.
+Fix the 2 specific defects identified by Challenger 2 for Milestone 1 (SVG logo validation and single-vendor registration finalization bypass).
 
 ## 🔒 My Identity
 - Archetype: worker
-- Roles: implementer, qa
+- Roles: implementer, qa, specialist
 - Working directory: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1_fix
-- Original parent: c38fdcd9-6d3a-4198-9c03-fab09802e7a6
-- Milestone: Milestone 1 Fix
+- Original parent: 76853128-08ef-4616-b702-9b46294663b7
+- Milestone: Milestone 1: Admin Platform Configuration & Branding Settings (R1)
 
 ## 🔒 Key Constraints
-- Exclusive write ownership: `resources/views/seller/pending.blade.php` and files in working directory `.agents/teamwork/worker_m1_fix/`.
-- No cheating, no fake or facade implementations.
-- Design matching Bazaario's design system (Plus Jakarta Sans, Inter, 14px rounded-xl border radius, badges).
-- Display clear status: "Application Under Review" / "Pending KYC Verification".
-- Display merchant profile details if available ($user->sellerProfile->shop_name, city, state, email, submission timestamp).
-- Include action buttons: "Browse Marketplace" (`route('products.index')`) and "Log Out" (`POST /logout` with CSRF).
-- Pass `php artisan test tests/Feature/ChallengerM1AuthLocalizationTest.php` and full `php artisan test`.
+- Exclusively own and edit:
+  - `app/Http/Controllers/Admin/AdminDashboardController.php`
+  - `app/Http/Controllers/AuthController.php`
+- DO NOT CHEAT. All implementations genuine.
+- Pass all tests:
+  - `tests/Feature/AdminSettingsChallenge2Test.php` (18 tests)
+  - `tests/Feature/AdminPlatformSettingsTest.php` (13 tests)
+  - `tests/Feature/AdminSettingsChallenge1Test.php` (14 tests)
 
 ## Current Parent
-- Conversation ID: c38fdcd9-6d3a-4198-9c03-fab09802e7a6
-- Updated: 2026-09-29T06:37:30Z
+- Conversation ID: 76853128-08ef-4616-b702-9b46294663b7
+- Updated: 2026-10-12T05:59:00Z
 
 ## Task Summary
-- **What to build**: `resources/views/seller/pending.blade.php`
-- **Success criteria**: All 22 tests in `ChallengerM1AuthLocalizationTest.php` pass, full test suite passes (208/208), view renders properly.
-- **Interface contracts**: `seller.pending` view route handler in `routes/web.php` (`GET /seller/pending`).
-- **Code layout**: Laravel Blade view under `resources/views/seller/pending.blade.php`.
+- **What to build**: Fix SVG logo validation in AdminDashboardController and single-vendor registration finalization bypass in AuthController.
+- **Success criteria**: 100% test pass on AdminSettingsChallenge2Test, AdminPlatformSettingsTest, AdminSettingsChallenge1Test.
+- **Interface contracts**: c:\xampp\htdocs\bazaario\.agents\teamwork\orchestrator_10\PROJECT.md
+- **Code layout**: Laravel app directory structure.
 
 ## Key Decisions Made
-- Created `resources/views/seller/pending.blade.php` using Plus Jakarta Sans (headings), Inter (body), JetBrains Mono (badges and metadata), and 14px rounded-xl border radius.
-- Provided rich merchant context: Shop Name, Registered Email, City/State, Submission Timestamp, and Ref ID with graceful null-safe fallbacks.
-- Provided informative 3-stage onboarding stepper (Registration -> KYC Review -> Storefront Activation).
-- Included primary "Browse Marketplace" button (`route('products.index')`), "Seller Commission & Fees" (`route('docs.fees-and-commission')`), and CSRF-protected "Log Out" button (`POST /logout`).
+- Used `'site_logo' => 'nullable|image:allow_svg|mimes:png,jpg,jpeg,svg,webp|max:2048'` in `AdminDashboardController.php` to enable SVG image validation in Laravel 11.
+- Added Single-Vendor guard in `AuthController::verifyOtpAndRegister` after session retrieval, purging `pending_registration` and returning 422 JSON response.
 
 ## Artifact Index
-- `resources/views/seller/pending.blade.php` — Pending KYC and admin review status view for sellers
-- `c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1_fix\progress.md` — Progress tracker
-- `c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1_fix\BRIEFING.md` — Agent briefing & memory
-- `c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1_fix\handoff.md` — Handoff report
+- DISPATCH.md — assignment details
+- changes.md — record of edits made
+- handoff.md — 5-component handoff report
+- progress.md — execution progress tracker
 
 ## Change Tracker
-- **Files modified**: `resources/views/seller/pending.blade.php` (created)
-- **Build status**: PASS (208 tests passed, 1416 assertions)
+- **Files modified**:
+  - `app/Http/Controllers/Admin/AdminDashboardController.php`: Updated `site_logo` validation rule to allow SVG via `image:allow_svg`.
+  - `app/Http/Controllers/AuthController.php`: Added Single-Vendor registration finalization guard in `verifyOtpAndRegister`.
+- **Build status**: PASS (45/45 tests passing)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: PASS — `ChallengerM1AuthLocalizationTest`: 22 passed, 0 failed; Full suite: 208 passed, 0 failed.
-- **Lint status**: 0 syntax errors on `php -l resources/views/seller/pending.blade.php`.
-- **Tests added/modified**: Verified against adversarial challenger suite and full suite.
-
-## Loaded Skills
-- None
+- **Build/test result**: PASS
+  - `AdminSettingsChallenge2Test`: 18/18 PASS
+  - `AdminPlatformSettingsTest`: 13/13 PASS
+  - `AdminSettingsChallenge1Test`: 14/14 PASS
+- **Lint status**: Clean
+- **Tests added/modified**: Verified against all 3 feature test suites

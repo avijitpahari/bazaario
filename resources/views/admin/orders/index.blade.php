@@ -195,8 +195,9 @@
 
                             <!-- Action -->
                             <td class="py-3.5 px-4 text-right whitespace-nowrap">
-                                <a href="{{ route('admin.orders.show', $order->id) }}" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-semibold transition-colors">
-                                    Dossier &rarr;
+                                <a href="{{ route('admin.orders.show', $order->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 hover:text-slate-900 text-[11px] font-semibold transition-colors shadow-2xs" title="View Order Details">
+                                    <span class="material-symbols-outlined text-[15px] text-slate-500">visibility</span>
+                                    <span>View Order &rarr;</span>
                                 </a>
                             </td>
                         </tr>

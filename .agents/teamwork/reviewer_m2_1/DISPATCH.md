@@ -1,26 +1,23 @@
-## 2026-09-28T09:39:50Z
-
-You are reviewer_m2_1.
+## 2026-10-12T06:18:24Z
+You are Reviewer 1 for Milestone 2: Live Auction Automation & Lifecycle Management (R2).
 Your working directory is: c:\xampp\htdocs\bazaario\.agents\teamwork\reviewer_m2_1
+Project root: c:\xampp\htdocs\bazaario
+Original Request: c:\xampp\htdocs\bazaario\.agents\teamwork\ORIGINAL_REQUEST.md (timestamp ## 2026-10-12T05:17:47Z).
+Project Specification: c:\xampp\htdocs\bazaario\.agents\teamwork\orchestrator_10\PROJECT.md
+Worker M2 Handoff: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m2\handoff.md
+Worker M2 Changes: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m2\changes.md
 
-MANDATORY FIRST STEP:
-Read the authoritative user request at: c:\xampp\htdocs\bazaario\.agents\teamwork\ORIGINAL_REQUEST.md
-Also read the project architecture document at: c:\xampp\htdocs\bazaario\.agents\teamwork\orchestrator_1\PROJECT.md
-And read worker_2's handoff report at: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_2\handoff.md
-
-OBJECTIVE:
-Independently review the concurrency hardening fixes implemented by worker_2:
-1. Examine code in `app/Http/Controllers/User/AuctionController.php` and `app/Http/Controllers/AuctionController.php`:
-   - Verify `placeBid` uses `DB::transaction` with `Auction::where('id', $auction->id)->lockForUpdate()->firstOrFail()`.
-   - Verify active status and minimum increment re-evaluation under the lock with `ValidationException`.
-   - Verify atomic `AuctionBid` creation, price update, and anti-sniping extension.
-   - Verify error handling and response formatting for web forms and API requests.
-2. Run verification commands:
-   - Run `php artisan test`
-   - Run `php -l` on modified files
-   - Run `php artisan route:list --path=admin` (must list all 40 admin routes)
-3. Check all requirements in ORIGINAL_REQUEST.md.
-4. Output your clear verdict: APPROVE or REQUEST_CHANGES.
-
-Write your report to: `c:\xampp\htdocs\bazaario\.agents\teamwork\reviewer_m2_1\handoff.md`
-Notify the orchestrator with send_message when done.
+Objective:
+Review the work product of Worker M2 for correctness, completeness, robustness, and interface conformance:
+1. Review `app/Console/Commands/CloseExpiredAuctions.php`:
+   - Command signature `auctions:close-expired`.
+   - Transactional wrapping (`DB::transaction`) and row locking (`lockForUpdate()`).
+   - Highest bid query and reserve price evaluation (`!$auction->reserve_price || $highestBid->amount >= $auction->reserve_price`).
+   - Winning lot order and invoice creation (`Order` with `order_type = 'auction'`, `SellerOrder`, `OrderItem`, `Invoice`).
+   - Idempotency guard (skips already ended auctions).
+2. Review `routes/console.php`: scheduler registration.
+3. Run tests:
+   `php artisan test tests/Feature/Auction/AuctionLifecycleAutomationTest.php`
+   `php artisan test tests/Feature/Seller/Milestone5AuctionEngineChallengeTest.php`
+4. Formulate an objective verdict: APPROVE or REQUEST_CHANGES.
+5. Deliverables: Write review to `c:\xampp\htdocs\bazaario\.agents\teamwork\reviewer_m2_1\review.md` and `handoff.md`. Send completion message to parent.

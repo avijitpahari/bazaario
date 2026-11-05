@@ -13,7 +13,13 @@
             <h1 class="font-headline-section text-headline-section font-bold text-slate-authority mt-1">AI Recommendations</h1>
             <p class="font-body-small text-body-small text-on-surface-variant mt-1">Curated picks tailored to your shopping behavior, wishlist, and trending verified listings.</p>
         </div>
-        <div class="relative z-10 shrink-0">
+        <div class="relative z-10 shrink-0 flex items-center gap-3">
+            @if(isset($recommendations['source']))
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold {{ $recommendations['source'] === 'gemini' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200' }}">
+                    <span class="material-symbols-outlined text-[15px] {{ $recommendations['source'] === 'gemini' ? 'text-emerald-600' : 'text-amber-500' }}">auto_awesome</span>
+                    <span>{{ $recommendations['source'] === 'gemini' ? 'Gemini 1.5 Live AI' : 'Autonomous Taste Engine' }}</span>
+                </span>
+            @endif
             <a href="{{ route('products.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-authority text-canvas-ivory font-button-text text-body-small font-bold hover:bg-slate-authority/90 transition-all flex items-center gap-2">
                 <span>Explore All Categories</span>
                 <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -50,12 +56,18 @@
                             <div class="font-label-micro text-label-micro text-on-surface-variant flex items-center justify-between">
                                 <span>{{ $prod->seller->sellerProfile->business_name ?? 'Verified Store' }}</span>
                                 <span class="text-amber-action flex items-center gap-0.5 font-bold">
-                                    <span class="material-symbols-outlined text-[13px]">star</span> 4.8
+                                    <span class="material-symbols-outlined text-[13px]">star</span> {{ number_format($prod->average_rating ?? 4.8, 1) }}
                                 </span>
                             </div>
                             <h3 class="font-title-card text-sm font-bold text-slate-authority mt-1 line-clamp-1 group-hover:text-amber-action transition-colors">
                                 <a href="{{ route('products.show', $prod->slug ?? $prod->id) }}">{{ $prod->name }}</a>
                             </h3>
+                            @if(!empty($prod->ai_reason))
+                                <div class="mt-2 py-1 px-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800 text-[11px] font-medium flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[13px] text-amber-600 shrink-0">auto_awesome</span>
+                                    <span class="truncate">{{ $prod->ai_reason }}</span>
+                                </div>
+                            @endif
                         </div>
                         <div class="flex items-center justify-between pt-2 border-t border-slate-authority/5">
                             <div>

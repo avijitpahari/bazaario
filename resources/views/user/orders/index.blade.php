@@ -1,206 +1,26 @@
 <!DOCTYPE html>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        "colors": {
-          "surface-dim": "#dbdad5",
-          "tertiary": "#000000",
-          "inverse-on-surface": "#f2f1ec",
-          "on-surface": "#1b1c19",
-          "ivory-alpha-70": "rgba(255, 253, 248, 0.70)",
-          "secondary": "#006e2d",
-          "status-green": "#16A34A",
-          "on-secondary": "#ffffff",
-          "primary-fixed-dim": "#bec6e0",
-          "error-container": "#ffdad6",
-          "secondary-fixed": "#7ffc97",
-          "background": "#fbf9f4",
-          "outline-variant": "#c6c6cd",
-          "primary-container": "#131b2e",
-          "tertiary-fixed": "#ffddb4",
-          "primary": "#000000",
-          "card-white": "#FFFFFF",
-          "error": "#ba1a1a",
-          "on-primary": "#ffffff",
-          "surface-container-high": "#eae8e3",
-          "canvas-ivory": "#FFFDF8",
-          "primary-fixed": "#dae2fd",
-          "outline": "#76777d",
-          "inverse-surface": "#30312e",
-          "on-error": "#ffffff",
-          "surface-bright": "#fbf9f4",
-          "on-background": "#1b1c19",
-          "on-error-container": "#93000a",
-          "on-surface-variant": "#45464d",
-          "inverse-primary": "#bec6e0",
-          "on-secondary-fixed": "#002109",
-          "on-primary-fixed-variant": "#3f465c",
-          "primary-alpha-10": "rgba(15, 23, 42, 0.10)",
-          "tertiary-fixed-dim": "#ffb955",
-          "on-primary-fixed": "#131b2e",
-          "slate-authority": "#0F172A",
-          "surface-container": "#efeee9",
-          "surface-tint": "#565e74",
-          "surface": "#fbf9f4",
-          "on-primary-container": "#7c839b",
-          "on-secondary-fixed-variant": "#005320",
-          "on-tertiary-container": "#b57700",
-          "tertiary-container": "#291800",
-          "surface-container-highest": "#e4e2de",
-          "on-secondary-container": "#007230",
-          "surface-container-low": "#f5f3ee",
-          "surface-variant": "#e4e2de",
-          "primary-alpha-20": "rgba(15, 23, 42, 0.20)",
-          "secondary-fixed-dim": "#62df7d",
-          "on-tertiary-fixed-variant": "#633f00",
-          "on-tertiary-fixed": "#291800",
-          "on-tertiary": "#ffffff",
-          "secondary-container": "#7cf994",
-          "surface-container-lowest": "#ffffff",
-          "amber-action": "#F5A623",
-          "primary-alpha-70": "rgba(15, 23, 42, 0.70)"
-        },
-        "borderRadius": {
-          "DEFAULT": "0.25rem",
-          "lg": "0.5rem",
-          "xl": "0.75rem",
-          "2xl": "1rem",
-          "3xl": "1.5rem",
-          "full": "9999px"
-        },
-        "spacing": {
-          "section-final-bottom": "4rem",
-          "section-interior-y": "3.5rem",
-          "container-max": "72rem",
-          "section-hero-bottom": "2.5rem",
-          "gutter-lg": "2.5rem",
-          "gutter-xl": "3.5rem",
-          "section-hero-top": "4rem",
-          "gutter-xs": "0.5rem",
-          "banner-padding": "2.5rem",
-          "gutter-sm": "1rem",
-          "gutter-md": "1.5rem",
-          "card-padding": "1.25rem"
-        },
-        "fontFamily": {
-          "display-hero": [
-            "Space Grotesk"
-          ],
-          "button-text": [
-            "Inter"
-          ],
-          "label-micro": [
-            "JetBrains Mono"
-          ],
-          "body-regular": [
-            "Inter"
-          ],
-          "label-eyebrow": [
-            "JetBrains Mono"
-          ],
-          "headline-section": [
-            "Space Grotesk"
-          ],
-          "title-card": [
-            "Space Grotesk"
-          ],
-          "display-hero-mobile": [
-            "Space Grotesk"
-          ],
-          "body-small": [
-            "Inter"
-          ],
-          "body-lead": [
-            "Inter"
-          ]
-        },
-        "fontSize": {
-          "display-hero": [
-            "48px",
-            {
-              "lineHeight": "56px",
-              "letterSpacing": "-0.02em",
-              "fontWeight": "700"
-            }
-          ],
-          "button-text": [
-            "16px",
-            {
-              "lineHeight": "24px",
-              "fontWeight": "600"
-            }
-          ],
-          "label-micro": [
-            "10px",
-            {
-              "lineHeight": "14px",
-              "letterSpacing": "0.025em",
-              "fontWeight": "500"
-            }
-          ],
-          "body-regular": [
-            "16px",
-            {
-              "lineHeight": "24px",
-              "fontWeight": "400"
-            }
-          ],
-          "label-eyebrow": [
-            "12px",
-            {
-              "lineHeight": "16px",
-              "letterSpacing": "0.05em",
-              "fontWeight": "500"
-            }
-          ],
-          "headline-section": [
-            "24px",
-            {
-              "lineHeight": "32px",
-              "letterSpacing": "-0.01em",
-              "fontWeight": "700"
-            }
-          ],
-          "title-card": [
-            "18px",
-            {
-              "lineHeight": "24px",
-              "letterSpacing": "-0.01em",
-              "fontWeight": "600"
-            }
-          ],
-          "display-hero-mobile": [
-            "36px",
-            {
-              "lineHeight": "44px",
-              "letterSpacing": "-0.02em",
-              "fontWeight": "700"
-            }
-          ],
-          "body-small": [
-            "14px",
-            {
-              "lineHeight": "20px",
-              "fontWeight": "400"
-            }
-          ],
-          "body-lead": [
-            "18px",
-            {
-              "lineHeight": "28px",
-              "fontWeight": "400"
-            }
-          ]
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="web_standard" name="shell-type"/>
+    <title>My Orders — Bazaario</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @layer base {
+            html, body { margin: 0; padding: 0; }
+            body { overscroll-behavior: none; }
+            main>:first-child { margin-top: 0 !important; }
+            main>:last-child { margin-bottom: 0 !important; }
         }
-      },
-    },
-  }</script></head><body class="bg-[#FAF7F0] text-on-surface font-body-regular text-body-regular min-h-screen relative selection:bg-amber-action/30 selection:text-slate-authority">
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head><body class="bg-[#FAF7F0] text-on-surface font-body-regular text-body-regular min-h-screen relative selection:bg-amber-action/30 selection:text-slate-authority">
 <!-- Ambient 3D Volumetric Mesh & Glow Blobs -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
 <div class="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-amber-400/20 via-orange-300/15 to-transparent blur-3xl opacity-70 transform -rotate-12"></div>
@@ -649,21 +469,6 @@
 </div>
 </div>
 </section>
-<!-- Floating AI Assistant Quick Dock -->
-<div class="fixed bottom-6 right-6 z-40">
-<button class="bg-slate-authority text-canvas-ivory border-none shadow-2xl rounded-full pl-4 pr-5 py-3 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all group" id="ai-assistant-dock" type="button">
-<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-action to-amber-300 text-slate-authority flex items-center justify-center font-bold shadow-xs">
-<span class="material-symbols-outlined text-body-lead">smart_toy</span>
-</div>
-<div class="flex flex-col text-left">
-<span class="font-label-eyebrow text-label-eyebrow font-bold text-white leading-tight flex items-center gap-1">
-            Bazaario AI Order Concierge
-            <span class="w-1.5 h-1.5 rounded-full bg-status-green animate-pulse"></span>
-</span>
-<span class="font-label-micro text-label-micro text-amber-action/90 font-mono">"Where is my package right now?"</span>
-</div>
-</button>
-</div>
 </div>
 </div>
 <script>
@@ -680,12 +485,6 @@
       });
     });
 
-    const aiBtn = document.getElementById('ai-assistant-dock');
-    if (aiBtn) {
-      aiBtn.addEventListener('click', () => {
-        alert('Bazaario AI: Fetching live telemetry for order #BZ-2026-00125. Courier is 12 km from delivery hub.');
-      });
-    }
   })();
 </script></main>
 <!-- Footer -->

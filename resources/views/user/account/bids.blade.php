@@ -24,7 +24,6 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C-FKvfT_.css') }}">
 </head>
 
 <body x-data="{ autoBidModalOpen: false, vaultModalOpen: false, selectedLot: null, maxCeiling: 25000, incrementStep: 500, autoBidSaved: false }" class="bg-canvas-ivory text-on-surface antialiased selection:bg-amber-action selection:text-slate-authority min-h-screen flex flex-col">
@@ -354,7 +353,7 @@
                                                 LOT #AUC-{{ $auc->id }}
                                             </span>
                                             <span class="font-mono text-label-micro text-amber-action font-semibold flex items-center gap-1"
-                                                  data-countdown="{{ $auc->ends_at->isoFormat('YYYY-MM-DDTHH:mm:ss') }}">
+                                                  data-countdown="{{ $auc->ends_at->toIso8601String() }}">
                                                 <span class="material-symbols-outlined text-[13px]">timer</span>
                                                 <span class="timer-display">{{ $auc->ends_at->diffForHumans() }}</span>
                                             </span>
@@ -741,10 +740,11 @@
                     const distance = endTime - now;
 
                     if (distance <= 0) {
-                        display.innerText = 'ENDED';
+                        display.innerText = 'Auction Ended';
                         return;
                     }
 
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -753,7 +753,11 @@
                     const mStr = String(minutes).padStart(2, '0');
                     const sStr = String(seconds).padStart(2, '0');
 
-                    display.innerText = `${hStr}:${mStr}:${sStr}`;
+                    if (days > 0) {
+                        display.innerText = `${days}d ${hStr}:${mStr}:${sStr}`;
+                    } else {
+                        display.innerText = `${hStr}:${mStr}:${sStr}`;
+                    }
                 }
 
                 updateTimer();
@@ -761,8 +765,6 @@
             });
         });
     </script>
-    <!-- Alpine.js script for interactive popovers/drawers -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 
 </html>

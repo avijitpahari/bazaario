@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/favicon.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link
@@ -17,41 +17,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0F172A',
-                        accent: {
-                            DEFAULT: '#F5A623',
-                            hover: '#E09214',
-                            light: '#FEF3C7',
-                            muted: '#FFFBEB'
-                        },
-                        bg: '#FFFDF8',
-                        surface: '#FAF8F4',
-                        card: '#FFFFFF'
-                    },
-                    fontFamily: {
-                        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace']
-                    },
-                    borderRadius: {
-                        card: '14px'
-                    },
-                    boxShadow: {
-                        glass: '0 20px 45px -12px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04)',
-                        'floating-nav': '0 12px 36px -8px rgba(15, 23, 42, 0.09), 0 2px 8px -2px rgba(15, 23, 42, 0.04)',
-                        'accent-glow': '0 8px 24px -4px rgba(245, 166, 35, 0.38)'
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Alpine.js CDN -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         [x-cloak] { display: none !important; }
         body {
@@ -67,6 +33,9 @@
 
 <body
     class="min-h-screen flex flex-col font-sans text-primary antialiased selection:bg-amber-300/30 selection:text-primary relative overflow-x-hidden">
+
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
 
     <!-- Ambient background glow elements -->
     <div class="pointer-events-none fixed -top-40 -left-40 w-96 h-96 rounded-full bg-amber-200/20 blur-3xl -z-10"></div>
@@ -251,7 +220,7 @@
                     @endif
 
                     <!-- Login Form -->
-                    <form class="space-y-4" action="{{ route('login') }}" method="POST">
+                    <form class="space-y-4" action="{{ route('login') }}" method="POST" x-data="{ loggingIn: false }" @submit="loggingIn = true">
                         @csrf
 
                         <!-- Email Address -->
@@ -307,14 +276,20 @@
                         </div>
 
                         <!-- Sign In Button (bg-accent text-primary as per DESIGN.md & reference) -->
-                        <button type="submit"
-                            class="w-full mt-2 bg-accent hover:bg-accent-hover text-primary font-semibold text-sm py-3.5 px-6 rounded-card transition-all duration-150 shadow-accent-glow hover:shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
-                            <span class="">Sign In</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3">
-                                </path>
-                            </svg>
+                        <button type="submit" :disabled="loggingIn"
+                            class="w-full mt-2 bg-accent hover:bg-accent-hover text-primary font-semibold text-sm py-3.5 px-6 rounded-card transition-all duration-150 shadow-accent-glow hover:shadow-lg active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span x-show="!loggingIn" class="flex items-center gap-2">
+                                <span>Sign In</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                                    </path>
+                                </svg>
+                            </span>
+                            <span x-show="loggingIn" x-cloak class="flex items-center gap-2">
+                                <x-loading-spinner size="18px" />
+                                <span>Authenticating...</span>
+                            </span>
                         </button>
 
                     </form>

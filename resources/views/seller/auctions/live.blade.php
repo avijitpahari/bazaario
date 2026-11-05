@@ -351,8 +351,9 @@
                             <span class="font-mono text-[10px] font-bold text-secondary uppercase tracking-wider">AUCTION DETAILS</span>
                             <h3 class="font-heading text-base font-bold text-primary">Consignment Metadata</h3>
                         </div>
-                        <a href="{{ route('seller.auctions.show', $liveAuction) }}" class="font-mono text-xs text-brand-amber hover:underline font-semibold">
-                            Full Dossier →
+                        <a href="{{ route('seller.auctions.show', $liveAuction) }}" class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100/90 text-amber-900 font-bold text-xs border border-amber-200/70 shadow-2xs hover:shadow-xs transition-all">
+                            <span>View Dossier</span>
+                            <span class="material-symbols-outlined text-[14px] text-amber-600 transition-transform duration-200 ease-out group-hover:translate-x-1">arrow_forward</span>
                         </a>
                     </div>
 

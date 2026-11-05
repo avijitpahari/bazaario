@@ -1,23 +1,19 @@
-## 2026-09-30T05:19:47Z
+## 2026-10-12T05:49:27Z
+You are Reviewer 1 for Milestone 1: Admin Platform Configuration & Branding Settings (R1).
 Your working directory is: c:\xampp\htdocs\bazaario\.agents\teamwork\reviewer_m1_1
+Project root: c:\xampp\htdocs\bazaario
+Original Request: c:\xampp\htdocs\bazaario\.agents\teamwork\ORIGINAL_REQUEST.md (timestamp ## 2026-10-12T05:17:47Z).
+Project Specification: c:\xampp\htdocs\bazaario\.agents\teamwork\orchestrator_10\PROJECT.md
+Worker M1 Handoff: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1\handoff.md
+Worker M1 Changes: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1\changes.md
 
-MANDATORY FIRST STEP: Read the user's authoritative request at:
-c:\xampp\htdocs\bazaario\.agents\teamwork\ORIGINAL_REQUEST.md
-
-Also read:
-- Project architecture: c:\xampp\htdocs\bazaario\PROJECT.md
-- Worker handoff report: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1_1\handoff.md
-
-Your role is Reviewer 1 for Milestone 1: Foundation, Schemas & Onboarding Access Control (R1).
-Review the implementation:
-1. Schema & Migration: `database/migrations/2026_09_30_000001_add_seller_panel_fields_to_tables.php` (harvest/expiry on products, delivery_slot on seller_orders, address & operating_radius_km on seller_profiles).
-2. Models: `Product.php`, `SellerOrder.php`, `SellerProfile.php` fillables, casts, scopes, and helpers.
-3. Access Control: `app/Http/Middleware/SellerMiddleware.php` approval gate check and loop-free exemption logic.
-4. Controller & Routes: `SellerOnboardingController.php` and `routes/web.php`.
-5. Blade Layouts & Views: `layouts/seller-onboarding.blade.php`, `layouts/seller.blade.php`, `seller/onboarding/wizard.blade.php`, and `seller/pending.blade.php`.
-6. Run the test suite: `php artisan test tests/Feature/Seller/SellerOnboardingTest.php` and `php artisan test`. Verify 0 regressions across all tests.
-
-Document your review with verified evidence chains and state a clear verdict: APPROVE or REQUEST_CHANGES.
-Write report to:
-c:\xampp\htdocs\bazaario\.agents\teamwork\reviewer_m1_1\handoff.md
-and send a completion message back to the orchestrator.
+Objective:
+Review the work product of Worker M1 for correctness, completeness, robustness, and interface conformance:
+1. Review `app/Models/SiteSetting.php`: helpers `getSiteName()`, `getTagline()`, `getLogoUrl()`, `isSingleVendor()`, `getCommissionRate()`.
+2. Review `routes/web.php` and `AdminDashboardController.php`: `settings()` and `updateSettings()`. Verify route guards, CSRF protection, and validation.
+3. Review Blade views in `resources/views/admin/settings/` (`index.blade.php`, `general.blade.php`, `platform.blade.php`, `commissions.blade.php`) and `resources/views/layouts/admin.blade.php`.
+4. Run tests:
+   `php artisan test tests/Feature/AdminPlatformSettingsTest.php`
+   `php artisan test --filter=AdminHardeningTest`
+5. Formulate an objective verdict: APPROVE or REQUEST_CHANGES.
+6. Deliverables: Write review to `c:\xampp\htdocs\bazaario\.agents\teamwork\reviewer_m1_1\review.md` and `handoff.md`. Send completion message to parent.

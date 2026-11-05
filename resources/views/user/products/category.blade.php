@@ -13,7 +13,6 @@
 
     <!-- Compiled Tailwind CSS & App JS via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         [x-cloak] { display: none !important; }
@@ -160,8 +159,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @forelse($products as $product)
                     @php
-                        $primaryImg = $product->primaryImage ? $product->primaryImage->image_path : ($product->images->first() ? $product->images->first()->image_path : null);
-                        $imgUrl = $primaryImg ? (Illuminate\Support\Str::startsWith($primaryImg, ['http://', 'https://']) ? $primaryImg : asset($primaryImg)) : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';
+                        $imgUrl = $product->main_image_url;
                         $sellerName = $product->seller && $product->seller->sellerProfile ? $product->seller->sellerProfile->shop_name : ($product->seller ? $product->seller->name : 'Bazaario Artisan');
                         $ratingDisplay = $product->average_rating ? number_format($product->average_rating, 1) : 'New';
                         $reviewsDisplay = ($product->total_reviews ?? 0) . ' reviews';
@@ -176,7 +174,7 @@
                                     <img alt="{{ $product->name }}" 
                                          class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" 
                                          src="{{ $imgUrl }}" 
-                                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';">
+                                         onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                                 </a>
                                 <div class="absolute top-2.5 left-2.5">
                                     <span class="font-mono text-[9px] uppercase font-bold bg-slate-900/90 backdrop-blur-md text-amber-400 px-2 py-0.5 rounded-md tracking-wider shadow-sm">

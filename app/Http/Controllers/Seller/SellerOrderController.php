@@ -135,10 +135,22 @@ class SellerOrderController extends Controller
             ->whereIn('status', ['placed', 'pending', 'processing', 'packed', 'ready_for_pickup'])
             ->sum('payout_amount');
 
+        $pendingOrdersCount = ($statusCounts['pending'] ?? 0)
+            + ($statusCounts['confirmed'] ?? 0)
+            + ($statusCounts['processing'] ?? 0)
+            + ($statusCounts['ready_for_pickup'] ?? 0);
+
+        $nextDispatchOrder = SellerOrder::forSeller($sellerId)
+            ->whereIn('status', ['placed', 'pending', 'confirmed', 'processing', 'ready_for_pickup'])
+            ->orderBy('created_at', 'asc')
+            ->first();
+
         $stats = [
-            'dispatch_capacity' => 82,
-            'on_time_sla'       => 99.4,
-            'pending_accrual'   => $pendingAccrual,
+            'dispatch_capacity'    => 82,
+            'on_time_sla'          => 99.4,
+            'pending_accrual'      => $pendingAccrual,
+            'pending_orders_count' => $pendingOrdersCount,
+            'next_dispatch_slot'   => $nextDispatchOrder?->delivery_slot,
         ];
 
         return view('seller.orders.index', [

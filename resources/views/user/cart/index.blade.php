@@ -89,14 +89,8 @@
                             <div class="p-3 rounded-xl hover:bg-slate-50/50 flex flex-col sm:flex-row gap-4 items-start sm:items-center transition-colors">
                                 {{-- Image --}}
                                 <div class="w-20 h-20 rounded-xl overflow-hidden bg-surface-container-high shrink-0 border border-slate-200/60">
-                                    @php $img = $product->primaryImage?->url ?? $product->images->first()?->url; @endphp
-                                    @if($img)
-                                        <img alt="{{ $product->name ?? 'Product' }}" class="w-full h-full object-cover" src="{{ $img }}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200';">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center text-on-surface-variant bg-slate-100">
-                                            <span class="material-symbols-outlined text-[28px]">image</span>
-                                        </div>
-                                    @endif
+                                    @php $img = $product->main_image_url; @endphp
+                                    <img alt="{{ $product->name ?? 'Product' }}" class="w-full h-full object-cover" src="{{ $img }}" onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                                 </div>
 
                                 {{-- Info --}}
@@ -122,25 +116,30 @@
                                     </div>
 
                                     {{-- Feature 35: Quantity Stepper --}}
-                                    <form action="{{ route('cart.update', $item->id) }}" method="POST" class="flex items-center gap-2 mt-2">
+                                    <form action="{{ route('cart.update', $item->id) }}" method="POST" class="flex items-center gap-2 mt-2" x-data="{ updating: false }" @submit="updating = true">
                                         @csrf
                                         @method('PUT')
-                                        <div class="flex items-center gap-1 bg-surface-container-high rounded-lg overflow-hidden border border-slate-200">
-                                            <button type="button" onclick="const i=this.nextElementSibling; if(i.value>1){i.value--;i.closest('form').submit();}" class="px-3 py-1.5 text-slate-authority hover:bg-surface-container-highest font-bold transition-colors">−</button>
+                                        <div class="flex items-center gap-1 bg-surface-container-high rounded-lg overflow-hidden border border-slate-200 transition-opacity" :class="updating ? 'opacity-50 pointer-events-none' : ''">
+                                            <button type="button" :disabled="updating" onclick="if(this.closest('form').__x?.$data.updating) return; const i=this.nextElementSibling; if(i.value>1){i.value--; if(this.closest('form').__x) this.closest('form').__x.$data.updating = true; this.closest('form').submit();}" class="px-3 py-1.5 text-slate-authority hover:bg-surface-container-highest font-bold transition-colors disabled:cursor-not-allowed">−</button>
                                             <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="99"
                                                 class="w-12 text-center bg-transparent font-body-regular text-body-regular text-slate-authority font-semibold border-0 focus:outline-none">
-                                            <button type="button" onclick="const i=this.previousElementSibling; i.value++;i.closest('form').submit();" class="px-3 py-1.5 text-slate-authority hover:bg-surface-container-highest font-bold transition-colors">+</button>
+                                            <button type="button" :disabled="updating" onclick="if(this.closest('form').__x?.$data.updating) return; const i=this.previousElementSibling; i.value++; if(this.closest('form').__x) this.closest('form').__x.$data.updating = true; this.closest('form').submit();}" class="px-3 py-1.5 text-slate-authority hover:bg-surface-container-highest font-bold transition-colors disabled:cursor-not-allowed">+</button>
                                         </div>
+                                        <span x-show="updating" x-cloak class="text-xs text-amber-action flex items-center">
+                                            <x-loading-spinner size="14px" />
+                                        </span>
                                     </form>
                                 </div>
 
                                 {{-- Price + Feature 36: Remove Item --}}
                                 <div class="flex flex-col items-end gap-2 shrink-0">
                                     <p class="font-title-card text-title-card font-bold text-slate-authority font-mono">₹{{ number_format(($product->price ?? 0) * $item->quantity, 2) }}</p>
-                                    <form action="{{ route('cart.destroy', $item->id) }}" method="POST">
+                                    <form action="{{ route('cart.destroy', $item->id) }}" method="POST" x-data="{ removing: false }" @submit="removing = true">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="text-error hover:text-error/70 font-body-small text-body-small font-medium flex items-center gap-1 transition-colors">
-                                            <span class="material-symbols-outlined text-[16px]">delete</span> Remove
+                                        <button type="submit" :disabled="removing" class="text-error hover:text-error/70 font-body-small text-body-small font-medium flex items-center gap-1 transition-colors disabled:opacity-50">
+                                            <span x-show="!removing" class="material-symbols-outlined text-[16px]">delete</span>
+                                            <span x-show="removing" x-cloak><x-loading-spinner size="14px" class="text-error" /></span>
+                                            <span x-text="removing ? 'Removing...' : 'Remove'">Remove</span>
                                         </button>
                                     </form>
                                 </div>
@@ -193,31 +192,49 @@
                             <span class="material-symbols-outlined text-[18px] text-status-green">confirmation_number</span>
                             <span class="font-body-small text-body-small font-semibold text-status-green">{{ $appliedCoupon['code'] }}</span>
                         </div>
-                        <form action="{{ route('cart.coupon.remove') }}" method="POST">
+                        <form action="{{ route('cart.coupon.remove') }}" method="POST" x-data="{ removingCoupon: false }" @submit="removingCoupon = true">
                             @csrf @method('DELETE')
-                            <button type="submit" class="text-error hover:text-error/70 transition-colors" title="Remove coupon">
-                                <span class="material-symbols-outlined text-[18px]">close</span>
+                            <button type="submit" :disabled="removingCoupon" class="text-error hover:text-error/70 transition-colors disabled:opacity-50" title="Remove coupon">
+                                <span x-show="!removingCoupon" class="material-symbols-outlined text-[18px]">close</span>
+                                <span x-show="removingCoupon" x-cloak><x-loading-spinner size="14px" class="text-error" /></span>
                             </button>
                         </form>
                     </div>
                     @else
-                    <form action="{{ route('cart.coupon') }}" method="POST" class="flex gap-2">
+                    <form action="{{ route('cart.coupon') }}" method="POST" class="flex gap-2" x-data="{ applying: false }" @submit="applying = true">
                         @csrf
-                        <input type="text" name="coupon_code" placeholder="Enter coupon code"
+                        <input type="text" name="coupon_code" placeholder="Enter coupon code" required
                             class="flex-1 bg-surface-container-low border border-slate-authority/20 rounded-xl px-3 py-2 text-slate-authority font-body-small text-body-small focus:outline-none focus:border-amber-action transition-colors">
-                        <button type="submit" class="px-3 py-2 rounded-xl bg-slate-authority text-canvas-ivory font-button-text text-body-small font-semibold hover:bg-slate-authority/90 transition-colors">
-                            Apply
+                        <button type="submit" :disabled="applying" class="px-3.5 py-2 rounded-xl bg-slate-authority text-canvas-ivory font-button-text text-body-small font-semibold hover:bg-slate-authority/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span x-show="!applying">Apply</span>
+                            <span x-show="applying" x-cloak class="flex items-center gap-1">
+                                <x-loading-spinner size="14px" />
+                                <span>Checking...</span>
+                            </span>
                         </button>
                     </form>
                     @endif
                 </div>
                 @endauth
 
-                <a href="{{ route('checkout.index') }}"
-                    class="w-full py-3.5 rounded-xl bg-amber-action text-slate-authority font-button-text text-button-text font-bold text-center shadow-[0_4px_14px_rgba(245,166,35,0.35)] hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[20px]">payment</span>
-                    Proceed to Checkout
-                </a>
+                <div x-data="{ checkingOut: false }">
+                    <a href="{{ route('checkout.index') }}" @click="checkingOut = true"
+                        class="w-full py-3.5 rounded-xl bg-amber-action text-slate-authority font-button-text text-button-text font-bold text-center shadow-[0_4px_14px_rgba(245,166,35,0.35)] hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                        :class="checkingOut ? 'opacity-70 pointer-events-none' : ''">
+                        <template x-if="!checkingOut">
+                            <span class="flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-[20px]">payment</span>
+                                <span>Proceed to Checkout</span>
+                            </span>
+                        </template>
+                        <template x-if="checkingOut">
+                            <span class="flex items-center justify-center gap-2">
+                                <x-loading-spinner size="18px" />
+                                <span>Loading Checkout...</span>
+                            </span>
+                        </template>
+                    </a>
+                </div>
 
                 <div class="flex items-center gap-2 text-center justify-center font-label-micro text-label-micro text-on-surface-variant">
                     <span class="material-symbols-outlined text-[14px] text-status-green">verified_user</span>

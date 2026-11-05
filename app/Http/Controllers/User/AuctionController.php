@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Models\AuctionBid;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class AuctionController extends Controller
         $query = Auction::with([
             'product.primaryImage',
             'product.category',
-            'seller.sellerProfile',
+            'seller.user',
             'bids' => fn ($q) => $q->orderBy('amount', 'desc')->with('user'),
         ])->where('status', 'live');
 
@@ -152,7 +153,7 @@ class AuctionController extends Controller
             'product.primaryImage',
             'product.images',
             'product.category',
-            'seller.sellerProfile',
+            'seller.user',
             'bids' => fn ($q) => $q->orderBy('amount', 'desc')->with('user'),
         ]);
 
@@ -306,6 +307,9 @@ class AuctionController extends Controller
 
                 $bidAmount = (float) $request->amount;
 
+                // Identify current leading bid before recording the new bid
+                $currentLeader = AuctionBid::where('auction_id', $lockedAuction->id)->orderByDesc('amount')->first();
+
                 AuctionBid::create([
                     'auction_id' => $lockedAuction->id,
                     'user_id'    => $user->id,
@@ -313,6 +317,27 @@ class AuctionController extends Controller
                 ]);
 
                 $lockedAuction->current_price = $bidAmount;
+
+                // Emit outbid notification if supplanted leader is a different user
+                if ($currentLeader && (int) $currentLeader->user_id !== (int) $user->id) {
+                    try {
+                        Notification::create([
+                            'user_id' => $currentLeader->user_id,
+                            'type'    => 'outbid',
+                            'title'   => 'You have been outbid!',
+                            'message' => 'A higher bid of ₹' . number_format($bidAmount, 2) . ' was placed on ' . ($lockedAuction->product?->name ?? 'the auction lot'),
+                            'link'    => route('auctions.show', $lockedAuction->id),
+                            'data'    => [
+                                'auction_id' => $lockedAuction->id,
+                                'product_id' => $lockedAuction->product_id,
+                                'amount'     => $bidAmount,
+                                'link'       => route('auctions.show', $lockedAuction->id),
+                            ],
+                        ]);
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Outbid notification failed: ' . $e->getMessage());
+                    }
+                }
 
                 // Anti-sniping: if remaining time <= 120 seconds, extend by 2 minutes
                 $secondsLeft = now()->diffInSeconds($lockedAuction->ends_at, false);
@@ -374,7 +399,7 @@ class AuctionController extends Controller
             'product.primaryImage',
             'product.images',
             'product.category',
-            'seller.sellerProfile',
+            'seller.user',
             'bids' => fn ($q) => $q->orderBy('amount', 'desc')->with('user'),
         ]);
 

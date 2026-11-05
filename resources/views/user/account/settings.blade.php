@@ -73,17 +73,6 @@
                                 placeholder="+91 9876543210">
                         </div>
 
-                        <div class="flex flex-col gap-1.5 md:col-span-2">
-                            <label class="font-body-small text-body-small font-semibold text-slate-authority">Preferred Language</label>
-                            <select name="preferred_language"
-                                class="bg-surface-container-low border border-slate-authority/20 rounded-xl px-4 py-3 text-slate-authority font-body-regular text-body-regular focus:outline-none focus:border-amber-action transition-colors">
-                                <option value="en" {{ ($user->preferred_language ?? 'en') === 'en' ? 'selected' : '' }}>English</option>
-                                <option value="hi" {{ ($user->preferred_language ?? '') === 'hi' ? 'selected' : '' }}>Hindi</option>
-                                <option value="bn" {{ ($user->preferred_language ?? '') === 'bn' ? 'selected' : '' }}>Bengali</option>
-                                <option value="ta" {{ ($user->preferred_language ?? '') === 'ta' ? 'selected' : '' }}>Tamil</option>
-                                <option value="te" {{ ($user->preferred_language ?? '') === 'te' ? 'selected' : '' }}>Telugu</option>
-                            </select>
-                        </div>
 
                         <div class="md:col-span-2 p-4 rounded-xl bg-surface-container-low/80 border border-slate-authority/10">
                             <p class="font-body-small text-body-small font-semibold text-slate-authority mb-1">Email Address</p>

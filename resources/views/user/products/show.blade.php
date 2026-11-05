@@ -83,20 +83,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0F172A',
-                        accent: { DEFAULT: '#F5A623', hover: '#E09214' }
-                    },
-                    borderRadius: { card: '16px' }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
             background-color: #FFFDF8;
@@ -127,6 +114,9 @@
 </head>
 
 <body class="font-sans text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
+
     <!-- NAVIGATION BAR -->
     <x-nav />
 
@@ -341,6 +331,7 @@
                             <div class="flex items-center gap-3">
                                 <button
                                     type="button"
+                                    id="buy-now-btn"
                                     class="flex-1 py-3.5 px-6 bg-[#0F172A] hover:bg-slate-800 text-white rounded-card font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]"
                                     onclick="submitCartForm(true)">
                                     <span class="text-[#F5A623]">⚡</span>
@@ -720,12 +711,23 @@
             document.getElementById('stepper-count').innerText = qty;
         }
 
+        let isSubmittingCart = false;
         function submitCartForm(buyNow = false) {
+            if (isSubmittingCart) return;
             const productId = "{{ $prod ? $prod->id : '' }}";
             if (!productId) {
-                alert('Product not found.');
+                showToast('Product not found.', 'error');
                 return;
             }
+            isSubmittingCart = true;
+
+            const targetBtn = buyNow ? document.getElementById('buy-now-btn') : document.getElementById('add-to-cart-btn');
+            if (targetBtn) {
+                targetBtn.disabled = true;
+                targetBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                targetBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>${buyNow ? 'Redirecting to Checkout...' : 'Adding to Cart...'}</span>`;
+            }
+
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = "{{ route('cart.store') }}";
@@ -783,7 +785,5 @@
             form.submit();
         }
     </script>
-    <!-- Alpine.js — required for nav dropdowns and interactive UI -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>

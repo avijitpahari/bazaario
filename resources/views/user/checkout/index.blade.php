@@ -3,7 +3,7 @@
 @section('title', 'Checkout — Bazaario')
 
 @section('content')
-<div class="max-w-container-max mx-auto px-gutter-md py-6 flex flex-col gap-6" x-data="{ selectedAddress: '{{ $defaultAddress->id ?? 'new' }}', selectedSlot: 'Morning: 8 AM - 12 PM', selectedPayment: 'cod' }">
+<div class="max-w-container-max mx-auto px-gutter-md py-6 flex flex-col gap-6" x-data="{ selectedAddress: '{{ $defaultAddress->id ?? 'new' }}', selectedSlot: 'Morning: 8 AM - 12 PM', selectedPayment: 'cod', placingOrder: false }">
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 font-label-micro text-label-micro text-on-surface-variant">
@@ -47,7 +47,8 @@
         </div>
     @endif
 
-    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form">
+    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form"
+          @submit="if(placingOrder) { $event.preventDefault(); return; } placingOrder = true;">
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -365,10 +366,20 @@
                     </div>
 
                     {{-- Feature 43: Place Order Button --}}
-                    <button type="submit" id="btn-place-order"
-                            class="w-full py-3.5 px-4 rounded-xl bg-amber-action text-slate-authority font-button-text font-bold shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 text-sm mt-2">
-                        <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
-                        Place Order (COD) • ₹{{ number_format($total, 2) }}
+                    <button type="submit" id="btn-place-order" :disabled="placingOrder"
+                            class="w-full py-3.5 px-4 rounded-xl bg-amber-action text-slate-authority font-button-text font-bold shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 text-sm mt-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <template x-if="!placingOrder">
+                            <span class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+                                <span>Place Order (COD) • ₹{{ number_format($total, 2) }}</span>
+                            </span>
+                        </template>
+                        <template x-if="placingOrder">
+                            <span class="flex items-center gap-2">
+                                <x-loading-spinner size="18px" />
+                                <span>Securing Escrow &amp; Placing Order...</span>
+                            </span>
+                        </template>
                     </button>
 
                     <p class="text-[11px] text-center text-on-surface-variant">

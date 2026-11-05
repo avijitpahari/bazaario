@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/favicon.png') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet">
@@ -143,15 +144,13 @@
         }
         [x-cloak] { display: none !important; }
     </style>
-    <!-- Alpine.js CDN -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script
-        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-dim": "#dbdad5", "card-white": "#FFFFFF", "on-error-container": "#93000a", "on-tertiary-fixed-variant": "#633f00", "primary-alpha-70": "rgba(15, 23, 42, 0.70)", "outline": "#76777d", "on-tertiary-fixed": "#291800", "on-primary-fixed-variant": "#3f465c", "on-secondary-fixed-variant": "#005320", "slate-authority": "#0F172A", "inverse-on-surface": "#f2f1ec", "tertiary": "#000000", "tertiary-fixed": "#ffddb4", "error": "#ba1a1a", "tertiary-fixed-dim": "#ffb955", "surface-variant": "#e4e2de", "on-tertiary-container": "#b57700", "secondary-fixed": "#7ffc97", "ivory-alpha-70": "rgba(255, 253, 248, 0.70)", "on-secondary": "#ffffff", "on-primary": "#ffffff", "amber-action": "#F5A623", "on-primary-container": "#7c839b", "on-secondary-container": "#007230", "surface-container-low": "#f5f3ee", "surface-container": "#efeee9", "tertiary-container": "#291800", "inverse-primary": "#bec6e0", "secondary-container": "#7cf994", "on-secondary-fixed": "#002109", "surface-container-highest": "#e4e2de", "on-background": "#1b1c19", "primary-alpha-20": "rgba(15, 23, 42, 0.20)", "canvas-ivory": "#FFFDF8", "error-container": "#ffdad6", "primary-container": "#131b2e", "on-surface": "#1b1c19", "surface-tint": "#565e74", "on-error": "#ffffff", "surface-container-lowest": "#ffffff", "outline-variant": "#c6c6cd", "on-primary-fixed": "#131b2e", "background": "#fbf9f4", "status-green": "#16A34A", "primary": "#000000", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#62df7d", "surface-bright": "#fbf9f4", "primary-fixed-dim": "#bec6e0", "primary-fixed": "#dae2fd", "inverse-surface": "#30312e", "primary-alpha-10": "rgba(15, 23, 42, 0.10)", "on-surface-variant": "#45464d", "surface": "#fbf9f4", "surface-container-high": "#eae8e3", "secondary": "#006e2d" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter-md": "1.5rem", "section-final-bottom": "4rem", "gutter-sm": "1rem", "section-hero-top": "4rem", "container-max": "72rem", "section-hero-bottom": "2.5rem", "card-padding": "1.25rem", "gutter-lg": "2.5rem", "gutter-xs": "0.5rem", "section-interior-y": "3.5rem", "gutter-xl": "3.5rem", "banner-padding": "2.5rem" }, fontFamily: { "label-eyebrow": ["JetBrains Mono"], "body-regular": ["Inter"], "display-hero": ["Space Grotesk"], "title-card": ["Space Grotesk"], "label-micro": ["JetBrains Mono"], "body-small": ["Inter"], "button-text": ["Inter"], "body-lead": ["Inter"], "headline-section": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"] }, fontSize: { "label-eyebrow": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }], "body-regular": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "title-card": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-micro": ["10px", { "lineHeight": "14px", "letterSpacing": "0.025em", "fontWeight": "500" }], "body-small": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "button-text": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "body-lead": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-section": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } } } };</script>
 </head>
 
 <body
     class="bg-canvas-ivory font-body-regular text-body-regular text-on-surface min-h-screen relative selection:bg-amber-action/30 selection:text-slate-authority overflow-x-hidden">
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
+
     <!-- Sleek Floating Pill Top Navigation -->
     @include('components.nav', ['currentRoute' => Route::currentRouteName()])
     <!-- Ambient 3D Background Objects & Isometric Showcase Halo -->
@@ -444,13 +443,13 @@
                                     <span
                                         class="font-label-eyebrow text-[11px] uppercase text-slate-authority/80 mb-2 block">Account
                                         Type</span>
-                                    <div class="grid grid-cols-2 gap-3">
+                                    <div class="grid {{ \App\Models\SiteSetting::isSingleVendor() ? 'grid-cols-1' : 'grid-cols-2' }} gap-3">
                                         <!-- Customer Selection Card -->
                                         <label
                                             class="relative border-2 border-amber-action bg-canvas-ivory rounded-xl p-3 cursor-pointer transition-all flex flex-col justify-between select-none shadow-[0_4px_12px_rgba(245,166,35,0.15)] hover:shadow-md"
                                             id="card-type-customer">
                                             <input checked="" class="sr-only" name="role"
-                                                onchange="document.getElementById('card-type-customer').className = 'relative border-2 border-amber-action bg-canvas-ivory rounded-xl p-3 cursor-pointer transition-all flex flex-col justify-between select-none shadow-[0_4px_12px_rgba(245,166,35,0.15)] hover:shadow-md'; document.getElementById('card-type-seller').className = 'relative border border-primary-alpha-10 bg-card-white hover:border-amber-action/50 rounded-xl p-3 cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm'; document.getElementById('tag-customer').classList.remove('hidden'); document.getElementById('tag-seller').classList.add('hidden');"
+                                                onchange="document.getElementById('card-type-customer').className = 'relative border-2 border-amber-action bg-canvas-ivory rounded-xl p-3 cursor-pointer transition-all flex flex-col justify-between select-none shadow-[0_4px_12px_rgba(245,166,35,0.15)] hover:shadow-md'; if(document.getElementById('card-type-seller')) { document.getElementById('card-type-seller').className = 'relative border border-primary-alpha-10 bg-card-white hover:border-amber-action/50 rounded-xl p-3 cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm'; } document.getElementById('tag-customer').classList.remove('hidden'); if(document.getElementById('tag-seller')) { document.getElementById('tag-seller').classList.add('hidden'); }"
                                                 type="radio" value="user">
                                             <div class="flex items-center justify-between mb-1.5">
                                                 <div class="flex items-center gap-2">
@@ -468,6 +467,7 @@
                                             <span class="font-label-micro text-[10px] text-primary-alpha-70">Shop, bid &amp;
                                                 collect rare works</span>
                                         </label>
+                                        @unless(\App\Models\SiteSetting::isSingleVendor())
                                         <!-- Seller Selection Card -->
                                         <label
                                             class="relative border border-primary-alpha-10 bg-card-white hover:border-amber-action/50 rounded-xl p-3 cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm hover:shadow-md"
@@ -492,6 +492,7 @@
                                             <span class="font-label-micro text-[10px] text-primary-alpha-70">Sell, host
                                                 auctions &amp; scale stalls</span>
                                         </label>
+                                        @endunless
                                     </div>
                                 </div>
                                 <!-- Terms Checkbox -->
@@ -668,8 +669,10 @@ document.getElementById('reg-form').addEventListener('submit', async function (e
 
     // Loading state
     btn.disabled = true;
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
     label.textContent = 'Sending OTP…';
-    icon.textContent  = 'hourglass_empty';
+    icon.textContent  = 'progress_activity';
+    icon.classList.add('animate-spin');
 
     const formData = new FormData(this);
 
@@ -701,14 +704,18 @@ document.getElementById('reg-form').addEventListener('submit', async function (e
             }
             showError(errorMessage);
             btn.disabled  = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
             label.textContent = 'Create Account';
             icon.textContent  = 'arrow_forward';
+            icon.classList.remove('animate-spin');
         }
     } catch (err) {
         showError('Request failed (' + err.message + '). Please try again.');
         btn.disabled  = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
         label.textContent = 'Create Account';
         icon.textContent  = 'arrow_forward';
+        icon.classList.remove('animate-spin');
     }
 });
 
@@ -775,8 +782,10 @@ document.getElementById('otp-verify-btn').addEventListener('click', async functi
     const icon  = document.getElementById('otp-verify-icon');
 
     btn.disabled  = true;
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
     label.textContent = 'Verifying…';
-    icon.textContent  = 'hourglass_empty';
+    icon.textContent  = 'progress_activity';
+    icon.classList.add('animate-spin');
 
     try {
         const res = await fetch('{{ route("register.verify-otp") }}', {
@@ -793,20 +802,25 @@ document.getElementById('otp-verify-btn').addEventListener('click', async functi
         if (res.ok && data.success) {
             label.textContent = 'Account Created!';
             icon.textContent  = 'check_circle';
+            icon.classList.remove('animate-spin');
             btn.classList.add('opacity-80');
             // Redirect
             setTimeout(() => { window.location.href = data.redirect; }, 600);
         } else {
             showError(data.message || 'Verification failed. Please try again.');
             btn.disabled  = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
             label.textContent = 'Verify & Create Account';
             icon.textContent  = 'verified_user';
+            icon.classList.remove('animate-spin');
         }
     } catch (err) {
         showError('Network error. Please try again.');
         btn.disabled  = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
         label.textContent = 'Verify & Create Account';
-        icon.textContent  = 'verified';
+        icon.textContent  = 'verified_user';
+        icon.classList.remove('animate-spin');
     }
 });
 

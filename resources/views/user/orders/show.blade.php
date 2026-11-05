@@ -6,253 +6,22 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="web_standard" name="shell-type" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <title>Order Details — Bazaario</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         @layer base {
-
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-            }
-
-            body {
-                overscroll-behavior: none;
-            }
-
-            main>:first-child {
-                margin-top: 0 !important;
-            }
-
-            main>:last-child {
-                margin-bottom: 0 !important;
-            }
+            html, body { margin: 0; padding: 0; }
+            body { overscroll-behavior: none; }
+            main>:first-child { margin-top: 0 !important; }
+            main>:last-child { margin-bottom: 0 !important; }
         }
-
-        ::-webkit-scrollbar {
-            display: none;
-        }
+        ::-webkit-scrollbar { display: none; }
     </style>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-dim": "#dbdad5",
-                        "tertiary": "#000000",
-                        "inverse-on-surface": "#f2f1ec",
-                        "on-surface": "#1b1c19",
-                        "ivory-alpha-70": "rgba(255, 253, 248, 0.70)",
-                        "secondary": "#006e2d",
-                        "status-green": "#16A34A",
-                        "on-secondary": "#ffffff",
-                        "primary-fixed-dim": "#bec6e0",
-                        "error-container": "#ffdad6",
-                        "secondary-fixed": "#7ffc97",
-                        "background": "#fbf9f4",
-                        "outline-variant": "#c6c6cd",
-                        "primary-container": "#131b2e",
-                        "tertiary-fixed": "#ffddb4",
-                        "primary": "#000000",
-                        "card-white": "#FFFFFF",
-                        "error": "#ba1a1a",
-                        "on-primary": "#ffffff",
-                        "surface-container-high": "#eae8e3",
-                        "canvas-ivory": "#FFFDF8",
-                        "primary-fixed": "#dae2fd",
-                        "outline": "#76777d",
-                        "inverse-surface": "#30312e",
-                        "on-error": "#ffffff",
-                        "surface-bright": "#fbf9f4",
-                        "on-background": "#1b1c19",
-                        "on-error-container": "#93000a",
-                        "on-surface-variant": "#45464d",
-                        "inverse-primary": "#bec6e0",
-                        "on-secondary-fixed": "#002109",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "primary-alpha-10": "rgba(15, 23, 42, 0.10)",
-                        "tertiary-fixed-dim": "#ffb955",
-                        "on-primary-fixed": "#131b2e",
-                        "slate-authority": "#0F172A",
-                        "surface-container": "#efeee9",
-                        "surface-tint": "#565e74",
-                        "surface": "#fbf9f4",
-                        "on-primary-container": "#7c839b",
-                        "on-secondary-fixed-variant": "#005320",
-                        "on-tertiary-container": "#b57700",
-                        "tertiary-container": "#291800",
-                        "surface-container-highest": "#e4e2de",
-                        "on-secondary-container": "#007230",
-                        "surface-container-low": "#f5f3ee",
-                        "surface-variant": "#e4e2de",
-                        "primary-alpha-20": "rgba(15, 23, 42, 0.20)",
-                        "secondary-fixed-dim": "#62df7d",
-                        "on-tertiary-fixed-variant": "#633f00",
-                        "on-tertiary-fixed": "#291800",
-                        "on-tertiary": "#ffffff",
-                        "secondary-container": "#7cf994",
-                        "surface-container-lowest": "#ffffff",
-                        "amber-action": "#F5A623",
-                        "primary-alpha-70": "rgba(15, 23, 42, 0.70)"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "2xl": "1rem",
-                        "3xl": "1.5rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "section-final-bottom": "4rem",
-                        "section-interior-y": "3.5rem",
-                        "container-max": "72rem",
-                        "section-hero-bottom": "2.5rem",
-                        "gutter-lg": "2.5rem",
-                        "gutter-xl": "3.5rem",
-                        "section-hero-top": "4rem",
-                        "gutter-xs": "0.5rem",
-                        "banner-padding": "2.5rem",
-                        "gutter-sm": "1rem",
-                        "gutter-md": "1.5rem",
-                        "card-padding": "1.25rem"
-                    },
-                    "fontFamily": {
-                        "display-hero": [
-                            "Space Grotesk"
-                        ],
-                        "button-text": [
-                            "Inter"
-                        ],
-                        "label-micro": [
-                            "JetBrains Mono"
-                        ],
-                        "body-regular": [
-                            "Inter"
-                        ],
-                        "label-eyebrow": [
-                            "JetBrains Mono"
-                        ],
-                        "headline-section": [
-                            "Space Grotesk"
-                        ],
-                        "title-card": [
-                            "Space Grotesk"
-                        ],
-                        "display-hero-mobile": [
-                            "Space Grotesk"
-                        ],
-                        "body-small": [
-                            "Inter"
-                        ],
-                        "body-lead": [
-                            "Inter"
-                        ]
-                    },
-                    "fontSize": {
-                        "display-hero": [
-                            "48px",
-                            {
-                                "lineHeight": "56px",
-                                "letterSpacing": "-0.02em",
-                                "fontWeight": "700"
-                            }
-                        ],
-                        "button-text": [
-                            "16px",
-                            {
-                                "lineHeight": "24px",
-                                "fontWeight": "600"
-                            }
-                        ],
-                        "label-micro": [
-                            "10px",
-                            {
-                                "lineHeight": "14px",
-                                "letterSpacing": "0.025em",
-                                "fontWeight": "500"
-                            }
-                        ],
-                        "body-regular": [
-                            "16px",
-                            {
-                                "lineHeight": "24px",
-                                "fontWeight": "400"
-                            }
-                        ],
-                        "label-eyebrow": [
-                            "12px",
-                            {
-                                "lineHeight": "16px",
-                                "letterSpacing": "0.05em",
-                                "fontWeight": "500"
-                            }
-                        ],
-                        "headline-section": [
-                            "24px",
-                            {
-                                "lineHeight": "32px",
-                                "letterSpacing": "-0.01em",
-                                "fontWeight": "700"
-                            }
-                        ],
-                        "title-card": [
-                            "18px",
-                            {
-                                "lineHeight": "24px",
-                                "letterSpacing": "-0.01em",
-                                "fontWeight": "600"
-                            }
-                        ],
-                        "display-hero-mobile": [
-                            "36px",
-                            {
-                                "lineHeight": "44px",
-                                "letterSpacing": "-0.02em",
-                                "fontWeight": "700"
-                            }
-                        ],
-                        "body-small": [
-                            "14px",
-                            {
-                                "lineHeight": "20px",
-                                "fontWeight": "400"
-                            }
-                        ],
-                        "body-lead": [
-                            "18px",
-                            {
-                                "lineHeight": "28px",
-                                "fontWeight": "400"
-                            }
-                        ]
-                    }
-                },
-            },
-        }</script>
 </head>
 
 <body
@@ -408,7 +177,7 @@
                     <div class="flex flex-wrap items-center gap-2.5">
                         <button
                             class="inline-flex items-center gap-2 bg-white hover:bg-surface-container-low text-slate-authority font-button-text text-body-small font-semibold px-4 py-2.5 rounded-2xl shadow-sm transition-all"
-                            onclick="alert('Cryptographic Invoice #BZ-2026-00128.pdf generated with verified SHA-256 seal.')"
+                            onclick="showToast('Cryptographic Invoice #BZ-2026-00128.pdf generated with verified SHA-256 seal.', 'success')"
                             type="button">
                             <span class="material-symbols-outlined text-body-lead text-slate-authority">download</span>
                             <span>Invoice (PDF)</span>
@@ -416,7 +185,7 @@
                         <div class="relative group">
                             <button
                                 class="inline-flex items-center gap-2 bg-error/10 hover:bg-error/15 text-error font-button-text text-body-small font-semibold px-4 py-2.5 rounded-2xl transition-all shadow-xs"
-                                onclick="alert('Return window is active: 2 days remaining. Dispute coordinator assigned.')"
+                                onclick="showToast('Return window is active: 2 days remaining. Dispute coordinator assigned.', 'info')"
                                 type="button">
                                 <span class="material-symbols-outlined text-body-lead">assignment_return</span>
                                 <span>Return / Dispute</span>
@@ -427,7 +196,7 @@
                         </div>
                         <button
                             class="inline-flex items-center gap-1.5 bg-amber-action hover:opacity-95 active:scale-[0.99] text-slate-authority font-button-text text-body-small font-bold px-5 py-2.5 rounded-2xl shadow-sm transition-all"
-                            onclick="alert('Thank you for supporting verified stall TechWorld Store!')" type="button">
+                            onclick="showToast('Thank you for supporting verified stall TechWorld Store!', 'success')" type="button">
                             <span class="material-symbols-outlined text-body-lead"
                                 style="font-variation-settings: 'FILL' 1;">hotel_class</span>
                             <span>Rate Stall</span>
@@ -568,14 +337,14 @@
                                 id="tracking-id">TRK-99281-BLUEDART</code>
                             <button
                                 class="p-1.5 hover:bg-white rounded-lg text-on-surface-variant hover:text-slate-authority transition-colors"
-                                onclick="navigator.clipboard.writeText('TRK-99281-BLUEDART'); alert('Copied Tracking ID to clipboard!');"
+                                onclick="navigator.clipboard.writeText('TRK-99281-BLUEDART'); showToast('Copied Tracking ID to clipboard!', 'success');"
                                 title="Copy tracking code" type="button">
                                 <span class="material-symbols-outlined text-body-small">content_copy</span>
                             </button>
                         </div>
                         <button
                             class="inline-flex items-center gap-1.5 text-slate-authority font-button-text text-body-small font-bold hover:text-amber-action transition-colors"
-                            onclick="alert('Viewing Telemetry Map: Final delivery leg completed via Armored Courier Station WB-401.')"
+                            onclick="showToast('Viewing Telemetry Map: Final delivery leg completed via Armored Courier Station WB-401.', 'info')"
                             type="button">
                             <span class="material-symbols-outlined text-body-lead text-amber-action">near_me</span>
                             <span>View Courier Telemetry Map →</span>
@@ -680,7 +449,7 @@
                                         </a>
                                         <button
                                             class="bg-amber-action hover:opacity-95 text-slate-authority font-button-text text-body-small font-bold px-4 py-2 rounded-xl shadow-xs active:scale-[0.99] transition-all"
-                                            onclick="alert('Added Sony WH-1000XM5 to your bag!')" type="button">
+                                            onclick="showToast('Added Sony WH-1000XM5 to your bag!', 'success')" type="button">
                                             Buy Again
                                         </button>
                                     </div>
@@ -898,7 +667,7 @@
                     <div class="flex flex-col sm:flex-row items-center gap-3 relative z-10 shrink-0 w-full lg:w-auto">
                         <button
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-action hover:opacity-95 text-slate-authority font-button-text text-button-text font-bold px-6 py-3 rounded-2xl shadow-md transition-all active:scale-[0.99]"
-                            onclick="alert('Opening dispute resolution desk. Your dedicated case manager is ready.')"
+                            onclick="showToast('Opening dispute resolution desk. Your dedicated case manager is ready.', 'info')"
                             type="button">
                             <span class="material-symbols-outlined text-body-lead">support_agent</span>
                             <span>Contact Concierge</span>
@@ -911,7 +680,7 @@
                 </section>
                 <!-- Floating AI Order Concierge Pill -->
                 <div class="self-center -mt-2 inline-flex items-center gap-3 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full shadow-md cursor-pointer hover:bg-white transition-all"
-                    onclick="alert('Bazaario AI Order Assistant: All records confirm clean receipt! Can I help you with return requests, stall communication, or downloading tax receipts?')">
+                    onclick="showToast('Bazaario AI Order Assistant: All records confirm clean receipt! Can I help you with return requests, stall communication, or downloading tax receipts?', 'info', 'AI Assistant')">
                     <span class="w-2 h-2 rounded-full bg-amber-action animate-ping"></span>
                     <span class="font-label-eyebrow text-body-small text-slate-authority font-medium">
                         <strong class="text-amber-action font-bold">✦ Bazaario AI Concierge:</strong> “Need help with

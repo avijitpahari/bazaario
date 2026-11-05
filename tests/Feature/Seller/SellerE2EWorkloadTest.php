@@ -152,7 +152,7 @@ class SellerE2EWorkloadTest extends TestCase
         $pendingPage = $this->actingAs($seller, 'seller')->get(route('seller.pending'));
         $pendingPage->assertStatus(200);
         $pendingPage->assertSee('Maa Sarada Agro Farm');
-        $pendingPage->assertSee('Awaiting Review');
+        $pendingPage->assertSee('STATUS: AWAITING ADMIN APPROVAL');
 
         // While pending, accessing dashboard remains locked
         $gatedResponse = $this->actingAs($seller, 'seller')->get(route('seller.dashboard'));

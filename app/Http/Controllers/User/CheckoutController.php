@@ -229,7 +229,7 @@ class CheckoutController extends Controller
                             'seller_order_id' => $sellerOrder->id,
                             'product_id'      => $item->product_id,
                             'product_name'    => $prod ? $prod->name : 'Product',
-                            'product_image'   => $prod?->images?->first()?->image_path ?? null,
+                            'product_image'   => $prod?->primaryImage?->image_path ?? $prod?->images?->first()?->image_path ?? $prod?->main_image_url ?? null,
                             'sku'             => $prod?->sku ?? null,
                             'unit_price'      => $unitPrice,
                             'quantity'        => $item->quantity,
@@ -267,6 +267,31 @@ class CheckoutController extends Controller
                 // 6. Empty the cart and forget coupon
                 $cart->items()->delete();
                 session()->forget('coupon');
+
+                // 7. Emit In-App Notifications for buyer & sellers
+                try {
+                    \App\Models\Notification::create([
+                        'user_id' => $user->id,
+                        'type'    => 'order_placed',
+                        'title'   => 'Order Placed Successfully',
+                        'message' => "Your order #{$order->order_number} for ₹" . number_format($order->total_amount, 2) . " has been placed and is being processed.",
+                        'data'    => ['order_id' => $order->id, 'order_number' => $order->order_number],
+                    ]);
+
+                    foreach ($itemsBySeller as $sellerId => $sItems) {
+                        if ($sellerId) {
+                            \App\Models\Notification::create([
+                                'user_id' => $sellerId,
+                                'type'    => 'new_sale',
+                                'title'   => 'New Order Received',
+                                'message' => "You have a new shipment assigned under marketplace order #{$order->order_number}.",
+                                'data'    => ['order_id' => $order->id, 'order_number' => $order->order_number],
+                            ]);
+                        }
+                    }
+                } catch (\Throwable $notifEx) {
+                    \Illuminate\Support\Facades\Log::warning('Failed generating order notification: ' . $notifEx->getMessage());
+                }
 
                 return $order;
             });

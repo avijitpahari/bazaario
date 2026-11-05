@@ -70,29 +70,29 @@
         
         <!-- Left Navigation -->
         <aside class="lg:col-span-3 flex flex-col gap-6 sticky top-24">
-            <div class="bg-white rounded-[14px] p-3 shadow-sm border border-[#E2DFD7]/60 flex flex-col gap-1">
+            <div class="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex flex-col gap-1">
                 <div class="px-3 py-2">
-                    <span class="font-mono text-[10px] uppercase tracking-widest text-outline">Configuration Suite</span>
+                    <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400 font-bold">Configuration Suite</span>
                 </div>
-                <a href="{{ route('seller.account.profile') }}" class="w-full flex items-center justify-between px-3 py-2.5 rounded-[10px] text-on-surface-variant hover:bg-surface-container-low transition-all">
+                <a href="{{ route('seller.account.profile') }}" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-heading font-semibold transition-all">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px]">storefront</span>
+                        <span class="material-symbols-outlined text-[20px] text-slate-400">storefront</span>
                         <span class="text-sm font-heading">Shop Profile</span>
                     </div>
                 </a>
-                <a href="{{ route('seller.account.location') }}" class="w-full flex items-center justify-between px-3 py-2.5 rounded-[10px] text-on-surface-variant hover:bg-surface-container-low transition-all">
+                <a href="{{ route('seller.account.location') }}" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-heading font-semibold transition-all">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px]">explore</span>
+                        <span class="material-symbols-outlined text-[20px] text-slate-400">explore</span>
                         <span class="text-sm font-heading">Location &amp; Geofence</span>
                     </div>
-                    <span class="px-1.5 py-0.5 rounded-[4px] bg-brand-green/20 text-brand-green font-mono text-[10px] font-bold">GPS OK</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-mono text-[10px] font-bold">GPS OK</span>
                 </a>
-                <a href="{{ route('seller.account.security') }}" class="w-full flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-secondary-container/30 text-on-secondary-container font-semibold transition-all">
+                <a href="{{ route('seller.account.security') }}" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-amber-500/10 text-amber-950 font-heading font-bold border border-amber-300/60 shadow-2xs transition-all">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px] text-secondary">shield</span>
+                        <span class="material-symbols-outlined text-[20px] text-amber-600">shield</span>
                         <span class="text-sm font-heading">Security &amp; Password</span>
                     </div>
-                    <span class="px-1.5 py-0.5 rounded-[4px] bg-brand-green/20 text-brand-green font-mono text-[10px] font-bold">2FA On</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-mono text-[10px] font-bold">2FA On</span>
                 </a>
             </div>
         </aside>

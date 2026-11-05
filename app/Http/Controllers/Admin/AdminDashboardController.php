@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Order;
@@ -27,17 +28,83 @@ class AdminDashboardController extends Controller
      */
     public function dashboard()
     {
-        $totalGmv = Order::whereIn('order_status', ['processing', 'completed'])->sum('total_amount');
-        $escrowHolds = Order::whereIn('order_status', ['pending', 'processing'])->sum('total_amount');
+        $orderAggregates = Order::selectRaw("
+            SUM(CASE WHEN order_status IN ('processing', 'completed') THEN total_amount ELSE 0 END) as gmv,
+            SUM(CASE WHEN order_status IN ('pending', 'processing') THEN total_amount ELSE 0 END) as escrow,
+            COUNT(*) as total_orders
+        ")->first();
+
+        $sellerAggregates = SellerProfile::selectRaw("
+            SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_count,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+            COUNT(*) as total_count
+        ")->first();
+
+        $totalUsers = User::count();
+        $totalBuyers = User::where('role', 'user')->count();
+        $totalSellers = SellerProfile::count();
+        $approvedSellers = (int)($sellerAggregates->approved_count ?? 0);
+        $pendingKyc = (int)($sellerAggregates->pending_count ?? 0);
+        $totalOrders = (int)($orderAggregates->total_orders ?? 0);
+        $totalGmv = (float)($orderAggregates->gmv ?? 0);
+        $escrowHolds = (float)($orderAggregates->escrow ?? 0);
+
+        // Site Analytics metrics
+        $analytics = [
+            'total_users' => $totalUsers,
+            'buyers_count' => $totalBuyers,
+            'total_sellers' => $totalSellers,
+            'approved_sellers' => $approvedSellers,
+            'pending_sellers' => $pendingKyc,
+            'total_orders' => $totalOrders,
+            'gmv_amount' => $totalGmv,
+            'gmv_formatted' => number_format($totalGmv, 2),
+            'escrow_amount' => $escrowHolds,
+            'escrow_formatted' => number_format($escrowHolds, 2),
+            'total_products' => Product::count(),
+            'active_auctions' => Auction::where('status', 'live')->count(),
+            'total_bids' => AuctionBid::count(),
+            'total_categories' => Category::count(),
+            'order_statuses' => [
+                'completed' => Order::where('order_status', 'completed')->count(),
+                'processing' => Order::where('order_status', 'processing')->count(),
+                'pending' => Order::where('order_status', 'pending')->count(),
+                'cancelled' => Order::where('order_status', 'cancelled')->count(),
+            ],
+            'recent_days' => Order::selectRaw('DATE(created_at) as date, count(*) as count, sum(total_amount) as total')
+                ->groupBy('date')
+                ->orderBy('date', 'desc')
+                ->take(7)
+                ->get()
+                ->reverse()
+                ->values(),
+        ];
+
+        $formatCurrencyCompact = function($amount) {
+            if ($amount >= 10000000) {
+                return '₹' . number_format($amount / 10000000, 2) . ' Cr';
+            }
+            if ($amount >= 100000) {
+                return '₹' . number_format($amount / 100000, 2) . ' L';
+            }
+            return '₹' . number_format($amount, 0);
+        };
 
         $stats = [
-            'gmv' => number_format($totalGmv ?: 3842850),
-            'orders_count' => Order::count() ?: 1482,
-            'sellers_count' => SellerProfile::where('status', 'approved')->count() ?: 348,
-            'buyers_count' => User::where('role', 'user')->count() ?: 28940,
-            'pending_kyc' => SellerProfile::where('status', 'pending')->count(),
-            'escrow_holds' => number_format($escrowHolds ?: 1420500),
-            'active_auctions' => Auction::where('status', 'live')->count() ?: 10,
+            'total_users' => $totalUsers,
+            'buyers_count' => $totalBuyers,
+            'total_sellers' => $totalSellers,
+            'sellers_count' => $approvedSellers,
+            'orders_count' => $totalOrders,
+            'gmv' => number_format($totalGmv, 2),
+            'gmv_compact' => $formatCurrencyCompact($totalGmv),
+            'gmv_whole' => number_format($totalGmv, 0),
+            'gmv_raw' => $totalGmv,
+            'pending_kyc' => $pendingKyc,
+            'escrow_holds' => number_format($escrowHolds, 2),
+            'escrow_compact' => $formatCurrencyCompact($escrowHolds),
+            'escrow_whole' => number_format($escrowHolds, 0),
+            'active_auctions' => $analytics['active_auctions'],
         ];
 
         // Real recent multi-seller split orders with eager loaded merchant profiles to eliminate N+1
@@ -60,7 +127,7 @@ class AdminDashboardController extends Controller
             ->take(4)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentOrders', 'pendingSellers', 'liveAuctions'));
+        return view('admin.dashboard', compact('stats', 'analytics', 'recentOrders', 'pendingSellers', 'liveAuctions'));
     }
 
     /**
@@ -92,6 +159,11 @@ class AdminDashboardController extends Controller
             $query->where('city', $city);
         }
 
+        if ($request->filled('seller_type')) {
+            $sellerType = trim(strip_tags((string)$request->seller_type));
+            $query->where('seller_type', $sellerType);
+        }
+
         $sellers = $query->latest()->paginate(12)->withQueryString();
         $cities = SellerProfile::whereNotNull('city')->pluck('city')->unique()->filter()->values();
 
@@ -119,12 +191,41 @@ class AdminDashboardController extends Controller
             $query->where('status', 'pending');
         }
 
+        if ($search = trim((string)$request->input('search', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('shop_name', 'like', "%{$search}%")
+                  ->orWhere('gstin', 'like', "%{$search}%")
+                  ->orWhere('pan_number', 'like', "%{$search}%")
+                  ->orWhere('trade_license_number', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('state', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%")
+                         ->orWhere('phone', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($type = $request->input('seller_type')) {
+            $query->where('seller_type', $type);
+        }
+
         $pendingSellers = $query->latest()->paginate(10)->withQueryString();
         $pendingCount = SellerProfile::where('status', 'pending')->count();
         $approvedCount = SellerProfile::where('status', 'approved')->count();
         $rejectedCount = SellerProfile::where('status', 'rejected')->count();
 
-        return view('admin.sellers.approvals', compact('pendingSellers', 'pendingCount', 'approvedCount', 'rejectedCount'));
+        $selectedId = $request->input('selected');
+        $selectedSeller = null;
+        if ($selectedId) {
+            $selectedSeller = SellerProfile::with('user')->find($selectedId);
+        }
+        if (!$selectedSeller) {
+            $selectedSeller = $pendingSellers->first();
+        }
+
+        return view('admin.sellers.approvals', compact('pendingSellers', 'pendingCount', 'approvedCount', 'rejectedCount', 'selectedSeller'));
     }
 
     /**
@@ -146,6 +247,14 @@ class AdminDashboardController extends Controller
                     $seller->user->update([
                         'role' => 'seller',
                         'status' => 'active',
+                    ]);
+
+                    \App\Models\Notification::create([
+                        'user_id' => $seller->user_id,
+                        'type'    => 'kyc_approved',
+                        'title'   => 'Merchant Application Approved! 🎉',
+                        'message' => "Congratulations! Your store \"{$seller->shop_name}\" has been verified. You can now access your live seller dashboard and publish inventory.",
+                        'data'    => ['seller_id' => $seller->id, 'shop_name' => $seller->shop_name],
                     ]);
                 }
 
@@ -275,7 +384,11 @@ class AdminDashboardController extends Controller
      */
     public function products(Request $request)
     {
-        $query = Product::with(['category', 'seller']);
+        $query = Product::with(['category', 'seller'])
+            ->where(function($q) {
+                $q->whereNull('sale_type')
+                  ->orWhere('sale_type', '!=', 'auction');
+            });
 
         if ($request->filled('search')) {
             $s = trim(strip_tags((string)$request->search));
@@ -297,19 +410,20 @@ class AdminDashboardController extends Controller
             $query->where('status', $status);
         }
 
-        if ($request->filled('sale_type')) {
-            $saleType = trim(strip_tags((string)$request->sale_type));
-            $query->where('sale_type', $saleType);
-        }
-
         $products = $query->latest()->paginate(15)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
+        $baseCount = Product::where(function($q) {
+            $q->whereNull('sale_type')
+              ->orWhere('sale_type', '!=', 'auction');
+        });
+
         $stats = [
-            'total' => Product::count(),
-            'active' => Product::where('status', 'active')->count(),
-            'auctions' => Product::where('sale_type', 'auction')->count(),
-            'low_stock' => Product::where('stock', '<', 5)->count(),
+            'total' => (clone $baseCount)->count(),
+            'active' => (clone $baseCount)->where('status', 'active')->count(),
+            'in_stock' => (clone $baseCount)->where('stock', '>', 0)->count(),
+            'out_of_stock' => (clone $baseCount)->where('stock', '<=', 0)->count(),
+            'low_stock' => (clone $baseCount)->where('stock', '<', 5)->where('stock', '>', 0)->count(),
         ];
 
         return view('admin.products.index', compact('products', 'categories', 'stats'));
@@ -1184,6 +1298,101 @@ class AdminDashboardController extends Controller
             });
         } catch (\Throwable $e) {
             return back()->with('error', "Failed to delete coupon: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Platform Configuration & Branding Settings Portal
+     */
+    public function settings(Request $request)
+    {
+        $settings = SiteSetting::allMap();
+        return view('admin.settings.index', compact('settings'));
+    }
+
+    /**
+     * Update Platform Configuration & Branding Settings
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'site_name'                   => 'nullable|string|max:100',
+            'site_tagline'                => 'nullable|string|max:255',
+            'commission_rate'             => 'nullable|numeric|min:0|max:100',
+            'platform_mode'               => 'nullable|string|in:multi_vendor,single_vendor',
+            'site_logo'                   => 'nullable|file|mimes:png,jpg,jpeg,svg,webp|max:2048',
+            'contact_email'               => 'nullable|email|max:150',
+            'contact_phone'               => 'nullable|string|max:30',
+            'auction_system_enabled'      => 'nullable|string|in:0,1,true,false',
+            'default_bid_increment'       => 'nullable|numeric|min:1',
+            'auction_anti_snipe_seconds'  => 'nullable|integer|min:0|max:3600',
+            'cod_enabled'                 => 'nullable|string|in:0,1,true,false',
+            'min_payout_amount'           => 'nullable|numeric|min:0',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                if ($request->boolean('remove_logo')) {
+                    $existingLogo = SiteSetting::get('site_logo');
+                    if ($existingLogo && is_string($existingLogo)) {
+                        Storage::disk('public')->delete($existingLogo);
+                    }
+                    SiteSetting::set('site_logo', null);
+                } elseif ($request->hasFile('site_logo')) {
+                    $path = $request->file('site_logo')->store('branding', 'public');
+                    SiteSetting::set('site_logo', $path);
+                }
+
+                if ($request->has('site_name')) {
+                    $siteName = trim(strip_tags((string)$request->input('site_name')));
+                    SiteSetting::set('site_name', $siteName);
+                }
+
+                if ($request->has('site_tagline')) {
+                    $siteTagline = trim(strip_tags((string)$request->input('site_tagline')));
+                    SiteSetting::set('site_tagline', $siteTagline);
+                }
+
+                if ($request->has('commission_rate')) {
+                    $rate = (float)$request->input('commission_rate');
+                    SiteSetting::set('commission_rate', $rate);
+                    SiteSetting::set('platform_commission_base', $rate);
+                }
+
+                if ($request->has('platform_mode')) {
+                    $mode = $request->input('platform_mode');
+                    SiteSetting::set('platform_mode', $mode);
+                }
+
+                $extraFields = [
+                    'contact_email',
+                    'contact_phone',
+                    'auction_system_enabled',
+                    'default_bid_increment',
+                    'auction_anti_snipe_seconds',
+                    'cod_enabled',
+                    'min_payout_amount',
+                ];
+
+                foreach ($extraFields as $field) {
+                    if ($request->has($field)) {
+                        $val = $request->input($field);
+                        if (is_string($val)) {
+                            $val = trim(strip_tags($val));
+                        }
+                        SiteSetting::set($field, $val);
+                    }
+                }
+
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('view:clear');
+                    \Illuminate\Support\Facades\Cache::flush();
+                } catch (\Throwable $e) {}
+
+                return back()->with('success', 'Platform branding and operational settings successfully updated.');
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to update platform settings: ' . $e->getMessage());
         }
     }
 

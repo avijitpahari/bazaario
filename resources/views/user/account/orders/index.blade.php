@@ -95,7 +95,7 @@
             <div class="flex items-center gap-4 mb-4">
                 <div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0">
                     @if($firstItem && $firstItem->product_image)
-                        <img alt="{{ $firstItem->product_name }}" class="w-full h-full object-cover" src="{{ Storage::url($firstItem->product_image) }}">
+                        <img alt="{{ $firstItem->product_name }}" class="w-full h-full object-cover" src="{{ $firstItem->image_url }}">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-on-surface-variant">
                             <span class="material-symbols-outlined text-[28px]">inventory_2</span>

@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\DashboardController;
@@ -26,6 +25,8 @@ use App\Http\Controllers\Seller\SellerOrderController;
 use App\Http\Controllers\Seller\SellerPayoutController;
 use App\Http\Controllers\Seller\SellerProfileController;
 use App\Http\Controllers\Seller\SellerAuctionController;
+use App\Http\Controllers\Seller\SellerAnalyticsController;
+use App\Http\Controllers\Admin\AdminAnalyticsController;
 
 Route::get('/test', function () {
     return view('test');
@@ -47,6 +48,7 @@ Route::post('/auctions/{auction}/bid', [AuctionController::class, 'placeBid'])->
 Route::post('/auctions/{auction}/quick-bid', [AuctionController::class, 'quickBid'])->name('auctions.quickBid');
 
 Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/products/{slug}', [ProductController::class, 'show']);
 
 Route::get('/category/{slug?}', [ProductController::class, 'category'])->name('category.show');
 
@@ -55,6 +57,17 @@ Route::get('/about', [ProductController::class, 'howItWorks'])->name('about');
 Route::get('/privacy', [ProductController::class, 'privacy'])->name('pages.privacy');
 Route::get('/terms', [ProductController::class, 'terms'])->name('pages.terms');
 Route::get('/return-policy', [ProductController::class, 'returnPolicy'])->name('pages.return-policy');
+Route::post('/ai/chat', [\App\Http\Controllers\AiAssistantController::class, 'chat'])->name('ai.chat');
+Route::match(['get', 'post'], '/ai/recommendations', [\App\Http\Controllers\AiAssistantController::class, 'recommendations'])->name('ai.recommendations');
+Route::match(['get', 'post'], '/ai/compare', [\App\Http\Controllers\AiAssistantController::class, 'compare'])->name('ai.compare');
+
+// ── Live Customer Support Chat (Widget) ──────────────────────────────────────
+Route::prefix('support/chat')->name('support.chat.')->group(function () {
+    Route::post('/init', [\App\Http\Controllers\SupportChatController::class, 'init'])->name('init');
+    Route::post('/send', [\App\Http\Controllers\SupportChatController::class, 'sendMessage'])->name('send');
+    Route::post('/quick-reply', [\App\Http\Controllers\SupportChatController::class, 'quickReply'])->name('quick-reply');
+    Route::get('/poll', [\App\Http\Controllers\SupportChatController::class, 'poll'])->name('poll');
+});
 
 // ── Cart (accessible to guests too, but actions require auth) ───────────────
 
@@ -84,9 +97,6 @@ Route::get('/account', function () {
     }
     return redirect()->route('login');
 })->name('account.index');
-
-// ── Localization ────────────────────────────────────────────────────────────
-Route::post('/language', [LanguageController::class, 'switch'])->name('language.switch');
 
 // ── Authentication ──────────────────────────────────────────────────────────
 
@@ -176,18 +186,29 @@ Route::prefix('user')->name('user.')->middleware(['auth:user', 'user'])->group(f
     })->name('returns');
 
     Route::get('/invoices', fn () => view('user.account.invoices', ['user' => Auth::user()]))->name('invoices');
+    Route::get('/invoices/{order}/print', function (\App\Models\Order $order) {
+        abort_unless($order->user_id === Auth::id(), 403);
+        $order->load(['sellerOrders.items.product', 'sellerOrders.seller', 'payments']);
+        return view('user.account.invoice-print', compact('order'));
+    })->name('invoices.print');
 
-    Route::get('/recommendations', function () {
-        $recommendedProducts = \App\Models\Product::with(['category', 'primaryImage', 'images', 'seller.sellerProfile'])
-            ->where('status', 'active')
-            ->latest()
-            ->take(8)
-            ->get();
-        return view('user.account.recommendations', ['user' => Auth::user(), 'recommendedProducts' => $recommendedProducts]);
-    })->name('recommendations');
+    // Customer Help & Support Portal
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\User\UserSupportController::class, 'index'])->name('index');
+        Route::get('/tickets/create', [\App\Http\Controllers\User\UserSupportController::class, 'createTicket'])->name('tickets.create');
+        Route::post('/tickets', [\App\Http\Controllers\User\UserSupportController::class, 'storeTicket'])->name('tickets.store');
+        Route::get('/tickets/{ticket}', [\App\Http\Controllers\User\UserSupportController::class, 'showTicket'])->name('tickets.show');
+        Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\User\UserSupportController::class, 'replyTicket'])->name('tickets.reply');
+        Route::post('/tickets/{ticket}/escalate', [\App\Http\Controllers\User\UserSupportController::class, 'escalateTicket'])->name('tickets.escalate');
+        Route::post('/tickets/{ticket}/close', [\App\Http\Controllers\User\UserSupportController::class, 'closeTicket'])->name('tickets.close');
+    });
 
-    Route::get('/compare', fn () => view('user.account.compare', ['user' => Auth::user()]))->name('compare');
+    Route::get('/recommendations', [\App\Http\Controllers\AiAssistantController::class, 'recommendationsView'])->name('recommendations');
+    Route::get('/compare', [\App\Http\Controllers\AiAssistantController::class, 'compareView'])->name('compare');
 });
+
+Route::get('/recommendations', [\App\Http\Controllers\AiAssistantController::class, 'recommendationsView'])->name('recommendations.public');
+Route::get('/compare', [\App\Http\Controllers\AiAssistantController::class, 'compareView'])->name('compare.public');
 
 // ── Public Seller Documentation Pages ────────────────────────────────────────
 
@@ -202,13 +223,23 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
     Route::get('/onboarding', [SellerOnboardingController::class, 'showWizard'])->name('onboarding');
     Route::post('/onboarding', [SellerOnboardingController::class, 'submitWizard'])->name('onboarding.submit');
     Route::get('/pending', [SellerOnboardingController::class, 'pending'])->name('pending');
+    Route::post('/pending/documents', [SellerOnboardingController::class, 'uploadDocument'])->name('pending.documents.upload');
 
     // Approval-required routes (SellerMiddleware redirects unapproved sellers to seller.pending)
     Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/analytics', [SellerAnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/export', [SellerAnalyticsController::class, 'export'])->name('analytics.export');
+    Route::get('/certificate', function () {
+        $user = Auth::guard('seller')->user() ?? Auth::user();
+        $profile = $user?->sellerProfile;
+        abort_unless($profile && $profile->status === 'approved', 403, 'Certificate available only for verified approved merchants.');
+        return view('seller.certificate', compact('user', 'profile'));
+    })->name('certificate');
 
     // Milestone 3: Product & Inventory Management
     Route::prefix('products')->name('products.')->group(function () {
         Route::get('/', [SellerProductController::class, 'index'])->name('index');
+        Route::get('/export', [SellerProductController::class, 'exportCsv'])->name('export');
         Route::get('/create', [SellerProductController::class, 'create'])->name('create');
         Route::post('/', [SellerProductController::class, 'store'])->name('store');
         Route::get('/inventory', [SellerProductController::class, 'inventory'])->name('inventory');
@@ -236,6 +267,7 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
 
     Route::prefix('payouts')->name('payouts.')->group(function () {
         Route::get('/', [SellerPayoutController::class, 'index'])->name('index');
+        Route::get('/summary', [SellerPayoutController::class, 'summary'])->name('summary');
         Route::get('/{payout}', [SellerPayoutController::class, 'show'])->name('show');
     });
 
@@ -263,6 +295,17 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
         Route::get('/settings', [SellerProfileController::class, 'settings'])->name('settings');
         Route::put('/settings', [SellerProfileController::class, 'updateSettings'])->name('settings.update');
         Route::post('/settings', [SellerProfileController::class, 'updateSettings']);
+        Route::post('/bank/update', [SellerProfileController::class, 'updateBank'])->name('bank.update');
+        Route::match(['GET', 'POST'], '/bank/bypass', [SellerProfileController::class, 'testBypassBank'])->name('bank.bypass');
+        Route::post('/compliance/upload', [SellerProfileController::class, 'uploadComplianceDocuments'])->name('compliance.upload');
+    });
+
+    // Customer Inquiries & Store Support Desk
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Seller\SellerSupportController::class, 'index'])->name('index');
+        Route::get('/tickets/{ticket}', [\App\Http\Controllers\Seller\SellerSupportController::class, 'showTicket'])->name('tickets.show');
+        Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Seller\SellerSupportController::class, 'replyTicket'])->name('tickets.reply');
+        Route::post('/tickets/{ticket}/status', [\App\Http\Controllers\Seller\SellerSupportController::class, 'updateStatus'])->name('tickets.status');
     });
 });
 
@@ -270,11 +313,13 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::get('/', [AdminAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
 
     Route::middleware(['auth:admin', 'admin'])->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('/analytics/export', [AdminAnalyticsController::class, 'export'])->name('analytics.export');
         
         // Sellers & Approvals
         Route::get('/sellers', [AdminDashboardController::class, 'sellers'])->name('sellers.index');
@@ -328,9 +373,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/coupons/{id}/toggle-status', [AdminDashboardController::class, 'toggleCouponStatus'])->name('coupons.toggle-status');
         Route::delete('/coupons/{id}', [AdminDashboardController::class, 'deleteCoupon'])->name('coupons.destroy');
 
+        // Platform Configuration & Branding Settings
+        Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('settings.index');
+        Route::post('/settings', [AdminDashboardController::class, 'updateSettings'])->name('settings.update');
+
         // AI Engine Configuration
         Route::get('/settings/ai', [AdminDashboardController::class, 'aiSettings'])->name('settings.ai');
         Route::post('/settings/ai', [AdminDashboardController::class, 'updateAiSettings'])->name('settings.ai.update');
+
+        // Live Agent Support Desk & Chat
+        Route::get('/support', [\App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.index');
+        Route::post('/support/conversations/{id}/reply', [\App\Http\Controllers\Admin\AdminSupportController::class, 'reply'])->name('support.reply');
+        Route::post('/support/conversations/{id}/status', [\App\Http\Controllers\Admin\AdminSupportController::class, 'updateStatus'])->name('support.status');
+        Route::get('/support/conversations/{id}/poll', [\App\Http\Controllers\Admin\AdminSupportController::class, 'pollMessages'])->name('support.poll');
 
         // ── Admin Impersonation ─────────────────────────────────────────────
         Route::post('/impersonate/{userId}', [\App\Http\Controllers\Admin\ImpersonationController::class, 'impersonate'])->name('impersonate');

@@ -73,7 +73,7 @@
                                         <div class="flex items-center gap-3 min-w-0">
                                             <div class="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
                                                 @if($item->product_image)
-                                                    <img src="{{ Storage::url($item->product_image) }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
+                                                    <img src="{{ $item->image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
                                                 @else
                                                     <span class="material-symbols-outlined text-slate-400 text-[20px]">package_2</span>
                                                 @endif

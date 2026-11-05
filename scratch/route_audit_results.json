@@ -1,0 +1,546 @@
+[
+    {
+        "uri": "up",
+        "name": null,
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 1758
+    },
+    {
+        "uri": "test",
+        "name": null,
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 48768
+    },
+    {
+        "uri": "\/",
+        "name": "home",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 171071
+    },
+    {
+        "uri": "products",
+        "name": "products.index",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 244053
+    },
+    {
+        "uri": "shop",
+        "name": "shop",
+        "tested_as": "guest",
+        "status": 302,
+        "has_error": false,
+        "length": 346
+    },
+    {
+        "uri": "auctions",
+        "name": "auctions.index",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 118356
+    },
+    {
+        "uri": "how-it-works",
+        "name": "pages.how-it-works",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 56116
+    },
+    {
+        "uri": "about",
+        "name": "about",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 56116
+    },
+    {
+        "uri": "privacy",
+        "name": "pages.privacy",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 53716
+    },
+    {
+        "uri": "terms",
+        "name": "pages.terms",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 53471
+    },
+    {
+        "uri": "return-policy",
+        "name": "pages.return-policy",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 53715
+    },
+    {
+        "uri": "cart",
+        "name": "cart.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 92455
+    },
+    {
+        "uri": "checkout",
+        "name": "checkout.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 103534
+    },
+    {
+        "uri": "account",
+        "name": "account.index",
+        "tested_as": "guest",
+        "status": 302,
+        "has_error": false,
+        "length": 334
+    },
+    {
+        "uri": "login",
+        "name": "login",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 64269
+    },
+    {
+        "uri": "register",
+        "name": "register",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 109891
+    },
+    {
+        "uri": "forgot-password",
+        "name": "password.request",
+        "tested_as": "guest",
+        "status": 200,
+        "has_error": false,
+        "length": 52139
+    },
+    {
+        "uri": "user\/dashboard",
+        "name": "user.dashboard",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 94249
+    },
+    {
+        "uri": "user\/profile",
+        "name": "user.profile",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 92042
+    },
+    {
+        "uri": "user\/profile\/edit",
+        "name": "user.profile.edit",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 79259
+    },
+    {
+        "uri": "user\/orders",
+        "name": "user.orders.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 92520
+    },
+    {
+        "uri": "user\/addresses",
+        "name": "user.addresses.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 98406
+    },
+    {
+        "uri": "user\/wishlist",
+        "name": "user.wishlist.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 78836
+    },
+    {
+        "uri": "user\/reviews",
+        "name": "user.reviews.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 73958
+    },
+    {
+        "uri": "user\/notifications",
+        "name": "user.notifications.index",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 72670
+    },
+    {
+        "uri": "user\/security",
+        "name": "user.security",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 78726
+    },
+    {
+        "uri": "user\/settings",
+        "name": "user.settings",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 80536
+    },
+    {
+        "uri": "user\/coupons",
+        "name": "user.coupons",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 88998
+    },
+    {
+        "uri": "user\/auctions",
+        "name": "user.auctions",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 136861
+    },
+    {
+        "uri": "user\/bids",
+        "name": "user.bids",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 100147
+    },
+    {
+        "uri": "user\/returns",
+        "name": "user.returns",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 78266
+    },
+    {
+        "uri": "user\/invoices",
+        "name": "user.invoices",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 72745
+    },
+    {
+        "uri": "user\/recommendations",
+        "name": "user.recommendations",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 93409
+    },
+    {
+        "uri": "user\/compare",
+        "name": "user.compare",
+        "tested_as": "user",
+        "status": 200,
+        "has_error": false,
+        "length": 72888
+    },
+    {
+        "uri": "seller\/become-a-seller",
+        "name": "docs.become-a-seller",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 61962
+    },
+    {
+        "uri": "seller\/fees-and-commission",
+        "name": "docs.fees-and-commission",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 61730
+    },
+    {
+        "uri": "seller\/onboarding",
+        "name": "seller.onboarding",
+        "tested_as": "seller",
+        "status": 302,
+        "has_error": false,
+        "length": 378
+    },
+    {
+        "uri": "seller\/pending",
+        "name": "seller.pending",
+        "tested_as": "seller",
+        "status": 302,
+        "has_error": false,
+        "length": 378
+    },
+    {
+        "uri": "seller\/dashboard",
+        "name": "seller.dashboard",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 78467
+    },
+    {
+        "uri": "seller\/certificate",
+        "name": "seller.certificate",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 4131
+    },
+    {
+        "uri": "seller\/products",
+        "name": "seller.products.index",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 151446
+    },
+    {
+        "uri": "seller\/products\/create",
+        "name": "seller.products.create",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 62112
+    },
+    {
+        "uri": "seller\/products\/inventory",
+        "name": "seller.products.inventory",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 118021
+    },
+    {
+        "uri": "seller\/inventory",
+        "name": "seller.",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 117977
+    },
+    {
+        "uri": "seller\/orders",
+        "name": "seller.orders.index",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 66772
+    },
+    {
+        "uri": "seller\/payouts",
+        "name": "seller.payouts.index",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 61310
+    },
+    {
+        "uri": "seller\/auctions",
+        "name": "seller.auctions.index",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 51374
+    },
+    {
+        "uri": "seller\/auctions\/create",
+        "name": "seller.auctions.create",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 38118
+    },
+    {
+        "uri": "seller\/auctions\/history",
+        "name": "seller.auctions.history",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 27754
+    },
+    {
+        "uri": "seller\/auctions\/live",
+        "name": "seller.auctions.live",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 40607
+    },
+    {
+        "uri": "seller\/account\/profile",
+        "name": "seller.account.profile",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 51679
+    },
+    {
+        "uri": "seller\/account\/location",
+        "name": "seller.account.location",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 34634
+    },
+    {
+        "uri": "seller\/account\/security",
+        "name": "seller.account.security",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 31661
+    },
+    {
+        "uri": "seller\/account\/notifications",
+        "name": "seller.account.notifications",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 27601
+    },
+    {
+        "uri": "seller\/account\/settings",
+        "name": "seller.account.settings",
+        "tested_as": "seller",
+        "status": 200,
+        "has_error": false,
+        "length": 33791
+    },
+    {
+        "uri": "admin",
+        "name": "admin.login",
+        "tested_as": "admin",
+        "status": 302,
+        "has_error": false,
+        "length": 374
+    },
+    {
+        "uri": "admin\/dashboard",
+        "name": "admin.dashboard",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 67150
+    },
+    {
+        "uri": "admin\/sellers",
+        "name": "admin.sellers.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 81380
+    },
+    {
+        "uri": "admin\/sellers\/approvals",
+        "name": "admin.sellers.approvals",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 40964
+    },
+    {
+        "uri": "admin\/products",
+        "name": "admin.products.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 162491
+    },
+    {
+        "uri": "admin\/categories",
+        "name": "admin.categories.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 72085
+    },
+    {
+        "uri": "admin\/orders",
+        "name": "admin.orders.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 76308
+    },
+    {
+        "uri": "admin\/auctions",
+        "name": "admin.auctions.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 51964
+    },
+    {
+        "uri": "admin\/payouts",
+        "name": "admin.payouts.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 66516
+    },
+    {
+        "uri": "admin\/disputes",
+        "name": "admin.disputes.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 74567
+    },
+    {
+        "uri": "admin\/customers",
+        "name": "admin.customers.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 53470
+    },
+    {
+        "uri": "admin\/coupons",
+        "name": "admin.coupons.index",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 37055
+    },
+    {
+        "uri": "admin\/settings\/ai",
+        "name": "admin.settings.ai",
+        "tested_as": "admin",
+        "status": 200,
+        "has_error": false,
+        "length": 32296
+    }
+]

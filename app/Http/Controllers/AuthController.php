@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\EmailOtpMail;
 use App\Mail\WelcomeEmail;
 use App\Models\SellerProfile;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -168,6 +169,16 @@ class AuthController extends Controller
 
     public function sendOtp(Request $request)
     {
+        if (SiteSetting::isSingleVendor() && $request->input('role') === 'seller') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Seller registration is currently disabled in Single-Vendor mode.',
+                'errors'  => [
+                    'role' => ['Seller registration is currently disabled in Single-Vendor mode.'],
+                ],
+            ], 422);
+        }
+
         // Return JSON validation errors for AJAX requests
         $validator = Validator::make($request->all(), [
             'name'          => ['required', 'string', 'max:100'],
@@ -350,6 +361,17 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Session expired. Please fill the form again.',
+            ], 422);
+        }
+
+        if (SiteSetting::isSingleVendor() && ($pending['role'] ?? null) === 'seller') {
+            $request->session()->forget('pending_registration');
+            return response()->json([
+                'success' => false,
+                'message' => 'Seller registration is currently disabled in Single-Vendor mode.',
+                'errors'  => [
+                    'role' => ['Seller registration is currently disabled in Single-Vendor mode.'],
+                ],
             ], 422);
         }
 

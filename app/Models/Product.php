@@ -120,7 +120,7 @@ class Product extends Model
         if ($img && !empty($img->url)) {
             return $img->url;
         }
-        return asset('images/products/leather_bag_1.jpg');
+        return asset('images/product-placeholder.svg');
     }
 
     public function getImageUrlsAttribute(): array
@@ -131,11 +131,34 @@ class Product extends Model
         return [$this->main_image_url];
     }
 
+    public function isOrganicCategory(): bool
+    {
+        if ($this->relationLoaded('category') && $this->category) {
+            return $this->category->isOrganic();
+        }
+
+        if ($this->category_id) {
+            $cat = Category::find($this->category_id);
+            return $cat?->isOrganic() ?? false;
+        }
+
+        return false;
+    }
+
     protected static function booted(): void
     {
         static::saving(function (Product $product) {
-            if ($product->is_perishable && $product->harvest_date && $product->expiry_days && empty($product->expiry_date)) {
-                $product->expiry_date = \Carbon\Carbon::parse($product->harvest_date)->addDays((int) $product->expiry_days)->toDateString();
+            if ($product->is_perishable) {
+                if ($product->harvest_date && $product->expiry_days && empty($product->expiry_date)) {
+                    $product->expiry_date = \Carbon\Carbon::parse($product->harvest_date)->addDays((int) $product->expiry_days)->toDateString();
+                } elseif (empty($product->harvest_date) && $product->expiry_days && empty($product->expiry_date)) {
+                    $product->harvest_date = \Carbon\Carbon::today()->toDateString();
+                    $product->expiry_date = \Carbon\Carbon::today()->addDays((int) $product->expiry_days)->toDateString();
+                }
+            } else {
+                $product->harvest_date = null;
+                $product->expiry_days = null;
+                $product->expiry_date = null;
             }
         });
     }

@@ -113,7 +113,7 @@
                             <td class="py-3 px-4 text-right">
                                 <div class="inline-flex items-center gap-2">
                                     <a href="{{ route('admin.customers.show', $customer->id) }}" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-semibold transition-colors">
-                                        Dossier
+                                        View Profile
                                     </a>
                                     <form method="POST" action="{{ route('admin.customers.toggle-status', $customer->id) }}" onsubmit="return confirm('Toggle account status for {{ addslashes($customer->name) }}?');" class="inline">
                                         @csrf

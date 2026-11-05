@@ -14,6 +14,14 @@
     }
     $sellerProfile = $sellerUser?->sellerProfile;
 
+    // Resolve seller avatar or shop logo
+    $sellerAvatarUrl = null;
+    if (!empty($sellerProfile?->logo_path)) {
+        $sellerAvatarUrl = asset('storage/' . $sellerProfile->logo_path);
+    } elseif (!empty($sellerUser?->profile_image)) {
+        $sellerAvatarUrl = asset('storage/' . $sellerUser->profile_image);
+    }
+
     // Dynamic unread notifications count (P18)
     $sellerUnreadNotificationsCount = 0;
     if ($sellerUser) {
@@ -33,23 +41,98 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Seller Workspace — Bazaario')</title>
+    <title>@yield('title', 'Seller Workspace — ' . \App\Models\SiteSetting::getSiteName())</title>
 
     <!-- Google Fonts & Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
     <!-- Compiled Tailwind CSS & Bundled Alpine.js via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        body {
-            background-color: #fbf9f4;
-            color: #1b1c19;
-            font-family: 'Inter', sans-serif;
+        :root {
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
         }
+
+        html {
+            font-family: var(--font-sans);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-feature-settings: 'cv02' 1, 'cv03' 1, 'cv04' 1, 'cv11' 1;
+        }
+
+        body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+            font-family: var(--font-sans);
+            letter-spacing: -0.011em;
+            line-height: 1.5;
+        }
+
+        /* Modernist Headings & Metric Display */
+        h1, h2, h3, h4, h5, h6, .font-heading, .font-display {
+            font-family: var(--font-heading) !important;
+            letter-spacing: -0.028em;
+            font-feature-settings: 'cv02' 1, 'ss01' 1;
+        }
+
+        h1, .text-headline-lg {
+            letter-spacing: -0.035em !important;
+            font-weight: 800;
+        }
+
+        h2, .text-headline-md {
+            letter-spacing: -0.028em !important;
+            font-weight: 700;
+        }
+
+        h3, h4, .text-headline-sm {
+            letter-spacing: -0.02em !important;
+            font-weight: 700;
+        }
+
+        /* Numerical & Monospace Precision */
+        .font-mono, code, kbd, samp {
+            font-family: var(--font-mono) !important;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+
+        /* KPI figures and currency amounts */
+        .font-headline-lg.font-mono,
+        .text-headline-lg.font-mono,
+        .font-headline-md.font-mono {
+            font-feature-settings: 'tnum' 1, 'zero' 1;
+            letter-spacing: -0.03em !important;
+        }
+
+        /* Custom Scrollbar for Sleek Aesthetics */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #CBD5E1;
+        }
+
+        /* Inputs & Form Elements */
+        input, select, textarea, button {
+            font-family: inherit;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
             display: inline-block;
@@ -62,7 +145,22 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-surface font-sans antialiased min-h-screen" x-data="{ mobileSidebarOpen: false }">
+<body class="bg-[#F8FAFC] font-sans antialiased min-h-screen text-slate-900 selection:bg-amber-100 selection:text-amber-900" x-data="{ mobileSidebarOpen: false }">
+
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
+
+    <!-- Global Slim Top Progress Bar -->
+    <div id="global-page-loader" class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 z-[9999] opacity-0 pointer-events-none transition-opacity duration-150"></div>
+    <script>
+        window.addEventListener('beforeunload', () => {
+            const loader = document.getElementById('global-page-loader');
+            if (loader) {
+                loader.classList.remove('opacity-0');
+                loader.classList.add('animate-pulse');
+            }
+        });
+    </script>
 
     <!-- MOBILE BACKDROP OVERLAY -->
     <div x-cloak x-show="mobileSidebarOpen" 
@@ -76,118 +174,207 @@
          @click="mobileSidebarOpen = false"></div>
 
     <!-- SIDEBAR: FIXED DESKTOP & RESPONSIVE MOBILE SLIDE-OVER DRAWER -->
-    <aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low z-50 flex flex-col justify-between py-4 px-3 shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-r border-[#E2DFD7]/60 transition-transform duration-300 ease-in-out lg:translate-x-0"
+    <aside class="fixed left-0 top-0 h-screen w-72 bg-white z-50 flex flex-col justify-between py-4 px-3.5 shadow-[1px_0_16px_rgba(15,23,42,0.03)] border-r border-slate-200/80 transition-transform duration-300 ease-in-out lg:translate-x-0"
            :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
-        <div class="flex flex-col gap-4">
+        
+        <div class="flex flex-col gap-3 min-h-0 flex-1">
             <!-- Brand Logo Header & Mobile Close -->
-            <div class="flex items-center justify-between px-1">
-                <a href="{{ route('seller.dashboard') }}" class="px-2 py-2 flex items-center gap-3 group">
-                    <div class="w-9 h-9 bg-primary rounded-[12px] flex items-center justify-center text-brand-amber font-heading font-bold text-xl shadow-sm transition-transform group-hover:scale-105">
-                        B
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="font-heading text-lg font-bold tracking-tight text-primary leading-tight">BAZAARIO</span>
-                        <span class="font-mono text-[10px] tracking-wider uppercase text-secondary font-bold">SELLER CENTER</span>
-                    </div>
-                </a>
-                <button type="button" @click="mobileSidebarOpen = false" class="lg:hidden p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-colors" aria-label="Close sidebar drawer">
-                    <span class="material-symbols-outlined text-[22px]">close</span>
+            <div class="flex items-center justify-between px-1.5 pb-1">
+                <x-brand-logo :link="route('seller.dashboard')" badge="MERCHANT" />
+                <button type="button" @click="mobileSidebarOpen = false" class="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors" aria-label="Close sidebar drawer">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
 
-            <!-- Sidebar Navigation Links -->
-            <nav class="flex flex-col gap-1 px-1 overflow-y-auto max-h-[calc(100vh-260px)]" x-data="{ productsOpen: {{ request()->routeIs('seller.products.*') ? 'true' : 'false' }}, auctionsOpen: {{ request()->routeIs('seller.auctions.*') ? 'true' : 'false' }} }">
+            <!-- Merchant Store Quick Card -->
+            <div class="p-3 bg-gradient-to-br from-slate-50 via-amber-50/20 to-slate-50/60 border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-500 to-amber-600 text-slate-950 font-heading font-extrabold text-sm flex items-center justify-center shrink-0 shadow-xs ring-2 ring-white">
+                        @if($sellerAvatarUrl)
+                            <img src="{{ $sellerAvatarUrl }}" alt="{{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'Shop Logo' }}" class="w-full h-full object-cover">
+                        @else
+                            {{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}
+                        @endif
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-1">
+                            <span class="text-xs font-heading font-bold text-slate-900 truncate">
+                                {{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'My Farm Store' }}
+                            </span>
+                            <span class="material-symbols-outlined text-[14px] text-emerald-600 fill-1 shrink-0" title="Verified Merchant">verified</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-500 truncate">
+                            {{ $sellerProfile?->seller_type ?? 'Farmer' }} • {{ $sellerProfile?->city ?? 'Hyperlocal' }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ route('shop') }}" target="_blank" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-100/60 rounded-lg transition-colors shrink-0" title="View Public Store">
+                    <span class="material-symbols-outlined text-[17px]">open_in_new</span>
+                </a>
+            </div>
+
+            <!-- Sidebar Navigation Links with Groups -->
+            <nav class="flex flex-col gap-1 px-0.5 overflow-y-auto custom-scrollbar flex-1 pr-1" x-data="{ productsOpen: {{ request()->routeIs('seller.products.*') ? 'true' : 'false' }}, auctionsOpen: {{ request()->routeIs('seller.auctions.*') ? 'true' : 'false' }} }">
                 
+                <!-- SECTION 1: OVERVIEW -->
+                <div class="px-2.5 pt-2 pb-1 text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400">
+                    Operations
+                </div>
+
                 <!-- Dashboard -->
                 <a href="{{ route('seller.dashboard') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-all text-sm {{ request()->routeIs('seller.dashboard') ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface' }}">
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.dashboard') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('seller.dashboard') ? 'fill-1' : '' }}">dashboard</span>
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.dashboard') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.dashboard') ? 'fill-1' : '' }}">dashboard</span>
+                        </span>
                         <span class="font-heading">Dashboard</span>
+                    </div>
+                </a>
+
+                <!-- Store Analytics -->
+                <a href="{{ route('seller.analytics.index') }}" 
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.analytics.*') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.analytics.*') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.analytics.*') ? 'fill-1' : '' }}">analytics</span>
+                        </span>
+                        <span class="font-heading">Analytics</span>
                     </div>
                 </a>
 
                 <!-- Orders -->
                 <a href="{{ route('seller.orders.index') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-all text-sm {{ request()->routeIs('seller.orders.*') ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface' }}">
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.orders.*') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('seller.orders.*') ? 'fill-1' : '' }}">inventory_2</span>
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.orders.*') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.orders.*') ? 'fill-1' : '' }}">inventory_2</span>
+                        </span>
                         <span class="font-heading">Orders</span>
                     </div>
-                    <span class="font-mono text-xs px-2 py-0.5 rounded-md bg-surface-container-highest text-on-surface font-semibold">Live</span>
+                    <span class="font-mono text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-bold">Live</span>
                 </a>
+
+                <!-- SECTION 2: CATALOG & AUCTIONS -->
+                <div class="px-2.5 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400">
+                    Catalog &amp; Sales
+                </div>
 
                 <!-- Products Group (Collapsible) -->
                 <div class="flex flex-col gap-0.5">
-                    <button type="button" @click="productsOpen = !productsOpen" class="w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all">
+                    <button type="button" @click="productsOpen = !productsOpen" class="w-full group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-all">
                         <div class="flex items-center gap-2.5">
-                            <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+                            <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.products.*') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                                <span class="material-symbols-outlined text-[17px]">shopping_bag</span>
+                            </span>
                             <span class="font-heading">Products</span>
                         </div>
-                        <span class="material-symbols-outlined text-[18px] transition-transform duration-200" :class="{ 'rotate-180': productsOpen }">expand_more</span>
+                        <span class="material-symbols-outlined text-[16px] text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': productsOpen }">expand_more</span>
                     </button>
-                    <div x-show="productsOpen" x-collapse class="pl-8 pr-1 flex flex-col gap-1 py-1 space-y-0.5 text-xs">
-                        <a href="{{ route('seller.products.index') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.products.index') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            All Products
+                    <div x-show="productsOpen" x-collapse class="pl-10 pr-1 flex flex-col gap-0.5 py-1 text-xs">
+                        <a href="{{ route('seller.products.index') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.products.index') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.products.index') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>All Products</span>
                         </a>
-                        <a href="{{ route('seller.products.create') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.products.create') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            Add Product
+                        <a href="{{ route('seller.products.create') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.products.create') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.products.create') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>Add Product</span>
                         </a>
-                        <a href="{{ route('seller.products.inventory') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.products.inventory') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            Inventory Stock
+                        <a href="{{ route('seller.products.inventory') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.products.inventory') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.products.inventory') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>Inventory Stock</span>
                         </a>
                     </div>
                 </div>
 
                 <!-- Auctions Group (Collapsible) -->
                 <div class="flex flex-col gap-0.5">
-                    <button type="button" @click="auctionsOpen = !auctionsOpen" class="w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all">
+                    <button type="button" @click="auctionsOpen = !auctionsOpen" class="w-full group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-all">
                         <div class="flex items-center gap-2.5">
-                            <span class="material-symbols-outlined text-[20px]">gavel</span>
+                            <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.auctions.*') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                                <span class="material-symbols-outlined text-[17px]">gavel</span>
+                            </span>
                             <span class="font-heading">Auctions</span>
                         </div>
-                        <span class="material-symbols-outlined text-[18px] transition-transform duration-200" :class="{ 'rotate-180': auctionsOpen }">expand_more</span>
+                        <span class="material-symbols-outlined text-[16px] text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': auctionsOpen }">expand_more</span>
                     </button>
-                    <div x-show="auctionsOpen" x-collapse class="pl-8 pr-1 flex flex-col gap-1 py-1 space-y-0.5 text-xs">
-                        <a href="{{ route('seller.auctions.index') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.auctions.index') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            My Auctions
+                    <div x-show="auctionsOpen" x-collapse class="pl-10 pr-1 flex flex-col gap-0.5 py-1 text-xs">
+                        <a href="{{ route('seller.auctions.index') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.auctions.index') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.auctions.index') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>My Auctions</span>
                         </a>
-                        <a href="{{ route('seller.auctions.create') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.auctions.create') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            Create Auction
+                        <a href="{{ route('seller.auctions.create') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.auctions.create') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.auctions.create') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>Create Auction</span>
                         </a>
-                        <a href="{{ route('seller.auctions.live') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.auctions.live') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            Live Pulse
+                        <a href="{{ route('seller.auctions.live') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.auctions.live') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.auctions.live') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>Live Pulse</span>
                         </a>
-                        <a href="{{ route('seller.auctions.history') }}" class="px-3 py-2 rounded-lg font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors {{ request()->routeIs('seller.auctions.history') ? 'text-secondary font-bold bg-surface-container' : '' }}">
-                            Auction History
+                        <a href="{{ route('seller.auctions.history') }}" class="px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 {{ request()->routeIs('seller.auctions.history') ? 'text-amber-800 font-bold bg-amber-50/80' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('seller.auctions.history') ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
+                            <span>Auction History</span>
                         </a>
                     </div>
                 </div>
 
+                <!-- SECTION 3: FINANCES & SUPPORT -->
+                <div class="px-2.5 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400">
+                    Finances &amp; Support
+                </div>
+
                 <!-- Payouts -->
                 <a href="{{ route('seller.payouts.index') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-all text-sm {{ request()->routeIs('seller.payouts.*') ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface' }}">
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.payouts.*') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('seller.payouts.*') ? 'fill-1' : '' }}">account_balance_wallet</span>
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.payouts.*') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.payouts.*') ? 'fill-1' : '' }}">account_balance_wallet</span>
+                        </span>
                         <span class="font-heading">Payouts</span>
                     </div>
-                    <span class="font-mono text-xs px-2 py-0.5 rounded-md bg-surface-container-highest text-secondary font-bold">Ledger</span>
+                    <span class="font-mono text-[10px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200/60 font-bold">Ledger</span>
                 </a>
+
+                <!-- Customer Inquiries & Support -->
+                <a href="{{ route('seller.support.index') }}" 
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.support.*') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.support.*') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.support.*') ? 'fill-1' : '' }}">support_agent</span>
+                        </span>
+                        <span class="font-heading">Inquiries</span>
+                    </div>
+                    @php
+                        $pendingInquiriesCount = \App\Models\SupportTicket::where('seller_id', Auth::guard('seller')->id() ?? Auth::id())->whereIn('status', ['open', 'waiting_seller', 'escalated'])->count();
+                    @endphp
+                    @if($pendingInquiriesCount > 0)
+                        <span class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-bold shadow-xs">{{ $pendingInquiriesCount }}</span>
+                    @endif
+                </a>
+
+                <!-- SECTION 4: STORE SETTINGS -->
+                <div class="px-2.5 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400">
+                    Configuration
+                </div>
 
                 <!-- Shop Profile -->
                 <a href="{{ route('seller.account.profile') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-all text-sm {{ request()->routeIs('seller.account.profile') ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface' }}">
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.account.profile') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('seller.account.profile') ? 'fill-1' : '' }}">storefront</span>
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.account.profile') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.account.profile') ? 'fill-1' : '' }}">storefront</span>
+                        </span>
                         <span class="font-heading">Shop Profile</span>
                     </div>
                 </a>
 
                 <!-- Settings -->
                 <a href="{{ route('seller.account.settings') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-all text-sm {{ request()->routeIs('seller.account.settings') ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface' }}">
+                   class="group flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold {{ request()->routeIs('seller.account.settings') ? 'bg-amber-500/10 text-amber-900 border-l-4 border-amber-500 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
                     <div class="flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('seller.account.settings') ? 'fill-1' : '' }}">settings</span>
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors {{ request()->routeIs('seller.account.settings') ? 'bg-amber-500/20 text-amber-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700' }}">
+                            <span class="material-symbols-outlined text-[17px] {{ request()->routeIs('seller.account.settings') ? 'fill-1' : '' }}">settings</span>
+                        </span>
                         <span class="font-heading">Settings</span>
                     </div>
                 </a>
@@ -195,16 +382,16 @@
         </div>
 
         <!-- Sidebar Bottom Actions -->
-        <div class="flex flex-col gap-1 px-1 pt-3 border-t border-surface-container-highest text-xs">
-            <a href="{{ Route::has('docs.how-it-works') ? route('docs.how-it-works') : (Route::has('docs.become-a-seller') ? route('docs.become-a-seller') : url('/')) }}" class="flex items-center gap-2 px-3 py-2 rounded-[10px] text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all">
-                <span class="material-symbols-outlined text-[18px]">help</span>
-                <span class="font-medium">Help &amp; Support</span>
+        <div class="flex flex-col gap-1 px-1 pt-3 border-t border-slate-200/80 text-xs">
+            <a href="{{ route('pages.how-it-works') }}" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 transition-all font-medium">
+                <span class="material-symbols-outlined text-[18px] text-slate-400">help</span>
+                <span>Help &amp; Knowledge Base</span>
             </a>
             <form method="POST" action="{{ route('logout') }}" class="block">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-error hover:bg-error-container hover:text-on-error-container transition-all">
+                <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all font-semibold font-heading">
                     <span class="material-symbols-outlined text-[18px]">logout</span>
-                    <span class="font-medium font-heading">Sign Out</span>
+                    <span>Sign Out</span>
                 </button>
             </form>
         </div>
@@ -213,121 +400,127 @@
     <!-- MAIN WRAPPER (Offset by Sidebar) -->
     <div class="pl-0 lg:pl-72">
         <!-- FIXED TOP HEADER -->
-        <header class="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl border-b border-[#E2DFD7]/60 shadow-[0_1px_8px_rgba(0,0,0,0.02)] z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <header class="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.02)] z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8">
             <!-- Mobile Hamburger Toggle (< 1024px) -->
-            <button type="button" @click="mobileSidebarOpen = true" class="lg:hidden p-2 -ml-1 mr-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-colors shrink-0" aria-label="Open sidebar drawer">
+            <button type="button" @click="mobileSidebarOpen = true" class="lg:hidden p-2 -ml-1 mr-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors shrink-0" aria-label="Open sidebar drawer">
                 <span class="material-symbols-outlined text-[24px]">menu</span>
             </button>
 
-            <!-- Global Search with ⌘K -->
-            <form action="{{ route('seller.products.index') }}" method="GET" class="flex items-center flex-1 max-w-lg">
-                <div class="flex items-center w-full px-3.5 py-2 bg-surface-container-lowest rounded-[12px] shadow-[0_1px_4px_rgba(0,0,0,0.02)] border border-surface-container-highest focus-within:border-brand-amber transition">
-                    <span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-2">search</span>
-                    <input type="text" name="search" value="{{ request('search') }}" class="w-full bg-transparent text-xs text-on-surface placeholder:text-on-surface-variant outline-none font-sans" placeholder="Search orders, products, auctions, payouts...">
-                    <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 font-mono text-[10px] bg-surface-container text-on-surface-variant rounded border border-surface-container-high">⌘K</kbd>
+            <!-- Global Search with Dynamic Platform Shortcut -->
+            @php
+                $sellerCurrentRoute = request()->route()?->getName() ?? '';
+                $sellerSearchRoute = route('seller.products.index');
+                if (str_starts_with($sellerCurrentRoute, 'seller.orders')) {
+                    $sellerSearchRoute = route('seller.orders.index');
+                } elseif (str_starts_with($sellerCurrentRoute, 'seller.payouts')) {
+                    $sellerSearchRoute = route('seller.payouts.index');
+                }
+            @endphp
+            <form action="{{ $sellerSearchRoute }}" method="GET" class="flex items-center flex-1 max-w-md">
+                <div class="flex items-center w-full px-3 py-1.5 bg-slate-50/80 hover:bg-white focus-within:bg-white rounded-xl shadow-xs border border-slate-200/80 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition">
+                    <span class="material-symbols-outlined text-slate-400 text-[18px] mr-2 shrink-0">search</span>
+                    <input id="seller-global-search" type="text" name="search" value="{{ request('search') }}" class="w-full bg-transparent text-xs text-slate-800 placeholder:text-slate-400 outline-none font-sans min-w-0" placeholder="Search orders, products, auctions, payouts...">
+                    <div class="flex items-center gap-1.5 shrink-0 ml-1.5">
+                        <kbd id="seller-search-shortcut" 
+                             onclick="document.getElementById('seller-global-search')?.focus()"
+                             class="hidden sm:inline-flex items-center px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-500 bg-white border border-slate-200/90 rounded-md shadow-2xs cursor-pointer select-none hover:border-slate-300 hover:text-slate-700 transition-colors" 
+                             title="Shortcut (Ctrl + K)">Ctrl K</kbd>
+                        <button type="submit" class="p-1 text-slate-400 hover:text-amber-600 rounded-lg hover:bg-amber-50 transition-colors" title="Execute Search">
+                            <span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+                        </button>
+                    </div>
                 </div>
             </form>
 
             <!-- Header Right Profile Controls -->
-            <div class="flex items-center gap-4">
-                <!-- Notifications (P18, P27: Wired with dynamic badge count) -->
-                <a href="{{ route('seller.account.notifications') }}" class="relative p-2 rounded-[10px] hover:bg-surface-container-high text-on-surface-variant transition-colors inline-block" title="Notifications">
-                    <span class="material-symbols-outlined text-[22px]">notifications</span>
+            <div class="flex items-center gap-3 sm:gap-4">
+                
+                <!-- Quick Actions -->
+                <div class="hidden sm:flex items-center gap-2">
+                    <a href="{{ route('shop') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-colors">
+                        <span class="material-symbols-outlined text-[15px] text-slate-500">storefront</span>
+                        <span>View Shop</span>
+                    </a>
+                    <a href="{{ route('seller.products.create') }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold font-heading rounded-xl shadow-xs transition-all">
+                        <span class="material-symbols-outlined text-[16px]">add</span>
+                        <span>Add Product</span>
+                    </a>
+                </div>
+
+                <!-- Notifications -->
+                <a href="{{ route('seller.account.notifications') }}" class="relative p-2 rounded-xl hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors inline-block" title="Notifications">
+                    <span class="material-symbols-outlined text-[21px]">notifications</span>
                     @if($sellerUnreadNotificationsCount > 0)
-                        <span class="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-brand-amber text-primary rounded-full text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-white shadow-xs">
-                            {{ $sellerUnreadNotificationsCount > 9 ? '9+' : $sellerUnreadNotificationsCount }}
-                        </span>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-white animate-pulse"></span>
                     @endif
                 </a>
 
                 <!-- Profile Pill -->
-                <div class="flex items-center gap-3 pl-4 border-l border-surface-container-highest">
-                    <div class="w-8 h-8 rounded-full bg-primary text-brand-amber flex items-center justify-center font-heading font-bold text-sm shadow-sm">
-                        {{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}
+                <div class="flex items-center gap-2.5 pl-3 border-l border-slate-200">
+                    <div class="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-slate-900 to-slate-800 text-amber-400 flex items-center justify-center font-heading font-bold text-xs shadow-xs ring-1 ring-slate-200 shrink-0">
+                        @if($sellerAvatarUrl)
+                            <img src="{{ $sellerAvatarUrl }}" alt="{{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'Shop Logo' }}" class="w-full h-full object-cover">
+                        @else
+                            {{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}
+                        @endif
                     </div>
-                    <div class="flex flex-col text-left">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-xs font-heading font-bold text-on-surface truncate max-w-[140px]">
+                    <div class="hidden md:flex flex-col text-left">
+                        <div class="flex items-center gap-1">
+                            <span class="text-xs font-heading font-bold text-slate-900 truncate max-w-[130px]">
                                 {{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'My Shop' }}
                             </span>
-                            <span class="material-symbols-outlined text-[15px] text-on-tertiary-container fill-1" title="Verified Merchant">check_circle</span>
                         </div>
-                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant">
-                            <span>{{ $sellerProfile?->seller_type ?? 'Farmer' }}</span>
-                            <span class="text-outline-variant font-bold">•</span>
-                            <span class="font-mono text-[10px] uppercase text-on-tertiary-container font-semibold">Verified</span>
-                        </div>
+                        <span class="font-mono text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Active Seller
+                        </span>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- FLASH TOAST ALERTS -->
-        <div class="fixed top-20 right-8 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none" x-data="{ showSuccess: {{ session('success') ? 'true' : 'false' }}, showError: {{ session('error') ? 'true' : 'false' }}, showWarning: {{ session('warning') ? 'true' : 'false' }}, showInfo: {{ session('info') ? 'true' : 'false' }} }">
-            @if(session('success'))
-                <div x-show="showSuccess" x-init="setTimeout(() => showSuccess = false, 5000)" class="pointer-events-auto bg-white border border-brand-green/30 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                    <span class="material-symbols-outlined text-brand-green text-[22px] shrink-0">check_circle</span>
-                    <div class="flex-1 text-xs">
-                        <p class="font-heading font-bold text-brand-slate">Success</p>
-                        <p class="text-brand-muted mt-0.5">{{ session('success') }}</p>
-                    </div>
-                    <button type="button" @click="showSuccess = false" class="text-brand-muted hover:text-brand-slate">
-                        <span class="material-symbols-outlined text-[16px]">close</span>
-                    </button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div x-show="showError" x-init="setTimeout(() => showError = false, 6000)" class="pointer-events-auto bg-white border border-red-200 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                    <span class="material-symbols-outlined text-red-600 text-[22px] shrink-0">error</span>
-                    <div class="flex-1 text-xs">
-                        <p class="font-heading font-bold text-brand-slate">Notice</p>
-                        <p class="text-brand-muted mt-0.5">{{ session('error') }}</p>
-                    </div>
-                    <button type="button" @click="showError = false" class="text-brand-muted hover:text-brand-slate">
-                        <span class="material-symbols-outlined text-[16px]">close</span>
-                    </button>
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div x-show="showWarning" x-init="setTimeout(() => showWarning = false, 5000)" class="pointer-events-auto bg-white border border-amber-300 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                    <span class="material-symbols-outlined text-brand-amber text-[22px] shrink-0">warning</span>
-                    <div class="flex-1 text-xs">
-                        <p class="font-heading font-bold text-brand-slate">Attention</p>
-                        <p class="text-brand-muted mt-0.5">{{ session('warning') }}</p>
-                    </div>
-                    <button type="button" @click="showWarning = false" class="text-brand-muted hover:text-brand-slate">
-                        <span class="material-symbols-outlined text-[16px]">close</span>
-                    </button>
-                </div>
-            @endif
-
-            @if(session('info'))
-                <div x-show="showInfo" x-init="setTimeout(() => showInfo = false, 5000)" class="pointer-events-auto bg-white border border-blue-200 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                    <span class="material-symbols-outlined text-blue-600 text-[22px] shrink-0">info</span>
-                    <div class="flex-1 text-xs">
-                        <p class="font-heading font-bold text-brand-slate">Information</p>
-                        <p class="text-brand-muted mt-0.5">{{ session('info') }}</p>
-                    </div>
-                    <button type="button" @click="showInfo = false" class="text-brand-muted hover:text-brand-slate">
-                        <span class="material-symbols-outlined text-[16px]">close</span>
-                    </button>
-                </div>
-            @endif
-        </div>
+        <!-- FLASH TOAST ALERTS & GLOBAL ALERT OVERRIDE -->
+        <x-toast />
 
         <!-- MAIN OPERATING CANVAS -->
-        <main class="relative pt-16 bg-surface min-h-screen w-full px-6 sm:px-8 py-8">
+        <main class="relative pt-24 pb-16 bg-[#F8FAFC] min-h-screen w-full px-4 sm:px-6 lg:px-8">
             <div class="max-w-[1400px] mx-auto">
+                <x-seller.compliance-notice :profile="$sellerProfile" />
                 @yield('content')
             </div>
         </main>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adapt keyboard shortcut badge for Mac vs Windows/Linux
+            var isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent || navigator.platform || '');
+            var badge = document.getElementById('seller-search-shortcut');
+            if (badge && isMac) {
+                badge.textContent = '⌘K';
+                badge.title = 'Shortcut (⌘ + K)';
+            }
+
+            // Global shortcut listener: Ctrl+K / Cmd+K focuses search
+            window.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+                    e.preventDefault();
+                    var searchInput = document.getElementById('seller-global-search');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                }
+            });
+        });
+    </script>
+
     @stack('scripts')
 
     {{-- Admin Impersonation Banner --}}
     <x-impersonation-bar />
+
+    <!-- Global Floating Live Support Chat Widget -->
+    <x-support-chat-widget />
 </body>
 </html>

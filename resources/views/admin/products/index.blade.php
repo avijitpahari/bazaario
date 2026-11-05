@@ -12,7 +12,7 @@
                 <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-label-sm text-[11px] font-bold border border-amber-200/60">Inventory Ops</span>
             </div>
             <p class="font-body-md text-xs sm:text-sm text-slate-500 mt-1">
-                Oversee catalog moderation, inventory levels, merchant SKUs, and auction lots across all categories.
+                Oversee standard retail products, inventory levels, merchant SKUs, and direct catalog listings.
             </p>
         </div>
         <!-- Top Action Buttons -->
@@ -57,20 +57,20 @@
         <!-- Card 2 -->
         <div class="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex flex-col justify-between">
             <div class="flex items-start justify-between">
-                <span class="font-label-md text-xs uppercase tracking-wider text-slate-500 font-semibold">Live Auction Lots</span>
-                <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[18px]">gavel</span>
+                <span class="font-label-md text-xs uppercase tracking-wider text-slate-500 font-semibold">In-Stock Listings</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[18px]">inventory</span>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-                <span class="font-label-lg text-2xl font-bold text-[#0F172A]">{{ number_format($stats['auctions'] ?? 24) }}</span>
-                <span class="font-label-sm text-xs text-amber-600 font-medium flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Live Bidding
+                <span class="font-label-lg text-2xl font-bold text-[#0F172A]">{{ number_format($stats['in_stock'] ?? 0) }}</span>
+                <span class="font-label-sm text-xs text-emerald-700 font-medium flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Ready to Ship
                 </span>
             </div>
             <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span>Anti-sniping Protection</span>
-                <span class="font-semibold text-emerald-600">Enabled</span>
+                <span>Out of Stock Items</span>
+                <span class="font-semibold text-slate-600">{{ number_format($stats['out_of_stock'] ?? 0) }} SKUs</span>
             </div>
         </div>
 
@@ -127,7 +127,7 @@
             </div>
 
             <!-- Category Filter -->
-            <div class="w-full md:w-52">
+            <div class="w-full md:w-64">
                 <select name="category_id" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-[#F5A623] focus:bg-white transition-all font-body-md cursor-pointer">
                     <option value="">All Categories</option>
                     @foreach($categories as $cat)
@@ -138,17 +138,8 @@
                 </select>
             </div>
 
-            <!-- Sale Type Filter -->
-            <div class="w-full md:w-40">
-                <select name="sale_type" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-[#F5A623] focus:bg-white transition-all font-body-md cursor-pointer">
-                    <option value="">All Sale Types</option>
-                    <option value="direct" {{ request('sale_type') == 'direct' ? 'selected' : '' }}>Direct Purchase</option>
-                    <option value="auction" {{ request('sale_type') == 'auction' ? 'selected' : '' }}>Auction Lot</option>
-                </select>
-            </div>
-
             <!-- Status Filter -->
-            <div class="w-full md:w-36">
+            <div class="w-full md:w-44">
                 <select name="status" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-[#F5A623] focus:bg-white transition-all font-body-md cursor-pointer">
                     <option value="">All Status</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
@@ -163,7 +154,7 @@
                     <span class="material-symbols-outlined text-[16px]">filter_list</span>
                     <span>Apply Filters</span>
                 </button>
-                @if(request()->anyFilled(['search', 'category_id', 'sale_type', 'status']))
+                @if(request()->anyFilled(['search', 'category_id', 'status']))
                     <a href="{{ route('admin.products.index') }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium flex items-center justify-center transition-all" title="Reset Filters">
                         <span class="material-symbols-outlined text-[16px]">close</span>
                     </a>
@@ -191,9 +182,8 @@
                 <thead class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] uppercase tracking-wider text-slate-500 font-label-md">
                     <tr>
                         <th class="py-3 px-4">Product / SKU</th>
-                        <th class="py-3 px-4">Category</th>
+                        <th class="py-3 px-4 whitespace-nowrap">Category</th>
                         <th class="py-3 px-4">Merchant</th>
-                        <th class="py-3 px-4">Type</th>
                         <th class="py-3 px-4 text-right">Price</th>
                         <th class="py-3 px-4 text-center">Stock</th>
                         <th class="py-3 px-4 text-center">Status</th>
@@ -223,10 +213,76 @@
                             </td>
 
                             <!-- Category -->
-                            <td class="py-3.5 px-4 font-body-md text-slate-600">
-                                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-medium border border-slate-200/50">
-                                    {{ $product->category->name ?? 'Uncategorized' }}
-                                </span>
+                            <td class="py-3.5 px-4 font-body-md whitespace-nowrap">
+                                @php
+                                    $catSlug = $product->category->slug ?? '';
+                                    $catName = $product->category->name ?? 'Uncategorized';
+                                    $isFiltered = request('category_id') == ($product->category_id ?? null);
+                                    
+                                    $catBadge = match(true) {
+                                        str_contains($catSlug, 'book') || str_contains(strtolower($catName), 'book') || str_contains(strtolower($catName), 'stationery') => [
+                                            'icon' => 'menu_book',
+                                            'style' => 'bg-amber-50/90 text-amber-900 border-amber-200/90 hover:border-amber-300 hover:bg-amber-100/70',
+                                            'icon_color' => 'text-amber-700'
+                                        ],
+                                        str_contains($catSlug, 'artisan') || str_contains(strtolower($catName), 'craft') || str_contains(strtolower($catName), 'artisan') => [
+                                            'icon' => 'palette',
+                                            'style' => 'bg-orange-50/90 text-orange-900 border-orange-200/90 hover:border-orange-300 hover:bg-orange-100/70',
+                                            'icon_color' => 'text-orange-700'
+                                        ],
+                                        str_contains($catSlug, 'horology') || str_contains(strtolower($catName), 'watch') || str_contains(strtolower($catName), 'horology') => [
+                                            'icon' => 'watch',
+                                            'style' => 'bg-purple-50/90 text-purple-900 border-purple-200/90 hover:border-purple-300 hover:bg-purple-100/70',
+                                            'icon_color' => 'text-purple-700'
+                                        ],
+                                        str_contains($catSlug, 'tech') || str_contains($catSlug, 'electronics') || str_contains(strtolower($catName), 'electronic') => [
+                                            'icon' => 'devices',
+                                            'style' => 'bg-sky-50/90 text-sky-900 border-sky-200/90 hover:border-sky-300 hover:bg-sky-100/70',
+                                            'icon_color' => 'text-sky-700'
+                                        ],
+                                        str_contains($catSlug, 'fashion') || str_contains(strtolower($catName), 'apparel') => [
+                                            'icon' => 'checkroom',
+                                            'style' => 'bg-rose-50/90 text-rose-900 border-rose-200/90 hover:border-rose-300 hover:bg-rose-100/70',
+                                            'icon_color' => 'text-rose-700'
+                                        ],
+                                        str_contains($catSlug, 'home') || str_contains(strtolower($catName), 'living') => [
+                                            'icon' => 'chair',
+                                            'style' => 'bg-emerald-50/90 text-emerald-900 border-emerald-200/90 hover:border-emerald-300 hover:bg-emerald-100/70',
+                                            'icon_color' => 'text-emerald-700'
+                                        ],
+                                        str_contains($catSlug, 'collectible') || str_contains(strtolower($catName), 'antique') => [
+                                            'icon' => 'auto_awesome',
+                                            'style' => 'bg-violet-50/90 text-violet-900 border-violet-200/90 hover:border-violet-300 hover:bg-violet-100/70',
+                                            'icon_color' => 'text-violet-700'
+                                        ],
+                                        !$product->category => [
+                                            'icon' => 'help_outline',
+                                            'style' => 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200/60',
+                                            'icon_color' => 'text-slate-400'
+                                        ],
+                                        default => [
+                                            'icon' => 'category',
+                                            'style' => 'bg-slate-50/90 text-slate-800 border-slate-200/90 hover:border-slate-300 hover:bg-slate-100/70',
+                                            'icon_color' => 'text-slate-600'
+                                        ]
+                                    };
+                                @endphp
+                                @if($product->category_id)
+                                    <a href="{{ route('admin.products.index', array_merge(request()->except(['page']), ['category_id' => $isFiltered ? null : $product->category_id])) }}" 
+                                       title="{{ $isFiltered ? 'Filtered: click to view all' : 'Filter by ' . $catName }}"
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all shadow-xs {{ $catBadge['style'] }} {{ $isFiltered ? 'ring-2 ring-offset-1 ring-[#F5A623]' : '' }}">
+                                        <span class="material-symbols-outlined text-[13px] {{ $catBadge['icon_color'] }}">{{ $catBadge['icon'] }}</span>
+                                        <span>{{ $catName }}</span>
+                                        @if($isFiltered)
+                                            <span class="material-symbols-outlined text-[12px] opacity-70 hover:opacity-100">close</span>
+                                        @endif
+                                    </a>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium border {{ $catBadge['style'] }}">
+                                        <span class="material-symbols-outlined text-[13px] {{ $catBadge['icon_color'] }}">{{ $catBadge['icon'] }}</span>
+                                        <span>{{ $catName }}</span>
+                                    </span>
+                                @endif
                             </td>
 
                             <!-- Seller -->
@@ -238,21 +294,6 @@
                                 <div class="text-[10px] text-slate-400 font-label-sm">
                                     ID: {{ $product->seller_id ? 'SLR-' . str_pad($product->seller_id, 4, '0', STR_PAD_LEFT) : 'SYS' }}
                                 </div>
-                            </td>
-
-                            <!-- Type -->
-                            <td class="py-3.5 px-4">
-                                @if(($product->sale_type ?? 'direct') === 'auction')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-label-sm text-[10px] font-bold">
-                                        <span class="material-symbols-outlined text-[12px]">gavel</span>
-                                        <span>Auction Lot</span>
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-label-sm text-[10px] font-bold">
-                                        <span class="material-symbols-outlined text-[12px]">shopping_cart</span>
-                                        <span>Buy Now</span>
-                                    </span>
-                                @endif
                             </td>
 
                             <!-- Price -->
@@ -336,7 +377,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-12 text-center text-slate-400">
+                            <td colspan="7" class="py-12 text-center text-slate-400">
                                 <span class="material-symbols-outlined text-4xl text-slate-300">search_off</span>
                                 <p class="mt-2 font-headline-sm text-sm font-semibold text-slate-600">No products matching the selected criteria</p>
                                 <p class="text-xs text-slate-400 mt-1">Try resetting your search query or category filters.</p>

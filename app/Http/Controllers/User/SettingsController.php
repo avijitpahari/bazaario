@@ -20,7 +20,6 @@ class SettingsController extends Controller
         $user = Auth::user();
 
         $data = $request->validate([
-            'preferred_language' => 'nullable|string|max:10',
             'name'               => 'required|string|max:100',
             'phone'              => ['nullable', 'string', 'max:30', Rule::unique('users')->ignore($user->id)],
         ]);

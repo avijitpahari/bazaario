@@ -87,10 +87,10 @@
                 </div>
             </div>
 
-            <button type="button" onclick="alert('Exporting products to CSV format...')" class="h-12 px-4 rounded-[14px] bg-surface-container-lowest shadow-sm flex items-center gap-2 text-on-surface hover:bg-surface-container transition-all">
+            <a href="{{ route('seller.products.export') }}" class="h-12 px-4 rounded-[14px] bg-surface-container-lowest shadow-sm flex items-center gap-2 text-on-surface hover:bg-surface-container transition-all">
                 <span class="material-symbols-outlined text-[18px]">file_download</span>
                 <span class="font-sans text-sm font-medium">Export CSV</span>
-            </button>
+            </a>
 
             <a href="{{ route('seller.products.create') }}" class="h-12 px-6 rounded-[14px] bg-secondary-container text-on-secondary-container shadow-md hover:bg-secondary-fixed hover:shadow-lg transition-all flex items-center gap-2 font-heading font-semibold text-sm">
                 <span class="material-symbols-outlined text-[20px]">add</span>
@@ -179,6 +179,19 @@
                     <span class="font-mono text-xs font-bold text-on-tertiary-container">98.4%</span>
                 </div>
 
+                <!-- Category Filter -->
+                <div class="flex items-center gap-2">
+                    <span class="font-sans text-xs text-on-surface-variant hidden sm:inline">Category:</span>
+                    <select id="categoryFilter" onchange="handleCategoryFilter(this.value)" class="h-11 px-3 bg-surface-container-low rounded-[14px] font-sans text-xs text-on-surface outline-none cursor-pointer border-none">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                                {{ $cat->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="flex items-center gap-2">
                     <span class="font-sans text-xs text-on-surface-variant hidden sm:inline">Sort:</span>
                     <select id="sortDropdown" onchange="handleSort(this.value)" class="h-11 px-3 bg-surface-container-low rounded-[14px] font-sans text-xs text-on-surface outline-none cursor-pointer border-none">
@@ -239,7 +252,7 @@
                         $isOutOfStock = $product->stock <= 0;
                         $isStale = $product->isStale();
                         $statusTags = ($product->status ?? 'active') . ($isLow ? ' low' : '') . ($isOutOfStock ? ' out' : '') . ($isStale ? ' stale' : '');
-                        $imgUrl = $product->main_image_url ?? asset('images/products/leather_bag_1.jpg');
+                        $imgUrl = $product->main_image_url ?? asset('images/product-placeholder.svg');
                     @endphp
                     <tr class="product-row hover:bg-surface-container-low/60 transition-colors" data-category="{{ $product->category?->name ?? 'General' }}" data-name="{{ $product->name }}" data-status="{{ $statusTags }}">
                         <td class="py-4 pl-6 pr-3 align-middle">
@@ -253,21 +266,30 @@
                                         <a href="{{ route('seller.products.edit', $product->id) }}" class="font-heading text-sm font-semibold text-on-surface truncate hover:text-secondary transition-colors">
                                             {{ $product->name }}
                                         </a>
-                                        @if($product->is_perishable)
+                                        @if($product->isOrganicCategory() && $product->is_perishable)
                                         <span class="material-symbols-outlined text-[14px] text-on-tertiary-container" title="Pesticide-free / Fresh harvest">verified</span>
                                         @endif
                                     </div>
                                     <div class="flex items-center gap-2 mt-0.5">
                                         <span class="font-mono text-[11px] text-on-surface-variant">{{ $product->sku ?? ('SKU-' . $product->id) }}</span>
                                         <span class="font-mono text-[10px] uppercase bg-surface-container px-1.5 py-0.5 rounded-[4px] text-on-surface-variant font-medium">
-                                            {{ $product->farm_origin ?? ($sellerProfile?->shop_name ?? 'Farm Origin') }}
+                                            {{ $product->isOrganicCategory() ? ($product->farm_origin ?? ($sellerProfile?->shop_name ?? 'Farm Origin')) : ($sellerProfile?->shop_name ?? 'Retail Catalog') }}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </td>
                         <td class="py-4 px-4 align-middle">
-                            <span class="font-sans text-xs text-on-surface-variant">{{ $product->category?->name ?? 'Fresh Produce' }}</span>
+                            @if($product->category)
+                                <span class="inline-flex items-center gap-1 font-sans text-xs {{ $product->isOrganicCategory() ? 'text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-[6px] border border-emerald-200/80' : 'text-on-surface-variant' }}">
+                                    @if($product->isOrganicCategory())
+                                        <span class="material-symbols-outlined text-[13px] text-emerald-600">eco</span>
+                                    @endif
+                                    {{ $product->category->name }}
+                                </span>
+                            @else
+                                <span class="font-sans text-xs text-on-surface-variant">General</span>
+                            @endif
                         </td>
                         <td class="py-4 px-4 align-middle">
                             <div class="font-mono text-sm font-semibold text-on-surface">
@@ -301,7 +323,7 @@
                             </div>
                         </td>
                         <td class="py-4 px-4 align-middle">
-                            @if($product->is_perishable && $product->expiry_date)
+                            @if($product->isOrganicCategory() && $product->is_perishable && $product->expiry_date)
                             <div class="flex flex-col gap-1">
                                 @if($isStale)
                                 <div class="flex items-center gap-1.5 text-error font-medium font-sans text-xs">
@@ -311,25 +333,32 @@
                                 @else
                                 <div class="flex items-center gap-1.5 text-secondary font-medium font-sans text-xs">
                                     <span class="material-symbols-outlined text-[16px]">timer</span>
-                                    <span>{{ now()->diffInDays($product->expiry_date, false) }} days remaining</span>
+                                    <span>{{ max(0, (int) round(now()->floatDiffInDays($product->expiry_date, false))) }} days remaining</span>
                                 </div>
                                 @endif
                                 <span class="font-mono text-[10px] text-on-surface-variant">
                                     Harvested: {{ $product->harvest_date ? $product->harvest_date->format('d M') : 'Recent' }} • SLA Active
                                 </span>
                             </div>
-                            @else
+                            @elseif($product->isOrganicCategory())
                             <div class="flex flex-col gap-1">
-                                <span class="font-sans text-xs text-on-tertiary-container font-medium flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[16px]">check_circle</span> Stable Shelf-Life
+                                <span class="font-sans text-xs text-emerald-700 font-medium flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px]">eco</span> Stable Shelf-Life
                                 </span>
-                                <span class="font-mono text-[10px] text-on-surface-variant">Non-perishable item</span>
+                                <span class="font-mono text-[10px] text-on-surface-variant">Non-perishable organic</span>
+                            </div>
+                            @else
+                            <div class="flex flex-col gap-0.5">
+                                <span class="font-sans text-xs text-slate-500 font-medium flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[15px] text-slate-400">inventory_2</span> Standard Retail
+                                </span>
+                                <span class="font-mono text-[10px] text-slate-400">SLA N/A</span>
                             </div>
                             @endif
                         </td>
                         <td class="py-4 pr-6 pl-4 align-middle text-right">
                             <div class="flex items-center justify-end gap-1">
-                                <button type="button" class="p-2 rounded-[8px] hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" onclick="openDrawer('{{ addslashes($product->name) }}', '{{ $product->sku ?? 'SKU-'.$product->id }}', '₹{{ number_format($product->price, 0) }} / {{ $product->unit_type }}', '{{ $product->stock }} {{ $product->unit_type }}', '{{ $product->total_reviews ?? 0 }} units', '{{ $product->harvest_date?->format('d M') ?? 'N/A' }}', '{{ $isStale ? 'Expired' : 'Optimal' }}', '{{ addslashes($product->farm_origin ?? 'Origin Farm') }}', '{{ addslashes($product->category?->name ?? 'General') }}')" title="Inspect SKU">
+                                <button type="button" class="p-2 rounded-[8px] hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" onclick="openDrawer('{{ addslashes($product->name) }}', '{{ $product->sku ?? 'SKU-'.$product->id }}', '₹{{ number_format($product->price, 0) }} / {{ $product->unit_type }}', '{{ $product->stock }} {{ $product->unit_type }}', '{{ $product->total_reviews ?? 0 }} units', '{{ $product->isOrganicCategory() ? ($product->harvest_date?->format('d M') ?? 'Recent') : 'N/A' }}', '{{ $product->isOrganicCategory() ? ($isStale ? 'Expired' : 'Optimal') : 'Standard' }}', '{{ addslashes($product->farm_origin ?? 'Origin Farm') }}', '{{ addslashes($product->category?->name ?? 'General') }}')" title="Inspect SKU">
                                     <span class="material-symbols-outlined text-[18px]">visibility</span>
                                 </button>
                                 <a href="{{ route('seller.products.edit', $product->id) }}" class="p-2 rounded-[8px] hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Edit Item">
@@ -459,7 +488,7 @@
                     <span class="font-heading text-sm font-semibold text-on-surface">Update Restock Threshold</span>
                     <div class="flex items-center gap-3">
                         <input type="number" id="quickThresholdInput" value="10" class="w-24 h-10 px-3 bg-surface-container-low rounded-[10px] font-mono text-xs text-on-surface outline-none">
-                        <button type="button" onclick="alert('Threshold updated successfully')" class="h-10 px-4 rounded-[10px] bg-primary text-white font-sans text-xs font-semibold hover:bg-primary/90 transition-colors">
+                        <button type="button" onclick="showToast('Threshold updated successfully', 'success')" class="h-10 px-4 rounded-[10px] bg-primary text-white font-sans text-xs font-semibold hover:bg-primary/90 transition-colors">
                             Save Limit
                         </button>
                     </div>
@@ -471,7 +500,7 @@
                 <button type="button" onclick="closeDrawer()" class="h-11 px-4 rounded-[14px] bg-surface-container hover:bg-surface-container-high text-on-surface font-sans text-xs font-medium">
                     Dismiss
                 </button>
-                <button type="button" onclick="alert('Listing synced to mobile catalog'); closeDrawer();" class="h-11 px-5 rounded-[14px] bg-secondary-container text-on-secondary-container font-heading text-xs font-semibold hover:bg-secondary-fixed">
+                <button type="button" onclick="showToast('Listing synced to mobile catalog', 'success'); closeDrawer();" class="h-11 px-5 rounded-[14px] bg-secondary-container text-on-secondary-container font-heading text-xs font-semibold hover:bg-secondary-fixed">
                     Sync Listing
                 </button>
             </div>
@@ -569,6 +598,17 @@
         });
     }
 
+    function handleCategoryFilter(catId) {
+        const url = new URL(window.location.href);
+        if (catId) {
+            url.searchParams.set('category_id', catId);
+        } else {
+            url.searchParams.delete('category_id');
+        }
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }
+
     function handleSort(criteria) {
         console.log('Sorted table by:', criteria);
     }
@@ -594,7 +634,7 @@
     function submitBulkAction(actionName) {
         const checked = document.querySelectorAll('.product-check:checked');
         if (checked.length === 0) {
-            alert('Please select at least one product.');
+            showToast('Please select at least one product.', 'warning');
             return;
         }
 

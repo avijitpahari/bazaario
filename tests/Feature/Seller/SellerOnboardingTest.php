@@ -338,4 +338,85 @@ class SellerOnboardingTest extends TestCase
         $response->assertSee('Kirana Store');
         $response->assertSee('Restricted Access');
     }
+
+    /**
+     * Test 10: Seller document upload from pending status page and admin inspection.
+     */
+    public function test_seller_document_upload_and_admin_inspection(): void
+    {
+        Storage::fake('public');
+
+        $seller = User::factory()->create(['role' => 'seller', 'status' => 'active']);
+        $profile = SellerProfile::create([
+            'user_id'     => $seller->id,
+            'seller_type' => 'Farmer',
+            'shop_name'   => 'Green Valley Farms',
+            'shop_slug'   => 'green-valley-farms',
+            'status'      => 'pending',
+        ]);
+
+        $file = UploadedFile::fake()->create('gst_certificate.pdf', 500, 'application/pdf');
+
+        $response = $this->actingAs($seller, 'seller')->post(route('seller.pending.documents.upload'), [
+            'doc_type'      => 'gstin',
+            'document_file' => $file,
+            'gstin'         => '19ABCDE1234F1Z5',
+            'pan_number'    => 'ABCDE1234F',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('seller.pending'));
+        $response->assertSessionHas('success');
+
+        $profile->refresh();
+        $this->assertEquals('19ABCDE1234F1Z5', $profile->gstin);
+        $this->assertEquals('ABCDE1234F', $profile->pan_number);
+        $this->assertNotNull($profile->gstin_doc_path);
+        Storage::disk('public')->assertExists($profile->gstin_doc_path);
+
+        // Admin Approval Check
+        $admin = User::factory()->create(['role' => 'admin', 'status' => 'active']);
+        $adminResponse = $this->actingAs($admin, 'admin')->get(route('admin.sellers.approvals', ['selected' => $profile->id]));
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee('Inspect Uploaded Certificate');
+        $adminResponse->assertSee('19ABCDE1234F1Z5');
+    }
+
+    public function test_onboarding_wizard_sanitizes_formatted_gstin_and_ifsc_inputs(): void
+    {
+        $seller = User::factory()->create([
+            'role' => 'seller',
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($seller, 'seller')->post(route('seller.onboarding.submit'), [
+            'seller_type' => 'Farmer',
+            'shop_name' => 'Kanthi Organic Greens',
+            'bio' => 'Pure local produce',
+            'address' => 'Contai Station Road',
+            'city' => 'Contai',
+            'state' => 'West Bengal',
+            'country' => 'India',
+            'postal_code' => '721 401',
+            'latitude' => 21.7781,
+            'longitude' => 87.7516,
+            'gstin' => 'GSTIN: 19 AAACG 1234 A 1Z5',
+            'pan_number' => 'PAN: AAACG 1234 A',
+            'trade_license_number' => 'TL-2026-CONTAI-01',
+            'bank_account_number' => 'A/C: 9180 1002 3456 789',
+            'bank_ifsc' => 'HDFC 0001234 - Contai Branch',
+            'fssai_number' => 'FSSAI: 10020031000123',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('seller.pending'));
+
+        $profile = SellerProfile::where('user_id', $seller->id)->first();
+        $this->assertNotNull($profile);
+        $this->assertEquals('19AAACG1234A1Z5', $profile->gstin);
+        $this->assertEquals('AAACG1234A', $profile->pan_number);
+        $this->assertEquals('HDFC0001234', $profile->bank_ifsc);
+        $this->assertEquals('918010023456789', $profile->bank_account_number);
+        $this->assertEquals('10020031000123', $profile->fssai_number);
+    }
 }

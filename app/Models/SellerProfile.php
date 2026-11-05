@@ -29,10 +29,16 @@ class SellerProfile extends Model
         'verified_at',
         'gstin',
         'pan_number',
+        'pan_doc_path',
         'trade_license_number',
         'bank_account_number',
         'bank_ifsc',
         'fssai_number',
+        'gstin_doc_path',
+        'trade_license_doc_path',
+        'bank_doc_path',
+        'fssai_doc_path',
+        'document_statuses',
         'rejection_reason',
     ];
 
@@ -46,6 +52,7 @@ class SellerProfile extends Model
             'longitude' => 'float',
             'operating_radius_km' => 'integer',
             'operating_days' => 'array',
+            'document_statuses' => 'array',
         ];
     }
 
@@ -120,6 +127,11 @@ class SellerProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function sellerProfile()
+    {
+        return $this->belongsTo(self::class, 'id');
+    }
+
     public function products()
     {
         return $this->hasMany(Product::class, 'seller_id', 'user_id');
@@ -148,5 +160,64 @@ class SellerProfile extends Model
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    /**
+     * Check if seller has uploaded valid PAN details (number & document).
+     */
+    public function hasUploadedPan(): bool
+    {
+        return !empty($this->pan_number) && !empty($this->pan_doc_path);
+    }
+
+    /**
+     * Check if seller has uploaded valid Bank details (account, IFSC & passbook/cheque document).
+     */
+    public function hasUploadedBank(): bool
+    {
+        return !empty($this->bank_account_number) && !empty($this->bank_ifsc) && !empty($this->bank_doc_path);
+    }
+
+    /**
+     * Check if all mandatory compliance documents (Bank + PAN) are completed.
+     */
+    public function hasMandatoryComplianceDocuments(): bool
+    {
+        return $this->hasUploadedPan() && $this->hasUploadedBank();
+    }
+
+    /**
+     * Calculate 2-week compliance deadline from verification date (or creation date).
+     */
+    public function getComplianceDeadlineAttribute(): ?\Carbon\Carbon
+    {
+        $baseDate = $this->verified_at ?? $this->created_at;
+        return $baseDate ? $baseDate->copy()->addWeeks(2) : null;
+    }
+
+    /**
+     * Days remaining until compliance grace period ends.
+     */
+    public function getComplianceDaysRemainingAttribute(): int
+    {
+        $deadline = $this->compliance_deadline;
+        if (!$deadline) {
+            return 14;
+        }
+
+        return max(0, (int) ceil(now()->floatDiffInDays($deadline, false)));
+    }
+
+    /**
+     * Has the 2-week grace period expired without mandatory documents?
+     */
+    public function isComplianceGraceExpired(): bool
+    {
+        if ($this->hasMandatoryComplianceDocuments()) {
+            return false;
+        }
+
+        $deadline = $this->compliance_deadline;
+        return $deadline ? now()->greaterThan($deadline) : false;
     }
 }

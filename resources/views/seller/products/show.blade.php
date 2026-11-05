@@ -13,8 +13,9 @@
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div class="flex flex-col gap-1.5">
             <div class="flex items-center gap-2">
-                <a href="{{ route('seller.products.index') }}" class="font-mono text-[11px] text-secondary uppercase tracking-widest bg-secondary-container/20 px-2 py-0.5 rounded-[6px] font-bold hover:underline">
-                    &larr; Back to Catalog
+                <a href="{{ route('seller.products.index') }}" class="group inline-flex items-center gap-1.5 font-mono text-[11px] text-amber-900 uppercase tracking-widest bg-amber-50 hover:bg-amber-100/90 border border-amber-200/70 px-2.5 py-1 rounded-lg font-bold transition-all shadow-2xs hover:shadow-xs">
+                    <span class="material-symbols-outlined text-[13px] text-amber-700 transition-transform duration-200 ease-out group-hover:-translate-x-0.5">arrow_back</span>
+                    <span>Back to Catalog</span>
                 </a>
                 <span class="text-on-surface-variant text-[12px]">•</span>
                 <span class="font-mono text-xs text-on-surface-variant">SKU: {{ $product->sku ?? ('BZ-' . $product->id) }}</span>
@@ -86,7 +87,8 @@
                 @endif
             </div>
 
-            <!-- Agronomic Details -->
+            @if($product->isOrganicCategory())
+            <!-- Agronomic Details (Organic Produce Only) -->
             <div class="bg-surface-container-lowest rounded-[20px] p-6 shadow-sm border border-surface-container-high/60">
                 <h2 class="font-heading text-lg font-bold text-on-surface mb-4">Agronomic & Freshness Details</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -104,6 +106,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Sidebar / Media -->

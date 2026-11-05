@@ -33,6 +33,30 @@ class OrderItem extends Model
         ];
     }
 
+    // Accessors
+
+    public function getImageUrlAttribute(): string
+    {
+        $path = $this->product_image;
+
+        if (empty($path)) {
+            if ($this->product) {
+                return $this->product->main_image_url;
+            }
+            return asset('images/products/keyboard_1.jpg');
+        }
+
+        if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($path, ['storage/', 'images/']) || file_exists(public_path($path))) {
+            return asset($path);
+        }
+
+        return \Illuminate\Support\Facades\Storage::url($path);
+    }
+
     // Relationships
 
     public function sellerOrder(): BelongsTo

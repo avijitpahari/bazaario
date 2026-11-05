@@ -211,7 +211,7 @@
                             </td>
                             <td class="py-3 px-4 text-right">
                                 <a href="{{ route('admin.auctions.show', $auc->id) }}" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-semibold transition-colors">
-                                    Lot Dossier
+                                    View Auction
                                 </a>
                             </td>
                         </tr>

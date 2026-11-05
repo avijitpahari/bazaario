@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
     
     <!-- Compiled Tailwind CSS & App JS via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -40,8 +40,11 @@
 <body class="bg-[#FFFDF8] font-sans text-slate-800 antialiased min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950"
       x-data="productCatalog()">
 
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
+
     <!-- Include Global Customer Top Navbar -->
-    @include('components.nav-user')
+    @include('components.nav')
 
     <!-- Toast Notification Banner -->
     <div x-cloak x-show="toast.visible" 
@@ -51,7 +54,7 @@
          x-transition:leave="transition ease-in duration-200 transform"
          x-transition:leave-start="opacity-100 translate-y-0 sm:translate-x-0"
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:translate-x-4"
-         class="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto z-50 flex items-center gap-3 px-4 sm:px-5 py-3 rounded-2xl shadow-2xl border text-xs sm:text-sm font-medium"
+         class="fixed top-24 right-4 sm:right-6 left-4 sm:left-auto z-50 flex items-center gap-3 px-4 sm:px-5 py-3 rounded-2xl shadow-2xl border text-xs sm:text-sm font-medium"
          :class="toast.type === 'cart' ? 'bg-slate-900 text-white border-slate-800' : 'bg-amber-500 text-slate-950 border-amber-400'">
         <span class="material-symbols-outlined text-lg sm:text-xl shrink-0" x-text="toast.icon"></span>
         <span class="truncate" x-text="toast.message"></span>
@@ -142,11 +145,6 @@
             <div class="mt-4 bg-white rounded-2xl p-3 sm:p-4 shadow-xs border border-slate-200/80 flex flex-col gap-3">
                 <!-- Search Form (Feature 21 & Feature 22) -->
                 <form action="{{ route('products.index') }}" method="GET" class="relative w-full flex items-center">
-                    @if($catFilter && $catFilter !== 'all') <input type="hidden" name="category" value="{{ $catFilter }}"> @endif
-                    @if(request('min_price')) <input type="hidden" name="min_price" value="{{ request('min_price') }}"> @endif
-                    @if(request('max_price')) <input type="hidden" name="max_price" value="{{ request('max_price') }}"> @endif
-                    @if(request('min_rating')) <input type="hidden" name="min_rating" value="{{ request('min_rating') }}"> @endif
-                    @if(request('radius')) <input type="hidden" name="radius" value="{{ request('radius') }}"> @endif
                     @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
 
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg sm:text-xl pointer-events-none">search</span>
@@ -154,11 +152,18 @@
                            name="search" 
                            value="{{ $search }}" 
                            placeholder="Search products, descriptions, brands, or verified sellers..."
-                           class="w-full pl-9 sm:pl-10 pr-24 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
+                           class="w-full pl-9 sm:pl-10 pr-28 py-2 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
                     
-                    <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-lg text-xs font-semibold transition-colors">
-                        Search
-                    </button>
+                    <div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        @if(!empty($search))
+                            <a href="{{ route('products.index', request()->except(['search', 'page'])) }}" class="p-1 text-slate-400 hover:text-slate-700" title="Clear Search">
+                                <span class="material-symbols-outlined text-base">close</span>
+                            </a>
+                        @endif
+                        <button type="submit" class="px-3 py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white rounded-lg text-xs font-semibold transition-colors">
+                            Search
+                        </button>
+                    </div>
                 </form>
 
                 <!-- Sort & Filter Strip -->
@@ -250,8 +255,7 @@
                     <div :class="viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3' : 'space-y-4'">
                         @foreach($products as $product)
                             @php
-                                $primaryImg = $product->primaryImage ? $product->primaryImage->image_path : ($product->images->first() ? $product->images->first()->image_path : null);
-                                $imgUrl = $primaryImg ? (Str::startsWith($primaryImg, ['http://', 'https://']) ? $primaryImg : asset($primaryImg)) : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';
+                                $imgUrl = $product->main_image_url;
                                 $sellerProfile = $product->seller ? $product->seller->sellerProfile : null;
                                 $sellerName = $sellerProfile ? $sellerProfile->shop_name : ($product->seller ? $product->seller->name : 'Bazaario Artisan');
                                 $ratingDisplay = $product->average_rating ? number_format($product->average_rating, 1) : 'New';
@@ -273,7 +277,7 @@
                                                  alt="{{ $product->name }}" 
                                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                                                  loading="lazy"
-                                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';">
+                                                 onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                                         </a>
 
                                         <div class="absolute top-2 left-2 z-10">
@@ -360,7 +364,7 @@
                                  class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
                                 <div class="flex items-center gap-3 w-full sm:w-auto">
                                     <div class="w-20 h-20 rounded-xl bg-slate-100 shrink-0 overflow-hidden relative">
-                                        <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-1.5 text-xs font-mono text-slate-500 mb-0.5">

@@ -6,6 +6,7 @@ use App\Models\Auction;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -44,54 +45,60 @@ class ProductController extends Controller
                 ->get();
         });
 
-        // Feature 10: Featured Sellers (Verified merchants)
-        $featuredSellers = Cache::store('file')->remember('home_featured_sellers', 300, function () {
-            return User::where('role', 'seller')
-                ->whereHas('sellerProfile', function ($q) {
-                    $q->where('status', 'approved');
-                })
-                ->with(['sellerProfile'])
-                ->withCount('products')
-                ->latest()
-                ->take(4)
-                ->get();
-        });
-
-        // Feature 11 & Issue P33: Nearby Stalls (Hyperlocal discovery with graceful geolocation fallback)
+        // Geolocation parameters
         $hasCoordinates = $request->filled('lat') && $request->filled('lng');
         $lat = $hasCoordinates ? (float)$request->input('lat') : null;
         $lng = $hasCoordinates ? (float)$request->input('lng') : null;
         $radius = (float)$request->input('radius', 100); // Default 100 km radius
 
-        $allSellers = User::where('role', 'seller')
-            ->whereHas('sellerProfile', function ($q) {
-                $q->where('status', 'approved');
-            })
-            ->with(['sellerProfile'])
-            ->withCount('products')
-            ->get();
-
-        if ($hasCoordinates) {
-            $nearbyStalls = $allSellers->map(function ($seller) use ($lat, $lng) {
-                $profile = $seller->sellerProfile;
-                $dist = $profile ? $profile->distanceTo($lat, $lng) : 0.0;
-                $seller->distance_km = $dist;
-                return $seller;
+        // Feature 10 & 11: Featured Sellers and Nearby Stalls (Suppressed in Single-Vendor mode)
+        if (SiteSetting::isSingleVendor()) {
+            $featuredSellers = collect();
+            $nearbyStalls = collect();
+        } else {
+            $featuredSellers = Cache::store('file')->remember('home_featured_sellers', 300, function () {
+                return User::where('role', 'seller')
+                    ->whereHas('sellerProfile', function ($q) {
+                        $q->where('status', 'approved');
+                    })
+                    ->with(['sellerProfile'])
+                    ->withCount('products')
+                    ->latest()
+                    ->take(4)
+                    ->get();
             });
 
-            if ($radius > 0) {
-                $nearbyStalls = $nearbyStalls->filter(function ($seller) use ($radius) {
-                    return $seller->distance_km <= $radius;
-                });
-            }
+            // Feature 11 & Issue P33: Nearby Stalls (Hyperlocal discovery with graceful geolocation fallback)
+            $allSellers = User::where('role', 'seller')
+                ->whereHas('sellerProfile', function ($q) {
+                    $q->where('status', 'approved');
+                })
+                ->with(['sellerProfile'])
+                ->withCount('products')
+                ->get();
 
-            $nearbyStalls = $nearbyStalls->sortBy('distance_km')->values()->take(6);
-        } else {
-            // Graceful fallback: nationwide verified stalls when user has not shared coordinates
-            $nearbyStalls = $allSellers->map(function ($seller) {
-                $seller->distance_km = null;
-                return $seller;
-            })->take(6);
+            if ($hasCoordinates) {
+                $nearbyStalls = $allSellers->map(function ($seller) use ($lat, $lng) {
+                    $profile = $seller->sellerProfile;
+                    $dist = $profile ? $profile->distanceTo($lat, $lng) : 0.0;
+                    $seller->distance_km = $dist;
+                    return $seller;
+                });
+
+                if ($radius > 0) {
+                    $nearbyStalls = $nearbyStalls->filter(function ($seller) use ($radius) {
+                        return $seller->distance_km <= $radius;
+                    });
+                }
+
+                $nearbyStalls = $nearbyStalls->sortBy('distance_km')->values()->take(6);
+            } else {
+                // Graceful fallback: nationwide verified stalls when user has not shared coordinates
+                $nearbyStalls = $allSellers->map(function ($seller) {
+                    $seller->distance_km = null;
+                    return $seller;
+                })->take(6);
+            }
         }
 
         $stats = [
@@ -350,6 +357,9 @@ class ProductController extends Controller
      */
     public function feesAndCommission()
     {
+        if (SiteSetting::isSingleVendor()) {
+            return redirect()->route('home')->with('info', 'Multi-vendor marketplace pricing is disabled in Single-Vendor mode.');
+        }
         return view('docs.fees-and-commission');
     }
 
@@ -358,6 +368,9 @@ class ProductController extends Controller
      */
     public function becomeASeller()
     {
+        if (SiteSetting::isSingleVendor()) {
+            return redirect()->route('home')->with('info', 'Multi-vendor seller onboarding is disabled in Single-Vendor mode.');
+        }
         return view('docs.become-a-seller');
     }
 

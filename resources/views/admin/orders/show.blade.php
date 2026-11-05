@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Order Dossier #' . ($order->order_number ?? 'BZ-10482'))
+@section('title', 'Order Details #' . ($order->order_number ?? 'BZ-10482'))
 
 @section('content')
 <div class="flex flex-col w-full gap-space-lg">
@@ -153,9 +153,9 @@
 
         <!-- Financial & Buyer Summary (4 Cols) -->
         <div class="lg:col-span-4 flex flex-col gap-4">
-            <!-- Customer Dossier Card -->
+            <!-- Customer Details Card -->
             <div class="p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex flex-col gap-3">
-                <span class="font-label-sm text-[10px] uppercase tracking-wider text-slate-400 font-bold">Buyer Dossier</span>
+                <span class="font-label-sm text-[10px] uppercase tracking-wider text-slate-400 font-bold">Customer Information</span>
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-[#0F172A] text-[#F5A623] flex items-center justify-center font-bold text-sm">
                         {{ strtoupper(substr((string)($order->delivery_full_name ?? ($order->user?->name ?? 'B')), 0, 2)) }}

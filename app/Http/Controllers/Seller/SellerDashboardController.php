@@ -50,45 +50,40 @@ class SellerDashboardController extends Controller
         // 1. KPI Aggregations (6 Core Performance Indicators)
         // ─────────────────────────────────────────────────────────────────
 
-        // KPI 1: Total Orders Count
-        $totalOrders = SellerOrder::where('seller_id', $sellerId)->count();
-        $pendingOrdersCount = SellerOrder::where('seller_id', $sellerId)
-            ->whereIn('status', ['placed', 'pending'])
-            ->count();
+        // KPI 1 & 2: Order Aggregations (Single unified query)
+        $orderAggregates = SellerOrder::where('seller_id', $sellerId)
+            ->selectRaw("
+                COUNT(*) as total_count,
+                SUM(CASE WHEN status IN ('placed', 'pending') THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN status NOT IN ('cancelled', 'returned') THEN subtotal ELSE 0 END) as gross_revenue,
+                SUM(CASE WHEN status NOT IN ('cancelled', 'returned') THEN 1 ELSE 0 END) as completed_count
+            ")->first();
 
-        // KPI 2: Gross Revenue (sum of non-cancelled and non-returned orders)
-        $grossRevenue = (float) SellerOrder::where('seller_id', $sellerId)
-            ->whereNotIn('status', ['cancelled', 'returned'])
-            ->sum('subtotal');
+        $totalOrders = (int) ($orderAggregates->total_count ?? 0);
+        $pendingOrdersCount = (int) ($orderAggregates->pending_count ?? 0);
+        $grossRevenue = (float) ($orderAggregates->gross_revenue ?? 0.0);
         $totalRevenue = $grossRevenue;
-
-        $completedOrdersCount = SellerOrder::where('seller_id', $sellerId)
-            ->whereNotIn('status', ['cancelled', 'returned'])
-            ->count();
+        $completedOrdersCount = (int) ($orderAggregates->completed_count ?? 0);
         $aov = $completedOrdersCount > 0 ? round($grossRevenue / $completedOrdersCount, 2) : 0.0;
         $averageOrderValue = $aov;
 
-        // KPI 3: Active Listed Products Count
-        $activeProductsCount = Product::where('seller_id', $sellerId)
+        // KPI 3 & 4: Product Aggregations (Single unified query)
+        $productAggregates = Product::where('seller_id', $sellerId)
             ->where('status', 'active')
-            ->count();
-        $categoriesCount = Product::where('seller_id', $sellerId)
-            ->where('status', 'active')
-            ->distinct('category_id')
-            ->count('category_id');
+            ->selectRaw("
+                COUNT(*) as active_count,
+                COUNT(DISTINCT category_id) as categories_count,
+                SUM(CASE WHEN stock <= 10 THEN 1 ELSE 0 END) as low_stock_count,
+                SUM(CASE WHEN stock < 5 THEN 1 ELSE 0 END) as critical_stock_count
+            ")->first();
+
+        $activeProductsCount = (int) ($productAggregates->active_count ?? 0);
+        $categoriesCount = (int) ($productAggregates->categories_count ?? 0);
         $newProductsCount = Product::where('seller_id', $sellerId)
             ->where('created_at', '>=', Carbon::now()->subDays(7))
             ->count();
-
-        // KPI 4: Low Stock Alerts Count
-        $lowStockCount = Product::where('seller_id', $sellerId)
-            ->where('status', 'active')
-            ->lowStock()
-            ->count();
-        $criticalStockCount = Product::where('seller_id', $sellerId)
-            ->where('status', 'active')
-            ->where('stock', '<', 5)
-            ->count();
+        $lowStockCount = (int) ($productAggregates->low_stock_count ?? 0);
+        $criticalStockCount = (int) ($productAggregates->critical_stock_count ?? 0);
 
         // KPI 5: Seller Trust Score
         $trustScore = (float) ($profile?->trust_score ?? 94.0);

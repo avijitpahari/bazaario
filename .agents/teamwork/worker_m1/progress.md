@@ -1,23 +1,15 @@
-# Progress Log - worker_m1 (Milestone 1)
+# Progress - Worker M1 (Admin Platform Configuration & Branding Settings)
 
-Last visited: 2026-09-29T06:15:00Z
+Last visited: 2026-10-12T05:48:00Z
 
 ## Status
-Milestone 1 implementation and hardening complete. All features verified with 166 passing tests (1,221 assertions).
-
-## Todo List
-- [x] Read survey reports (`survey_r1_r3.md`, `survey_r7_r8_tests.md`)
-- [x] Inspect existing `AuthController.php`, `User.php`, `web.php`, `ProfileController.php`, `AddressController.php`, `SellerMiddleware.php`, etc.
-- [x] Inspect migration status and database schema
-- [x] Feature 1-3: Registration, Login (fix seller redirect loop), Logout
-- [x] Feature 4-5: Password reset flow (routes, controller, views, login link)
-- [x] Feature 6: RBAC in `SellerMiddleware` and route guards
-- [x] Feature 7-8: Language switch, `LanguageController`, `SetLocale` middleware, JSON dictionaries (`en.json`, `hi.json`, `bn.json`), navbar dropdowns
-- [x] Feature 50: View profile with buyer trust tier badge
-- [x] Feature 51: Edit profile with bio (migration, model, controller, view)
-- [x] Feature 52: Profile image upload
-- [x] Feature 53: Change password
-- [x] Feature 54: Address CRUD (complete edit address modal/form)
-- [x] Write/update tests in `tests/Feature/AuthAndLocalizationTest.php`
-- [x] Run `php artisan test`, `php -l`, `php artisan route:list`
-- [x] Prepare handoff report and notify parent
+- [x] 1. Investigate codebase (SiteSetting, routes, AdminDashboardController, layouts/admin, AuthController, ProductController, register.blade.php, index.blade.php)
+- [x] 2. Implement SiteSetting model helper methods (getSiteName, getTagline, getLogoUrl, isSingleVendor, isMultiVendor, getCommissionRate)
+- [x] 3. Implement routes in routes/web.php (admin.settings.index, admin.settings.update)
+- [x] 4. Implement settings & updateSettings in AdminDashboardController with DB::transaction and file upload handling
+- [x] 5. Implement settings Blade views (index, general, platform, commissions) with Warm Modernist design system
+- [x] 6. Update layouts/admin.blade.php navigation & branding (sidebar Platform Settings link & dynamic SiteSetting accessors)
+- [x] 7. Implement Single-Vendor mode enforcement (AuthController::sendOtp 422 guard, register.blade.php @unless, ProductController::home empty collections, ProductController docs redirect, index.blade.php @unless)
+- [x] 8. Implement feature tests in tests/Feature/AdminPlatformSettingsTest.php (13 tests, 50 assertions, 100% pass)
+- [x] 9. Run tests and verify zero regressions (AdminPlatformSettingsTest passes, AdminHardeningTest passes 35/35, AdminChallengerVerificationTest passes 12/12)
+- [/] 10. Write changes.md and handoff.md, report back to orchestrator

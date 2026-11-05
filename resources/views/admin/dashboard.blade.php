@@ -27,113 +27,143 @@
         <div class="flex flex-wrap items-center gap-3">
             <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200/90 shadow-2xs text-[#0F172A]">
                 <span class="material-symbols-outlined text-[18px] text-[#F5A623]">calendar_today</span>
-                <span class="font-label-md text-xs font-semibold text-[#0F172A]">{{ date('D, M d • Live Feed') }}</span>
+                <span class="font-label-md text-xs font-semibold text-[#0F172A]">{{ date('D, M d, Y') }} &bull; Live Feed</span>
             </div>
-            <button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200/90 text-[#0F172A] hover:bg-slate-50 transition-colors shadow-2xs font-body-md text-xs font-medium">
-                <span class="material-symbols-outlined text-[18px] text-slate-500">file_download</span>
-                <span>Download Daily Report</span>
-            </button>
+            <a href="#site-analytics-section" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200/90 text-[#0F172A] hover:bg-slate-50 transition-colors shadow-2xs font-body-md text-xs font-semibold">
+                <span class="material-symbols-outlined text-[18px] text-indigo-600">insights</span>
+                <span>View Site Analytics</span>
+            </a>
             <a href="{{ route('admin.sellers.approvals') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F5A623] text-[#0F172A] hover:bg-amber-400 transition-colors shadow-2xs font-body-md text-xs font-bold">
-                <span class="material-symbols-outlined text-[18px]">person_add</span>
-                <span>Review Pending Sellers</span>
+                <span class="material-symbols-outlined text-[18px]">verified_user</span>
+                <span>View Pending Seller Approvals ({{ $stats['pending_kyc'] ?? 0 }})</span>
             </a>
         </div>
     </section>
 
-    <!-- KPI Grid (6 High-Density Cards) -->
+    <!-- Requested Core KPI Grid: View Total Users, Total Sellers, Total Orders, GMV, Pending Seller Approvals, Site Analytics -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-space-md">
-        <!-- Card 1: Gross Merchandise Value -->
-        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow">
+        <!-- 1. View Total Users -->
+        <a href="{{ route('admin.customers.index') }}" class="group flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-amber-400 hover:shadow-md transition-all">
             <div class="flex flex-col gap-1">
-                <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">GROSS MERCHANDISE VALUE</span>
-                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">₹{{ $stats['gmv'] ?? '38,42,850' }}</div>
-            </div>
-            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100">
-                <div class="flex items-center gap-1.5 text-emerald-700 font-label-sm text-[11px] font-semibold">
-                    <span class="material-symbols-outlined text-[16px]">trending_up</span>
-                    <span>+18.4% vs last week</span>
+                <div class="flex items-center justify-between">
+                    <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">TOTAL USERS</span>
+                    <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-amber-500 transition-colors">group</span>
                 </div>
-                <p class="font-body-sm text-[10px] text-slate-500 mt-0.5 truncate">3,412 transactions processed</p>
+                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">{{ number_format($stats['total_users'] ?? 0) }}</div>
+            </div>
+            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[10px] text-slate-500">{{ number_format($stats['buyers_count'] ?? 0) }} buyers active</span>
+                <span class="text-amber-700 font-label-sm text-[10px] font-bold group-hover:underline flex items-center">
+                    <span>View Users</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </div>
+        </a>
+
+        <!-- 2. View Total Sellers -->
+        <a href="{{ route('admin.sellers.index') }}" class="group flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-amber-400 hover:shadow-md transition-all">
+            <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">TOTAL SELLERS</span>
+                    <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-amber-500 transition-colors">storefront</span>
+                </div>
+                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">{{ number_format($stats['total_sellers'] ?? 0) }}</div>
+            </div>
+            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[10px] text-emerald-700 font-medium font-mono">{{ $stats['sellers_count'] ?? 0 }} approved</span>
+                <span class="text-amber-700 font-label-sm text-[10px] font-bold group-hover:underline flex items-center">
+                    <span>View Sellers</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </div>
+        </a>
+
+        <!-- 3. View Total Orders -->
+        <a href="{{ route('admin.orders.index') }}" class="group flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-amber-400 hover:shadow-md transition-all">
+            <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">TOTAL ORDERS</span>
+                    <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-amber-500 transition-colors">receipt_long</span>
+                </div>
+                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">{{ number_format($stats['orders_count'] ?? 0) }}</div>
+            </div>
+            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[10px] text-emerald-700 font-medium font-mono">Live Hubs</span>
+                <span class="text-amber-700 font-label-sm text-[10px] font-bold group-hover:underline flex items-center">
+                    <span>View Orders</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </div>
+        </a>
+
+        <!-- 4. View Gross Merchandise Value (GMV) -->
+        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all">
+            <div class="flex flex-col gap-1 min-w-0">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold truncate" title="Gross Merchandise Value">GMV (SETTLED)</span>
+                    <span class="material-symbols-outlined text-[18px] text-emerald-600 shrink-0">currency_rupee</span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-1 flex-wrap" title="₹{{ $stats['gmv'] ?? '0.00' }}">
+                    <span class="font-label-lg text-lg sm:text-xl font-bold text-[#0F172A] tracking-tight leading-tight">
+                        {{ $stats['gmv_compact'] ?? ('₹' . ($stats['gmv_whole'] ?? '0')) }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-mono font-medium truncate">
+                        (₹{{ $stats['gmv_whole'] ?? '0' }})
+                    </span>
+                </div>
+            </div>
+            <div class="mt-3 pt-2 bg-slate-50 -mx-4 -mb-4 px-4 pb-2.5 rounded-b-xl border-t border-slate-100 flex items-center justify-between text-[10px] gap-1">
+                <span class="text-blue-700 font-mono font-semibold truncate" title="Escrow holds: ₹{{ $stats['escrow_holds'] ?? '0.00' }}">
+                    Hold: {{ $stats['escrow_compact'] ?? ('₹' . ($stats['escrow_whole'] ?? '0')) }}
+                </span>
+                <span class="text-emerald-700 font-label-sm text-[10px] font-bold shrink-0">
+                    Settled
+                </span>
             </div>
         </div>
 
-        <!-- Card 2: Total Orders -->
-        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow">
-            <div class="flex flex-col gap-1">
-                <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">VOLUME ACROSS HUBS</span>
-                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">{{ number_format($stats['orders_count'] ?? 1482) }}</div>
-            </div>
-            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100">
-                <div class="flex items-center gap-1.5 text-emerald-700 font-label-sm text-[11px] font-semibold">
-                    <span class="material-symbols-outlined text-[16px]">local_shipping</span>
-                    <span>+12.1% dispatched</span>
+        <!-- 5. View Pending Seller Approvals -->
+        <a href="{{ route('admin.sellers.approvals') }}" class="group flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-amber-400 hover:shadow-md transition-all">
+            <div class="flex flex-col gap-1 min-w-0">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold truncate" title="Pending Seller Approvals">PENDING APPROVALS</span>
+                    <span class="material-symbols-outlined text-[18px] text-amber-500 shrink-0">pending_actions</span>
                 </div>
-                <p class="font-body-sm text-[10px] text-slate-500 mt-0.5 truncate">94.8% on-time fulfilment</p>
+                <div class="flex items-center justify-between mt-1 gap-1">
+                    <span class="font-label-lg text-2xl font-bold text-[#0F172A]">{{ $stats['pending_kyc'] ?? 0 }}</span>
+                    @if(($stats['pending_kyc'] ?? 0) > 0)
+                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-label-sm text-[10px] font-bold animate-pulse whitespace-nowrap">Action Needed</span>
+                    @else
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-[10px] font-bold whitespace-nowrap">All Cleared</span>
+                    @endif
+                </div>
             </div>
-        </div>
+            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100 flex items-center justify-between text-[10px]">
+                <span class="text-slate-500 truncate">KYC Verification</span>
+                <span class="text-amber-700 font-label-sm text-[10px] font-bold group-hover:underline flex items-center shrink-0">
+                    <span>Audit</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </div>
+        </a>
 
-        <!-- Card 3: Active Sellers -->
-        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow">
+        <!-- 6. View Site Analytics Quick Link -->
+        <a href="#site-analytics-section" class="group flex flex-col justify-between p-4 rounded-xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white shadow-2xs hover:shadow-md transition-all">
             <div class="flex flex-col gap-1">
-                <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">VERIFIED MERCHANTS</span>
-                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">{{ $stats['sellers_count'] ?? 348 }}</div>
-            </div>
-            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100">
-                <div class="flex items-center gap-1.5 text-emerald-700 font-label-sm text-[11px] font-semibold">
-                    <span class="material-symbols-outlined text-[16px]">add_circle</span>
-                    <span>+14 joined this week</span>
+                <div class="flex items-center justify-between">
+                    <span class="font-label-sm text-[10px] tracking-wider text-indigo-200 uppercase font-semibold">SITE ANALYTICS</span>
+                    <span class="material-symbols-outlined text-[18px] text-[#F5A623]">insights</span>
                 </div>
-                <p class="font-body-sm text-[10px] text-slate-500 mt-0.5 truncate">Kolkata, Digha, Contai</p>
+                <div class="font-label-lg text-xl font-bold text-white mt-1">Telemetry Live</div>
             </div>
-        </div>
-
-        <!-- Card 4: Total Customers -->
-        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow">
-            <div class="flex flex-col gap-1">
-                <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">REGISTERED BUYERS</span>
-                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">{{ number_format($stats['buyers_count'] ?? 28940) }}</div>
+            <div class="mt-3 pt-2.5 bg-white/10 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-white/10 flex items-center justify-between">
+                <span class="text-[10px] text-indigo-200 font-mono">{{ $analytics['total_products'] ?? 0 }} items &bull; {{ $analytics['active_auctions'] ?? 0 }} auctions</span>
+                <span class="text-[#F5A623] font-label-sm text-[10px] font-bold group-hover:underline flex items-center">
+                    <span>Explore</span>
+                    <span class="material-symbols-outlined text-[14px]">south</span>
+                </span>
             </div>
-            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100">
-                <div class="flex items-center gap-1.5 text-[#0F172A] font-label-sm text-[11px] font-semibold">
-                    <span class="material-symbols-outlined text-[16px] text-[#F5A623]">group</span>
-                    <span>+2,120 active today</span>
-                </div>
-                <p class="font-body-sm text-[10px] text-slate-500 mt-0.5 truncate">84% repeat customer rate</p>
-            </div>
-        </div>
-
-        <!-- Card 5: Pending Approvals -->
-        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow">
-            <div class="flex flex-col gap-1">
-                <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">KYC & STORE AUDIT</span>
-                <div class="flex items-center justify-between mt-1">
-                    <span class="font-label-lg text-2xl font-bold text-[#0F172A]">{{ $stats['pending_kyc'] ?? 4 }}</span>
-                    <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-label-sm text-[10px] font-bold">Action Needed</span>
-                </div>
-            </div>
-            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100">
-                <a href="{{ route('admin.sellers.approvals') }}" class="flex items-center justify-between text-amber-700 font-label-sm text-[11px] font-semibold hover:underline">
-                    <span>Review Documents</span>
-                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-                </a>
-                <p class="font-body-sm text-[10px] text-slate-500 mt-0.5 truncate">GSTIN & Trade licenses</p>
-            </div>
-        </div>
-
-        <!-- Card 6: Escrow Holds -->
-        <div class="flex flex-col justify-between p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow">
-            <div class="flex flex-col gap-1">
-                <span class="font-label-sm text-[10px] tracking-wider text-slate-500 uppercase font-semibold">ESCROW FUNDS IN TRANSIT</span>
-                <div class="font-label-lg text-2xl font-bold text-[#0F172A] mt-1">₹{{ $stats['escrow_holds'] ?? '14,20,500' }}</div>
-            </div>
-            <div class="mt-3 pt-2.5 bg-slate-50 -mx-4 -mb-4 px-4 pb-3 rounded-b-xl border-t border-slate-100">
-                <div class="flex items-center gap-1.5 text-blue-700 font-label-sm text-[11px] font-semibold">
-                    <span class="material-symbols-outlined text-[16px]">lock</span>
-                    <span>100% Escrow Protected</span>
-                </div>
-                <p class="font-body-sm text-[10px] text-slate-500 mt-0.5 truncate">Scheduled for batch release</p>
-            </div>
-        </div>
+        </a>
     </section>
 
     <!-- Main Two-Column Layout (8 Cols Analytics + 4 Cols Operations) -->
@@ -437,5 +467,158 @@
             </div>
         </div>
     </div>
+
+    <!-- ── Comprehensive Site Analytics & Telemetry Section ── -->
+    <section id="site-analytics-section" class="flex flex-col gap-space-lg p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs scroll-mt-24">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">monitoring</span>
+                </div>
+                <div>
+                    <h2 class="font-headline-sm text-lg font-bold text-[#0F172A]">Platform Telemetry & Site Analytics</h2>
+                    <p class="font-body-sm text-xs text-slate-500">Live operational snapshot across accounts, order conversions, fulfillment pipeline, and catalog health.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-xs font-bold border border-emerald-200/60 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    Live Production DB
+                </span>
+            </div>
+        </div>
+
+        <!-- Metric Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <!-- Total Users -->
+            <a href="{{ route('admin.customers.index') }}" class="p-4 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-slate-300 transition-colors flex flex-col justify-between">
+                <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Total Users</span>
+                <div class="font-bold text-xl text-[#0F172A] my-1">{{ number_format($analytics['total_users'] ?? 0) }}</div>
+                <span class="text-[11px] text-slate-600 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-amber-500">badge</span>
+                    <span>{{ $analytics['buyers_count'] ?? 0 }} buyers</span>
+                </span>
+            </a>
+
+            <!-- Total Sellers -->
+            <a href="{{ route('admin.sellers.index') }}" class="p-4 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-slate-300 transition-colors flex flex-col justify-between">
+                <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Total Sellers</span>
+                <div class="font-bold text-xl text-[#0F172A] my-1">{{ number_format($analytics['total_sellers'] ?? 0) }}</div>
+                <span class="text-[11px] text-emerald-700 flex items-center gap-1 font-medium">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                    <span>{{ $analytics['approved_sellers'] ?? 0 }} approved</span>
+                </span>
+            </a>
+
+            <!-- Pending Approvals -->
+            <a href="{{ route('admin.sellers.approvals') }}" class="p-4 rounded-xl bg-amber-50/60 border border-amber-100 hover:border-amber-300 transition-colors flex flex-col justify-between">
+                <span class="text-[10px] font-mono uppercase text-amber-900 font-bold">Pending Approvals</span>
+                <div class="font-bold text-xl text-amber-900 my-1">{{ number_format($analytics['pending_sellers'] ?? 0) }}</div>
+                <span class="text-[11px] text-amber-800 flex items-center gap-1 font-semibold">
+                    <span class="material-symbols-outlined text-[14px]">hourglass_top</span>
+                    <span>Needs review</span>
+                </span>
+            </a>
+
+            <!-- Total Orders -->
+            <a href="{{ route('admin.orders.index') }}" class="p-4 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-slate-300 transition-colors flex flex-col justify-between">
+                <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Total Orders</span>
+                <div class="font-bold text-xl text-[#0F172A] my-1">{{ number_format($analytics['total_orders'] ?? 0) }}</div>
+                <span class="text-[11px] text-slate-600 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-emerald-600">local_shipping</span>
+                    <span>{{ $analytics['order_statuses']['completed'] ?? 0 }} delivered</span>
+                </span>
+            </a>
+
+            <!-- Settled GMV -->
+            <div class="p-4 rounded-xl bg-slate-50/70 border border-slate-100 flex flex-col justify-between">
+                <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Gross GMV</span>
+                <div class="font-bold text-lg text-[#0F172A] my-1">₹{{ $analytics['gmv_formatted'] ?? '0.00' }}</div>
+                <span class="text-[11px] text-blue-700 flex items-center gap-1 font-medium">
+                    <span class="material-symbols-outlined text-[14px]">lock</span>
+                    <span>₹{{ $analytics['escrow_formatted'] ?? '0.00' }} hold</span>
+                </span>
+            </div>
+
+            <!-- Catalog Items -->
+            <a href="{{ route('admin.products.index') }}" class="p-4 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-slate-300 transition-colors flex flex-col justify-between">
+                <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Live Products</span>
+                <div class="font-bold text-xl text-[#0F172A] my-1">{{ number_format($analytics['total_products'] ?? 0) }}</div>
+                <span class="text-[11px] text-slate-600 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-purple-600">category</span>
+                    <span>{{ $analytics['total_categories'] ?? 0 }} categories</span>
+                </span>
+            </a>
+        </div>
+
+        <!-- Fulfillment Pipeline Breakdown & Daily Orders Table -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-2">
+            <!-- Order Pipeline Status Bar -->
+            <div class="lg:col-span-5 p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-headline-sm text-xs font-bold text-[#0F172A] uppercase tracking-wider">Order Status Breakdown</span>
+                    <span class="font-mono text-[11px] text-slate-500">{{ $analytics['total_orders'] ?? 0 }} Total</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-2.5 rounded-lg bg-white border border-slate-200/80">
+                        <span class="text-[10px] text-slate-500 block uppercase">Delivered</span>
+                        <span class="font-bold text-emerald-700 text-sm">{{ $analytics['order_statuses']['completed'] ?? 0 }}</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-white border border-slate-200/80">
+                        <span class="text-[10px] text-slate-500 block uppercase">In Transit / Proc</span>
+                        <span class="font-bold text-blue-700 text-sm">{{ $analytics['order_statuses']['processing'] ?? 0 }}</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-white border border-slate-200/80">
+                        <span class="text-[10px] text-slate-500 block uppercase">Pending Escrow</span>
+                        <span class="font-bold text-amber-700 text-sm">{{ $analytics['order_statuses']['pending'] ?? 0 }}</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-white border border-slate-200/80">
+                        <span class="text-[10px] text-slate-500 block uppercase">Cancelled</span>
+                        <span class="font-bold text-rose-700 text-sm">{{ $analytics['order_statuses']['cancelled'] ?? 0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Timeline / Volume by Day -->
+            <div class="lg:col-span-7 p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="font-headline-sm text-xs font-bold text-[#0F172A] uppercase tracking-wider">Recent Daily Order Velocity</span>
+                    <span class="font-label-sm text-[11px] text-slate-500 font-mono">Last Activity Log</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-slate-500 font-label-sm text-[10px] uppercase border-b border-slate-200">
+                                <th class="pb-2">Date</th>
+                                <th class="pb-2 text-center">Orders</th>
+                                <th class="pb-2 text-right">Settled Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200/60">
+                            @forelse($analytics['recent_days'] ?? [] as $day)
+                                <tr>
+                                    <td class="py-2 font-mono font-medium text-slate-700">{{ date('M d, Y', strtotime($day->date)) }}</td>
+                                    <td class="py-2 text-center">
+                                        <span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-800 font-mono text-[11px] font-bold">
+                                            {{ $day->count }}
+                                        </span>
+                                    </td>
+                                    <td class="py-2 text-right font-mono font-bold text-[#0F172A]">
+                                        ₹{{ number_format((float)$day->total, 2) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="py-4 text-center text-slate-400 text-xs">
+                                        No recent transaction days recorded.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 @endsection

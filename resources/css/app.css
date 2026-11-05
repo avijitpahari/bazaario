@@ -1,15 +1,19 @@
 @import 'tailwindcss';
 
+[x-cloak] {
+    display: none !important;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
 @theme {
-    /* Typography */
-    --font-sans: 'Inter', system-ui, sans-serif;
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-heading: 'Space Grotesk', sans-serif;
+    /* Premium Modernist Typography Palette */
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
     /* Customer Core Tokens */
@@ -29,29 +33,56 @@
     --color-brand-muted: #45464D;
     --color-brand-outline: #E2DFD7;
 
-    /* Material 3 & Seller Theme Palette */
+    /* Material 3 & Seller Theme Palette - Modern High-Contrast Fintech Aesthetics */
     --color-primary: #0F172A;
-    --color-primary-container: #131B2E;
-    --color-secondary: #835500;
-    --color-secondary-container: #FEAE2C;
-    --color-secondary-fixed: #FFDDB4;
-    --color-secondary-fixed-dim: #FFB955;
-    --color-on-secondary-container: #6B4500;
-    --color-tertiary-container: #002109;
-    --color-tertiary-fixed: #7FFC97;
-    --color-tertiary-fixed-dim: #62DF7D;
-    --color-on-tertiary-container: #009842;
+    --color-on-primary: #FFFFFF;
+    --color-primary-container: #1E293B;
+    --color-secondary: #D97706;
+    --color-on-secondary: #0F172A;
+    --color-secondary-container: #FEF3C7;
+    --color-secondary-fixed: #FEF3C7;
+    --color-secondary-fixed-dim: #FDE68A;
+    --color-on-secondary-container: #78350F;
+    --color-tertiary-container: #ECFDF5;
+    --color-tertiary-fixed: #A7F3D0;
+    --color-tertiary-fixed-dim: #6EE7B7;
+    --color-on-tertiary-container: #065F46;
+    --color-on-tertiary: #FFFFFF;
 
-    /* Surface Tokens */
-    --color-surface: #FBF9F4;
-    --color-surface-dim: #DBDAD5;
-    --color-surface-bright: #FBF9F4;
-    --color-surface-tint: #565E74;
+    /* Transparency & Alpha Tokens */
+    --color-primary-alpha-70: rgba(15, 23, 42, 0.70);
+    --color-primary-alpha-20: rgba(15, 23, 42, 0.20);
+    --color-primary-alpha-10: rgba(15, 23, 42, 0.10);
+    --color-ivory-alpha-70: rgba(255, 255, 255, 0.85);
+
+    /* Fixed & Variant Text Tokens */
+    --color-on-primary-container: #94A3B8;
+    --color-on-primary-fixed: #0F172A;
+    --color-on-primary-fixed-variant: #334155;
+    --color-on-secondary-fixed: #78350F;
+    --color-on-secondary-fixed-variant: #92400E;
+    --color-on-tertiary-fixed: #064E3B;
+    --color-on-tertiary-fixed-variant: #047857;
+    --color-primary-fixed: #E2E8F0;
+    --color-primary-fixed-dim: #CBD5E1;
+    --color-tertiary: #059669;
+    --color-inverse-primary: #38BDF8;
+    --color-inverse-surface: #0F172A;
+    --color-inverse-on-surface: #F8FAFC;
+
+    /* Surface Tokens - Clean Crisp Modernist Canvas */
+    --color-surface: #F8FAFC;
+    --color-surface-dim: #F1F5F9;
+    --color-surface-bright: #FFFFFF;
+    --color-surface-tint: #475569;
+    --color-surface-variant: #E2E8F0;
     --color-surface-container-lowest: #FFFFFF;
-    --color-surface-container-low: #F5F3EE;
-    --color-surface-container: #EFEEE9;
-    --color-surface-container-high: #EAE8E3;
-    --color-surface-container-highest: #E4E2DE;
+    --color-surface-container-low: #FFFFFF;
+    --color-surface-container: #F8FAFC;
+    --color-surface-container-high: #F1F5F9;
+    --color-surface-container-highest: #E2E8F0;
+    --color-background: #F8FAFC;
+    --color-on-background: #0F172A;
 
     /* Spacing Tokens */
     --spacing-space-xs: 0.25rem;
@@ -59,25 +90,51 @@
     --spacing-space-md: 1rem;
     --spacing-space-lg: 1.5rem;
     --spacing-space-xl: 2.5rem;
+    --spacing-gutter: 1.25rem;
+    --spacing-gutter-desktop: 1.5rem;
+    --spacing-gutter-xs: 0.5rem;
+    --spacing-gutter-sm: 1rem;
+    --spacing-gutter-md: 1.5rem;
+    --spacing-gutter-lg: 2.5rem;
+    --spacing-gutter-xl: 3.5rem;
+    --spacing-section-hero-top: 4rem;
+    --spacing-section-hero-bottom: 2.5rem;
+    --spacing-section-interior-y: 3.5rem;
+    --spacing-section-final-bottom: 4rem;
+    --spacing-container-max: 72rem;
+    --spacing-card-padding: 1.25rem;
+    --spacing-banner-padding: 2.5rem;
 
-    /* Stitch Typography Aliases */
+    /* Typography Aliases */
     --font-system-code: 'JetBrains Mono', monospace;
     --font-system-label: 'JetBrains Mono', monospace;
-    --font-headline-sm: 'Space Grotesk', sans-serif;
-    --font-headline-md: 'Space Grotesk', sans-serif;
-    --font-headline-lg: 'Space Grotesk', sans-serif;
-    --font-body-sm: 'Inter', sans-serif;
-    --font-body-md: 'Inter', sans-serif;
-    --font-body-lg: 'Inter', sans-serif;
+    --font-headline-sm: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-headline-md: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-headline-lg: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-body-sm: 'Plus Jakarta Sans', sans-serif;
+    --font-body-md: 'Plus Jakarta Sans', sans-serif;
+    --font-body-lg: 'Plus Jakarta Sans', sans-serif;
+    --font-label-lg: 'JetBrains Mono', monospace;
+    --font-label-md: 'JetBrains Mono', monospace;
+    --font-label-sm: 'JetBrains Mono', monospace;
+    --font-label-eyebrow: 'JetBrains Mono', monospace;
+    --font-label-micro: 'JetBrains Mono', monospace;
+    --font-display-hero: 'Space Grotesk', sans-serif;
+    --font-title-card: 'Space Grotesk', sans-serif;
+    --font-headline-section: 'Space Grotesk', sans-serif;
+    --font-body-regular: 'Inter', sans-serif;
+    --font-body-lead: 'Inter', sans-serif;
+    --font-button-text: 'Inter', sans-serif;
 
     /* Text & Outline Tokens */
-    --color-on-surface: #1B1C19;
-    --color-on-surface-variant: #45464D;
-    --color-outline: #76777D;
-    --color-outline-variant: #C6C6CD;
+    --color-on-surface: #0F172A;
+    --color-on-surface-variant: #64748B;
+    --color-outline: #94A3B8;
+    --color-outline-variant: #E2E8F0;
 
     /* Error Tokens */
     --color-error: #BA1A1A;
+    --color-on-error: #FFFFFF;
     --color-error-container: #FFDAD6;
     --color-on-error-container: #93000A;
 
@@ -86,9 +143,155 @@
     --radius-custom: 14px;
     --radius-14: 14px;
 
+    /* Accent Palette */
+    --color-accent: #F5A623;
+    --color-accent-hover: #E09214;
+    --color-accent-light: #FEF3C7;
+    --color-accent-muted: #FFFBEB;
+
     /* Elevation & Shadow Tokens */
     --shadow-dock: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.9) inset;
     --shadow-card-elevated: 0 12px 32px -8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
     --shadow-subtle: 0 1px 8px rgba(0, 0, 0, 0.04);
     --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+    --shadow-glass: 0 20px 45px -12px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+    --shadow-floating-nav: 0 12px 36px -8px rgba(15, 23, 42, 0.09), 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+    --shadow-accent-glow: 0 8px 24px -4px rgba(245, 166, 35, 0.38);
 }
+
+/* Global Typography Anti-Aliasing & Rendering Smoothness */
+body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+}
+
+h1 {
+    letter-spacing: -0.035em;
+}
+
+h2 {
+    letter-spacing: -0.028em;
+}
+
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Chat Markdown Formatting */
+.chat-markdown {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    word-break: break-word;
+}
+.chat-markdown p {
+    margin-bottom: 0.5rem;
+}
+.chat-markdown p:last-child {
+    margin-bottom: 0;
+}
+.chat-markdown strong, .chat-markdown b {
+    font-weight: 700;
+    color: inherit;
+}
+.chat-markdown em, .chat-markdown i {
+    font-style: italic;
+}
+.chat-markdown ul {
+    list-style-type: none;
+    margin: 0.5rem 0;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.chat-markdown ul:last-child {
+    margin-bottom: 0;
+}
+.chat-markdown ul li {
+    position: relative;
+    padding: 0.4rem 0.75rem 0.4rem 1.75rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #334155;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    user-select: none;
+}
+.chat-markdown ul li::before {
+    content: "→";
+    position: absolute;
+    left: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+.chat-markdown ul li:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+    transform: translateX(2px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.08);
+}
+.chat-markdown ol {
+    list-style-type: decimal;
+    margin-left: 1.25rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+}
+.chat-markdown ol:last-child {
+    margin-bottom: 0;
+}
+.chat-markdown ol li {
+    margin-bottom: 0.25rem;
+    line-height: 1.45;
+}
+.chat-markdown ol li:last-child {
+    margin-bottom: 0;
+}
+.chat-markdown code {
+    background-color: rgba(15, 23, 42, 0.08);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8em;
+}
+.chat-markdown pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+}
+.chat-markdown blockquote {
+    border-left: 3px solid #3b82f6;
+    padding-left: 0.75rem;
+    margin: 0.5rem 0;
+    color: #64748b;
+    font-style: italic;
+}
+.chat-markdown a {
+    color: #2563eb;
+    text-decoration: underline;
+    font-weight: 600;
+}
+.chat-markdown a:hover {
+    color: #1d4ed8;
+}
+

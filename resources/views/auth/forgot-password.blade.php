@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/favicon.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link
@@ -17,40 +17,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0F172A',
-                        accent: {
-                            DEFAULT: '#F5A623',
-                            hover: '#E09214',
-                            light: '#FEF3C7',
-                            muted: '#FFFBEB'
-                        },
-                        bg: '#FFFDF8',
-                        surface: '#FAF8F4',
-                        card: '#FFFFFF'
-                    },
-                    fontFamily: {
-                        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace']
-                    },
-                    borderRadius: {
-                        card: '14px'
-                    },
-                    boxShadow: {
-                        glass: '0 20px 45px -12px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04)',
-                        'accent-glow': '0 8px 24px -4px rgba(245, 166, 35, 0.38)'
-                    }
-                }
-            }
-        }
-    </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
+
         [x-cloak] { display: none !important; }
         body {
             background-color: #FFFDF8;

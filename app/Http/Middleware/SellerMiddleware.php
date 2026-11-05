@@ -18,17 +18,22 @@ class SellerMiddleware
     {
         /*
         |--------------------------------------------------------------------------
-        | Admin Impersonation Bypass
+        | Admin Impersonation & Direct Admin View Bypass
         |--------------------------------------------------------------------------
-        | If an admin is actively impersonating a seller panel session, let them
-        | through without needing a real 'seller' guard login.
+        | If an admin is logged in or actively impersonating a user/seller session,
+        | ensure seller guard is populated and allow them through without redirect loops.
         */
         $impersonating = session('impersonating');
-        if (
-            $impersonating &&
-            ($impersonating['panel'] ?? '') === 'seller' &&
-            Auth::guard('admin')->check()
-        ) {
+        if ($impersonating && Auth::guard('admin')->check()) {
+            if (!Auth::guard('seller')->check() && !empty($impersonating['user_id'])) {
+                Auth::guard('seller')->loginUsingId($impersonating['user_id']);
+            }
+            return $next($request);
+        }
+
+        if (Auth::guard('admin')->check() && !Auth::guard('seller')->check()) {
+            $adminUser = Auth::guard('admin')->user();
+            Auth::guard('seller')->setUser($adminUser);
             return $next($request);
         }
 
@@ -133,8 +138,8 @@ class SellerMiddleware
      */
     protected function isExemptFromApprovalCheck(Request $request): bool
     {
-        // 1. Pending approval waiting screen
-        if ($request->is('seller/pending') || $request->routeIs('seller.pending')) {
+        // 1. Pending approval waiting screen & document upload endpoints
+        if ($request->is('seller/pending') || $request->is('seller/pending/*') || $request->routeIs('seller.pending*')) {
             return true;
         }
 

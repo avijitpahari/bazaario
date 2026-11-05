@@ -285,6 +285,13 @@ class MarketplaceDataSeeder extends Seeder
                 'description' => 'Deckle-edge handmade journals, brass fountain pens, calligraphy sets, and collector editions.',
                 'imageUrl' => 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80',
                 'file' => 'books_stationery.jpg',
+            ],
+            [
+                'name' => 'Organic Food',
+                'slug' => 'organic-food',
+                'description' => 'Naturally grown fresh farm produce, organic grains, seasonal fruits, and pesticide-free vegetables.',
+                'imageUrl' => 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80',
+                'file' => 'organic_food.jpg',
             ]
         ];
 

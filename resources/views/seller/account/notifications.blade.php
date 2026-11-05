@@ -146,11 +146,11 @@
                             </div>
                             <p class="text-xs text-on-surface-variant leading-relaxed mb-3 max-w-2xl" x-text="item.message"></p>
                             <div class="flex items-center gap-3">
-                                <a :href="item.action_url" class="inline-flex items-center gap-1 text-xs font-semibold text-secondary hover:underline">
+                                <a :href="item.action_url" class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100/90 text-amber-900 font-bold text-xs border border-amber-200/70 shadow-2xs hover:shadow-xs transition-all">
                                     <span x-text="item.action_label"></span>
-                                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    <span class="material-symbols-outlined text-[14px] text-amber-600 transition-transform duration-200 ease-out group-hover:translate-x-1">arrow_forward</span>
                                 </a>
-                                <button type="button" x-show="item.unread" @click="markSingleRead(item.id)" class="text-[11px] text-on-surface-variant hover:text-on-surface underline">
+                                <button type="button" x-show="item.unread" @click="markSingleRead(item.id)" class="text-[11px] font-semibold text-slate-500 hover:text-slate-900 px-2.5 py-1 rounded-lg hover:bg-slate-100 transition-colors">
                                     Mark as read
                                 </button>
                             </div>

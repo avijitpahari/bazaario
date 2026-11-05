@@ -127,15 +127,6 @@
                     </div>
                     <div class="flex items-center justify-between py-1">
                         <span class="text-on-surface-variant flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[16px]">language</span>
-                            Language
-                        </span>
-                        <span class="font-label-micro text-label-micro font-semibold text-slate-authority">
-                            {{ strtoupper($user->preferred_language ?? 'EN') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between py-1">
-                        <span class="text-on-surface-variant flex items-center gap-2">
                             <span class="material-symbols-outlined text-[16px]">email</span>
                             Email Verified
                         </span>
@@ -190,16 +181,6 @@
                         </div>
                         <p class="font-body-regular text-body-regular font-semibold text-slate-authority font-mono">
                             {{ $user->phone ? substr($user->phone, 0, -5) . '•••••' : 'Not set' }}
-                        </p>
-                    </div>
-                    {{-- Language --}}
-                    <div class="p-4 rounded-xl bg-surface-container-low/90 border border-slate-authority/10 flex flex-col gap-1 transition-all hover:border-amber-action">
-                        <div class="flex items-center justify-between text-on-surface-variant font-label-micro text-label-micro">
-                            <span>PREFERRED LANGUAGE</span>
-                            <span class="material-symbols-outlined text-[15px]">globe_asia</span>
-                        </div>
-                        <p class="font-body-regular text-body-regular font-medium text-slate-authority">
-                            {{ strtoupper($user->preferred_language ?? 'en') === 'EN' ? 'English' : strtoupper($user->preferred_language ?? 'EN') }}
                         </p>
                     </div>
                     {{-- Bio --}}

@@ -23,6 +23,12 @@
     $existingPostal = old('postal_code', $profile?->postal_code ?? '721401');
     $existingLat = old('latitude', $profile?->latitude ?? '21.7781');
     $existingLng = old('longitude', $profile?->longitude ?? '87.7516');
+    $existingGstin = old('gstin', $profile?->gstin ?? '');
+    $existingPan = old('pan_number', $profile?->pan_number ?? '');
+    $existingTrade = old('trade_license_number', $profile?->trade_license_number ?? '');
+    $existingFssai = old('fssai_number', $profile?->fssai_number ?? '');
+    $existingBank = old('bank_account_number', $profile?->bank_account_number ?? '');
+    $existingIfsc = old('bank_ifsc', $profile?->bank_ifsc ?? '');
 @endphp
 
 @section('content')
@@ -37,6 +43,12 @@
     initialPostal: '{{ addslashes($existingPostal) }}',
     initialLat: '{{ $existingLat }}',
     initialLng: '{{ $existingLng }}',
+    initialGstin: '{{ addslashes($existingGstin) }}',
+    initialPan: '{{ addslashes($existingPan) }}',
+    initialTrade: '{{ addslashes($existingTrade) }}',
+    initialFssai: '{{ addslashes($existingFssai) }}',
+    initialBank: '{{ addslashes($existingBank) }}',
+    initialIfsc: '{{ addslashes($existingIfsc) }}',
     existingLogo: '{{ $profile?->logo_path ? asset('storage/' . $profile->logo_path) : '' }}'
 })" class="w-full">
 
@@ -160,7 +172,22 @@
 
         <!-- RIGHT COLUMN: STEP FORMS -->
         <section class="lg:col-span-8">
-            <form id="onboarding-form" method="POST" action="{{ route('seller.onboarding.submit') }}" enctype="multipart/form-data">
+
+            @if ($errors->any())
+                <div class="mb-6 p-4 rounded-[14px] bg-rose-50 border-2 border-rose-300 text-rose-900 shadow-sm flex items-start gap-3">
+                    <span class="material-symbols-outlined text-rose-600 text-2xl shrink-0 mt-0.5">error</span>
+                    <div class="flex-1">
+                        <h4 class="font-heading font-bold text-sm text-rose-900">Submission Blocked — Please correct the following:</h4>
+                        <ul class="mt-1 list-disc list-inside text-xs font-mono space-y-0.5 text-rose-800">
+                            @foreach ($errors->all() as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+            <form id="onboarding-form" method="POST" action="{{ route('seller.onboarding.submit') }}" enctype="multipart/form-data" @submit="isSubmitting = true">
                 @csrf
                 <input type="hidden" name="seller_type" :value="sellerType">
 
@@ -376,62 +403,6 @@
                         @enderror
                     </div>
 
-                    <!-- Dynamic Produce / Specialty Attribute -->
-                    <div class="p-5 bg-brand-subtle border border-brand-outline rounded-[14px] space-y-4">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-brand-amber text-[18px]">tune</span>
-                            <h4 class="text-xs font-bold font-heading text-brand-slate uppercase tracking-wider">Classification Attributes</h4>
-                        </div>
-                        
-                        <!-- When Farmer -->
-                        <div x-show="sellerType === 'Farmer'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Primary Produce Specialty</label>
-                                <input type="text" x-model="extraAttribute1" placeholder="e.g. Seasonal Vegetables, Desi Wheat, Pulses" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Farm Land Area (Acres)</label>
-                                <input type="text" x-model="extraAttribute2" placeholder="e.g. 12.5 Acres" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                        </div>
-
-                        <!-- When Kirana Store -->
-                        <div x-show="sellerType === 'Kirana Store'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Primary Inventory Category</label>
-                                <input type="text" x-model="extraAttribute1" placeholder="e.g. Grains, Oil, Spices, Dairy" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Daily Operating Hours</label>
-                                <input type="text" x-model="extraAttribute2" placeholder="e.g. 07:00 AM - 10:30 PM" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                        </div>
-
-                        <!-- When Dark Store -->
-                        <div x-show="sellerType === 'Dark Store'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Storage Infrastructure</label>
-                                <input type="text" x-model="extraAttribute1" placeholder="e.g. Ambient &amp; Cold Chain Storage" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Fulfillment Capability</label>
-                                <input type="text" x-model="extraAttribute2" placeholder="e.g. 500 orders / shift" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                        </div>
-
-                        <!-- When Individual -->
-                        <div x-show="sellerType === 'Individual'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Craft / Specialty Category</label>
-                                <input type="text" x-model="extraAttribute1" placeholder="e.g. Handmade Sweets, Terracotta, Textiles" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Weekly Output Volume</label>
-                                <input type="text" x-model="extraAttribute2" placeholder="e.g. 50-100 units / week" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px]">
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Business Description -->
                     <div>
                         <label for="bio" class="block text-xs font-semibold font-heading text-brand-slate uppercase tracking-wider mb-2">
@@ -453,27 +424,118 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                             <div>
                                 <label class="block font-medium text-brand-slate mb-1">GSTIN Number (Optional)</label>
-                                <input type="text" name="gstin" x-model="gstin" placeholder="e.g. 19AAACG1234A1Z5" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                                <input type="text" name="gstin" x-model="gstin" @input="gstin = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. 19AAACG1234A1Z5" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
                             </div>
                             <div>
                                 <label class="block font-medium text-brand-slate mb-1">PAN Number (Optional)</label>
-                                <input type="text" name="pan_number" x-model="panNumber" placeholder="e.g. ABCDE1234F" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                                <input type="text" name="pan_number" x-model="panNumber" @input="panNumber = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. ABCDE1234F" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
                             </div>
                             <div>
                                 <label class="block font-medium text-brand-slate mb-1">Trade License Number (Optional)</label>
-                                <input type="text" name="trade_license_number" x-model="tradeLicense" placeholder="e.g. TL-MED-2024-8841" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
+                                <input type="text" name="trade_license_number" x-model="tradeLicense" maxlength="50" placeholder="e.g. TL-MED-2024-8841" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
                             </div>
                             <div>
                                 <label class="block font-medium text-brand-slate mb-1">FSSAI / GI Certification (Optional)</label>
-                                <input type="text" name="fssai_number" x-model="fssaiNumber" placeholder="e.g. 10020031000123" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
+                                <input type="text" name="fssai_number" x-model="fssaiNumber" maxlength="30" placeholder="e.g. 10020031000123" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
                             </div>
                             <div>
                                 <label class="block font-medium text-brand-slate mb-1">Escrow Bank Account Number</label>
-                                <input type="text" name="bank_account_number" x-model="bankAccount" placeholder="e.g. 918010023456789" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
+                                <input type="text" name="bank_account_number" x-model="bankAccount" @input="bankAccount = $event.target.value.replace(/[^0-9A-Za-z]/g, '')" maxlength="50" placeholder="e.g. 918010023456789" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
                             </div>
                             <div>
                                 <label class="block font-medium text-brand-slate mb-1">Bank IFSC Code</label>
-                                <input type="text" name="bank_ifsc" x-model="bankIfsc" placeholder="e.g. HDFC0001234" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                                <input type="text" name="bank_ifsc" x-model="bankIfsc" @input="bankIfsc = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. HDFC0001234" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                            </div>
+                        </div>
+
+                        <!-- DYNAMIC DOCUMENT UPLOAD SECTION (Reveals when credentials are entered) -->
+                        <div x-show="gstin.trim() !== '' || panNumber.trim() !== '' || tradeLicense.trim() !== '' || fssaiNumber.trim() !== '' || bankAccount.trim() !== '' || bankIfsc.trim() !== ''"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 -translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             class="mt-5 pt-4 border-t border-brand-outline/80 space-y-4">
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
+                                    <h5 class="text-xs font-bold font-heading text-brand-slate uppercase tracking-wider">Compliance Documents Upload</h5>
+                                </div>
+                                <span class="text-[11px] font-mono text-brand-amber font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                    Unlocked via Entered Credentials
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-brand-muted">Upload verifying certificates or passbooks for the details entered above (PDF, JPG, PNG up to 5MB).</p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                
+                                <!-- GSTIN / PAN Document Upload Option -->
+                                <div x-show="gstin.trim() !== '' || panNumber.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 01</span>
+                                        <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">GSTIN / PAN</span>
+                                    </div>
+                                    <p class="font-heading font-bold text-xs text-brand-slate">GSTIN / PAN Certificate</p>
+                                    <div class="flex items-center gap-2">
+                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
+                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                            <span x-text="gstinDocName ? 'Replace File' : 'Choose File'">Choose File</span>
+                                            <input type="file" name="gstin_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="gstinDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                        </label>
+                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="gstinDocName || 'No file selected'"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Trade License Document Upload Option -->
+                                <div x-show="tradeLicense.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 02</span>
+                                        <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">Trade License</span>
+                                    </div>
+                                    <p class="font-heading font-bold text-xs text-brand-slate">Municipality Trade License</p>
+                                    <div class="flex items-center gap-2">
+                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
+                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                            <span x-text="tradeDocName ? 'Replace File' : 'Choose File'">Choose File</span>
+                                            <input type="file" name="trade_license_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="tradeDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                        </label>
+                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="tradeDocName || 'No file selected'"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Bank Verification Document Upload Option -->
+                                <div x-show="bankAccount.trim() !== '' || bankIfsc.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 03</span>
+                                        <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">Bank Proof</span>
+                                    </div>
+                                    <p class="font-heading font-bold text-xs text-brand-slate">Cancelled Cheque / Passbook Proof</p>
+                                    <div class="flex items-center gap-2">
+                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
+                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                            <span x-text="bankDocName ? 'Replace File' : 'Choose File'">Choose File</span>
+                                            <input type="file" name="bank_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="bankDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                        </label>
+                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="bankDocName || 'No file selected'"></span>
+                                    </div>
+                                </div>
+
+                                <!-- FSSAI Document Upload Option -->
+                                <div x-show="fssaiNumber.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 04</span>
+                                        <span class="text-[10px] font-mono font-bold text-green-800 bg-green-50 px-1.5 py-0.5 rounded">FSSAI / GI</span>
+                                    </div>
+                                    <p class="font-heading font-bold text-xs text-brand-slate">FSSAI / GI Certification Certificate</p>
+                                    <div class="flex items-center gap-2">
+                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
+                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                            <span x-text="fssaiDocName ? 'Replace File' : 'Choose File'">Choose File</span>
+                                            <input type="file" name="fssai_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="fssaiDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                        </label>
+                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="fssaiDocName || 'No file selected'"></span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -492,7 +554,7 @@
                                     <span class="material-symbols-outlined text-[26px]">add_photo_alternate</span>
                                 </div>
                                 <div>
-                                    <button type="button" @click="document.getElementById('storefront_image').click()" class="text-sm font-semibold font-heading text-brand-slate hover:text-brand-amber underline underline-offset-4">
+                                    <button type="button" @click="document.getElementById('storefront_image').click()" class="text-sm font-semibold font-heading text-brand-slate hover:text-amber-600 transition-colors">
                                         Browse Files
                                     </button>
                                     <span class="text-xs text-brand-muted"> or select storefront image</span>
@@ -607,56 +669,77 @@
                         </div>
                     </div>
 
-                    <!-- Radar Map Preview & Manual Lat/Lng -->
-                    <div class="p-5 bg-white border border-brand-outline rounded-[14px] shadow-sm">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-heading font-bold text-brand-slate uppercase tracking-wider">
-                                Location Preview &amp; Pin Coordinates
-                            </span>
-                            <span class="text-[11px] font-mono text-brand-green bg-green-50 px-2 py-0.5 rounded border border-green-200" x-text="gpsLocked ? 'GPS Locked' : 'Radar Calibrated'">
-                                GPS Locked
-                            </span>
+                    <!-- Google Maps Interactive Picker & Coordinates -->
+                    <div class="p-5 bg-white border border-brand-outline rounded-[14px] shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="text-xs font-heading font-bold text-brand-slate uppercase tracking-wider flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px] text-brand-amber">map</span>
+                                    Google Map Location Pin
+                                </span>
+                                <p class="text-[11px] text-brand-muted mt-0.5">Drag map / update pin to verify your operating location</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a :href="'https://www.google.com/maps/search/?api=1&query=' + latitude + ',' + longitude" target="_blank" class="px-2.5 py-1 rounded-[8px] bg-brand-subtle hover:bg-slate-100 text-brand-slate text-[11px] font-mono font-medium border border-brand-outline flex items-center gap-1 transition">
+                                    <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                                    <span>Open in Google Maps</span>
+                                </a>
+                                <span class="text-[11px] font-mono text-brand-green bg-green-50 px-2 py-0.5 rounded border border-green-200" x-text="gpsLocked ? '✓ GPS Locked' : 'Google Map Active'">
+                                    Google Map Active
+                                </span>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+
+                        <!-- Embedded Interactive Google Map -->
+                        <div class="relative w-full h-64 sm:h-72 rounded-[12px] overflow-hidden border border-brand-outline bg-slate-100 shadow-inner">
+                            <iframe
+                                class="w-full h-full border-0"
+                                loading="lazy"
+                                allowfullscreen
+                                referrerpolicy="no-referrer-when-downgrade"
+                                :src="'https://maps.google.com/maps?q=' + latitude + ',' + longitude + '&z=15&output=embed'">
+                            </iframe>
                             
-                            <!-- Stylized Radar Map Preview -->
-                            <div class="relative h-44 rounded-[10px] bg-[#E9E5DC] overflow-hidden border border-brand-outline flex items-center justify-center">
-                                <div class="absolute inset-0 opacity-40" style="background-image: radial-gradient(#0F172A 1px, transparent 1px); background-size: 16px 16px;"></div>
-                                <div class="absolute w-28 h-28 rounded-full bg-brand-amber/20 border-2 border-brand-amber/50 animate-pulse"></div>
-                                <div class="relative z-10 flex flex-col items-center">
-                                    <div class="w-8 h-8 rounded-full bg-brand-slate border-2 border-brand-amber text-brand-amber flex items-center justify-center shadow-lg">
-                                        <span class="material-symbols-outlined text-[16px]">location_on</span>
-                                    </div>
-                                    <span class="mt-1 bg-brand-slate text-white text-[10px] font-mono px-2 py-0.5 rounded-[6px] shadow truncate max-w-[160px]" x-text="shopName || 'My Enterprise'">
-                                        Patel Organic Greens
-                                    </span>
+                            <!-- Overlay badge showing selected store pin -->
+                            <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-[10px] shadow border border-brand-outline/80 flex items-center gap-2 pointer-events-none">
+                                <div class="w-6 h-6 rounded-full bg-brand-slate border-2 border-brand-amber text-brand-amber flex items-center justify-center text-xs">
+                                    <span class="material-symbols-outlined text-[14px]">location_on</span>
                                 </div>
-                                <div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-mono text-brand-muted border border-brand-outline/80">
-                                    Radius: 25 km delivery
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-mono text-brand-muted uppercase">Selected Pin</span>
+                                    <span class="text-xs font-heading font-bold text-brand-slate truncate max-w-[180px]" x-text="shopName || 'Business Location'"></span>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Manual Coordinate Controls -->
-                            <div class="space-y-3">
-                                <div>
-                                    <label for="latitude" class="block text-[11px] font-mono uppercase text-brand-muted">
-                                        Latitude Coordinate <span class="text-rose-500">*</span>
-                                    </label>
+                        <!-- Coordinate Controls & Quick Search -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                            <div>
+                                <label for="latitude" class="block text-[11px] font-mono uppercase text-brand-muted">
+                                    Latitude Coordinate <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative mt-1">
                                     <input type="text" id="latitude" name="latitude" x-model="latitude" required
-                                           class="w-full mt-1 px-3 py-2 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs text-brand-slate">
+                                           class="w-full pl-8 pr-3 py-2 bg-brand-subtle border @error('latitude') border-rose-500 ring-2 ring-rose-200 @else border-brand-outline @enderror rounded-[10px] font-mono text-xs text-brand-slate focus:bg-white focus:outline-none focus:border-brand-amber">
+                                    <span class="material-symbols-outlined text-brand-amber absolute left-2.5 top-1/2 -translate-y-1/2 text-[15px]">north</span>
                                 </div>
-                                <div>
-                                    <label for="longitude" class="block text-[11px] font-mono uppercase text-brand-muted">
-                                        Longitude Coordinate <span class="text-rose-500">*</span>
-                                    </label>
-                                    <input type="text" id="longitude" name="longitude" x-model="longitude" required
-                                           class="w-full mt-1 px-3 py-2 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs text-brand-slate">
-                                </div>
-                                <p class="text-[11px] text-brand-muted leading-relaxed">
-                                    Coordinates are used by the Bazaario hyperlocal discovery algorithm to display your catalog to nearby customers.
-                                </p>
+                                @error('latitude')
+                                    <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
+                                @enderror
                             </div>
-
+                            <div>
+                                <label for="longitude" class="block text-[11px] font-mono uppercase text-brand-muted">
+                                    Longitude Coordinate <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative mt-1">
+                                    <input type="text" id="longitude" name="longitude" x-model="longitude" required
+                                           class="w-full pl-8 pr-3 py-2 bg-brand-subtle border @error('longitude') border-rose-500 ring-2 ring-rose-200 @else border-brand-outline @enderror rounded-[10px] font-mono text-xs text-brand-slate focus:bg-white focus:outline-none focus:border-brand-amber">
+                                    <span class="material-symbols-outlined text-brand-amber absolute left-2.5 top-1/2 -translate-y-1/2 text-[15px]">east</span>
+                                </div>
+                                @error('longitude')
+                                    <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
@@ -683,6 +766,18 @@
                             Please verify your information before dispatching the registration packet for administrator review.
                         </p>
                     </div>
+
+                    @if ($errors->any())
+                        <div class="p-4 rounded-[12px] bg-rose-50 border border-rose-300 text-rose-800 text-xs font-mono space-y-1">
+                            <div class="font-bold flex items-center gap-1.5 text-rose-900">
+                                <span class="material-symbols-outlined text-[16px]">warning</span>
+                                <span>The application could not be submitted due to the following errors:</span>
+                            </div>
+                            @foreach ($errors->all() as $err)
+                                <p class="ml-5 list-item text-rose-700 font-medium">{{ $err }}</p>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <div class="space-y-5">
                         
@@ -744,14 +839,10 @@
                                     Edit ✏️
                                 </button>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-3">
+                            <div class="mb-3">
                                 <div>
                                     <span class="font-mono text-brand-muted block uppercase text-[10px]">Shop / Farm Name</span>
                                     <span class="font-semibold text-brand-slate text-sm" x-text="shopName || 'Not specified'"></span>
-                                </div>
-                                <div>
-                                    <span class="font-mono text-brand-muted block uppercase text-[10px]">Specialty Attributes</span>
-                                    <span class="font-semibold text-brand-slate text-sm" x-text="(extraAttribute1 ? extraAttribute1 + ', ' : '') + (extraAttribute2 || 'General catalog')"></span>
                                 </div>
                             </div>
                             <div>
@@ -782,7 +873,7 @@
                                 </div>
                                 <div>
                                     <span class="font-mono text-brand-muted block uppercase text-[10px]">GPS Coordinates</span>
-                                    <span class="font-mono font-semibold text-brand-slate text-sm" x-text="(latitude || '0') + '° N, ' + (longitude || '0') + '° E'"></span>
+                                    <span class="font-mono font-semibold text-brand-slate text-sm" x-text="formatCoord(latitude, longitude)"></span>
                                 </div>
                             </div>
                         </div>
@@ -794,9 +885,13 @@
                         <button type="button" @click="goToStep(4)" class="px-5 py-3 border border-brand-outline bg-brand-subtle hover:bg-slate-100 text-brand-slate font-heading text-xs font-semibold rounded-[14px] transition">
                             Back
                         </button>
-                        <button type="button" @click="openConfirmModal()" class="px-8 py-4 bg-brand-green hover:bg-green-700 text-white font-heading font-bold text-sm rounded-[14px] shadow-sm transition flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">send</span>
-                            <span>Submit for Approval</span>
+                        <button type="button" 
+                                @click="openConfirmModal()" 
+                                :disabled="isSubmitting"
+                                class="px-8 py-4 bg-brand-green hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-heading font-bold text-sm rounded-[14px] shadow-sm transition flex items-center gap-2 cursor-pointer">
+                            <span x-show="!isSubmitting" class="material-symbols-outlined text-[20px]">send</span>
+                            <span x-show="isSubmitting" class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                            <span x-text="isSubmitting ? 'Submitting Application...' : 'Submit for Approval'">Submit for Approval</span>
                         </button>
                     </div>
                 </div>
@@ -827,11 +922,12 @@
                 By submitting, you certify that all farm/shop details and geographic coordinates provided are true and accurate. Your application will be sent to the Bazaario Regional Compliance team for verification.
             </p>
             <div class="pt-4 flex items-center justify-end gap-3 border-t border-brand-outline">
-                <button type="button" @click="confirmModal = false" class="px-4 py-2.5 border border-brand-outline text-brand-slate font-heading text-xs font-semibold rounded-[12px] hover:bg-slate-100 transition">
+                <button type="button" @click="confirmModal = false" :disabled="isSubmitting" class="px-4 py-2.5 border border-brand-outline text-brand-slate font-heading text-xs font-semibold rounded-[12px] hover:bg-slate-100 transition disabled:opacity-50">
                     Go Back &amp; Edit
                 </button>
-                <button type="button" @click="submitFinalForm()" class="px-6 py-2.5 bg-brand-amber hover:bg-brand-amber-dark text-brand-slate font-heading font-bold text-xs rounded-[12px] transition shadow-sm">
-                    Yes, Submit Now
+                <button type="button" @click="submitFinalForm()" :disabled="isSubmitting" class="px-6 py-2.5 bg-brand-amber hover:bg-brand-amber-dark disabled:opacity-60 text-brand-slate font-heading font-bold text-xs rounded-[12px] transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <span x-show="isSubmitting" class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                    <span x-text="isSubmitting ? 'Submitting...' : 'Yes, Submit Now'">Yes, Submit Now</span>
                 </button>
             </div>
         </div>
@@ -854,14 +950,23 @@ function sellerWizard(config) {
         postalCode: config.initialPostal || '721401',
         latitude: config.initialLat || '21.7781',
         longitude: config.initialLng || '87.7516',
-        extraAttribute1: 'Fresh Produce',
-        extraAttribute2: 'Local Distribution',
+        gstin: config.initialGstin || '',
+        panNumber: config.initialPan || '',
+        tradeLicense: config.initialTrade || '',
+        fssaiNumber: config.initialFssai || '',
+        bankAccount: config.initialBank || '',
+        bankIfsc: config.initialIfsc || '',
+        gstinDocName: '',
+        tradeDocName: '',
+        bankDocName: '',
+        fssaiDocName: '',
         imagePreview: config.existingLogo || '',
         imageName: config.existingLogo ? 'storefront_image.jpg' : '',
         imageSize: config.existingLogo ? '1.2 MB' : '',
         locating: false,
         gpsLocked: false,
         confirmModal: false,
+        isSubmitting: false,
         stepTitles: [
             'Account Registration',
             'Seller Classification',
@@ -869,6 +974,20 @@ function sellerWizard(config) {
             'Business Location',
             'Application Review'
         ],
+
+        notify(msg, type = 'info') {
+            if (window.showToast) {
+                window.showToast(msg, type);
+            } else {
+                console.log(`[Toast ${type}]: ${msg}`);
+            }
+        },
+
+        formatCoord(lat, lng) {
+            const cleanLat = (lat !== undefined && lat !== null ? String(lat) : '').replace(/[^0-9.\-+]/g, '');
+            const cleanLng = (lng !== undefined && lng !== null ? String(lng) : '').replace(/[^0-9.\-+]/g, '');
+            return (cleanLat || '0.0000') + '° N, ' + (cleanLng || '0.0000') + '° E';
+        },
 
         goToStep(step) {
             if (step < 1) step = 1;
@@ -886,7 +1005,7 @@ function sellerWizard(config) {
             if (!file) return;
 
             if (file.size > 5 * 1024 * 1024) {
-                alert('Storefront image must be under 5MB.');
+                this.notify('Storefront image must be under 5MB.', 'error');
                 event.target.value = '';
                 return;
             }
@@ -911,7 +1030,7 @@ function sellerWizard(config) {
 
         detectLocation() {
             if (!navigator.geolocation) {
-                alert('Browser does not support geolocation. Please enter coordinates manually.');
+                this.notify('Browser does not support geolocation. Please enter coordinates manually.', 'warning');
                 return;
             }
             this.locating = true;
@@ -925,7 +1044,7 @@ function sellerWizard(config) {
                 (err) => {
                     console.warn('Geolocation error:', err);
                     this.locating = false;
-                    alert('Unable to retrieve location automatically. Please enter coordinates manually.');
+                    this.notify('Unable to retrieve location automatically. Please enter coordinates manually.', 'warning');
                 },
                 { timeout: 10000, enableHighAccuracy: true }
             );
@@ -933,7 +1052,7 @@ function sellerWizard(config) {
 
         openConfirmModal() {
             if (!this.shopName || !this.address || !this.city || !this.state) {
-                alert('Please fill out all required fields before submitting.');
+                this.notify('Please fill out all required fields before submitting.', 'warning');
                 return;
             }
             this.confirmModal = true;
@@ -941,7 +1060,11 @@ function sellerWizard(config) {
 
         submitFinalForm() {
             this.confirmModal = false;
-            document.getElementById('onboarding-form').submit();
+            this.isSubmitting = true;
+            const form = document.getElementById('onboarding-form');
+            if (form) {
+                form.submit();
+            }
         }
     };
 }

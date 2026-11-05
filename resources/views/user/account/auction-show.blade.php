@@ -23,7 +23,6 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C-FKvfT_.css') }}">
 </head>
 
 <body class="bg-canvas-ivory text-on-surface antialiased selection:bg-amber-action selection:text-slate-authority min-h-screen flex flex-col font-sans">
@@ -213,11 +212,11 @@
                         <div class="p-4 rounded-2xl bg-slate-authority text-canvas-ivory flex items-center justify-between gap-4 mt-2">
                             <div class="flex items-center gap-3.5">
                                 <div class="w-12 h-12 rounded-xl bg-amber-action text-slate-authority flex items-center justify-center font-bold font-display text-lg">
-                                    {{ strtoupper(substr($auction->seller->name ?? 'S', 0, 1)) }}
+                                    {{ strtoupper(substr($auction->seller->shop_name ?? ($auction->seller->name ?? 'S'), 0, 1)) }}
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <span class="font-bold text-card-white">{{ $auction->seller->sellerProfile->business_name ?? $auction->seller->name }}</span>
+                                        <span class="font-bold text-card-white">{{ $auction->seller->shop_name ?? ($auction->seller->user->name ?? ($auction->seller->name ?? 'Verified Seller')) }}</span>
                                         <span class="px-2 py-0.5 rounded-full bg-status-green/20 text-status-green text-[10px] font-mono font-bold">VERIFIED SELLER</span>
                                     </div>
                                     <span class="text-xs text-canvas-ivory/70 flex items-center gap-1 mt-0.5">
@@ -245,7 +244,7 @@
                             <div>
                                 <span class="font-label-micro text-label-micro uppercase tracking-wider text-on-surface-variant block">Auction Closes In</span>
                                 <div class="font-mono text-headline-section font-bold text-error flex items-center gap-1.5 mt-0.5 animate-pulse"
-                                     data-countdown="{{ $auction->ends_at->isoFormat('YYYY-MM-DDTHH:mm:ss') }}">
+                                     data-countdown="{{ $auction->ends_at->toIso8601String() }}">
                                     <span class="material-symbols-outlined text-[20px]">timer</span>
                                     <span class="timer-display">{{ $auction->ends_at->diffForHumans() }}</span>
                                 </div>
@@ -294,35 +293,40 @@
                                 1-Click Quick Bidding Presets
                             </label>
                             <div class="grid grid-cols-3 gap-2">
-                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST">
+                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST" x-data="{ qb: false }" @submit="qb = true">
                                     @csrf
                                     <input type="hidden" name="increment" value="{{ $auction->minimum_increment }}">
-                                    <button class="w-full py-2.5 px-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-slate-authority font-mono font-bold text-xs border border-slate-authority/10 transition-all flex items-center justify-center gap-1" type="submit">
-                                        <span class="material-symbols-outlined text-[14px] text-amber-action">bolt</span>
-                                        +₹{{ number_format($auction->minimum_increment >= 1000 ? $auction->minimum_increment/1000 : $auction->minimum_increment, 0) }}{{ $auction->minimum_increment >= 1000 ? 'k' : '' }}
+                                    <button :disabled="qb" class="w-full py-2.5 px-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-slate-authority font-mono font-bold text-xs border border-slate-authority/10 transition-all flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
+                                        <span x-show="!qb" class="material-symbols-outlined text-[14px] text-amber-action">bolt</span>
+                                        <span x-show="qb" x-cloak><x-loading-spinner size="12px" class="text-amber-action" /></span>
+                                        <span>+₹{{ number_format($auction->minimum_increment >= 1000 ? $auction->minimum_increment/1000 : $auction->minimum_increment, 0) }}{{ $auction->minimum_increment >= 1000 ? 'k' : '' }}</span>
                                     </button>
                                 </form>
-                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST">
+                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST" x-data="{ qb: false }" @submit="qb = true">
                                     @csrf
                                     <input type="hidden" name="increment" value="{{ $auction->minimum_increment * 2 }}">
-                                    <button class="w-full py-2.5 px-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-slate-authority font-mono font-bold text-xs border border-slate-authority/10 transition-all flex items-center justify-center gap-1" type="submit">
-                                        <span class="material-symbols-outlined text-[14px] text-amber-action">bolt</span>
-                                        +₹{{ number_format(($auction->minimum_increment * 2) >= 1000 ? ($auction->minimum_increment * 2)/1000 : ($auction->minimum_increment * 2), 0) }}{{ ($auction->minimum_increment * 2) >= 1000 ? 'k' : '' }}
+                                    <button :disabled="qb" class="w-full py-2.5 px-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-slate-authority font-mono font-bold text-xs border border-slate-authority/10 transition-all flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
+                                        <span x-show="!qb" class="material-symbols-outlined text-[14px] text-amber-action">bolt</span>
+                                        <span x-show="qb" x-cloak><x-loading-spinner size="12px" class="text-amber-action" /></span>
+                                        <span>+₹{{ number_format(($auction->minimum_increment * 2) >= 1000 ? ($auction->minimum_increment * 2)/1000 : ($auction->minimum_increment * 2), 0) }}{{ ($auction->minimum_increment * 2) >= 1000 ? 'k' : '' }}</span>
                                     </button>
                                 </form>
-                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST">
+                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST" x-data="{ qb: false }" @submit="qb = true">
                                     @csrf
                                     <input type="hidden" name="increment" value="{{ $auction->minimum_increment * 5 }}">
-                                    <button class="w-full py-2.5 px-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-slate-authority font-mono font-bold text-xs border border-slate-authority/10 transition-all flex items-center justify-center gap-1" type="submit">
-                                        <span class="material-symbols-outlined text-[14px] text-amber-action">bolt</span>
-                                        +₹{{ number_format(($auction->minimum_increment * 5) >= 1000 ? ($auction->minimum_increment * 5)/1000 : ($auction->minimum_increment * 5), 0) }}{{ ($auction->minimum_increment * 5) >= 1000 ? 'k' : '' }}
+                                    <button :disabled="qb" class="w-full py-2.5 px-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-slate-authority font-mono font-bold text-xs border border-slate-authority/10 transition-all flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
+                                        <span x-show="!qb" class="material-symbols-outlined text-[14px] text-amber-action">bolt</span>
+                                        <span x-show="qb" x-cloak><x-loading-spinner size="12px" class="text-amber-action" /></span>
+                                        <span>+₹{{ number_format(($auction->minimum_increment * 5) >= 1000 ? ($auction->minimum_increment * 5)/1000 : ($auction->minimum_increment * 5), 0) }}{{ ($auction->minimum_increment * 5) >= 1000 ? 'k' : '' }}</span>
                                     </button>
                                 </form>
                             </div>
                         </div>
 
                         <!-- Custom Bid Form Console -->
-                        <form action="{{ route('auctions.placeBid', $auction->id) }}" method="POST" class="flex flex-col gap-3">
+                        <form action="{{ route('auctions.placeBid', $auction->id) }}" method="POST" class="flex flex-col gap-3"
+                              x-data="{ placingBid: false }"
+                              @submit="if(placingBid){ $event.preventDefault(); return; } placingBid = true;">
                             @csrf
                             <div>
                                 <label class="font-label-micro text-label-micro uppercase tracking-wider text-on-surface-variant block mb-1.5 font-semibold">
@@ -340,10 +344,20 @@
                                 </div>
                             </div>
 
-                            <button type="submit" 
-                                    class="w-full py-3.5 px-4 rounded-xl bg-amber-action hover:opacity-95 text-slate-authority font-button-text font-bold text-body-regular shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2 mt-1">
-                                <span class="material-symbols-outlined text-[20px]">gavel</span>
-                                <span>Place Bid &amp; Secure Escrow</span>
+                            <button type="submit" :disabled="placingBid"
+                                    class="w-full py-3.5 px-4 rounded-xl bg-amber-action hover:opacity-95 text-slate-authority font-button-text font-bold text-body-regular shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2 mt-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                                <template x-if="!placingBid">
+                                    <span class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-[20px]">gavel</span>
+                                        <span>Place Bid &amp; Secure Escrow</span>
+                                    </span>
+                                </template>
+                                <template x-if="placingBid">
+                                    <span class="flex items-center gap-2">
+                                        <x-loading-spinner size="18px" />
+                                        <span>Securing Escrow &amp; Placing Bid...</span>
+                                    </span>
+                                </template>
                             </button>
                         </form>
 
@@ -461,10 +475,11 @@
                     const distance = endTime - now;
 
                     if (distance <= 0) {
-                        display.innerText = 'ENDED';
+                        display.innerText = 'Auction Ended';
                         return;
                     }
 
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -473,7 +488,11 @@
                     const mStr = String(minutes).padStart(2, '0');
                     const sStr = String(seconds).padStart(2, '0');
 
-                    display.innerText = `${hStr}:${mStr}:${sStr}`;
+                    if (days > 0) {
+                        display.innerText = `${days}d ${hStr}:${mStr}:${sStr}`;
+                    } else {
+                        display.innerText = `${hStr}:${mStr}:${sStr}`;
+                    }
                 }
 
                 updateTimer();
@@ -481,8 +500,6 @@
             });
         });
     </script>
-    <!-- Alpine.js script for interactive popovers/drawers -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 
 </html>

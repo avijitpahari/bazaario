@@ -33,7 +33,7 @@ class ProductImage extends Model
     {
         $path = $this->image_path;
         if (empty($path)) {
-            return asset('images/products/keyboard_1.jpg');
+            return asset('images/product-placeholder.svg');
         }
         if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])) {
             return $path;

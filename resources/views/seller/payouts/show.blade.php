@@ -35,6 +35,10 @@
                 </p>
             </div>
             <div class="flex items-center gap-3">
+                <a href="{{ route('seller.payouts.summary') }}" class="h-11 px-4 rounded-[14px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-heading text-xs font-bold transition-all shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">summarize</span>
+                    <span>View Payout Summary</span>
+                </a>
                 <a href="{{ route('seller.payouts.index') }}" class="h-11 px-4 rounded-[14px] bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors shadow-sm flex items-center gap-2 font-sans text-xs font-semibold">
                     <span class="material-symbols-outlined text-[16px]">arrow_back</span>
                     <span>Back to Payouts</span>

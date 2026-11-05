@@ -37,6 +37,24 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
+    // Helpers
+
+    public function isOrganic(): bool
+    {
+        $slug = strtolower($this->slug ?? '');
+        $name = strtolower($this->name ?? '');
+
+        return $slug === 'organic-food'
+            || str_contains($slug, 'organic')
+            || str_contains($name, 'organic')
+            || str_contains($slug, 'produce')
+            || str_contains($slug, 'vegetable')
+            || str_contains($slug, 'fruit')
+            || str_contains($name, 'produce')
+            || str_contains($name, 'vegetable')
+            || str_contains($name, 'fruit');
+    }
+
     // Scopes
 
     public function scopeActive($query)

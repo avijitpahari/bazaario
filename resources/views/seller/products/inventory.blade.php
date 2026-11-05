@@ -65,7 +65,7 @@
             </p>
         </div>
         <div class="flex items-center gap-3">
-            <button type="button" onclick="alert('Exporting inventory ledger to CSV...')" class="px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all text-on-surface font-sans text-xs font-medium flex items-center gap-2 shadow-sm">
+            <button type="button" onclick="showToast('Exporting inventory ledger to CSV...', 'info')" class="px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all text-on-surface font-sans text-xs font-medium flex items-center gap-2 shadow-sm">
                 <span class="material-symbols-outlined text-[18px] text-on-surface-variant">file_download</span>
                 <span>Export CSV</span>
             </button>
@@ -265,14 +265,19 @@
                         </td>
                         <td class="py-4 px-4">
                             <div class="flex flex-col">
-                                @if($product->is_perishable && $product->expiry_date)
+                                @if($product->isOrganicCategory() && $product->is_perishable && $product->expiry_date)
                                 <div class="flex items-center gap-1 text-secondary font-semibold font-sans text-xs">
                                     <span class="material-symbols-outlined text-[15px]">hourglass_bottom</span>
-                                    <span>{{ now()->diffInDays($product->expiry_date, false) }} Days Left</span>
+                                    <span>{{ max(0, (int) round(now()->floatDiffInDays($product->expiry_date, false))) }} Days Left</span>
+                                </div>
+                                @elseif($product->isOrganicCategory())
+                                <div class="flex items-center gap-1 text-emerald-700 font-semibold font-sans text-xs">
+                                    <span class="material-symbols-outlined text-[15px]">eco</span>
+                                    <span>Stable Organic Shelf Life</span>
                                 </div>
                                 @else
-                                <div class="flex items-center gap-1 text-on-surface font-semibold font-sans text-xs">
-                                    <span>Stable Shelf Life</span>
+                                <div class="flex items-center gap-1 text-slate-500 font-semibold font-sans text-xs">
+                                    <span>Standard Retail SKU</span>
                                 </div>
                                 @endif
                                 <span class="font-mono text-[10px] text-on-surface-variant">BATCH-{{ $product->id }}-{{ date('M') }}</span>
@@ -324,7 +329,7 @@
             </button>
         </div>
 
-        <form id="stockAdjustmentForm" method="POST" action="">
+        <form id="stockAdjustmentForm" method="POST" action="" x-data="{ updating: false }" @submit="if(updating){ $event.preventDefault(); return; } updating = true;">
             @csrf
             <input type="hidden" name="action" id="modalActionInput" value="add">
 
@@ -406,9 +411,10 @@
                 <button type="button" class="px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors font-sans text-xs font-medium text-on-surface" onclick="closeModal()">
                     Cancel
                 </button>
-                <button type="submit" class="px-5 py-2.5 rounded-xl bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container transition-all font-heading text-xs font-bold flex items-center gap-2 shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">verified</span>
-                    <span>Confirm Stock Update</span>
+                <button type="submit" :disabled="updating" class="px-5 py-2.5 rounded-xl bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container transition-all font-heading text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+                    <span x-show="!updating" class="material-symbols-outlined text-[18px]">verified</span>
+                    <span x-show="updating" x-cloak><x-loading-spinner size="16px" color="text-on-secondary-container" /></span>
+                    <span x-text="updating ? 'Updating...' : 'Confirm Stock Update'">Confirm Stock Update</span>
                 </button>
             </div>
         </form>
@@ -485,6 +491,7 @@
         let currentVal = parseInt(el.innerText, 10) || 0;
         let newVal = Math.max(0, currentVal + delta);
         el.innerText = newVal;
+        el.classList.add('opacity-40', 'animate-pulse');
 
         fetch(`/seller/products/${productId}/stock`, {
             method: 'POST',
@@ -498,7 +505,11 @@
                 quantity: Math.abs(delta),
                 reason: 'Inline stepper quick adjustment'
             })
-        }).catch(err => console.error('Stock step error', err));
+        })
+        .finally(() => {
+            el.classList.remove('opacity-40', 'animate-pulse');
+        })
+        .catch(err => console.error('Stock step error', err));
     }
 
     function openAdjustmentModal(name, sku, currentStock, threshold, unitType, updateUrl) {
@@ -531,7 +542,7 @@
             const btn = firstRow.querySelector('button[onclick*="openAdjustmentModal"]');
             if (btn) btn.click();
         } else {
-            alert('No products available to restock.');
+            showToast('No products available to restock.', 'warning');
         }
     }
 

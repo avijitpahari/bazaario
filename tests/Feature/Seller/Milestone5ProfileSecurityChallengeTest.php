@@ -478,8 +478,8 @@ class Milestone5ProfileSecurityChallengeTest extends TestCase
         Storage::fake('public');
         $seller = $this->createApprovedSeller();
 
-        // Oversized banner: 5121 KB (> 5120 KB)
-        $oversizedBanner = UploadedFile::fake()->create('huge_banner.jpg', 5121, 'image/jpeg');
+        // Oversized banner: 10241 KB (> 10240 KB)
+        $oversizedBanner = UploadedFile::fake()->create('huge_banner.jpg', 10241, 'image/jpeg');
 
         $response = $this->actingAs($seller, 'seller')
             ->put(route('seller.account.profile.update'), [
@@ -489,8 +489,8 @@ class Milestone5ProfileSecurityChallengeTest extends TestCase
 
         $response->assertSessionHasErrors('banner_image');
 
-        // Oversized logo: 2049 KB (> 2048 KB)
-        $oversizedLogo = UploadedFile::fake()->create('huge_logo.png', 2049, 'image/png');
+        // Oversized logo: 10241 KB (> 10240 KB)
+        $oversizedLogo = UploadedFile::fake()->create('huge_logo.png', 10241, 'image/png');
 
         $response = $this->actingAs($seller, 'seller')
             ->put(route('seller.account.profile.update'), [

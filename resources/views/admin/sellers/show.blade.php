@@ -106,26 +106,52 @@
                 <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
                     <span class="font-mono text-[10px] text-slate-400 uppercase font-bold">Tax & Statutory Compliance</span>
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-1.5 font-mono text-xs">
-                        <div class="flex justify-between">
+                        <div class="flex justify-between items-center">
                             <span class="text-slate-500">GSTIN:</span>
-                            <span class="font-bold text-[#0F172A]">{{ $seller->gstin ?? 'Not Provided' }}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-[#0F172A]">{{ $seller->gstin ?? 'Not Provided' }}</span>
+                                @if($seller->gstin_doc_path)
+                                    <a href="{{ Storage::url($seller->gstin_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View GST Certificate">📄</a>
+                                @endif
+                            </div>
                         </div>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between items-center">
                             <span class="text-slate-500">PAN:</span>
                             <span class="font-bold text-[#0F172A]">{{ $seller->pan_number ?? 'Not Provided' }}</span>
                         </div>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between items-center">
                             <span class="text-slate-500">Trade License:</span>
-                            <span class="font-bold text-[#0F172A]">{{ $seller->trade_license_number ?? 'Not Provided' }}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-[#0F172A]">{{ $seller->trade_license_number ?? 'Not Provided' }}</span>
+                                @if($seller->trade_license_doc_path)
+                                    <a href="{{ Storage::url($seller->trade_license_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View Trade License">📄</a>
+                                @endif
+                            </div>
                         </div>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between items-center">
                             <span class="text-slate-500">Bank IFSC:</span>
                             <span class="font-bold text-[#0F172A]">{{ $seller->bank_ifsc ?? 'SBIN0000058' }}</span>
                         </div>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between items-center">
                             <span class="text-slate-500">Bank A/C:</span>
-                            <span class="font-bold text-[#0F172A]">•••• {{ substr($seller->bank_account_number ?? '1234567890', -4) }}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-[#0F172A]">•••• {{ substr($seller->bank_account_number ?? '1234567890', -4) }}</span>
+                                @if($seller->bank_doc_path)
+                                    <a href="{{ Storage::url($seller->bank_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View Cheque Proof">📄</a>
+                                @endif
+                            </div>
                         </div>
+                        @if($seller->fssai_number || $seller->fssai_doc_path)
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">FSSAI / GI:</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-[#0F172A]">{{ $seller->fssai_number ?? 'Cleared' }}</span>
+                                    @if($seller->fssai_doc_path)
+                                        <a href="{{ Storage::url($seller->fssai_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View FSSAI Certificate">📄</a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

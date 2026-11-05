@@ -4,61 +4,72 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Seller Portal Onboarding — Bazaario')</title>
+    <title>@yield('title', 'Seller Portal Onboarding — ' . \App\Models\SiteSetting::getSiteName())</title>
 
-    <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+    <!-- Google Fonts: Outfit, Plus Jakarta Sans, JetBrains Mono, Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS CDN with Theme Config -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            bg: '#FFFDF8',
-                            slate: '#0F172A',
-                            amber: '#F5A623',
-                            'amber-dark': '#D98205',
-                            green: '#16A34A',
-                            muted: '#45464D',
-                            outline: '#E2DFD7',
-                            surface: '#FFFFFF',
-                            card: '#FFFFFF',
-                            subtle: '#FAF8F2'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    borderRadius: {
-                        'custom': '14px',
-                        '14': '14px',
-                    },
-                    boxShadow: {
-                        'subtle': '0 2px 10px rgba(15, 23, 42, 0.04)',
-                        'card': '0 4px 20px -2px rgba(15, 23, 42, 0.06)',
-                        'modal': '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
-                    }
-                }
-            }
-        };
-    </script>
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Compiled Vite Assets (Tailwind CSS v4 & Bundled Local Alpine.js) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        :root {
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+        }
+
+        html {
+            font-family: var(--font-sans);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-feature-settings: 'cv02' 1, 'cv03' 1, 'cv04' 1, 'cv11' 1;
+        }
+
         body {
             background-color: #FFFDF8;
             color: #0F172A;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
+            letter-spacing: -0.012em;
+            line-height: 1.5;
         }
+
+        h1, h2, h3, h4, h5, h6, .font-heading, .font-display {
+            font-family: var(--font-heading) !important;
+            letter-spacing: -0.028em;
+            font-feature-settings: 'cv02' 1, 'ss01' 1;
+        }
+
+        h1, .text-headline-lg {
+            letter-spacing: -0.035em !important;
+            font-weight: 800;
+        }
+
+        h2, .text-headline-md {
+            letter-spacing: -0.028em !important;
+            font-weight: 700;
+        }
+
+        h3, h4, .text-headline-sm {
+            letter-spacing: -0.02em !important;
+            font-weight: 700;
+        }
+
+        .font-mono, code, kbd, samp {
+            font-family: var(--font-mono) !important;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+
+        input, select, textarea, button {
+            font-family: inherit;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             display: inline-block;
@@ -73,23 +84,14 @@
 </head>
 <body class="min-h-screen bg-brand-bg flex flex-col selection:bg-brand-amber selection:text-brand-slate" x-data="{ helpModalOpen: false }">
 
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
+
     <!-- TOP HEADER / NAV -->
     <header class="border-b border-[#EAE6DC] bg-white/95 backdrop-blur sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <a href="{{ url('/') }}" class="flex items-center gap-3 group">
-                    <!-- Brand Vector Asset -->
-                    <div class="w-10 h-10 bg-brand-slate rounded-[14px] flex items-center justify-center text-brand-amber font-bold font-heading text-2xl shadow-sm transition-transform group-hover:scale-105">
-                        B
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-heading font-bold text-xl tracking-tight text-brand-slate">BAZAARIO</span>
-                            <span class="bg-[#F5A623]/15 text-[#B45309] font-mono font-bold text-[10px] tracking-wider px-2 py-0.5 rounded-[6px] border border-[#F5A623]/30">SELLER</span>
-                        </div>
-                        <p class="text-[11px] text-brand-muted hidden sm:block">Smarter Shopping. Local Sellers. Live Auctions.</p>
-                    </div>
-                </a>
+                <x-brand-logo :link="url('/')" badge="SELLER" />
             </div>
 
             <!-- Header Controls -->
@@ -120,60 +122,8 @@
         </div>
     </header>
 
-    <!-- FLASH TOAST ALERTS -->
-    <div class="fixed top-24 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4" x-data="{ showSuccess: {{ session('success') ? 'true' : 'false' }}, showError: {{ session('error') ? 'true' : 'false' }}, showWarning: {{ session('warning') ? 'true' : 'false' }}, showInfo: {{ session('info') ? 'true' : 'false' }} }">
-        @if(session('success'))
-            <div x-show="showSuccess" x-init="setTimeout(() => showSuccess = false, 5000)" class="pointer-events-auto bg-white border border-brand-green/30 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                <span class="material-symbols-outlined text-brand-green text-[22px] shrink-0">check_circle</span>
-                <div class="flex-1 text-xs">
-                    <p class="font-heading font-bold text-brand-slate">Success</p>
-                    <p class="text-brand-muted mt-0.5">{{ session('success') }}</p>
-                </div>
-                <button type="button" @click="showSuccess = false" class="text-brand-muted hover:text-brand-slate">
-                    <span class="material-symbols-outlined text-[16px]">close</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div x-show="showError" x-init="setTimeout(() => showError = false, 6000)" class="pointer-events-auto bg-white border border-red-200 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                <span class="material-symbols-outlined text-red-600 text-[22px] shrink-0">error</span>
-                <div class="flex-1 text-xs">
-                    <p class="font-heading font-bold text-brand-slate">Notice</p>
-                    <p class="text-brand-muted mt-0.5">{{ session('error') }}</p>
-                </div>
-                <button type="button" @click="showError = false" class="text-brand-muted hover:text-brand-slate">
-                    <span class="material-symbols-outlined text-[16px]">close</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session('warning'))
-            <div x-show="showWarning" x-init="setTimeout(() => showWarning = false, 5000)" class="pointer-events-auto bg-white border border-amber-300 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                <span class="material-symbols-outlined text-brand-amber text-[22px] shrink-0">warning</span>
-                <div class="flex-1 text-xs">
-                    <p class="font-heading font-bold text-brand-slate">Attention</p>
-                    <p class="text-brand-muted mt-0.5">{{ session('warning') }}</p>
-                </div>
-                <button type="button" @click="showWarning = false" class="text-brand-muted hover:text-brand-slate">
-                    <span class="material-symbols-outlined text-[16px]">close</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session('info'))
-            <div x-show="showInfo" x-init="setTimeout(() => showInfo = false, 5000)" class="pointer-events-auto bg-white border border-blue-200 rounded-[14px] p-4 shadow-card flex items-start gap-3 transition">
-                <span class="material-symbols-outlined text-blue-600 text-[22px] shrink-0">info</span>
-                <div class="flex-1 text-xs">
-                    <p class="font-heading font-bold text-brand-slate">Information</p>
-                    <p class="text-brand-muted mt-0.5">{{ session('info') }}</p>
-                </div>
-                <button type="button" @click="showInfo = false" class="text-brand-muted hover:text-brand-slate">
-                    <span class="material-symbols-outlined text-[16px]">close</span>
-                </button>
-            </div>
-        @endif
-    </div>
+    <!-- FLASH TOAST ALERTS & GLOBAL ALERT OVERRIDE -->
+    <x-toast />
 
     <!-- MAIN ONBOARDING CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -226,7 +176,7 @@
                 <div class="p-3 bg-brand-subtle rounded-[10px] border border-brand-outline">
                     <p class="font-heading font-bold text-brand-slate">Need live support or coordinate help?</p>
                     <p class="text-brand-muted mt-1 leading-relaxed">
-                        Email us at <a href="mailto:support@bazaario.in" class="text-brand-amber font-mono font-bold hover:underline">support@bazaario.in</a> or reach our merchant concierge on WhatsApp at <strong>+91 98765 43210</strong>.
+                        Email us at <a href="mailto:{{ \App\Models\SiteSetting::get('contact_email', 'support@bazaario.in') }}" class="text-brand-amber font-mono font-bold hover:text-amber-600 transition-colors">{{ \App\Models\SiteSetting::get('contact_email', 'support@bazaario.in') }}</a> or reach our merchant concierge on WhatsApp / Phone at <strong>{{ \App\Models\SiteSetting::get('contact_phone', '+91 800-BAZAARIO') }}</strong>.
                     </p>
                 </div>
             </div>
@@ -243,16 +193,19 @@
     <footer class="border-t border-[#EAE6DC] bg-white py-6 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-muted">
             <div class="flex items-center gap-2">
-                <span class="font-heading font-bold text-brand-slate">BAZAARIO</span>
+                <span class="font-heading font-bold text-brand-slate uppercase">{{ \App\Models\SiteSetting::getSiteName() }}</span>
                 <span>&copy; {{ date('Y') }} All rights reserved.</span>
             </div>
             <div class="flex items-center gap-6">
                 <a href="{{ route('home') }}" class="hover:text-brand-slate transition-colors">Marketplace</a>
                 <a href="{{ route('docs.fees-and-commission') }}" class="hover:text-brand-slate transition-colors">Pricing &amp; Commissions</a>
-                <a href="{{ Route::has('docs.how-it-works') ? route('docs.how-it-works') : (Route::has('docs.become-a-seller') ? route('docs.become-a-seller') : url('/')) }}" class="hover:text-brand-slate transition-colors">How It Works</a>
+                <a href="{{ route('pages.how-it-works') }}" class="hover:text-brand-slate transition-colors">How It Works</a>
             </div>
         </div>
     </footer>
+
+    <!-- Global Floating Live Support Chat Widget -->
+    <x-support-chat-widget />
 
     @stack('scripts')
 </body>

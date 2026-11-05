@@ -1,29 +1,18 @@
-## 2026-09-30T05:19:47Z
+## 2026-10-12T05:49:28Z
+You are Challenger 1 for Milestone 1: Admin Platform Configuration & Branding Settings (R1).
 Your working directory is: c:\xampp\htdocs\bazaario\.agents\teamwork\challenger_m1_1
+Project root: c:\xampp\htdocs\bazaario
+Original Request: c:\xampp\htdocs\bazaario\.agents\teamwork\ORIGINAL_REQUEST.md (timestamp ## 2026-10-12T05:17:47Z).
+Project Specification: c:\xampp\htdocs\bazaario\.agents\teamwork\orchestrator_10\PROJECT.md
+Worker M1 Handoff: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1\handoff.md
 
-MANDATORY FIRST STEP: Read the user's authoritative request at:
-c:\xampp\htdocs\bazaario\.agents\teamwork\ORIGINAL_REQUEST.md
-
-Also read:
-- Project architecture: c:\xampp\htdocs\bazaario\PROJECT.md
-- Worker handoff report: c:\xampp\htdocs\bazaario\.agents\teamwork\worker_m1_1\handoff.md
-
-Your role is Challenger 1 for Milestone 1 (Empirical Verifier).
-Stress-test and empirically challenge the Milestone 1 implementation:
-1. Empirically verify the access control gate:
-   - Unauthenticated guest hits `/seller/dashboard` -> must redirect to login.
-   - Regular user (`role='user'`) hits `/seller/dashboard` -> must be rejected/redirected.
-   - Pending seller (`status='pending'`) hits `/seller/dashboard` -> must redirect to `/seller/pending`.
-   - Rejected seller (`status='rejected'`) hits `/seller/dashboard` -> must redirect to `/seller/pending`.
-   - Approved seller (`status='approved'`) hits `/seller/dashboard` -> must return HTTP 200.
-   - Approved seller hits `/seller/pending` -> must redirect to `/seller/dashboard`.
-2. Empirically verify onboarding form validation:
-   - Submit invalid seller type -> must fail validation.
-   - Submit invalid GPS coordinates (e.g. lat > 90 or lng > 180) -> must fail validation.
-   - Submit empty required fields -> must fail validation.
-3. Run tests using `php artisan test`.
-
-State a clear verdict: APPROVE or REQUEST_CHANGES.
-Write report to:
-c:\xampp\htdocs\bazaario\.agents\teamwork\challenger_m1_1\handoff.md
-and send a completion message back to the orchestrator.
+Objective:
+Empirically stress-test Admin Platform Settings & Mode Toggle:
+1. Write and execute empirical challenge tests (e.g. in `tests/Feature/AdminSettingsChallenge1Test.php`):
+   - Unauthorized attempts by guest and customer to mutate settings via `POST /admin/settings` (must be rejected 302/403).
+   - Rapid toggling between `single_vendor` and `multi_vendor` modes: ensure state changes persist cleanly in DB and take immediate effect on registration and homepage queries.
+   - Extreme inputs for commission rate (0%, 100%, negative, non-numeric).
+   - Long strings or HTML/script injection attempts in site name and tagline to ensure proper sanitization/escaping in Blade templates.
+2. Run your challenge tests and check for failures.
+3. Formulate an empirical verdict: APPROVE or REQUEST_CHANGES.
+4. Deliverables: Write report to `c:\xampp\htdocs\bazaario\.agents\teamwork\challenger_m1_1\challenge.md` and `handoff.md`. Send completion message to parent.

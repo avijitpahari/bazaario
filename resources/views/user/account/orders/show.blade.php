@@ -235,7 +235,7 @@
                                 <div class="flex items-center justify-between gap-4 p-2">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <div class="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
-                                            @php $img = $item->product?->primaryImage?->url ?? ($item->product_image ? Storage::url($item->product_image) : null); @endphp
+                                            @php $img = $item->image_url; @endphp
                                             @if($img)
                                                 <img src="{{ $img }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
                                             @else

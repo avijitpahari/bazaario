@@ -22,9 +22,14 @@
                 <p class="font-body-small text-body-small font-bold text-slate-authority">#{{ $order->order_number }}</p>
                 <p class="font-label-micro text-label-micro text-on-surface-variant">{{ $order->placed_at ? $order->placed_at->format('d M Y') : $order->created_at->format('d M Y') }} • ₹{{ number_format($order->total_amount, 2) }}</p>
             </div>
-            <a href="{{ route('user.orders.show', $order->id) }}" class="px-4 py-2 rounded-xl bg-surface-container text-slate-authority font-button-text text-body-small font-semibold hover:bg-surface-container-high transition-colors flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-[16px]">visibility</span> View
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('user.invoices.print', $order->id) }}" target="_blank" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white font-button-text text-body-small font-semibold hover:bg-slate-800 transition-colors flex items-center gap-1.5 shadow-xs">
+                    <span class="material-symbols-outlined text-[16px]">print</span> Print Invoice
+                </a>
+                <a href="{{ route('user.orders.show', $order->id) }}" class="px-3 py-2 rounded-xl bg-surface-container text-slate-authority font-button-text text-body-small font-semibold hover:bg-surface-container-high transition-colors flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">visibility</span> View Order
+                </a>
+            </div>
         </div>
         @empty
         <div class="flex flex-col items-center justify-center py-16 gap-4 text-center">

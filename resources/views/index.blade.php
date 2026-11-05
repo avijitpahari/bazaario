@@ -9,7 +9,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
     <!-- Compiled Tailwind CSS & App JS via Vite -->
@@ -50,6 +50,9 @@
 </head>
 
 <body class="min-h-screen flex flex-col font-sans text-slate-authority antialiased selection:bg-amber-action/30 selection:text-slate-authority relative overflow-x-hidden">
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
+
     <!-- Luminous Ambient Glow Background Accents -->
     <div class="pointer-events-none fixed -top-40 -left-40 w-[30rem] h-[30rem] rounded-full bg-amber-200/30 blur-3xl -z-10"></div>
     <div class="pointer-events-none fixed top-1/4 -right-40 w-[36rem] h-[36rem] rounded-full bg-orange-100/50 blur-3xl -z-10"></div>
@@ -290,14 +293,14 @@
                                 @if($featuredAuction ?? null)
                                     @php
                                         $auctionProd = $featuredAuction->product ?? null;
-                                        $auctionImg = $auctionProd ? $auctionProd->main_image_url : asset('images/products/keyboard_1.jpg');
+                                        $auctionImg = $auctionProd ? $auctionProd->main_image_url : asset('images/products/compass_1.jpg');
                                     @endphp
-                                    <img alt="{{ $featuredAuction->product->name ?? 'Featured Auction' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $auctionImg }}">
+                                    <img alt="{{ $featuredAuction->product->name ?? 'Featured Auction' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $auctionImg }}" loading="lazy" decoding="async">
                                     <span class="absolute bottom-2 right-2 bg-slate-900/90 text-white font-mono text-[10px] px-2 py-0.5 rounded border border-white/10">
                                         {{ $featuredAuction->bids_count ?? $featuredAuction->bids->count() }} Bids
                                     </span>
                                 @else
-                                    <img alt="Vintage 1954 Leica M3" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ asset('images/products/keyboard_1.jpg') }}">
+                                    <img alt="Vintage Desk Compass & Sundial" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ asset('images/products/compass_1.jpg') }}" loading="lazy" decoding="async">
                                     <span class="absolute bottom-2 right-2 bg-slate-900/90 text-white font-mono text-[10px] px-2 py-0.5 rounded border border-white/10">24 Bids</span>
                                 @endif
                             </div>
@@ -436,7 +439,9 @@
                             <a href="{{ route('products.show', $productSlugOrId) }}" class="w-full h-full block">
                                 <img alt="{{ $prod->name }}" 
                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                     src="{{ $prodImage ?? 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80' }}">
+                                     src="{{ $prodImage ?? 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80' }}"
+                                     loading="lazy"
+                                     decoding="async">
                             </a>
                         </div>
                         <div>
@@ -477,7 +482,7 @@
                             <span class="absolute top-2.5 left-2.5 font-mono text-[10px] bg-slate-900 text-amber-400 px-2 py-0.5 rounded backdrop-blur-md font-bold z-10 border border-amber-400/30">
                                 ✦ AI PICK
                             </span>
-                            <img alt="Studio Wireless Pro" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80">
+                            <img alt="Studio Wireless Pro" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80" loading="lazy" decoding="async">
                         </div>
                         <div>
                             <div class="flex items-center justify-between font-mono text-[10px] text-slate-500 mb-1">
@@ -501,6 +506,7 @@
             </div>
         </section>
 
+        @unless(\App\Models\SiteSetting::isSingleVendor())
         <!-- 5.5 FEATURED SELLERS SHELF -->
         <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
@@ -534,7 +540,7 @@
                             <!-- Banner & Logo Header -->
                             <div class="relative h-28 rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-amber-100 via-orange-50 to-slate-100 border border-slate-200/80 shadow-inner">
                                 @if($banner)
-                                    <img src="{{ $banner }}" alt="{{ $shopName }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                    <img src="{{ $banner }}" alt="{{ $shopName }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
                                 @else
                                     <div class="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400/20 via-orange-300/10 to-transparent flex items-center justify-center">
                                         <span class="material-symbols-outlined text-amber-500/20 text-6xl">storefront</span>
@@ -545,7 +551,7 @@
                                 <!-- Store Logo Avatar -->
                                 <div class="absolute -bottom-3 left-4 w-12 h-12 rounded-2xl bg-white p-0.5 shadow-lg border border-white/80 ring-2 ring-slate-900/5">
                                     @if($logo)
-                                        <img src="{{ $logo }}" alt="{{ $shopName }}" class="w-full h-full object-cover rounded-xl">
+                                        <img src="{{ $logo }}" alt="{{ $shopName }}" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
                                     @else
                                         <div class="w-full h-full rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-display font-extrabold flex items-center justify-center text-lg shadow-sm">
                                             {{ strtoupper(mb_substr($shopName, 0, 1)) }}
@@ -600,11 +606,11 @@
 
                         <div>
                             <div class="relative h-28 rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-amber-500/15 via-orange-400/10 to-amber-600/20 border border-slate-200/80 shadow-inner">
-                                <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=600&q=80" alt="Clay & Kiln Studio Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=600&q=80" alt="Clay & Kiln Studio Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent"></div>
                                 
                                 <div class="absolute -bottom-3 left-4 w-12 h-12 rounded-2xl bg-white p-0.5 shadow-lg border border-white/80 ring-2 ring-slate-900/5 overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=150&q=80" alt="Clay Logo" class="w-full h-full object-cover rounded-xl">
+                                    <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=150&q=80" alt="Clay Logo" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
                                 </div>
 
                                 <div class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-slate-900/80 hover:bg-slate-900 text-amber-400 text-[10px] font-bold flex items-center gap-1 shadow-md backdrop-blur-md border border-amber-500/30">
@@ -651,11 +657,11 @@
 
                         <div>
                             <div class="relative h-28 rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-purple-500/15 via-pink-400/10 to-rose-600/20 border border-slate-200/80 shadow-inner">
-                                <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80" alt="Varanasi Weavers Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80" alt="Varanasi Weavers Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent"></div>
                                 
                                 <div class="absolute -bottom-3 left-4 w-12 h-12 rounded-2xl bg-white p-0.5 shadow-lg border border-white/80 ring-2 ring-slate-900/5 overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1606760227091-3dd850d492a6?auto=format&fit=crop&w=150&q=80" alt="Weavers Logo" class="w-full h-full object-cover rounded-xl">
+                                    <img src="https://images.unsplash.com/photo-1606760227091-3dd850d492a6?auto=format&fit=crop&w=150&q=80" alt="Weavers Logo" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
                                 </div>
 
                                 <div class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-slate-900/80 hover:bg-slate-900 text-amber-400 text-[10px] font-bold flex items-center gap-1 shadow-md backdrop-blur-md border border-amber-500/30">
@@ -702,11 +708,11 @@
 
                         <div>
                             <div class="relative h-28 rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-amber-800/15 via-orange-900/10 to-amber-700/20 border border-slate-200/80 shadow-inner">
-                                <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80" alt="Heritage Leatherworks Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80" alt="Heritage Leatherworks Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent"></div>
                                 
                                 <div class="absolute -bottom-3 left-4 w-12 h-12 rounded-2xl bg-white p-0.5 shadow-lg border border-white/80 ring-2 ring-slate-900/5 overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=150&q=80" alt="Leather Logo" class="w-full h-full object-cover rounded-xl">
+                                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=150&q=80" alt="Leather Logo" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
                                 </div>
 
                                 <div class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-slate-900/80 hover:bg-slate-900 text-amber-400 text-[10px] font-bold flex items-center gap-1 shadow-md backdrop-blur-md border border-amber-500/30">
@@ -753,11 +759,11 @@
 
                         <div>
                             <div class="relative h-28 rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-blue-500/15 via-indigo-400/10 to-cyan-600/20 border border-slate-200/80 shadow-inner">
-                                <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80" alt="TechForge Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80" alt="TechForge Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent"></div>
                                 
                                 <div class="absolute -bottom-3 left-4 w-12 h-12 rounded-2xl bg-white p-0.5 shadow-lg border border-white/80 ring-2 ring-slate-900/5 overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=150&q=80" alt="Tech Logo" class="w-full h-full object-cover rounded-xl">
+                                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=150&q=80" alt="Tech Logo" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
                                 </div>
 
                                 <div class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-slate-900/80 hover:bg-slate-900 text-amber-400 text-[10px] font-bold flex items-center gap-1 shadow-md backdrop-blur-md border border-amber-500/30">
@@ -800,7 +806,9 @@
                 @endforelse
             </div>
         </section>
+        @endunless
 
+        @unless(\App\Models\SiteSetting::isSingleVendor())
         <!-- 5.6 NEARBY STALLS & HYPERLOCAL DISCOVERY -->
         <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12" id="nearby-stalls">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
@@ -858,7 +866,7 @@
                             <div class="flex items-start gap-3 mb-3">
                                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-display font-extrabold flex items-center justify-center text-lg shadow-sm shrink-0">
                                     @if($logo)
-                                        <img src="{{ $logo }}" alt="{{ $shopName }}" class="w-full h-full object-cover rounded-2xl">
+                                        <img src="{{ $logo }}" alt="{{ $shopName }}" class="w-full h-full object-cover rounded-2xl" loading="lazy" decoding="async">
                                     @else
                                         {{ strtoupper(mb_substr($shopName, 0, 1)) }}
                                     @endif
@@ -912,6 +920,7 @@
                 @endforelse
             </div>
         </section>
+        @endunless
 
         <!-- 6. WHY CHOOSE BAZAARIO - 5-PILLAR FLOATING GLASS HUB -->
         <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -1012,6 +1021,8 @@
                         <div class="w-full max-w-md h-72 sm:h-80 rounded-2xl overflow-hidden shadow-xl relative border border-white bg-amber-100/50">
                             <img alt="Seller packing orders" class="w-full h-full object-cover"
                                  src="{{ asset('images/categories/artisan_craft.jpg') }}"
+                                 loading="lazy"
+                                 decoding="async"
                                  onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/aida-public/AB6AXuAG2vRC-DtkXADNz8vvl3ncrh_0Y5DviuLk7LtnN0CfYWRRkXij0sTk2g77tz4-mles9c1EP2Unz4nQot1EjsCPtDHkv2rYodBafoBLUQbJnEVIN3rqzDIr1siwY45RJapwW_AiTl3HsxfE0e-zVNpbgv_V_8wOexctcB3SzzbadPeBiLQNENTTHCfM69fy4LSSisafqjhiYAwuzPvxrjoCqSCoVSEs5r2PdQAqk7sigESM2HeCMpD2';">
                             <div class="absolute bottom-3 right-3 bg-slate-900/85 backdrop-blur-md px-3.5 py-1.5 rounded-xl text-white font-mono text-[11px] font-semibold border border-white/10 flex items-center gap-1.5 shadow-md">
                                 <span class="material-symbols-outlined text-amber-400 text-[15px]">storefront</span>
@@ -1043,7 +1054,9 @@
                                 @if($review->user->profile_image ?? null)
                                     <img alt="{{ $review->user->name ?? 'User' }}"
                                          class="w-11 h-11 rounded-full object-cover ring-2 ring-amber-500/50"
-                                         src="{{ \Illuminate\Support\Facades\Storage::url($review->user->profile_image) }}">
+                                         src="{{ \Illuminate\Support\Facades\Storage::url($review->user->profile_image) }}"
+                                         loading="lazy"
+                                         decoding="async">
                                 @else
                                     <div class="w-11 h-11 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
                                         {{ strtoupper(mb_substr($review->user->name ?? 'U', 0, 1)) }}

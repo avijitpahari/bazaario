@@ -11,29 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary-container": "#F5A623",
-                        "on-primary-container": "#644000",
-                    },
-                    fontFamily: {
-                        "display": ["'Plus Jakarta Sans'", "sans-serif"],
-                        "headline-lg": ["'Plus Jakarta Sans'", "sans-serif"],
-                        "headline-md": ["'Plus Jakarta Sans'", "sans-serif"],
-                        "body-md": ["Inter", "sans-serif"],
-                        "label-sm": ["'JetBrains Mono'", "monospace"],
-                    }
-                }
-            }
-        };
-    </script>
+    <!-- Compiled Vite Assets (Tailwind CSS v4 & Alpine) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#0F172A] font-body-md text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#F5A623] selection:text-[#0F172A] relative overflow-x-hidden">
+
+    <!-- Full-Page CDN & Assets Preloader -->
+    <x-preloader />
 
     <!-- Ambient Amber Lighting Gradients -->
     <div class="absolute -top-40 -left-40 w-96 h-96 bg-[#F5A623]/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -60,14 +44,8 @@
                 
                 <!-- Bazaario Brand Emblem -->
                 <div class="flex flex-col items-center text-center mb-6">
-                    <div class="mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 44" fill="none" class="h-10 w-auto">
-                            <rect width="36" height="36" y="4" rx="10" fill="#F5A623"/>
-                            <path d="M12 14H24C26.2 14 28 15.8 28 18C28 20.2 26.2 22 24 22M12 22H25C27.2 22 29 23.8 29 26C29 28.2 27.2 30 25 30H12V14Z" stroke="#0F172A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="27" cy="11" r="3" fill="#0F172A"/>
-                            <text x="46" y="29" font-family="'Space Grotesk', sans-serif" font-weight="800" font-size="22" letter-spacing="1.5" fill="#FFFFFF">BAZAARIO</text>
-                            <rect x="46" y="34" width="28" height="2" rx="1" fill="#F5A623"/>
-                        </svg>
+                    <div class="mb-4 flex items-center justify-center">
+                        <x-brand-logo theme="dark" size="lg" :link="url('/')" badge="ADMIN" />
                     </div>
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F172A] border border-[#334155] mb-3">
                         <span class="material-symbols-outlined text-[14px] text-[#F5A623]">shield_lock</span>
@@ -201,7 +179,7 @@
     <!-- Bottom Status Bar -->
     <footer class="w-full px-6 py-3 border-t border-[#1E293B] text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 relative z-10">
         <div>
-            &copy; {{ date('Y') }} Bazaario Multi-Vendor Marketplace Inc. Platform Operations.
+            &copy; {{ date('Y') }} {{ \App\Models\SiteSetting::getSiteName() }} Multi-Vendor Marketplace Inc. Platform Operations.
         </div>
         <div class="flex items-center gap-4">
             <span class="flex items-center gap-1.5">

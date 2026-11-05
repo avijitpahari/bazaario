@@ -187,11 +187,22 @@ class SellerProductController extends Controller
         $outOfStockCount = (clone $baseCountQuery)->where('stock', '<=', 0)->count();
         $staleCount = (clone $baseCountQuery)->stale()->count();
 
-        // Items requiring urgent attention: perishable items within 48h of expiry or already stale
+        // Items requiring urgent attention: perishable items within 48h of expiry or already stale (organic catalog only)
         $freshnessAttentionCount = (clone $baseCountQuery)
             ->where('is_perishable', true)
             ->whereNotNull('expiry_date')
             ->where('expiry_date', '<=', Carbon::now()->addDays(2)->toDateString())
+            ->whereHas('category', function ($q) {
+                $q->where('slug', 'organic-food')
+                  ->orWhere('slug', 'like', '%organic%')
+                  ->orWhere('name', 'like', '%organic%')
+                  ->orWhere('slug', 'like', '%produce%')
+                  ->orWhere('name', 'like', '%produce%')
+                  ->orWhere('slug', 'like', '%vegetable%')
+                  ->orWhere('name', 'like', '%vegetable%')
+                  ->orWhere('slug', 'like', '%fruit%')
+                  ->orWhere('name', 'like', '%fruit%');
+            })
             ->count();
 
         $categories = Category::active()->orderBy('name')->get();
@@ -311,25 +322,43 @@ class SellerProductController extends Controller
                 }
             }
 
-            // 3. Agronomic Ledger & Freshness Engine Calculations
-            $isPerishable = $request->boolean('is_perishable');
-            $harvestDate = $request->input('harvest_date');
-            $expiryDays = $request->filled('expiry_days') ? (int) $request->input('expiry_days') : null;
-            $expiryDate = $request->input('expiry_date');
+            // 3. Agronomic Ledger & Freshness Engine Calculations (Strictly enforced for Organic categories only)
+            $category = Category::find($validated['category_id']);
+            $isOrganic = $category ? $category->isOrganic() : false;
 
-            if ($harvestDate && $expiryDays) {
-                $isPerishable = true;
-                if (empty($expiryDate)) {
+            $isPerishable = false;
+            $harvestDate = null;
+            $expiryDays = null;
+            $expiryDate = null;
+            $autoHideExpired = false;
+            $harvestGrade = null;
+            $farmOrigin = $request->input('farm_origin');
+
+            if ($isOrganic) {
+                $isPerishable = $request->boolean('is_perishable');
+                $harvestDate = $request->input('harvest_date');
+                $expiryDays = $request->filled('expiry_days') ? (int) $request->input('expiry_days') : null;
+                $expiryDate = $request->input('expiry_date');
+
+                if ($harvestDate && $expiryDays) {
+                    $isPerishable = true;
+                    if (empty($expiryDate)) {
+                        $expiryDate = Carbon::parse($harvestDate)->addDays($expiryDays)->toDateString();
+                    }
+                } elseif ($isPerishable && $expiryDays && empty($harvestDate)) {
+                    $harvestDate = Carbon::today()->toDateString();
+                    if (empty($expiryDate)) {
+                        $expiryDate = Carbon::parse($harvestDate)->addDays($expiryDays)->toDateString();
+                    }
+                } elseif ($isPerishable && $harvestDate && $expiryDays && empty($expiryDate)) {
                     $expiryDate = Carbon::parse($harvestDate)->addDays($expiryDays)->toDateString();
                 }
-            } elseif ($isPerishable && $harvestDate && $expiryDays && empty($expiryDate)) {
-                $expiryDate = Carbon::parse($harvestDate)->addDays($expiryDays)->toDateString();
-            }
 
-            // Auto-hide expired listings: defaults to true for perishables if not explicitly specified
-            $autoHideExpired = $request->has('auto_hide_expired')
-                ? $request->boolean('auto_hide_expired')
-                : ($isPerishable ? true : false);
+                $autoHideExpired = $request->has('auto_hide_expired')
+                    ? $request->boolean('auto_hide_expired')
+                    : ($isPerishable ? true : false);
+                $harvestGrade = $request->input('harvest_grade');
+            }
 
             $status = $request->input('status', 'active');
             $saleType = $request->input('sale_type', 'fixed_price');
@@ -352,8 +381,8 @@ class SellerProductController extends Controller
                 'stock'               => (int) $validated['stock'],
                 'low_stock_threshold' => $lowStockThreshold,
                 'status'              => $status,
-                'farm_origin'         => $request->input('farm_origin'),
-                'harvest_grade'       => $request->input('harvest_grade'),
+                'farm_origin'         => $farmOrigin,
+                'harvest_grade'       => $harvestGrade,
                 'harvest_date'        => $harvestDate,
                 'expiry_days'         => $expiryDays,
                 'expiry_date'         => $expiryDate,
@@ -511,22 +540,44 @@ class SellerProductController extends Controller
             'images.*'             => ['file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
             'image'                => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
             'primary_image_index'  => ['nullable', 'integer', 'min:0'],
+            'delete_image_ids'     => ['nullable', 'array'],
+            'delete_image_ids.*'   => ['integer'],
+            'primary_image_id'     => ['nullable', 'integer'],
         ]);
 
         return DB::transaction(function () use ($request, $validated, $product, $user) {
-            $isPerishable = $request->boolean('is_perishable');
-            $harvestDate = $request->input('harvest_date');
-            $expiryDays = $request->filled('expiry_days') ? (int) $request->input('expiry_days') : null;
-            $expiryDate = $request->input('expiry_date');
+            $category = Category::find($validated['category_id']);
+            $isOrganic = $category ? $category->isOrganic() : false;
 
-            if ($harvestDate && $expiryDays) {
-                $isPerishable = true;
-                $expiryDate = Carbon::parse($harvestDate)->addDays($expiryDays)->toDateString();
+            $isPerishable = false;
+            $harvestDate = null;
+            $expiryDays = null;
+            $expiryDate = null;
+            $autoHideExpired = false;
+            $harvestGrade = null;
+            $farmOrigin = $request->input('farm_origin', $product->farm_origin);
+
+            if ($isOrganic) {
+                $isPerishable = $request->has('is_perishable') ? $request->boolean('is_perishable') : (bool) $product->is_perishable;
+                $harvestDate = $request->input('harvest_date', $product->harvest_date?->toDateString());
+                $expiryDays = $request->filled('expiry_days') ? (int) $request->input('expiry_days') : $product->expiry_days;
+                $expiryDate = $request->input('expiry_date', $product->expiry_date?->toDateString());
+
+                if ($harvestDate && $expiryDays) {
+                    $isPerishable = true;
+                    $expiryDate = Carbon::parse($harvestDate)->addDays((int) $expiryDays)->toDateString();
+                } elseif ($isPerishable && $harvestDate && $expiryDays) {
+                    $expiryDate = Carbon::parse($harvestDate)->addDays((int) $expiryDays)->toDateString();
+                } elseif ($isPerishable && $expiryDays && empty($harvestDate)) {
+                    $harvestDate = Carbon::today()->toDateString();
+                    $expiryDate = Carbon::parse($harvestDate)->addDays((int) $expiryDays)->toDateString();
+                }
+
+                $autoHideExpired = $request->has('auto_hide_expired')
+                    ? $request->boolean('auto_hide_expired')
+                    : ($isPerishable ? ($product->auto_hide_expired ?? true) : false);
+                $harvestGrade = $request->input('harvest_grade', $product->harvest_grade);
             }
-
-            $autoHideExpired = $request->has('auto_hide_expired')
-                ? $request->boolean('auto_hide_expired')
-                : ($isPerishable ? $product->auto_hide_expired : false);
 
             $lowStockThreshold = $request->filled('low_stock_threshold')
                 ? (int) $request->input('low_stock_threshold')
@@ -543,8 +594,8 @@ class SellerProductController extends Controller
                 'stock'               => (int) $validated['stock'],
                 'low_stock_threshold' => $lowStockThreshold,
                 'status'              => $request->input('status', $product->status),
-                'farm_origin'         => $request->input('farm_origin', $product->farm_origin),
-                'harvest_grade'       => $request->input('harvest_grade', $product->harvest_grade),
+                'farm_origin'         => $farmOrigin,
+                'harvest_grade'       => $harvestGrade,
                 'harvest_date'        => $harvestDate,
                 'expiry_days'         => $expiryDays,
                 'expiry_date'         => $expiryDate,
@@ -552,27 +603,63 @@ class SellerProductController extends Controller
                 'auto_hide_expired'   => $autoHideExpired,
             ]);
 
+            // Handle deletion of existing images
+            if ($request->filled('delete_image_ids') && is_array($request->input('delete_image_ids'))) {
+                $deleteIds = $request->input('delete_image_ids');
+                $imagesToDelete = $product->images()->whereIn('id', $deleteIds)->get();
+                foreach ($imagesToDelete as $delImg) {
+                    if (!Str::startsWith($delImg->image_path, ['http://', 'https://'])) {
+                        Storage::disk('public')->delete($delImg->image_path);
+                    }
+                    $delImg->delete();
+                }
+            }
+
             // Handle optional new images
+            $newImageModels = [];
             if ($request->hasFile('images')) {
-                $currentMaxOrder = (int) $product->images()->max('sort_order') ?? 0;
+                $currentMaxOrder = (int) ($product->images()->max('sort_order') ?? 0);
                 $files = is_array($request->file('images')) ? $request->file('images') : [$request->file('images')];
                 foreach ($files as $index => $file) {
                     $path = $file->store('products', 'public');
-                    ProductImage::create([
+                    $newImg = ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $path,
                         'is_primary' => false,
                         'sort_order' => $currentMaxOrder + $index + 1,
                     ]);
+                    $newImageModels[] = $newImg;
                 }
             } elseif ($request->hasFile('image')) {
                 $path = $request->file('image')->store('products', 'public');
-                ProductImage::create([
+                $newImg = ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $path,
                     'is_primary' => false,
-                    'sort_order' => ((int) $product->images()->max('sort_order') ?? 0) + 1,
+                    'sort_order' => ((int) ($product->images()->max('sort_order') ?? 0)) + 1,
                 ]);
+                $newImageModels[] = $newImg;
+            }
+
+            // Handle primary image designation
+            if ($request->filled('primary_image_id')) {
+                $primaryId = (int) $request->input('primary_image_id');
+                $product->images()->update(['is_primary' => false]);
+                $product->images()->where('id', $primaryId)->update(['is_primary' => true]);
+            } elseif ($request->filled('primary_image_index') && !empty($newImageModels)) {
+                $pIndex = (int) $request->input('primary_image_index', 0);
+                if (isset($newImageModels[$pIndex])) {
+                    $product->images()->update(['is_primary' => false]);
+                    $newImageModels[$pIndex]->update(['is_primary' => true]);
+                }
+            }
+
+            // Fallback: Ensure at least one image is marked as primary if any images exist
+            if ($product->images()->exists() && !$product->images()->where('is_primary', true)->exists()) {
+                $firstImage = $product->images()->first();
+                if ($firstImage) {
+                    $firstImage->update(['is_primary' => true]);
+                }
             }
 
             Log::info("Product updated: #{$product->id} ({$product->sku}) by seller #{$user->id}");
@@ -913,4 +1000,55 @@ class SellerProductController extends Controller
 
         return redirect()->route('seller.products.index')->with('success', $message);
     }
+
+    /**
+     * Export all products for the authenticated seller to a CSV stream.
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse|RedirectResponse
+     */
+    public function exportCsv()
+    {
+        $user = $this->getAuthenticatedSeller();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $fileName = 'bazaario-products-' . date('Y-m-d-His') . '.csv';
+        $products = Product::where('seller_id', $user->id)
+            ->with('category')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        return response()->stream(function () use ($products) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ID', 'SKU', 'Name', 'Category', 'Price (INR)', 'Unit', 'Stock', 'Threshold', 'Status', 'Perishable', 'Created At']);
+
+            foreach ($products as $p) {
+                fputcsv($handle, [
+                    $p->id,
+                    $p->sku,
+                    $p->name,
+                    $p->category?->name ?? 'General',
+                    $p->price,
+                    $p->unit_type,
+                    $p->stock,
+                    $p->low_stock_threshold,
+                    $p->status,
+                    $p->is_perishable ? 'Yes' : 'No',
+                    $p->created_at?->toDateTimeString(),
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, $headers);
+    }
 }
+

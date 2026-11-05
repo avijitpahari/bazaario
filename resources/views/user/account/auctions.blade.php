@@ -13,9 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
-    <!-- Compiled Tailwind CSS & App JS via Vite + Production Fallback -->
+    <!-- Compiled Tailwind CSS & App JS via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C-FKvfT_.css') }}">
 
     <style>
         [x-cloak] { display: none !important; }
@@ -348,7 +347,7 @@
 
                                 <div class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
                                     <div class="flex items-center gap-1.5">
-                                        <span class="font-medium">{{ $auction->seller->sellerProfile->business_name ?? ($auction->seller->name ?? 'Official Store') }}</span>
+                                        <span class="font-medium">{{ $auction->seller->shop_name ?? ($auction->seller->user->name ?? ($auction->seller->name ?? 'Official Store')) }}</span>
                                         <span>•</span>
                                         <span class="inline-flex items-center text-amber-600 font-bold">
                                             <span class="material-symbols-outlined text-sm">star</span> 4.9
@@ -383,7 +382,7 @@
                                 <div class="flex flex-col items-end">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Closes In</span>
                                     <div class="font-mono text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 mt-1 border border-rose-200"
-                                         data-countdown="{{ $auction->ends_at->isoFormat('YYYY-MM-DDTHH:mm:ss') }}">
+                                         data-countdown="{{ $auction->ends_at->toIso8601String() }}">
                                         <span class="material-symbols-outlined text-sm">timer</span>
                                         <span class="timer-display">{{ $auction->ends_at->diffForHumans() }}</span>
                                     </div>
@@ -437,9 +436,6 @@
     <!-- Global Glass Footer -->
     <x-footer />
 
-    <!-- Alpine.js script for interactive dropdowns/popovers -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <!-- Script for Live Countdown Timers -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -454,10 +450,11 @@
                     const distance = endTime - now;
 
                     if (distance <= 0) {
-                        display.innerText = 'ENDED';
+                        display.innerText = 'Auction Ended';
                         return;
                     }
 
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -466,7 +463,11 @@
                     const mStr = String(minutes).padStart(2, '0');
                     const sStr = String(seconds).padStart(2, '0');
 
-                    display.innerText = `${hStr}:${mStr}:${sStr}`;
+                    if (days > 0) {
+                        display.innerText = `${days}d ${hStr}:${mStr}:${sStr}`;
+                    } else {
+                        display.innerText = `${hStr}:${mStr}:${sStr}`;
+                    }
                 }
 
                 updateTimer();

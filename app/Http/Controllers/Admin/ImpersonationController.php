@@ -42,8 +42,11 @@ class ImpersonationController extends Controller
             ],
         ]);
 
-        // Also log them into the target guard so existing middleware passes
-        Auth::guard($panel)->loginUsingId($target->id);
+        // Log target into both user and seller guards so multi-panel navigation works without conflicts
+        Auth::guard('user')->loginUsingId($target->id);
+        if ($target->role === 'seller' || $target->sellerProfile) {
+            Auth::guard('seller')->loginUsingId($target->id);
+        }
 
         $request->session()->save();
 
@@ -57,18 +60,13 @@ class ImpersonationController extends Controller
 
     /**
      * Stop impersonating and return to admin dashboard.
-     * Logs out the impersonated guard but keeps admin guard intact.
+     * Logs out the impersonated guards but keeps admin guard intact.
      */
     public function stop(Request $request)
     {
-        $impersonating = session('impersonating');
-
-        if ($impersonating) {
-            $panel = $impersonating['panel'] ?? 'user';
-
-            // Log out the impersonated guard only
-            Auth::guard($panel)->logout();
-        }
+        // Log out both target guards without clearing admin session
+        Auth::guard('user')->logout();
+        Auth::guard('seller')->logout();
 
         // Remove impersonation state
         session()->forget('impersonating');

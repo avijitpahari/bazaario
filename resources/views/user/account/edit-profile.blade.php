@@ -101,17 +101,6 @@
                             @error('phone')<p class="text-error font-body-small text-body-small mt-1">{{ $message }}</p>@enderror
                         </div>
 
-                        <div class="flex flex-col gap-1.5">
-                            <label class="font-body-small text-body-small font-semibold text-slate-authority">Preferred Language</label>
-                            <select name="preferred_language"
-                                class="bg-surface-container-low border border-slate-authority/20 rounded-xl px-4 py-3 text-slate-authority font-body-regular text-body-regular focus:outline-none focus:border-amber-action transition-colors">
-                                <option value="en" {{ ($user->preferred_language ?? 'en') === 'en' ? 'selected' : '' }}>English</option>
-                                <option value="hi" {{ ($user->preferred_language ?? '') === 'hi' ? 'selected' : '' }}>Hindi</option>
-                                <option value="bn" {{ ($user->preferred_language ?? '') === 'bn' ? 'selected' : '' }}>Bengali</option>
-                                <option value="ta" {{ ($user->preferred_language ?? '') === 'ta' ? 'selected' : '' }}>Tamil</option>
-                                <option value="te" {{ ($user->preferred_language ?? '') === 'te' ? 'selected' : '' }}>Telugu</option>
-                            </select>
-                        </div>
 
                         <div class="flex flex-col gap-1.5 md:col-span-2">
                             <label class="font-body-small text-body-small font-semibold text-slate-authority">About / Bio</label>

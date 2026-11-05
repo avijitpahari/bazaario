@@ -34,16 +34,9 @@ class ProfileController extends Controller
             'name'               => 'required|string|max:100',
             'phone'              => ['nullable', 'string', 'max:30', Rule::unique('users')->ignore($user->id)],
             'bio'                => 'nullable|string|max:1000',
-            'preferred_language' => 'nullable|string|max:10',
         ]);
 
         $user->update($data);
-
-        if (!empty($data['preferred_language'])) {
-            session(['locale' => $data['preferred_language']]);
-            app()->setLocale($data['preferred_language']);
-            cookie()->queue(cookie('locale', $data['preferred_language'], 60 * 24 * 365));
-        }
 
         return redirect()->route('user.profile')
             ->with('success', 'Profile updated successfully.');

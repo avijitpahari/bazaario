@@ -15,6 +15,8 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "alpinejs": "^3.17.4"
+        "alpinejs": "^3.17.4",
+        "leaflet": "^1.9.4",
+        "marked": "^18.1.2"
     }
 }

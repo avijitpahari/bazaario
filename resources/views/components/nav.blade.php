@@ -54,9 +54,7 @@
                 <span class="material-symbols-outlined text-2xl">menu</span>
             </button>
 
-            <a href="{{ url('/') }}" class="flex items-center gap-2 group">
-                <img src="{{ asset('images/bazaario-logo.png') }}" alt="Bazaario" class="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105">
-            </a>
+            <x-brand-logo :link="url('/')" />
         </div>
 
         <!-- 2. MAIN NAVIGATION LINKS -->
@@ -149,9 +147,13 @@
                     <span class="material-symbols-outlined absolute left-3.5 text-slate-400 text-xl pointer-events-none">search</span>
                     <input type="text" 
                            name="search"
+                           value="{{ request('search') }}"
                            @focus="searchFocus = true"
                            placeholder="Search products, brands & categories..."
-                           class="w-full bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-slate-900 text-xs sm:text-sm rounded-full pl-10 pr-4 py-2 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all shadow-inner">
+                           class="w-full bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-slate-900 text-xs sm:text-sm rounded-full pl-10 pr-10 py-2 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all shadow-inner">
+                    <button type="submit" class="absolute right-2 p-1 text-slate-400 hover:text-slate-900 transition-colors" title="Execute Search">
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
                 </div>
             </form>
 
@@ -386,23 +388,34 @@
         <div class="fixed inset-y-0 left-0 w-80 bg-white shadow-2xl flex flex-col justify-between z-10 p-5 overflow-y-auto">
             <div>
                 <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <a href="{{ url('/') }}" class="flex items-center gap-2">
-                        <img src="{{ asset('images/bazaario-logo.png') }}" alt="Bazaario" class="h-7 w-auto object-contain">
-                    </a>
+                    <x-brand-logo size="sm" :link="url('/')" />
                     <button @click="mobileMenuOpen = false" class="p-1 text-slate-400 hover:text-slate-700">
                         <span class="material-symbols-outlined text-2xl">close</span>
                     </button>
                 </div>
 
+                <!-- Mobile Drawer Search Bar -->
+                <form action="{{ route('products.index') }}" method="GET" class="mt-3 relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">search</span>
+                    <input type="text" 
+                           name="search" 
+                           value="{{ request('search') }}"
+                           placeholder="Search products, sellers..." 
+                           class="w-full pl-9 pr-10 py-2 bg-slate-100 rounded-xl text-xs text-slate-900 border border-slate-200 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 p-0.5" title="Search">
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                    </button>
+                </form>
+
                 <!-- Navigation Links -->
                 <div class="py-4 space-y-1 font-semibold text-sm">
-                    <a href="{{ route('products.index') }}" class="block px-3 py-2 rounded-xl {{ $isOnShop ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-900' }}">Home</a>
+                    <a href="{{ route('products.index') }}" class="block px-3 py-2 rounded-xl {{ $isOnShop ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-900' }}">Shop</a>
                     <a href="{{ route('auctions.index') }}" class="block px-3 py-2 rounded-xl {{ $isOnAuctions ? 'bg-slate-900 text-white' : 'hover:bg-rose-50 text-rose-700' }} flex items-center gap-2">
                         <span>⚡ Live Auctions</span>
                         <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-200 text-rose-800">LIVE</span>
                     </a>
                     <a href="{{ route('products.index', ['filter' => 'deals']) }}" class="block px-3 py-2 rounded-xl {{ $isOnDeals ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-900' }}">Today's Deals</a>
-                    <a href="{{ url('/seller/register') }}" class="block px-3 py-2 rounded-xl bg-amber-50 text-amber-900 font-bold">Sell on Bazaario →</a>
+                    <a href="{{ route('docs.become-a-seller') }}" class="block px-3 py-2 rounded-xl bg-amber-50 text-amber-900 font-bold">Sell on Bazaario →</a>
                 </div>
             </div>
 

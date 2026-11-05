@@ -16,17 +16,22 @@ class UserMiddleware
 
         /*
         |--------------------------------------------------------------------------
-        | Admin Impersonation Bypass
+        | Admin Impersonation & Direct Admin View Bypass
         |--------------------------------------------------------------------------
-        | If an admin is actively impersonating a user panel session, let them
-        | through without needing a real 'user' guard login.
+        | If an admin is logged in or actively impersonating a user/seller session,
+        | ensure user guard is populated and allow them through without redirect loops.
         */
         $impersonating = session('impersonating');
-        if (
-            $impersonating &&
-            ($impersonating['panel'] ?? '') === 'user' &&
-            Auth::guard('admin')->check()
-        ) {
+        if ($impersonating && Auth::guard('admin')->check()) {
+            if (!Auth::guard('user')->check() && !empty($impersonating['user_id'])) {
+                Auth::guard('user')->loginUsingId($impersonating['user_id']);
+            }
+            return $next($request);
+        }
+
+        if (Auth::guard('admin')->check() && !Auth::guard('user')->check()) {
+            $adminUser = Auth::guard('admin')->user();
+            Auth::guard('user')->setUser($adminUser);
             return $next($request);
         }
 
