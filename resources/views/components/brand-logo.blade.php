@@ -38,9 +38,11 @@
 <a href="{{ $link }}" {{ $attributes->merge(['class' => 'inline-flex items-center gap-2.5 group transition-transform duration-150 select-none']) }}>
     @if($hasLogo && $logoUrl)
         <!-- Uploaded Custom Brand Logo -->
-        <img src="{{ $logoUrl }}" 
-             alt="{{ $siteName }}" 
-             class="{{ $imgClasses }} w-auto object-contain transition-transform duration-200 group-hover:scale-105 shrink-0 rounded-md">
+        <div class="{{ $theme === 'dark' ? 'bg-white/95 px-2 py-1 rounded-xl shadow-xs border border-white/20' : '' }} flex items-center shrink-0">
+            <img src="{{ $logoUrl }}" 
+                 alt="{{ $siteName }}" 
+                 class="{{ $imgClasses }} w-auto object-contain transition-transform duration-200 group-hover:scale-105 shrink-0 rounded-md">
+        </div>
     @else
         <!-- Modernist Geometric Brand Emblem Mark -->
         <div class="{{ $emblemClasses }} bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 shadow-sm shadow-amber-500/30 flex items-center justify-center text-slate-950 font-black font-['Outfit'] tracking-tighter shrink-0 border border-amber-300/70 ring-2 ring-amber-400/20 transition-all duration-200 group-hover:scale-105 group-hover:shadow-amber-500/40">

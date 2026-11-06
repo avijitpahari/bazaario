@@ -73,6 +73,79 @@ class SellerProfile extends Model
         });
     }
 
+    /**
+     * Get the effective commission rate for this seller.
+     * Uses the seller's custom override if configured by admin, otherwise falls back to the dynamic platform rate.
+     */
+    public function getEffectiveCommissionRate(): float
+    {
+        if ($this->commission_rate !== null && is_numeric($this->commission_rate)) {
+            return (float) $this->commission_rate;
+        }
+
+        return SiteSetting::getCommissionRate(10.0);
+    }
+
+    /**
+     * Compute and update seller trust score based on verification and fulfillment performance.
+     */
+    public function recalculateTrustScore(): float
+    {
+        $score = 75.00;
+
+        if ($this->status === 'approved') {
+            $score += 15.00;
+        }
+
+        if ($this->verified_at !== null) {
+            $score += 3.00;
+        }
+
+        if (!empty($this->bank_account_number)) {
+            $score += 2.00;
+        }
+
+        // Fulfillment performance
+        $totalOrders = SellerOrder::where('seller_id', $this->user_id)
+            ->whereNotIn('status', ['cancelled'])
+            ->count();
+
+        $completedOrders = SellerOrder::where('seller_id', $this->user_id)
+            ->whereIn('status', ['delivered', 'fulfilled'])
+            ->count();
+
+        if ($totalOrders > 0) {
+            $fulfillmentRate = ($completedOrders / $totalOrders) * 100;
+            $score += round(($fulfillmentRate / 100) * 5, 2);
+        }
+
+        // Penalty for disputes or returns
+        $returnsCount = 0;
+        try {
+            $returnsCount = OrderReturn::whereHas('orderItem.sellerOrder', function ($q) {
+                $q->where('seller_id', $this->user_id);
+            })->whereNotIn('status', ['rejected'])->count();
+        } catch (\Throwable $e) {}
+
+        $score -= ($returnsCount * 3.00);
+
+        $finalScore = max(10.00, min(100.00, round($score, 2)));
+
+        $this->update(['trust_score' => $finalScore]);
+
+        try {
+            TrustScoreLog::create([
+                'seller_id'          => $this->user_id,
+                'fulfillment_rate'   => $totalOrders > 0 ? round(($completedOrders / $totalOrders) * 100, 2) : 100.00,
+                'average_rating'     => 5.00,
+                'verification_bonus' => $this->status === 'approved' ? 15.00 : 0.00,
+                'computed_score'     => $finalScore,
+            ]);
+        } catch (\Throwable $e) {}
+
+        return $finalScore;
+    }
+
     public static function getCityCoordinates(?string $city): array
     {
         $cityMap = [

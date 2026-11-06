@@ -155,4 +155,12 @@ class User extends Authenticatable
         }
         return 'Tier-1 Verified Buyer';
     }
+
+    /**
+     * Get the effective commission rate for this user/seller.
+     */
+    public function getEffectiveCommissionRate(): float
+    {
+        return $this->sellerProfile?->getEffectiveCommissionRate() ?? SiteSetting::getCommissionRate(10.0);
+    }
 }

@@ -241,6 +241,7 @@ class AdminDashboardController extends Controller
                     'verified_at' => now(),
                     'rejection_reason' => null,
                 ]);
+                $seller->recalculateTrustScore();
 
                 // Synchronize associated user account role and status
                 if ($seller->user && $seller->user->role !== 'admin') {
@@ -347,6 +348,40 @@ class AdminDashboardController extends Controller
                 $seller = SellerProfile::lockForUpdate()->findOrFail($id);
                 $rate = round((float)$request->commission_rate, 2);
                 $seller->update(['commission_rate' => $rate]);
+
+                // Synchronize seller orders and their payouts with the updated commission rate
+                $orders = SellerOrder::where('seller_id', $seller->user_id)->get();
+                foreach ($orders as $order) {
+                    $subtotal = (float) $order->subtotal;
+                    $commAmt = round($subtotal * ($rate / 100), 2);
+                    $netAmt = max(0, round($subtotal - $commAmt - (float) $order->apmc_cess, 2));
+
+                    $order->update([
+                        'commission_rate'   => $rate,
+                        'commission_amount' => $commAmt,
+                        'payout_amount'     => $netAmt,
+                    ]);
+
+                    $payout = Payout::where('seller_order_id', $order->id)->first();
+                    if ($payout) {
+                        $payout->update([
+                            'gross_amount'      => $subtotal,
+                            'commission_amount' => $commAmt,
+                            'net_amount'        => $netAmt,
+                        ]);
+                    }
+                }
+
+                $standalonePayouts = Payout::where('seller_id', $seller->user_id)->whereNull('seller_order_id')->get();
+                foreach ($standalonePayouts as $payout) {
+                    $gross = (float) $payout->gross_amount;
+                    $commAmt = round($gross * ($rate / 100), 2);
+                    $netAmt = max(0, round($gross - $commAmt - (float) $payout->apmc_cess, 2));
+                    $payout->update([
+                        'commission_amount' => $commAmt,
+                        'net_amount'        => $netAmt,
+                    ]);
+                }
 
                 return back()->with('success', "Commission rate for {$seller->shop_name} updated to {$rate}%.");
             });
@@ -1357,6 +1392,41 @@ class AdminDashboardController extends Controller
                     $rate = (float)$request->input('commission_rate');
                     SiteSetting::set('commission_rate', $rate);
                     SiteSetting::set('platform_commission_base', $rate);
+
+                    // Sync sellers on platform standard rate (no custom override)
+                    $standardSellerUserIds = SellerProfile::whereNull('commission_rate')->pluck('user_id');
+                    $orders = SellerOrder::whereIn('seller_id', $standardSellerUserIds)->get();
+                    foreach ($orders as $order) {
+                        $subtotal = (float) $order->subtotal;
+                        $commAmt = round($subtotal * ($rate / 100), 2);
+                        $netAmt = max(0, round($subtotal - $commAmt - (float) $order->apmc_cess, 2));
+
+                        $order->update([
+                            'commission_rate'   => $rate,
+                            'commission_amount' => $commAmt,
+                            'payout_amount'     => $netAmt,
+                        ]);
+
+                        $payout = Payout::where('seller_order_id', $order->id)->first();
+                        if ($payout) {
+                            $payout->update([
+                                'gross_amount'      => $subtotal,
+                                'commission_amount' => $commAmt,
+                                'net_amount'        => $netAmt,
+                            ]);
+                        }
+                    }
+
+                    $standalonePayouts = Payout::whereIn('seller_id', $standardSellerUserIds)->whereNull('seller_order_id')->get();
+                    foreach ($standalonePayouts as $payout) {
+                        $gross = (float) $payout->gross_amount;
+                        $commAmt = round($gross * ($rate / 100), 2);
+                        $netAmt = max(0, round($gross - $commAmt - (float) $payout->apmc_cess, 2));
+                        $payout->update([
+                            'commission_amount' => $commAmt,
+                            'net_amount'        => $netAmt,
+                        ]);
+                    }
                 }
 
                 if ($request->has('platform_mode')) {

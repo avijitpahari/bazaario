@@ -22,13 +22,23 @@ class AuctionController extends Controller
         $sort   = $request->query('sort', 'ending_soonest');
         $search = $request->query('search');
 
-        // NOTE: DB enum is ('scheduled','live','ended','cancelled') — 'active' does NOT exist
+        // Base query with relationships
         $query = Auction::with([
             'product.primaryImage',
             'product.category',
             'seller.user',
             'bids' => fn ($q) => $q->orderBy('amount', 'desc')->with('user'),
-        ])->where('status', 'live');
+        ]);
+
+        // Status scoping based on filter
+        if ($filter === 'upcoming') {
+            $query->where('status', 'scheduled');
+        } elseif ($filter === 'won') {
+            $userId = Auth::id() ?? 0;
+            $query->where('winner_id', $userId);
+        } else {
+            $query->where('status', 'live');
+        }
 
         if ($search) {
             $query->whereHas('product', function ($q) use ($search) {
@@ -52,9 +62,6 @@ class AuctionController extends Controller
                     $q->where('user_id', $userId)
                       ->whereRaw('amount = (SELECT MAX(b2.amount) FROM bids b2 WHERE b2.auction_id = bids.auction_id)');
                 });
-        } elseif ($filter === 'won' && Auth::check()) {
-            $userId = Auth::id();
-            $query->where('winner_id', $userId);
         }
 
         // Apply sorting
@@ -70,7 +77,11 @@ class AuctionController extends Controller
                 break;
             case 'ending_soonest':
             default:
-                $query->orderBy('ends_at', 'asc');
+                if ($filter === 'upcoming') {
+                    $query->orderBy('starts_at', 'asc');
+                } else {
+                    $query->orderBy('ends_at', 'asc');
+                }
                 break;
         }
 
@@ -78,6 +89,7 @@ class AuctionController extends Controller
 
         // ── Telemetry metrics ────────────────────────────────────────────────
         $allCount      = Auction::where('status', 'live')->count();
+        $upcomingCount = Auction::where('status', 'scheduled')->count();
         $endingSoon    = Auction::where('status', 'live')
                             ->where('ends_at', '<=', now()->addMinutes(30))
                             ->count();
@@ -118,6 +130,7 @@ class AuctionController extends Controller
 
         $telemetry = [
             'total_lots'          => $allCount,
+            'upcoming_count'      => $upcomingCount,
             'ending_soon_count'   => $endingSoon,
             'user_leading_count'  => $userLeadingCount,
             'user_outbid_count'   => max(0, $userOutbidCount),

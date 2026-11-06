@@ -3,7 +3,7 @@
 @endphp
 
 @if($impersonating && auth()->guard('admin')->check())
-<div class="fixed bottom-0 inset-x-0 z-[9999] bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xl border-t-2 border-amber-400 font-sans text-xs"
+<div class="fixed bottom-0 inset-x-0 z-[9999] bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between gap-4 shadow-2xl border-t-2 border-amber-400 font-sans text-xs print:hidden"
      style="font-family: 'JetBrains Mono', monospace;">
 
     {{-- Left: Info --}}

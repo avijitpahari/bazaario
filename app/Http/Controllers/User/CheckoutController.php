@@ -200,7 +200,7 @@ class CheckoutController extends Controller
                     });
 
                     $seller = $sellerId ? User::with('sellerProfile')->find($sellerId) : null;
-                    $commissionRate = $seller?->sellerProfile?->commission_rate ?? 10.00;
+                    $commissionRate = $seller ? $seller->getEffectiveCommissionRate() : SiteSetting::getCommissionRate(10.00);
                     $commissionAmount = round($sellerSubtotal * ($commissionRate / 100), 2);
                     $payoutAmount = max(0, $sellerSubtotal - $commissionAmount);
 

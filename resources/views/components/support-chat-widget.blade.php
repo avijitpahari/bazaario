@@ -1,6 +1,6 @@
 <div x-data="bazaarioSupportWidget()" 
      x-init="initWidget()"
-     class="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-[99998] font-sans antialiased text-slate-800 pointer-events-none"
+     class="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-[99998] font-sans antialiased text-slate-800 pointer-events-none print:hidden"
      id="bazaario-support-chat">
 
     <!-- 1. CLOSED STATE (Floating Button + Tooltip) -->

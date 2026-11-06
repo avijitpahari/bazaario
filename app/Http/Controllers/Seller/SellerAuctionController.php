@@ -31,7 +31,7 @@ class SellerAuctionController extends Controller
 
         $status = $request->query('status', 'all');
 
-        $query = Auction::with(['product', 'bids'])
+        $query = Auction::with(['product.primaryImage', 'product.images', 'product.category', 'bids'])
             ->where('seller_id', $sellerProfile->id);
 
         if (in_array($status, ['scheduled', 'live', 'ended', 'cancelled'])) {
@@ -75,8 +75,10 @@ class SellerAuctionController extends Controller
             abort(403, 'Seller profile required.');
         }
 
-        // Fetch products owned by the authenticated seller (Product.seller_id references users.id)
-        $products = Product::where('seller_id', $seller->id)->get();
+        // Fetch products owned by the authenticated seller with images and category eager loaded
+        $products = Product::with(['primaryImage', 'images', 'category'])
+            ->where('seller_id', $seller->id)
+            ->get();
 
         return view('seller.auctions.create', compact('seller', 'sellerProfile', 'products'));
     }
@@ -151,7 +153,7 @@ class SellerAuctionController extends Controller
             abort(403, 'Unauthorized access to auction lot.');
         }
 
-        $auction->load(['product', 'bids' => fn ($q) => $q->latest('id'), 'bids.user', 'winner']);
+        $auction->load(['product.primaryImage', 'product.images', 'product.category', 'bids' => fn ($q) => $q->latest('id'), 'bids.user', 'winner']);
 
         return view('seller.auctions.show', compact('seller', 'sellerProfile', 'auction'));
     }
@@ -172,7 +174,7 @@ class SellerAuctionController extends Controller
         }
 
         // Locate active live auction lot
-        $auction = Auction::with(['product', 'bids' => fn ($q) => $q->latest('id'), 'bids.user'])
+        $auction = Auction::with(['product.primaryImage', 'product.images', 'product.category', 'bids' => fn ($q) => $q->latest('id'), 'bids.user'])
             ->where('seller_id', $sellerProfile->id)
             ->where(function ($q) {
                 $q->where('status', 'live')
@@ -187,7 +189,7 @@ class SellerAuctionController extends Controller
 
         // Fallback to most recent auction if none currently live
         if (!$auction) {
-            $auction = Auction::with(['product', 'bids' => fn ($q) => $q->latest('id'), 'bids.user'])
+            $auction = Auction::with(['product.primaryImage', 'product.images', 'product.category', 'bids' => fn ($q) => $q->latest('id'), 'bids.user'])
                 ->where('seller_id', $sellerProfile->id)
                 ->latest('id')
                 ->first();

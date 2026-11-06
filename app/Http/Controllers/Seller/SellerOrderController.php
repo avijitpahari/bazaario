@@ -310,7 +310,7 @@ class SellerOrderController extends Controller
 
             // Financial breakdown
             $subtotal = (float) $sellerOrder->subtotal;
-            $commissionRate = (float) ($sellerOrder->commission_rate ?: 10.00);
+            $commissionRate = (float) ($sellerOrder->commission_rate ?: ($sellerOrder->seller?->getEffectiveCommissionRate() ?? SiteSetting::getCommissionRate(10.00)));
             $commissionAmount = round($subtotal * ($commissionRate / 100), 2);
 
             // Net payout calculation: respect existing payout_amount or compute standard
@@ -344,6 +344,9 @@ class SellerOrderController extends Controller
                 $payout->payout_reference = 'PO-' . strtoupper(Str::random(10));
             }
             $payout->save();
+
+            // Recalculate seller trust score on order fulfillment
+            $sellerOrder->seller?->sellerProfile?->recalculateTrustScore();
 
             // 3. Parent Order status synchronization: if all sub-orders fulfilled, mark parent completed
             if ($sellerOrder->order_id) {

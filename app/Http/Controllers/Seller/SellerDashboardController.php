@@ -62,6 +62,8 @@ class SellerDashboardController extends Controller
         $totalOrders = (int) ($orderAggregates->total_count ?? 0);
         $pendingOrdersCount = (int) ($orderAggregates->pending_count ?? 0);
         $grossRevenue = (float) ($orderAggregates->gross_revenue ?? 0.0);
+        $payoutGross = (float) Payout::where('seller_id', $sellerId)->sum('gross_amount');
+        $grossRevenue = max($grossRevenue, $payoutGross);
         $totalRevenue = $grossRevenue;
         $completedOrdersCount = (int) ($orderAggregates->completed_count ?? 0);
         $aov = $completedOrdersCount > 0 ? round($grossRevenue / $completedOrdersCount, 2) : 0.0;
@@ -85,6 +87,12 @@ class SellerDashboardController extends Controller
         $lowStockCount = (int) ($productAggregates->low_stock_count ?? 0);
         $criticalStockCount = (int) ($productAggregates->critical_stock_count ?? 0);
 
+        // Auto-recalculate trust score if approved merchant has completed/delivered orders and trust score was uninitialized (<= 0)
+        if ($profile && $profile->status === 'approved' && (float) $profile->trust_score <= 0 && $completedOrdersCount > 0) {
+            $profile->recalculateTrustScore();
+            $profile->refresh();
+        }
+
         // KPI 5: Seller Trust Score
         $trustScore = (float) ($profile?->trust_score ?? 94.0);
         $trustTier = $trustScore >= 90.0 ? 'Tier 1 Prime' : ($trustScore >= 80.0 ? 'Tier 2 Verified' : 'Standard');
@@ -102,10 +110,17 @@ class SellerDashboardController extends Controller
         $nextPayout = $pendingPayoutSum;
         $nextSettlementAmount = $pendingPayoutSum;
 
+        $totalSettledPayout = (float) Payout::where('seller_id', $sellerId)
+            ->where('status', 'paid')
+            ->sum('net_amount');
+
+        // Dynamic settlement display: if pending exists show next payout, otherwise show settled payout amount
+        $settlementDisplayAmount = $nextPayout > 0 ? $nextPayout : $totalSettledPayout;
+
         $bankAccountNumber = $profile?->bank_account_number;
         $maskedBank = $bankAccountNumber ? ('•••• ' . substr($bankAccountNumber, -4)) : 'Not configured';
         $bankAccountMasked = $maskedBank;
-        $nextPayoutDate = 'Payout Friday';
+        $nextPayoutDate = $nextPayout > 0 ? 'Payout Friday' : ($totalSettledPayout > 0 ? 'Settled (Paid)' : 'Payout Friday');
 
         $kpis = [
             'total_orders'          => $totalOrders,
@@ -414,6 +429,7 @@ class SellerDashboardController extends Controller
             'trustTier',
             'nextPayout',
             'nextSettlementAmount',
+            'settlementDisplayAmount',
             'maskedBank',
             'bankAccountMasked',
             'nextPayoutDate',

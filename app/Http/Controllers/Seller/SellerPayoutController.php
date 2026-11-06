@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Seller;
 use App\Http\Controllers\Controller;
 use App\Models\Payout;
 use App\Models\SellerOrder;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SellerPayoutController extends Controller
@@ -74,12 +77,27 @@ class SellerPayoutController extends Controller
         // Total Settled (Paid)
         $totalSettled = (float) $paidPayouts->sum('net_amount');
 
-        // Pending / Processing Escrow
+        // Pending / Processing Escrow from existing payouts
         $pendingProcessing = (float) $allPayouts->whereIn('status', ['pending', 'processing'])->sum('net_amount');
-        if ($pendingProcessing == 0 && $allPayouts->isEmpty()) {
-            $pendingProcessing = (float) SellerOrder::forSeller($sellerId)
-                ->whereIn('status', ['placed', 'pending', 'processing', 'packed', 'ready_for_pickup'])
-                ->sum('payout_amount');
+
+        // Also check if there are fulfilled/delivered orders that have not yet had a paid payout
+        $unsettledFulfilled = SellerOrder::forSeller($sellerId)
+            ->whereIn('status', ['fulfilled', 'delivered'])
+            ->where(function ($q) {
+                $q->whereDoesntHave('payout')
+                  ->orWhereHas('payout', function ($sub) {
+                      $sub->where('status', '!=', 'paid');
+                  });
+            })
+            ->get();
+
+        foreach ($unsettledFulfilled as $ord) {
+            $hasPayoutInAll = $allPayouts->contains(function ($p) use ($ord) {
+                return $p->seller_order_id == $ord->id && in_array($p->status, ['pending', 'processing']);
+            });
+            if (!$hasPayoutInAll) {
+                $pendingProcessing += (float) ($ord->payout_amount > 0 ? $ord->payout_amount : $ord->net_payout_calculated);
+            }
         }
 
         $totalCess = (float) $allPayouts->sum('apmc_cess');
@@ -112,27 +130,40 @@ class SellerPayoutController extends Controller
             'pending_processing'  => $pendingProcessing,
         ];
 
+        $effectiveRate = $sellerProfile ? $sellerProfile->getEffectiveCommissionRate() : SiteSetting::getCommissionRate(10.0);
+        $isCustomRate = ($sellerProfile && $sellerProfile->commission_rate !== null);
+
+        $tierLabel = $isCustomRate
+            ? 'Custom Agreement'
+            : ($sellerProfile?->seller_type === 'farmer' ? 'Tier 1 Prime Farmer' : 'Tier 1 Prime Merchant');
+
+        $tierSubtitle = $isCustomRate
+            ? 'Negotiated rate • Custom fee structure'
+            : ($sellerProfile?->seller_type === 'farmer' ? 'Prime Farmer rate • No hidden fees' : 'Platform Standard rate • No hidden fees');
+
         $summary = [
-            'lifetime_revenue'       => $lifetimeRevenue,
-            'platform_commission'    => $lifetimeCommission,
-            'total_settled'          => $totalSettled,
-            'pending_processing'     => $pendingProcessing,
-            'total_batches'          => $allPayouts->count(),
-            'paid_count'             => $paidPayouts->count(),
-            'processing_count'       => $processingPayouts->count(),
-            'pending_count'          => $pendingPayouts->count(),
-            'failed_count'           => $failedPayouts->count(),
-            'avg_payout'             => $avgPayout,
-            'total_apmc_cess'        => $totalCess,
-            'commission_tier'        => 'Tier 1 Prime Farmer',
-            'commission_rate'        => 10.0,
-            'commission_rate_string' => '10.0%',
-            'gst_exempt'             => true,
-            'next_cycle_date'        => $nextSettlementDate,
-            'bank_name'              => $bankName,
-            'masked_account'         => $maskedAccount,
-            'bank_ifsc'              => $bankIfsc,
-            'has_bank_details'       => $hasBankDetails,
+            'lifetime_revenue'         => $lifetimeRevenue,
+            'platform_commission'      => $lifetimeCommission,
+            'total_settled'            => $totalSettled,
+            'pending_processing'       => $pendingProcessing,
+            'total_batches'            => $allPayouts->count(),
+            'paid_count'               => $paidPayouts->count(),
+            'processing_count'         => $processingPayouts->count(),
+            'pending_count'            => $pendingPayouts->count(),
+            'failed_count'             => $failedPayouts->count(),
+            'avg_payout'               => $avgPayout,
+            'total_apmc_cess'          => $totalCess,
+            'commission_tier'          => $tierLabel,
+            'commission_tier_subtitle' => $tierSubtitle,
+            'commission_rate'          => $effectiveRate,
+            'commission_rate_string'   => number_format($effectiveRate, 1) . '%',
+            'is_custom_commission'     => $isCustomRate,
+            'gst_exempt'               => true,
+            'next_cycle_date'          => $nextSettlementDate,
+            'bank_name'                => $bankName,
+            'masked_account'           => $maskedAccount,
+            'bank_ifsc'                => $bankIfsc,
+            'has_bank_details'         => $hasBankDetails,
         ];
 
         return [
@@ -265,5 +296,113 @@ class SellerPayoutController extends Controller
             'payout'        => $payoutModel,
             'sellerProfile' => $seller->sellerProfile,
         ]);
+    }
+
+    /**
+     * Demo Action: Instantly settle pending payout amounts to the merchant's bank account.
+     */
+    public function demoSettle(Request $request): RedirectResponse
+    {
+        $seller = $this->getAuthenticatedSeller();
+        $sellerId = $seller->id;
+        $profile = $seller->sellerProfile;
+
+        // Auto-link test bank if missing so demo always succeeds seamlessly
+        if ($profile && empty($profile->bank_account_number)) {
+            $profile->bank_account_number = '918010023456789';
+            $profile->bank_ifsc = 'HDFC0001234';
+            $docStatuses = $profile->document_statuses ?? [];
+            $docStatuses['bank'] = 'uploaded';
+            $docStatuses['bank_verified'] = true;
+            $profile->document_statuses = $docStatuses;
+            $profile->save();
+        }
+
+        // 1. Check if any pending or processing payouts exist for this seller
+        $pendingPayouts = Payout::forSeller($sellerId)->whereIn('status', ['pending', 'processing'])->get();
+
+        // 2. If no pending payout record exists, check if there are fulfilled seller orders without paid payouts
+        if ($pendingPayouts->isEmpty()) {
+            $unsettledOrders = SellerOrder::forSeller($sellerId)
+                ->whereIn('status', ['fulfilled', 'delivered'])
+                ->where(function ($q) {
+                    $q->whereDoesntHave('payout')
+                      ->orWhereHas('payout', function ($sub) {
+                          $sub->where('status', '!=', 'paid');
+                      });
+                })
+                ->get();
+
+            foreach ($unsettledOrders as $order) {
+                $subtotal = (float) $order->subtotal;
+                $comm = (float) $order->commission_amount;
+                $cess = (float) $order->apmc_cess;
+                $net = (float) ($order->payout_amount > 0 ? $order->payout_amount : $order->net_payout_calculated);
+
+                $payout = Payout::firstOrNew(['seller_order_id' => $order->id]);
+                $payout->seller_id = $sellerId;
+                $payout->gross_amount = $subtotal;
+                $payout->commission_amount = $comm;
+                $payout->apmc_cess = $cess;
+                $payout->net_amount = $net;
+                if ($payout->status !== 'paid') {
+                    $payout->status = 'pending';
+                    $payout->payout_reference = $payout->payout_reference ?: ('PO-' . strtoupper(Str::random(10)));
+                    $payout->save();
+                    $pendingPayouts->push($payout);
+                }
+            }
+        }
+
+        // 3. If there are NO unsettled payouts or orders, stop here and do not create repeated fake vouchers
+        if ($pendingPayouts->isEmpty()) {
+            return redirect()->back(fallback: route('seller.payouts.index'))
+                ->with('info', 'No unsettled amount available. All earnings have already been settled to your bank account.');
+        }
+
+        $totalSettledAmount = 0;
+        $primaryRef = '';
+
+        foreach ($pendingPayouts as $payout) {
+            $ref = 'DEMO-NEFT-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+            if (empty($primaryRef)) {
+                $primaryRef = $ref;
+            }
+            $payout->update([
+                'status'           => 'paid',
+                'paid_at'          => now(),
+                'payout_reference' => $ref,
+            ]);
+            $totalSettledAmount += (float) $payout->net_amount;
+        }
+
+        $destAccount = $profile?->bank_account_number ? '•••• ' . substr($profile->bank_account_number, -4) : '•••• 6789';
+        $bankName = $profile?->bank_name ?: 'HDFC Bank';
+
+        return redirect()->back(fallback: route('seller.payouts.index'))->with('success', "🎉 Demo Settlement Completed! Successfully disbursed ₹" . number_format($totalSettledAmount, 2) . " to {$bankName} ({$destAccount}). Transfer Ref: {$primaryRef}");
+    }
+
+    /**
+     * Demo Action: Settle an individual pending payout.
+     */
+    public function demoSettleSingle(Request $request, $payout): RedirectResponse
+    {
+        $seller = $this->getAuthenticatedSeller();
+        $payoutRecord = $payout instanceof Payout ? $payout : Payout::findOrFail($payout);
+        $this->authorizePayoutOwnership($seller, $payoutRecord);
+
+        if ($payoutRecord->status === 'paid') {
+            return redirect()->back(fallback: route('seller.payouts.index'))
+                ->with('info', "This payout ({$payoutRecord->payout_number}) has already been settled to your bank account.");
+        }
+
+        $ref = 'DEMO-NEFT-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $payoutRecord->update([
+            'status'           => 'paid',
+            'paid_at'          => now(),
+            'payout_reference' => $ref,
+        ]);
+
+        return redirect()->back(fallback: route('seller.payouts.index'))->with('success', "🎉 Demo Settlement of ₹" . number_format($payoutRecord->net_amount, 2) . " released! Transfer Ref: {$ref}");
     }
 }

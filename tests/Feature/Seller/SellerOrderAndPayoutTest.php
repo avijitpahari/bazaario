@@ -845,4 +845,128 @@ class SellerOrderAndPayoutTest extends TestCase
         $response->assertDontSee('<script>alert("xss-order")</script>', false);
         $response->assertSee(e($xssNote), false);
     }
+
+    /**
+     * Test Demo Settlement: Seller can trigger instant demo settlement for accrued amounts.
+     */
+    public function test_seller_can_trigger_instant_demo_settlement(): void
+    {
+        $seller = $this->createApprovedSeller();
+        $buyer = $this->createBuyer();
+
+        // Create a pending payout
+        $payout = Payout::create([
+            'seller_id' => $seller->id,
+            'payout_number' => 'PO-DEMO-TEST-001',
+            'gross_amount' => 1000.00,
+            'commission_amount' => 100.00,
+            'apmc_cess' => 15.00,
+            'net_amount' => 885.00,
+            'status' => 'pending',
+            'orders_count' => 1,
+            'notes' => 'Pending weekly batch',
+        ]);
+
+        $response = $this->actingAs($seller, 'seller')->post(route('seller.payouts.demo-settle'));
+
+        $response->assertRedirect(route('seller.payouts.index'));
+        $response->assertSessionHas('success');
+
+        $payout->refresh();
+        $this->assertEquals('paid', $payout->status);
+        $this->assertNotNull($payout->paid_at);
+        $this->assertStringStartsWith('DEMO-NEFT-', $payout->payout_reference);
+    }
+
+    /**
+     * Test Demo Settlement for single payout.
+     */
+    public function test_seller_can_trigger_single_demo_payout_settlement(): void
+    {
+        $seller = $this->createApprovedSeller();
+
+        $payout = Payout::create([
+            'seller_id' => $seller->id,
+            'payout_number' => 'PO-DEMO-TEST-002',
+            'gross_amount' => 500.00,
+            'commission_amount' => 50.00,
+            'apmc_cess' => 7.50,
+            'net_amount' => 442.50,
+            'status' => 'processing',
+            'orders_count' => 1,
+        ]);
+
+        $response = $this->actingAs($seller, 'seller')->post(route('seller.payouts.demo-settle-single', $payout));
+
+        $response->assertRedirect(route('seller.payouts.index'));
+        $response->assertSessionHas('success');
+
+        $payout->refresh();
+        $this->assertEquals('paid', $payout->status);
+        $this->assertNotNull($payout->paid_at);
+        $this->assertStringStartsWith('DEMO-NEFT-', $payout->payout_reference);
+    }
+
+    /**
+     * Test Demo Settlement: When no unsettled amount is available, button is disabled and repeated settlement is rejected.
+     */
+    public function test_demo_settle_is_disabled_and_does_not_repeat_settle_when_zero_unsettled_amount(): void
+    {
+        $seller = $this->createApprovedSeller();
+
+        // 1. All payouts are already paid
+        $payout = Payout::create([
+            'seller_id' => $seller->id,
+            'payout_number' => 'PO-DEMO-TEST-PAID',
+            'gross_amount' => 1000.00,
+            'commission_amount' => 100.00,
+            'apmc_cess' => 15.00,
+            'net_amount' => 885.00,
+            'status' => 'paid',
+            'paid_at' => now(),
+            'payout_reference' => 'DEMO-NEFT-INITIAL',
+            'orders_count' => 1,
+        ]);
+
+        // Attempting to settle again should return info message and NOT create new payouts
+        $initialPayoutCount = Payout::forSeller($seller->id)->count();
+
+        $response = $this->actingAs($seller, 'seller')->post(route('seller.payouts.demo-settle'));
+        $response->assertRedirect(route('seller.payouts.index'));
+        $response->assertSessionHas('info');
+
+        // Verify no duplicate/fake payouts were created
+        $this->assertEquals($initialPayoutCount, Payout::forSeller($seller->id)->count());
+
+        // Verify the payouts index page renders the settlement button in disabled state
+        $pageResponse = $this->actingAs($seller, 'seller')->get(route('seller.payouts.index'));
+        $pageResponse->assertStatus(200);
+        $pageResponse->assertSee('disabled', false);
+        $pageResponse->assertSee('cursor-not-allowed', false);
+    }
+
+    /**
+     * Test Demo Settlement: Repeated settlement of already paid single payout is rejected.
+     */
+    public function test_demo_settle_single_rejects_already_paid_payout(): void
+    {
+        $seller = $this->createApprovedSeller();
+
+        $payout = Payout::create([
+            'seller_id' => $seller->id,
+            'payout_number' => 'PO-DEMO-TEST-ALREADY-PAID',
+            'gross_amount' => 500.00,
+            'commission_amount' => 50.00,
+            'apmc_cess' => 7.50,
+            'net_amount' => 442.50,
+            'status' => 'paid',
+            'paid_at' => now(),
+            'payout_reference' => 'DEMO-NEFT-EXISTING',
+            'orders_count' => 1,
+        ]);
+
+        $response = $this->actingAs($seller, 'seller')->post(route('seller.payouts.demo-settle-single', $payout));
+        $response->assertRedirect(route('seller.payouts.index'));
+        $response->assertSessionHas('info');
+    }
 }

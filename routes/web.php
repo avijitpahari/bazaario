@@ -268,7 +268,9 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
     Route::prefix('payouts')->name('payouts.')->group(function () {
         Route::get('/', [SellerPayoutController::class, 'index'])->name('index');
         Route::get('/summary', [SellerPayoutController::class, 'summary'])->name('summary');
+        Route::match(['GET', 'POST'], '/demo-settle', [SellerPayoutController::class, 'demoSettle'])->name('demo-settle');
         Route::get('/{payout}', [SellerPayoutController::class, 'show'])->name('show');
+        Route::match(['GET', 'POST'], '/{payout}/demo-settle', [SellerPayoutController::class, 'demoSettleSingle'])->name('demo-settle-single');
     });
 
     Route::prefix('auctions')->name('auctions.')->group(function () {

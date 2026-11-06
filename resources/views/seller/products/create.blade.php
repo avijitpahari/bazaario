@@ -17,32 +17,32 @@
         <!-- Top Navigation & Sticky Status Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-4">
             <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2 font-mono text-xs text-on-surface-variant">
-                    <a href="{{ route('seller.products.index') }}" class="hover:text-on-surface transition-colors">Products</a>
+                <div class="flex items-center gap-2 font-mono text-xs text-slate-500 mb-1">
+                    <a href="{{ route('seller.products.index') }}" class="hover:text-slate-900 transition-colors">Products</a>
                     <span>/</span>
-                    <span class="text-on-surface font-semibold">Add New Product</span>
+                    <span class="text-slate-900 font-semibold">Add New Product</span>
                 </div>
                 <div class="flex items-baseline gap-3 mt-1">
-                    <h1 class="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Add New Product</h1>
-                    <span class="font-mono text-xs px-2 py-0.5 rounded bg-surface-container-highest text-secondary uppercase font-semibold tracking-wider">
+                    <h1 class="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Add New Product</h1>
+                    <span class="font-mono text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 uppercase font-semibold tracking-wider border border-slate-200/80">
                         SKU: {{ $defaultSku }}
                     </span>
                 </div>
-                <p class="font-sans text-xs text-on-surface-variant">
+                <p class="font-sans text-xs sm:text-sm text-slate-500 mt-1">
                     List a new farm harvest or artisan item to local buyers and wholesale auction pools.
                 </p>
             </div>
 
             <!-- Header Action CTAs -->
             <div class="flex items-center gap-3 self-start md:self-auto">
-                <a href="{{ route('seller.products.index') }}" class="px-4 py-2.5 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors font-sans text-xs font-medium">
+                <a href="{{ route('seller.products.index') }}" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200/80 transition-colors font-sans text-xs font-semibold">
                     Cancel
                 </a>
-                <button type="submit" name="status" value="draft" class="px-4 py-2.5 rounded-[14px] bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-sans text-xs font-medium flex items-center gap-1.5">
+                <button type="submit" name="status" value="draft" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200/80 transition-colors font-sans text-xs font-semibold flex items-center gap-1.5 border border-slate-200/70">
                     <span class="material-symbols-outlined text-[18px]">bookmark</span>
                     <span>Save Draft</span>
                 </button>
-                <button type="submit" name="status" value="active" class="px-6 py-2.5 rounded-[14px] bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim transition-all shadow-sm font-heading font-semibold text-xs flex items-center gap-2">
+                <button type="submit" name="status" value="active" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-heading font-bold text-xs flex items-center gap-2 shadow-xs transition-all">
                     <span class="material-symbols-outlined text-[18px]">rocket_launch</span>
                     <span>Publish Product</span>
                 </button>
@@ -50,14 +50,14 @@
         </div>
 
         <!-- Unsaved Changes Notice Strip -->
-        <div class="mb-6 px-4 py-3 rounded-[14px] bg-surface-container-low flex items-center justify-between border border-[#E2DFD7]/60">
+        <div class="mb-6 px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between shadow-2xs">
             <div class="flex items-center gap-2.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-secondary-container animate-pulse"></span>
-                <span class="font-sans text-xs text-on-surface">Auto-saved to local draft storage.</span>
-                <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant uppercase">Version 1.0</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span class="font-sans text-xs text-slate-700 font-medium">Auto-saved to local draft storage.</span>
+                <span class="font-mono text-[10px] px-2 py-0.5 rounded-md bg-slate-200/80 text-slate-700 font-bold uppercase">Version 1.0</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="font-mono text-xs text-on-surface-variant">Origin Seller: {{ $sellerProfile?->shop_name ?? ($sellerUser?->name ?? 'Verified Farmer') }}</span>
+                <span class="font-mono text-xs text-slate-500">Origin Seller: <strong class="text-slate-800">{{ $sellerProfile?->shop_name ?? ($sellerUser?->name ?? 'Verified Farmer') }}</strong></span>
             </div>
         </div>
 
@@ -538,83 +538,117 @@
                 </section>
 
                 <!-- Section 4: Farmer-Specific Agronomic Ledger (Visible only for Organic Food category) -->
-                <section id="agronomic-ledger-section" class="bg-surface-container-lowest rounded-[14px] p-6 shadow-sm flex flex-col gap-4 border border-[#E2DFD7]/50 transition-all duration-300">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface font-bold">SECTION 04</span>
-                            <h2 class="font-heading text-lg font-bold text-on-surface">Farmer-Specific Agronomic Ledger</h2>
+                <section id="agronomic-ledger-section" class="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200/90 flex flex-col gap-6 transition-all hover:shadow-sm">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs">
+                                <span class="material-symbols-outlined text-[20px]">eco</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-[11px] font-bold text-slate-400 uppercase tracking-wider">SECTION 04</span>
+                                    <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 font-mono">Organic Produce Track</span>
+                                </div>
+                                <h2 class="font-heading text-lg font-bold text-slate-900 mt-0.5">Farmer-Specific Agronomic Ledger</h2>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-[6px] bg-tertiary-fixed-dim/20 text-on-tertiary-container">
-                            <span class="material-symbols-outlined text-[16px]">eco</span>
-                            <span class="font-mono text-[10px] font-bold uppercase">Organic Produce Track</span>
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60 text-emerald-800 text-xs font-semibold shadow-2xs">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span>
+                            <span class="font-mono text-[10px] uppercase tracking-wider">APMC Traceability</span>
                         </div>
                     </div>
 
-                    <div class="p-3 bg-amber-50/80 border border-amber-200/90 rounded-[12px] flex items-center gap-2.5 text-amber-950 text-xs shadow-2xs">
+                    <div class="p-3.5 bg-amber-50/80 border border-amber-200/90 rounded-xl flex items-center gap-2.5 text-amber-950 text-xs shadow-2xs">
                         <span class="material-symbols-outlined text-amber-600 text-[18px]">verified</span>
                         <span>This Agronomic Ledger is active specifically for the <strong>Organic Food</strong> category to ensure farm-gate traceability and harvest fresh delivery.</span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                         <div class="flex flex-col gap-2">
-                            <label for="farm-origin" class="font-sans text-xs font-semibold text-on-surface-variant">Farm Origin &amp; Plot Code</label>
-                            <input type="text" name="farm_origin" id="farm-origin" value="{{ old('farm_origin', $sellerProfile?->address ?? 'Green Valley Farm, Sector 4 Block C, Ratnagiri') }}" class="w-full h-12 px-4 rounded-[14px] bg-surface-container-low text-on-surface font-sans text-xs outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-brand-amber transition-colors border-none">
+                            <label for="farm-origin" class="font-sans text-xs font-bold text-slate-800 flex items-center justify-between">
+                                <span>Farm Origin &amp; Plot Code</span>
+                                <span class="text-[10px] font-mono text-slate-400">Harvest Geo-Tag</span>
+                            </label>
+                            <div class="relative flex items-center">
+                                <span class="material-symbols-outlined absolute left-3.5 text-slate-400 text-[18px] pointer-events-none">pin_drop</span>
+                                <input type="text" 
+                                       name="farm_origin" 
+                                       id="farm-origin" 
+                                       value="{{ old('farm_origin', $sellerProfile?->address ?? 'Green Valley Farm, Sector 4 Block C, Ratnagiri') }}" 
+                                       placeholder="e.g. Green Valley Farm, Ratnagiri"
+                                       class="w-full h-12 pl-10 pr-4 rounded-xl bg-slate-50/60 hover:bg-white focus:bg-white text-slate-900 font-sans text-xs outline-none border border-slate-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all shadow-2xs">
+                            </div>
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label for="harvest-date" class="font-sans text-xs font-semibold text-on-surface-variant">Harvest Date</label>
-                            <input type="date" name="harvest_date" id="harvest-date" value="{{ old('harvest_date', date('Y-m-d')) }}" class="w-full h-12 px-4 rounded-[14px] bg-surface-container-low text-on-surface font-mono text-xs outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-brand-amber transition-colors border-none">
+                            <label for="harvest-date" class="font-sans text-xs font-bold text-slate-800 flex items-center justify-between">
+                                <span>Harvest Date</span>
+                                <span class="text-[10px] font-mono text-slate-400">Field Cutting</span>
+                            </label>
+                            <input type="date" 
+                                   name="harvest_date" 
+                                   id="harvest-date" 
+                                   value="{{ old('harvest_date', date('Y-m-d')) }}" 
+                                   class="w-full h-12 px-4 rounded-xl bg-slate-50/60 hover:bg-white focus:bg-white text-slate-900 font-mono text-xs outline-none border border-slate-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all shadow-2xs">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                         <div class="flex flex-col gap-2">
-                            <label for="expiry-window" class="font-sans text-xs font-semibold text-on-surface-variant">Peak Freshness Shelf Window</label>
+                            <label for="expiry-window" class="font-sans text-xs font-bold text-slate-800 flex items-center justify-between">
+                                <span>Peak Freshness Shelf Window</span>
+                                <span class="text-[10px] font-mono text-emerald-600 font-semibold">Decay Guard</span>
+                            </label>
                             <div class="relative">
-                                <select name="expiry_days" id="expiry-window" class="w-full h-12 pl-4 pr-10 rounded-[14px] bg-surface-container-low text-on-surface font-sans text-xs outline-none appearance-none cursor-pointer border-none">
+                                <select name="expiry_days" 
+                                        id="expiry-window" 
+                                        class="w-full h-12 pl-4 pr-10 rounded-xl bg-slate-50/60 hover:bg-white focus:bg-white text-slate-900 font-sans text-xs outline-none border border-slate-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all shadow-2xs appearance-none cursor-pointer">
                                     <option value="3">3 Days from harvest</option>
                                     <option value="5" selected>5 Days from harvest</option>
                                     <option value="7">7 Days from harvest</option>
                                     <option value="10">10 Days from harvest</option>
                                     <option value="14">14+ Days (Cold Storage Preserved)</option>
                                 </select>
-                                <span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-on-surface-variant text-[20px]">schedule</span>
+                                <span class="material-symbols-outlined pointer-events-none absolute right-3.5 top-3.5 text-slate-400 text-[18px]">schedule</span>
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label class="font-sans text-xs font-semibold text-on-surface-variant">Quality Validation Index</label>
-                            <div class="h-12 px-4 rounded-[14px] bg-surface-container-low flex items-center justify-between">
-                                <span class="font-sans text-xs text-on-surface font-medium">Brix Sweetness Score</span>
-                                <span class="font-mono text-xs px-2 py-0.5 rounded bg-surface-container-highest font-bold text-on-tertiary-container">19.4° Bx</span>
+                            <label class="font-sans text-xs font-bold text-slate-800 flex items-center justify-between">
+                                <span>Quality Validation Index</span>
+                                <span class="text-[10px] font-mono text-slate-400">Spectrometry</span>
+                            </label>
+                            <div class="h-12 px-4 rounded-xl bg-slate-50/80 border border-slate-200/90 flex items-center justify-between shadow-2xs">
+                                <span class="font-sans text-xs text-slate-700 font-medium">Brix Sweetness Score</span>
+                                <span class="font-mono text-xs px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold border border-emerald-200/80">19.4° Bx</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Automated Stale Listing Options -->
-                    <div class="flex flex-col gap-3 mt-1 p-4 rounded-[14px] bg-surface-container-low">
-                        <span class="font-heading text-sm font-semibold text-on-surface flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary text-[18px]">rule_settings</span>
+                    <div class="flex flex-col gap-3 p-4 rounded-xl bg-slate-50/80 border border-slate-200/80">
+                        <span class="font-heading text-xs font-bold text-slate-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-600 text-[18px]">verified_user</span>
                             Automated Freshness Guardrails
                         </span>
-                        <div class="flex flex-col gap-3 mt-1">
+                        <div class="flex flex-col gap-3 mt-0.5">
                             <label class="flex items-start gap-3 cursor-pointer select-none">
-                                <input type="checkbox" name="is_perishable" value="1" checked class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer">
+                                <input type="checkbox" name="is_perishable" value="1" checked class="mt-0.5 w-4 h-4 rounded text-amber-500 focus:ring-amber-500/20 cursor-pointer accent-amber-500">
                                 <div class="flex flex-col">
-                                    <span class="font-sans text-xs font-semibold text-on-surface">Automatically flag as STALE when within 24 hours of expiry window</span>
-                                    <span class="font-sans text-[11px] text-on-surface-variant">Sends urgent price markdown suggestions or wholesale auction prompt.</span>
+                                    <span class="font-sans text-xs font-semibold text-slate-800">Automatically flag as STALE when within 24 hours of expiry window</span>
+                                    <span class="font-sans text-[11px] text-slate-500">Sends urgent price markdown suggestions or wholesale auction prompt.</span>
                                 </div>
                             </label>
                             <label class="flex items-start gap-3 cursor-pointer select-none">
-                                <input type="checkbox" name="auto_hide_expired" value="1" checked class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer">
+                                <input type="checkbox" name="auto_hide_expired" value="1" checked class="mt-0.5 w-4 h-4 rounded text-amber-500 focus:ring-amber-500/20 cursor-pointer accent-amber-500">
                                 <div class="flex flex-col">
-                                    <span class="font-sans text-xs font-semibold text-on-surface">Automatically hide listing when harvest expiry window lapses</span>
-                                    <span class="font-sans text-[11px] text-on-surface-variant">Protects farmer trust score against stale produce disputes.</span>
+                                    <span class="font-sans text-xs font-semibold text-slate-800">Automatically hide listing when harvest expiry window lapses</span>
+                                    <span class="font-sans text-[11px] text-slate-500">Protects farmer trust score against stale produce disputes.</span>
                                 </div>
                             </label>
                         </div>
-                        <div class="mt-1 pt-2 flex items-center gap-2 text-on-surface-variant border-t border-surface-container-highest">
-                            <span class="material-symbols-outlined text-[16px] text-secondary">shield</span>
+                        <div class="pt-2 flex items-center gap-2 text-slate-500 border-t border-slate-200/70">
+                            <span class="material-symbols-outlined text-[16px] text-amber-600">info</span>
                             <span class="font-mono text-[10px]">Note: Bazaario never silently deletes products; expired goods will be moved to Hidden / Restock archive.</span>
                         </div>
                     </div>
@@ -625,127 +659,135 @@
             <div class="lg:col-span-5 flex flex-col gap-6">
 
                 <!-- Section 5: Product Media & Visuals -->
-                <section class="bg-surface-container-lowest rounded-[14px] p-6 shadow-sm flex flex-col gap-4 border border-[#E2DFD7]/50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface font-bold">SECTION 05</span>
-                            <h2 class="font-heading text-lg font-bold text-on-surface">Media &amp; Visuals</h2>
+                <section class="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200/90 flex flex-col gap-6 transition-all hover:shadow-sm">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-[20px]">photo_library</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-[11px] font-bold text-slate-400 uppercase tracking-wider">SECTION 05</span>
+                                    <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 font-mono">Catalog Assets</span>
+                                </div>
+                                <h2 class="font-heading text-lg font-bold text-slate-900 mt-0.5">Media &amp; Visuals</h2>
+                            </div>
                         </div>
-                        <span id="selected-photos-count" class="font-mono text-[11px] text-on-surface-variant font-semibold">0 / 6 photos selected</span>
+                        <span id="selected-photos-count" class="font-mono text-xs text-slate-500 font-semibold bg-slate-50 px-3 py-1 rounded-full border border-slate-200/80">0 / 6 photos selected</span>
                     </div>
 
                     <!-- Hidden input to store primary image index -->
                     <input type="hidden" name="primary_image_index" id="primary-image-index" value="0">
 
                     <!-- Drag & Drop Target Area -->
-                    <div id="product-dropzone" class="relative p-6 rounded-[14px] bg-surface-container-low flex flex-col items-center justify-center text-center transition-all cursor-pointer group hover:bg-surface-container-high border-2 border-dashed border-surface-container-highest">
+                    <div id="product-dropzone" class="relative p-6 sm:p-7 rounded-2xl bg-slate-50/70 hover:bg-slate-50 flex flex-col items-center justify-center text-center transition-all cursor-pointer group border-2 border-dashed border-slate-300 hover:border-amber-400">
                         <input type="file" id="product-images-input" name="images[]" multiple accept="image/jpeg,image/png,image/webp,image/jpg" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
-                        <div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-secondary text-[24px]">cloud_upload</span>
+                        <div class="w-12 h-12 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center shadow-2xs mb-3 group-hover:scale-110 text-amber-600 transition-transform">
+                            <span class="material-symbols-outlined text-[24px]">cloud_upload</span>
                         </div>
-                        <span class="font-heading text-sm font-semibold text-on-surface">Drag &amp; drop high-resolution harvest photos here</span>
-                        <span class="font-sans text-xs text-on-surface-variant mt-1">or <span class="text-amber-800 font-semibold group-hover:text-amber-700 transition-colors">browse files</span> from your local device</span>
-                        <span class="font-mono text-[10px] text-on-surface-variant mt-2 uppercase">PNG, JPG, WEBP up to 10MB each. Max 6 photos.</span>
+                        <span class="font-heading text-sm font-bold text-slate-900">Drag &amp; drop high-resolution harvest photos here</span>
+                        <span class="font-sans text-xs text-slate-500 mt-1">or <span class="text-amber-600 font-semibold group-hover:text-amber-700 transition-colors">browse files</span> from your local device</span>
+                        <span class="font-mono text-[10px] text-slate-400 mt-2 uppercase">PNG, JPG, WEBP up to 10MB each. Max 6 photos.</span>
                     </div>
 
                     <!-- Image Previews Mosaic / Gallery Stream -->
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2.5">
                         <div class="flex items-center justify-between">
-                            <span class="font-sans text-xs font-semibold text-on-surface-variant">Selected Gallery Stream</span>
-                            <span id="gallery-status-hint" class="font-mono text-[10px] text-on-surface-variant">First photo is set as Primary</span>
+                            <span class="font-sans text-xs font-bold text-slate-800">Selected Gallery Stream</span>
+                            <span id="gallery-status-hint" class="font-mono text-[10px] text-slate-400">First photo is set as Primary</span>
                         </div>
 
                         <!-- Dynamic Grid populated via JavaScript -->
                         <div id="gallery-preview-grid" class="grid grid-cols-3 gap-2.5 min-h-[96px]">
                             <!-- Empty State Placeholder Slots -->
-                            <div class="relative rounded-[12px] overflow-hidden bg-surface-container border border-dashed border-surface-container-highest h-24 flex flex-col items-center justify-center text-on-surface-variant/60">
+                            <div class="relative rounded-xl overflow-hidden bg-slate-50 border border-dashed border-slate-300 h-24 flex flex-col items-center justify-center text-slate-400">
                                 <span class="material-symbols-outlined text-[24px]">add_photo_alternate</span>
                                 <span class="font-mono text-[9px] mt-1">Slot 1 (Primary)</span>
                             </div>
-                            <div class="relative rounded-[12px] overflow-hidden bg-surface-container border border-dashed border-surface-container-highest h-24 flex flex-col items-center justify-center text-on-surface-variant/60">
+                            <div class="relative rounded-xl overflow-hidden bg-slate-50 border border-dashed border-slate-300 h-24 flex flex-col items-center justify-center text-slate-400">
                                 <span class="material-symbols-outlined text-[24px]">add_photo_alternate</span>
                                 <span class="font-mono text-[9px] mt-1">Slot 2</span>
                             </div>
-                            <div class="relative rounded-[12px] overflow-hidden bg-surface-container border border-dashed border-surface-container-highest h-24 flex flex-col items-center justify-center text-on-surface-variant/60">
+                            <div class="relative rounded-xl overflow-hidden bg-slate-50 border border-dashed border-slate-300 h-24 flex flex-col items-center justify-center text-slate-400">
                                 <span class="material-symbols-outlined text-[24px]">add_photo_alternate</span>
                                 <span class="font-mono text-[9px] mt-1">Slot 3</span>
                             </div>
                         </div>
                     </div>
 
-                    <div id="upload-feedback-strip" class="flex items-center justify-between p-2.5 rounded-[10px] bg-surface-container-low text-[11px] text-on-surface-variant font-mono">
-                        <span class="flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px] text-on-tertiary-container">check_circle</span> Multi-photo ready
+                    <div id="upload-feedback-strip" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 font-mono">
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[15px] text-emerald-600">check_circle</span> Multi-photo ready
                         </span>
-                        <span>SRGB profile embedded</span>
+                        <span class="text-slate-400">sRGB color profile auto-optimized</span>
                     </div>
                 </section>
 
                 <!-- Section 6: Quick Live Listing Preview Card (Sticky) -->
-                <section class="bg-surface-container-lowest rounded-[14px] p-6 shadow-sm flex flex-col gap-4 sticky top-20 border border-[#E2DFD7]/50">
-                    <div class="flex items-center justify-between">
+                <section class="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200/90 flex flex-col gap-5 sticky top-20">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                         <div class="flex items-center gap-2">
-                            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-bold">PREVIEW</span>
-                            <h2 class="font-heading text-lg font-bold text-on-surface">Buyer View Simulation</h2>
+                            <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-bold uppercase tracking-wider">PREVIEW</span>
+                            <h2 class="font-heading text-lg font-bold text-slate-900">Buyer View Simulation</h2>
                         </div>
-                        <span class="flex items-center gap-1.5 font-mono text-[10px] text-on-tertiary-container font-bold uppercase">
-                            <span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span> Live Synced
+                        <span class="flex items-center gap-1.5 font-mono text-[10px] text-emerald-700 font-bold uppercase bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> Live Synced
                         </span>
                     </div>
-                    <p class="font-sans text-xs text-on-surface-variant">
+                    <p class="font-sans text-xs text-slate-500 leading-relaxed">
                         This preview dynamically renders the consumer product card as displayed in the Bazaario consumer app &amp; wholesale buyer auction portal.
                     </p>
 
                     <!-- Simulated Consumer Marketplace Card -->
-                    <div class="w-full rounded-[14px] overflow-hidden bg-surface-container-low shadow-md transition-all hover:shadow-lg flex flex-col border border-surface-container-high">
+                    <div class="w-full rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-lg transition-all flex flex-col border border-slate-200/90">
                         <!-- Card Image with Badges -->
-                        <div class="relative w-full h-44 bg-surface-container-high overflow-hidden">
+                        <div class="relative w-full h-44 bg-slate-100 overflow-hidden">
                             <img id="preview-card-image" src="{{ asset('images/product-placeholder.svg') }}" alt="Product Preview" class="w-full h-full object-cover transition-opacity duration-200">
                             <div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5" id="preview-organic-badges">
-                                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-on-tertiary-container text-white shadow-sm uppercase">Harvested Today</span>
-                                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-white text-on-surface shadow-sm uppercase flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[13px] text-on-tertiary-container">verified</span> GI Tagged
+                                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-700 text-white shadow-xs uppercase">Harvested Today</span>
+                                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-slate-800 shadow-xs uppercase flex items-center gap-1 border border-slate-200">
+                                    <span class="material-symbols-outlined text-[13px] text-emerald-600">verified</span> GI Tagged
                                 </span>
                             </div>
                             <div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 hidden" id="preview-standard-badges">
-                                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-white text-on-surface shadow-sm uppercase flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[13px] text-primary">verified</span> Verified SKU
+                                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-slate-800 shadow-xs uppercase flex items-center gap-1 border border-slate-200">
+                                    <span class="material-symbols-outlined text-[13px] text-amber-600">verified</span> Verified SKU
                                 </span>
                             </div>
-                            <div class="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-[8px] bg-primary text-white font-mono text-[10px] font-semibold flex items-center gap-1 shadow-md">
-                                <span class="material-symbols-outlined text-[13px] text-secondary-container">shield</span>
+                            <div class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-slate-900/90 backdrop-blur-xs text-amber-300 font-mono text-[10px] font-semibold flex items-center gap-1 shadow-md border border-white/10">
+                                <span class="material-symbols-outlined text-[13px] text-amber-400">shield</span>
                                 <span>Score: 94/100</span>
                             </div>
                         </div>
 
                         <!-- Card Content -->
                         <div class="p-4 flex flex-col gap-2">
-                            <div class="flex items-center justify-between text-xs text-on-surface-variant">
-                                <span class="font-mono text-[10px] uppercase tracking-wider font-semibold">{{ $sellerProfile?->shop_name ?? 'Green Valley Farm' }}</span>
-                                <span class="flex items-center gap-1 font-mono text-[11px]">
-                                    <span class="material-symbols-outlined text-[14px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+                            <div class="flex items-center justify-between text-xs text-slate-500">
+                                <span class="font-mono text-[10px] uppercase tracking-wider font-semibold text-slate-600">{{ $sellerProfile?->shop_name ?? 'Green Valley Farm' }}</span>
+                                <span class="flex items-center gap-1 font-mono text-[11px] text-slate-600">
+                                    <span class="material-symbols-outlined text-[14px] text-amber-500 fill-1">star</span>
                                     4.9 (128 reviews)
                                 </span>
                             </div>
-                            <h3 class="font-heading text-base text-on-surface font-semibold leading-tight line-clamp-1" id="preview-card-title">
+                            <h3 class="font-heading text-base text-slate-900 font-bold leading-tight line-clamp-1" id="preview-card-title">
                                 Organic Ratnagiri Alphonso Mango
                             </h3>
-                            <p class="font-sans text-xs text-on-surface-variant line-clamp-2">
+                            <p class="font-sans text-xs text-slate-500 line-clamp-2">
                                 Naturally tree-ripened, chemical carbide free with Brix sweetness score above 19°.
                             </p>
 
                             <!-- Price with Strike-through & Unit -->
                             <div class="flex items-baseline justify-between pt-2">
                                 <div class="flex items-baseline gap-2">
-                                    <span class="font-heading text-lg font-bold text-on-surface" id="preview-final-price">₹315</span>
-                                    <span class="font-mono text-xs text-on-surface-variant line-through" id="preview-base-price">₹350</span>
-                                    <span class="font-mono text-xs font-bold text-secondary" id="preview-unit-suffix">/ kg</span>
+                                    <span class="font-heading text-lg font-black text-slate-900" id="preview-final-price">₹315</span>
+                                    <span class="font-mono text-xs text-slate-400 line-through" id="preview-base-price">₹350</span>
+                                    <span class="font-mono text-xs font-bold text-slate-600" id="preview-unit-suffix">/ kg</span>
                                 </div>
-                                <span class="font-mono text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-secondary-container/30 text-on-secondary-container">
+                                <span class="font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/80">
                                     10% OFF
                                 </span>
                             </div>
-                            <button type="button" class="w-full mt-2 h-10 rounded-[10px] bg-primary text-white font-sans text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors">
+                            <button type="button" class="w-full mt-2 h-10 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-sans text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-2xs">
                                 <span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
                                 <span>Simulate Buyer Cart</span>
                             </button>
@@ -754,11 +796,11 @@
 
                     <!-- Sticky Card Bottom Actions -->
                     <div class="flex items-center gap-3 pt-2">
-                        <button type="submit" name="status" value="active" class="flex-1 h-12 rounded-[14px] bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim transition-all shadow-sm font-heading text-xs font-bold flex items-center justify-center gap-2">
+                        <button type="submit" name="status" value="active" class="flex-1 h-12 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-heading text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all">
                             <span class="material-symbols-outlined text-[18px]">check</span>
                             <span>Publish Listing</span>
                         </button>
-                        <button type="reset" class="px-4 h-12 rounded-[14px] bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-sans text-xs font-medium">
+                        <button type="reset" class="px-5 h-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans text-xs font-semibold transition-colors">
                             Reset
                         </button>
                     </div>
@@ -1058,10 +1100,10 @@
 
             for (let i = 0; i < 3; i++) {
                 const emptySlot = document.createElement('div');
-                emptySlot.className = 'relative rounded-[12px] overflow-hidden bg-surface-container border border-dashed border-surface-container-highest h-24 flex flex-col items-center justify-center text-on-surface-variant/60';
+                emptySlot.className = 'relative rounded-xl overflow-hidden bg-slate-50 border border-dashed border-slate-300 h-24 flex flex-col items-center justify-center text-slate-400';
                 emptySlot.innerHTML = `
                     <span class="material-symbols-outlined text-[24px]">add_photo_alternate</span>
-                    <span class="font-mono text-[9px] mt-1">Slot ${i + 1} ${i === 0 ? '(Primary)' : ''}</span>
+                    <span class="font-mono text-[9px] mt-1 font-semibold">Slot ${i + 1} ${i === 0 ? '(Primary)' : ''}</span>
                 `;
                 galleryGrid.appendChild(emptySlot);
             }
@@ -1085,17 +1127,17 @@
             }
 
             const tile = document.createElement('div');
-            tile.className = 'relative group rounded-[12px] overflow-hidden bg-surface-container-high h-24 border-2 transition-all ' + 
-                (isPrimary ? 'border-secondary shadow-md ring-1 ring-secondary/30' : 'border-transparent hover:border-surface-container-highest');
+            tile.className = 'relative group rounded-xl overflow-hidden bg-slate-100 h-24 border-2 transition-all ' + 
+                (isPrimary ? 'border-amber-500 shadow-md ring-2 ring-amber-400/30' : 'border-slate-200 hover:border-slate-300');
 
             tile.innerHTML = `
                 <img src="${objectUrl}" alt="Photo ${index + 1}" class="w-full h-full object-cover">
                 
                 ${isPrimary 
-                    ? `<span class="absolute top-1.5 left-1.5 font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-secondary text-white shadow-sm flex items-center gap-0.5">
+                    ? `<span class="absolute top-1.5 left-1.5 font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 shadow-sm flex items-center gap-0.5">
                          <span class="material-symbols-outlined text-[10px]">star</span> Primary
                        </span>`
-                    : `<button type="button" onclick="setPrimaryImage(${index})" class="absolute top-1.5 left-1.5 font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-black/60 hover:bg-secondary text-white shadow-sm transition-colors cursor-pointer opacity-90 group-hover:opacity-100">
+                    : `<button type="button" onclick="setPrimaryImage(${index})" class="absolute top-1.5 left-1.5 font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-black/60 hover:bg-slate-900 text-white shadow-sm transition-colors cursor-pointer opacity-90 group-hover:opacity-100">
                          Set Primary
                        </button>`
                 }
@@ -1115,10 +1157,10 @@
         // If fewer than 6 photos, add an add-more placeholder tile
         if (selectedFiles.length < 6) {
             const addTile = document.createElement('div');
-            addTile.className = 'relative rounded-[12px] overflow-hidden bg-surface-container-low border border-dashed border-surface-container-highest h-24 flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer';
+            addTile.className = 'relative rounded-xl overflow-hidden bg-slate-50 border border-dashed border-slate-300 h-24 flex flex-col items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer';
             addTile.onclick = () => fileInput && fileInput.click();
             addTile.innerHTML = `
-                <span class="material-symbols-outlined text-[20px] text-secondary">add_circle</span>
+                <span class="material-symbols-outlined text-[20px] text-amber-600">add_circle</span>
                 <span class="font-mono text-[9px] mt-1 font-semibold">Add More</span>
             `;
             galleryGrid.appendChild(addTile);
@@ -1199,7 +1241,7 @@
             dropzone.addEventListener(eventName, (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                dropzone.classList.add('border-secondary', 'bg-surface-container-high', 'ring-2', 'ring-secondary/20');
+                dropzone.classList.add('border-amber-500', 'bg-amber-50/40', 'ring-2', 'ring-amber-500/20');
             }, false);
         });
 
@@ -1207,7 +1249,7 @@
             dropzone.addEventListener(eventName, (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                dropzone.classList.remove('border-secondary', 'bg-surface-container-high', 'ring-2', 'ring-secondary/20');
+                dropzone.classList.remove('border-amber-500', 'bg-amber-50/40', 'ring-2', 'ring-amber-500/20');
             }, false);
         });
 

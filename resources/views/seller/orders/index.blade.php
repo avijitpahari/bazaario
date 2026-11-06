@@ -452,6 +452,7 @@
                     $commVal = (float) $activeOrder->commission_amount;
                     $cessVal = (float) $activeOrder->apmc_cess;
                     $netVal = (float) ($activeOrder->payout_amount > 0 ? $activeOrder->payout_amount : $activeOrder->net_payout_calculated);
+                    $commRateVal = (float) ($activeOrder->commission_rate ?: ($grossVal > 0 && $commVal > 0 ? round(($commVal / $grossVal) * 100, 1) : \App\Models\SiteSetting::getCommissionRate()));
                 @endphp
                 <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col gap-5 sticky top-20">
                     <!-- Detail Header -->
@@ -583,53 +584,125 @@
                     </div>
 
                     <!-- Fulfillment Milestones Stepper -->
+                    @php
+                        $statusRank = match($activeStatus) {
+                            'placed', 'pending' => 1,
+                            'confirmed' => 2,
+                            'processing', 'packed' => 3,
+                            'ready_for_pickup' => 4,
+                            'fulfilled', 'shipped' => 5,
+                            'delivered' => 6,
+                            default => 1,
+                        };
+                    @endphp
                     <div class="flex flex-col gap-2.5 pt-1">
                         <span class="font-mono text-[11px] uppercase tracking-wider text-slate-500 font-bold">Fulfillment Milestones</span>
-                        <div class="flex flex-col gap-3 relative pl-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-                            <div class="relative flex items-center justify-between text-xs">
-                                <div class="absolute -left-6 w-4 h-4 rounded-full bg-emerald-600 flex items-center justify-center text-white text-[10px]">
-                                    <span class="material-symbols-outlined text-[12px]">check</span>
+                        <div class="relative pl-7 flex flex-col gap-3 font-sans text-xs">
+                            <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+                            <!-- 1. Pending Placed -->
+                            <div class="relative flex items-center justify-between">
+                                <div class="absolute -left-7 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                                    <span class="material-symbols-outlined text-[13px] font-bold leading-none">check</span>
                                 </div>
                                 <span class="text-slate-800 font-medium">Pending Placed</span>
                                 <span class="font-mono text-[10px] text-slate-400">13:42</span>
                             </div>
-                            <div class="relative flex items-center justify-between text-xs">
-                                <div class="absolute -left-6 w-4 h-4 rounded-full {{ in_array($activeStatus, ['confirmed', 'processing', 'packed', 'ready_for_pickup', 'fulfilled', 'delivered', 'shipped']) ? 'bg-emerald-600 text-white' : 'bg-slate-200' }} flex items-center justify-center text-[10px]">
-                                    <span class="material-symbols-outlined text-[12px]">check</span>
-                                </div>
-                                <span class="text-slate-800 font-medium">Order Confirmed</span>
-                                <span class="font-mono text-[10px] text-slate-400">13:45</span>
+                            <!-- 2. Order Confirmed -->
+                            <div class="relative flex items-center justify-between">
+                                @if($statusRank >= 2)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                                        <span class="material-symbols-outlined text-[13px] font-bold leading-none">check</span>
+                                    </div>
+                                    <span class="text-slate-800 font-medium">Order Confirmed</span>
+                                    <span class="font-mono text-[10px] text-slate-400">13:45</span>
+                                @else
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-slate-100 border border-slate-300 text-slate-400 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                    </div>
+                                    <span class="text-slate-400">Order Confirmed</span>
+                                    <span class="font-mono text-[10px] text-slate-400">Pending</span>
+                                @endif
                             </div>
-                            <div class="relative flex items-center justify-between text-xs">
-                                <div class="absolute -left-6 w-4 h-4 rounded-full {{ in_array($activeStatus, ['processing', 'packed', 'ready_for_pickup', 'fulfilled', 'delivered', 'shipped']) ? 'bg-emerald-600 text-white' : 'bg-slate-200' }} flex items-center justify-center text-[10px]">
-                                    <span class="material-symbols-outlined text-[12px]">check</span>
-                                </div>
-                                <span class="text-slate-800 font-medium">Packed &amp; Sealed</span>
-                                <span class="font-mono text-[10px] text-slate-400">14:10</span>
+
+                            <!-- 3. Packed & Sealed -->
+                            <div class="relative flex items-center justify-between">
+                                @if($statusRank >= 3)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                                        <span class="material-symbols-outlined text-[13px] font-bold leading-none">check</span>
+                                    </div>
+                                    <span class="text-slate-800 font-medium">Packed &amp; Sealed</span>
+                                    <span class="font-mono text-[10px] text-slate-400">14:10</span>
+                                @else
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-slate-100 border border-slate-300 text-slate-400 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                    </div>
+                                    <span class="text-slate-400">Packed &amp; Sealed</span>
+                                    <span class="font-mono text-[10px] text-slate-400">Pending</span>
+                                @endif
                             </div>
-                            <div class="relative flex items-center justify-between text-xs">
-                                <div class="absolute -left-6 w-4 h-4 rounded-full {{ in_array($activeStatus, ['ready_for_pickup', 'packed']) ? 'bg-indigo-600 ring-4 ring-indigo-100' : (in_array($activeStatus, ['fulfilled', 'delivered']) ? 'bg-emerald-600 text-white' : 'bg-slate-200') }} flex items-center justify-center">
-                                    <span class="w-1.5 h-1.5 rounded-full {{ in_array($activeStatus, ['ready_for_pickup', 'packed']) ? 'bg-white' : (in_array($activeStatus, ['fulfilled', 'delivered']) ? 'bg-white' : 'bg-slate-400') }}"></span>
-                                </div>
-                                <span class="text-slate-900 font-bold">Ready for Pickup</span>
-                                <span class="font-mono text-[10px] text-indigo-700 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">Staged</span>
+
+                            <!-- 4. Ready for Pickup -->
+                            <div class="relative flex items-center justify-between">
+                                @if($statusRank > 4)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                                        <span class="material-symbols-outlined text-[13px] font-bold leading-none">check</span>
+                                    </div>
+                                    <span class="text-slate-800 font-medium">Ready for Pickup</span>
+                                    <span class="font-mono text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Ready</span>
+                                @elseif($statusRank == 4)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-indigo-600 text-white ring-4 ring-indigo-100 flex items-center justify-center shadow-2xs">
+                                        <span class="w-2 h-2 rounded-full bg-white"></span>
+                                    </div>
+                                    <span class="text-slate-900 font-bold">Ready for Pickup</span>
+                                    <span class="font-mono text-[10px] text-indigo-700 font-bold bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">Staged</span>
+                                @else
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-slate-100 border border-slate-300 text-slate-400 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                    </div>
+                                    <span class="text-slate-400">Ready for Pickup</span>
+                                    <span class="font-mono text-[10px] text-slate-400">Pending</span>
+                                @endif
                             </div>
-                            <div class="relative flex items-center justify-between text-xs {{ in_array($activeStatus, ['fulfilled', 'delivered']) ? '' : 'opacity-60' }}">
-                                <div class="absolute -left-6 w-4 h-4 rounded-full {{ in_array($activeStatus, ['fulfilled', 'delivered']) ? 'bg-emerald-600 text-white' : 'bg-slate-200' }} flex items-center justify-center">
-                                    <span class="w-1.5 h-1.5 rounded-full {{ in_array($activeStatus, ['fulfilled', 'delivered']) ? 'bg-white' : 'bg-slate-400' }}"></span>
-                                </div>
-                                <span class="{{ in_array($activeStatus, ['fulfilled', 'delivered']) ? 'text-slate-900 font-bold' : 'text-slate-400' }}">Courier Handover &amp; Fulfilled</span>
-                                <span class="font-mono text-[10px] text-slate-400">{{ in_array($activeStatus, ['fulfilled', 'delivered']) ? 'Completed' : 'Pending' }}</span>
+
+                            <!-- 5. Courier Handover & Fulfilled -->
+                            <div class="relative flex items-center justify-between">
+                                @if($statusRank > 5)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                                        <span class="material-symbols-outlined text-[13px] font-bold leading-none">check</span>
+                                    </div>
+                                    <span class="text-slate-800 font-medium">Courier Handover &amp; Fulfilled</span>
+                                    <span class="font-mono text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Completed</span>
+                                @elseif($statusRank == 5)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-indigo-600 text-white ring-4 ring-indigo-100 flex items-center justify-center shadow-2xs">
+                                        <span class="w-2 h-2 rounded-full bg-white"></span>
+                                    </div>
+                                    <span class="text-slate-900 font-bold">Courier Handover &amp; Fulfilled</span>
+                                    <span class="font-mono text-[10px] text-indigo-700 font-bold bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">In Transit</span>
+                                @else
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-slate-100 border border-slate-300 text-slate-400 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                    </div>
+                                    <span class="text-slate-400">Courier Handover &amp; Fulfilled</span>
+                                    <span class="font-mono text-[10px] text-slate-400">Pending</span>
+                                @endif
                             </div>
-                            @if($activeStatus === 'delivered')
-                                <div class="relative flex items-center justify-between text-xs">
-                                    <div class="absolute -left-6 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">
-                                        <span class="material-symbols-outlined text-[12px]">done_all</span>
+
+                            <!-- 6. Delivered to Customer -->
+                            <div class="relative flex items-center justify-between">
+                                @if($statusRank >= 6)
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                                        <span class="material-symbols-outlined text-[13px] font-bold leading-none">done_all</span>
                                     </div>
                                     <span class="text-emerald-800 font-extrabold">Delivered to Customer</span>
                                     <span class="font-mono text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Delivered</span>
-                                </div>
-                            @endif
+                                @else
+                                    <div class="absolute -left-7 w-5 h-5 rounded-full bg-slate-100 border border-slate-300 text-slate-400 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                    </div>
+                                    <span class="text-slate-400">Delivered to Customer</span>
+                                    <span class="font-mono text-[10px] text-slate-400">Pending</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
@@ -641,7 +714,7 @@
                             <span class="font-mono font-semibold">₹{{ number_format($grossVal, 2) }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs text-rose-700">
-                            <span>Bazaario Commission (10%)</span>
+                            <span>Bazaario Commission ({{ (intval($commRateVal) == $commRateVal) ? intval($commRateVal) : number_format($commRateVal, 1) }}%)</span>
                             <span class="font-mono font-semibold">-₹{{ number_format($commVal, 2) }}</span>
                         </div>
                         @if($cessVal > 0)
@@ -663,6 +736,24 @@
                             <span class="material-symbols-outlined text-[18px] text-emerald-600">verified</span>
                             <span>{{ $activeStatus === 'delivered' ? 'Order Delivered to Customer & Settled' : 'Order Fulfilled & Settled to Payout Ledger' }}</span>
                         </div>
+                        @php
+                            $orderPayout = \App\Models\Payout::where('seller_order_id', $activeOrder->id)->first();
+                            $isAlreadySettled = ($orderPayout && $orderPayout->status === 'paid');
+                        @endphp
+                        @if($isAlreadySettled)
+                            <button type="button" disabled class="w-full h-10 mt-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-400 font-heading text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-75 shadow-none select-none" title="This order has already been settled and disbursed to your bank.">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span>
+                                <span>Disbursed &amp; Settled ({{ $orderPayout->payout_reference }})</span>
+                            </button>
+                        @else
+                            <form action="{{ route('seller.payouts.demo-settle') }}" method="POST" class="w-full mt-2">
+                                @csrf
+                                <button type="submit" class="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-heading text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs hover:shadow-xs active:scale-98 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[16px]">price_check</span>
+                                    <span>⚡ Demo: Settle Payout to Bank Now</span>
+                                </button>
+                            </form>
+                        @endif
                     @else
                         <button type="button" @click="openModal({{ json_encode([
                             'id' => $activeOrder->id,

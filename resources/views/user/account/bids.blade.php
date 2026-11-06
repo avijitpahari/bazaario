@@ -69,6 +69,9 @@
                 if (file_exists(public_path('images/' . $clean))) {
                     return asset('images/' . $clean);
                 }
+                if (file_exists(public_path('storage/' . $clean))) {
+                    return asset('storage/' . $clean);
+                }
                 return Storage::url($path);
             }
         }

@@ -82,6 +82,9 @@
                 if (file_exists(public_path('images/' . $clean))) {
                     return asset('images/' . $clean);
                 }
+                if (file_exists(public_path('storage/' . $clean))) {
+                    return asset('storage/' . $clean);
+                }
                 return Storage::url($path);
             }
         }
@@ -222,7 +225,12 @@
                     <a href="{{ route('auctions.index', ['filter' => 'all', 'sort' => $sort]) }}"
                         class="{{ $filter === 'all' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 transition-all">
                         <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                        <span>All Floor ({{ $telemetry['total_lots'] }})</span>
+                        <span>Live Floor ({{ $telemetry['total_lots'] }})</span>
+                    </a>
+                    <a href="{{ route('auctions.index', ['filter' => 'upcoming', 'sort' => $sort]) }}"
+                        class="{{ $filter === 'upcoming' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
+                        <span class="material-symbols-outlined text-sm text-sky-500">event_upcoming</span>
+                        <span>Upcoming ({{ $telemetry['upcoming_count'] ?? 0 }})</span>
                     </a>
                     <a href="{{ route('auctions.index', ['filter' => 'ending_soon', 'sort' => $sort]) }}"
                         class="{{ $filter === 'ending_soon' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
@@ -244,6 +252,13 @@
                         <span class="material-symbols-outlined text-sm text-rose-500">notification_important</span>
                         <span>Outbid Alerts ({{ $telemetry['user_outbid_count'] }})</span>
                     </a>
+                    @if(Auth::check() && ($telemetry['won_count'] ?? 0) > 0)
+                        <a href="{{ route('auctions.index', ['filter' => 'won', 'sort' => $sort]) }}"
+                            class="{{ $filter === 'won' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
+                            <span class="material-symbols-outlined text-sm text-amber-400">emoji_events</span>
+                            <span>Won Lots ({{ $telemetry['won_count'] }})</span>
+                        </a>
+                    @endif
                 </div>
 
                 <div class="flex items-center gap-3 self-end md:self-auto shrink-0">
@@ -277,15 +292,31 @@
 
                         $bidsCount = $auction->bids->count();
                         $minNextStep = (float) $auction->current_price + (float) $auction->minimum_increment;
-                        $isEndingSoon = $auction->ends_at->diffInMinutes(now(), false) >= -30;
+                        $isEndingSoon = $auction->status === 'live' && $auction->ends_at->diffInMinutes(now(), false) >= -30;
                         $secondsLeft = max(0, $auction->ends_at->timestamp - now()->timestamp);
                         $highestBidder = $auction->bids->first() ? $auction->bids->first()->user->name : null;
                         $isReserveMet = $auction->reserve_price ? ($auction->current_price >= $auction->reserve_price) : true;
+                        $isUpcoming = $auction->status === 'scheduled';
+                        $isEnded = $auction->status === 'ended' || ($auction->ends_at && $auction->ends_at->isPast() && $auction->status !== 'scheduled');
 
                         $incAmt = (float) $auction->minimum_increment;
                         $incLabel = $incAmt >= 1000
                             ? '+₹' . number_format($incAmt / 1000, 0) . 'k'
                             : '+₹' . number_format($incAmt, 0);
+
+                        $isUserLeading = false;
+                        $isUserOutbid = false;
+                        if (Auth::check()) {
+                            $userHighest = $auction->bids->where('user_id', Auth::id())->first();
+                            if ($userHighest) {
+                                $topBid = $auction->bids->first();
+                                if ($topBid && $topBid->user_id === Auth::id()) {
+                                    $isUserLeading = true;
+                                } else {
+                                    $isUserOutbid = true;
+                                }
+                            }
+                        }
                     @endphp
 
                     <article class="group glass-card glass-card-hover rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden">
@@ -295,10 +326,21 @@
                                 <a href="{{ route('auctions.show', $auction->id) }}" class="block w-full h-full">
                                     <img alt="{{ $prod->name ?? 'Auction item' }}"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                         src="{{ $imgUrl }}" />
+                                         src="{{ $imgUrl }}"
+                                         onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80'" />
                                 </a>
                                 
-                                @if($isEndingSoon)
+                                @if($isUpcoming)
+                                    <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-sky-600 text-white px-3 py-1 rounded-full text-[11px] font-mono font-bold shadow-md">
+                                        <span class="material-symbols-outlined text-xs">event</span>
+                                        <span>UPCOMING</span>
+                                    </div>
+                                @elseif($isEnded)
+                                    <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-slate-800 text-slate-200 px-3 py-1 rounded-full text-[11px] font-mono font-bold shadow-md">
+                                        <span class="material-symbols-outlined text-xs">gavel</span>
+                                        <span>AUCTION ENDED</span>
+                                    </div>
+                                @elseif($isEndingSoon)
                                     <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-rose-600 text-white px-3 py-1 rounded-full text-[11px] font-mono font-bold shadow-md animate-pulse">
                                         <span class="material-symbols-outlined text-xs">local_fire_department</span>
                                         <span>ENDING SOON</span>
@@ -311,12 +353,25 @@
                                 @endif
 
                                 <div class="absolute top-3 right-3 flex items-center gap-1.5">
+                                    @if($isUserLeading)
+                                        <span class="bg-emerald-500 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[12px]">verified</span> Leading
+                                        </span>
+                                    @elseif($isUserOutbid)
+                                        <span class="bg-rose-500 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[12px]">warning</span> Outbid
+                                        </span>
+                                    @endif
                                     <span class="bg-white/95 backdrop-blur-md text-slate-900 text-[11px] font-mono font-bold px-2.5 py-1 rounded-full shadow-xs">
                                         {{ $bidsCount }} Bids
                                     </span>
                                 </div>
                                 
-                                @if($secondsLeft <= 120 && $secondsLeft > 0)
+                                @if($isUpcoming)
+                                    <div class="absolute bottom-2.5 left-2.5 bg-sky-900/80 backdrop-blur-md text-sky-200 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold flex items-center gap-1">
+                                        <span>Starts {{ $auction->starts_at ? $auction->starts_at->format('M d, h:i A') : 'Soon' }}</span>
+                                    </div>
+                                @elseif($secondsLeft <= 120 && $secondsLeft > 0 && !$isEnded)
                                     <div class="absolute bottom-2.5 left-2.5 bg-rose-600/90 backdrop-blur-md text-white px-2.5 py-1 rounded-md text-[10px] font-mono font-bold flex items-center gap-1 animate-pulse">
                                         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
                                         <span>⚡ Anti-snipe +2m active</span>
@@ -364,9 +419,11 @@
                         <div class="mt-5 pt-3.5 bg-slate-50 rounded-2xl p-4 flex flex-col gap-3 border border-slate-200/80">
                             <div class="flex items-end justify-between">
                                 <div class="flex flex-col">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Current Floor Bid</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                                        {{ $isUpcoming ? 'Starting Floor' : 'Current Floor Bid' }}
+                                    </span>
                                     <span class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight font-mono">
-                                        ₹{{ number_format($auction->current_price, 0) }}
+                                        ₹{{ number_format($auction->current_price ?: $auction->starting_price, 0) }}
                                     </span>
                                     @if($isReserveMet)
                                         <span class="text-[11px] text-emerald-600 inline-flex items-center gap-1 mt-0.5 font-semibold">
@@ -380,12 +437,27 @@
                                 </div>
 
                                 <div class="flex flex-col items-end">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Closes In</span>
-                                    <div class="font-mono text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 mt-1 border border-rose-200"
-                                         data-countdown="{{ $auction->ends_at->toIso8601String() }}">
-                                        <span class="material-symbols-outlined text-sm">timer</span>
-                                        <span class="timer-display">{{ $auction->ends_at->diffForHumans() }}</span>
-                                    </div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                                        {{ $isUpcoming ? 'Starts In' : ($isEnded ? 'Status' : 'Closes In') }}
+                                    </span>
+                                    @if($isUpcoming)
+                                        <div class="font-mono text-xs font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 mt-1 border border-sky-200"
+                                             data-countdown="{{ $auction->starts_at?->toIso8601String() }}">
+                                            <span class="material-symbols-outlined text-sm">schedule</span>
+                                            <span class="timer-display">{{ $auction->starts_at ? $auction->starts_at->diffForHumans() : 'Scheduled' }}</span>
+                                        </div>
+                                    @elseif($isEnded)
+                                        <div class="font-mono text-xs font-bold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-md inline-flex items-center gap-1 mt-1">
+                                            <span class="material-symbols-outlined text-sm">flag</span>
+                                            <span>Lot Closed</span>
+                                        </div>
+                                    @else
+                                        <div class="font-mono text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 mt-1 border border-rose-200"
+                                             data-countdown="{{ $auction->ends_at->toIso8601String() }}">
+                                            <span class="material-symbols-outlined text-sm">timer</span>
+                                            <span class="timer-display">{{ $auction->ends_at->diffForHumans() }}</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -399,18 +471,20 @@
                             <!-- Bid Placement Action Row -->
                             <div class="flex items-center gap-2 pt-1">
                                 <a href="{{ route('auctions.show', $auction->id) }}" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95">
-                                    <span>Bid / Enter Room</span>
+                                    <span>{{ $isUpcoming ? 'Preview Lot Room' : ($isEnded ? 'View Result' : 'Bid / Enter Room') }}</span>
                                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
 
-                                <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="increment" value="{{ $auction->minimum_increment }}">
-                                    <button class="bg-white hover:bg-slate-100 text-slate-800 font-mono text-xs font-bold py-2.5 px-3 rounded-xl border border-slate-200 transition-colors shrink-0 shadow-xs"
-                                            title="Quick bid {{ $incLabel }}" type="submit">
-                                        {{ $incLabel }} Quick
-                                    </button>
-                                </form>
+                                @if(!$isUpcoming && !$isEnded)
+                                    <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="increment" value="{{ $auction->minimum_increment }}">
+                                        <button class="bg-white hover:bg-slate-100 text-slate-800 font-mono text-xs font-bold py-2.5 px-3 rounded-xl border border-slate-200 transition-colors shrink-0 shadow-xs cursor-pointer"
+                                                title="Quick bid {{ $incLabel }}" type="submit">
+                                            {{ $incLabel }} Quick
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     </article>

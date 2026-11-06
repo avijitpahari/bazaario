@@ -101,7 +101,7 @@ class CloseExpiredAuctions extends Command
 
                     $sellerProfile = $lockedAuction->sellerProfile ?? SellerProfile::find($lockedAuction->seller_id);
                     $sellerUserId = $sellerProfile?->user_id ?? $lockedAuction->seller_id;
-                    $commissionRate = $sellerProfile?->commission_rate ?? 10.00;
+                    $commissionRate = $sellerProfile ? $sellerProfile->getEffectiveCommissionRate() : SiteSetting::getCommissionRate(10.00);
                     $commissionAmount = round((float) $highestBid->amount * ($commissionRate / 100), 2);
                     $payoutAmount = max(0, (float) $highestBid->amount - $commissionAmount);
 

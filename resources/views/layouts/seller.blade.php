@@ -14,12 +14,35 @@
     }
     $sellerProfile = $sellerUser?->sellerProfile;
 
-    // Resolve seller avatar or shop logo
+    // View variables fallback if set by caller controller
+    if (!$sellerProfile && isset($profile) && $profile instanceof \App\Models\SellerProfile) {
+        $sellerProfile = $profile;
+    }
+    if (!$sellerUser && isset($seller) && $seller instanceof \App\Models\User) {
+        $sellerUser = $seller;
+    }
+    if (!$sellerProfile && $sellerUser?->sellerProfile) {
+        $sellerProfile = $sellerUser->sellerProfile;
+    }
+    if (!$sellerUser && $sellerProfile?->user) {
+        $sellerUser = $sellerProfile->user;
+    }
+
+    // Resolve seller avatar or shop logo URL robustly
+    $rawAvatar = $sellerProfile?->logo_path 
+        ?? $sellerUser?->profile_image 
+        ?? (isset($profile) ? $profile?->logo_path : null) 
+        ?? (isset($seller) ? $seller?->profile_image : null);
+
     $sellerAvatarUrl = null;
-    if (!empty($sellerProfile?->logo_path)) {
-        $sellerAvatarUrl = asset('storage/' . $sellerProfile->logo_path);
-    } elseif (!empty($sellerUser?->profile_image)) {
-        $sellerAvatarUrl = asset('storage/' . $sellerUser->profile_image);
+    if (!empty($rawAvatar)) {
+        if (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://')) {
+            $sellerAvatarUrl = $rawAvatar;
+        } elseif (str_starts_with($rawAvatar, '/storage/')) {
+            $sellerAvatarUrl = asset(ltrim($rawAvatar, '/'));
+        } else {
+            $sellerAvatarUrl = asset('storage/' . ltrim($rawAvatar, '/'));
+        }
     }
 
     // Dynamic unread notifications count (P18)
@@ -151,7 +174,7 @@
     <x-preloader />
 
     <!-- Global Slim Top Progress Bar -->
-    <div id="global-page-loader" class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 z-[9999] opacity-0 pointer-events-none transition-opacity duration-150"></div>
+    <div id="global-page-loader" class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 z-[9999] opacity-0 pointer-events-none transition-opacity duration-150 print:hidden"></div>
     <script>
         window.addEventListener('beforeunload', () => {
             const loader = document.getElementById('global-page-loader');
@@ -164,7 +187,7 @@
 
     <!-- MOBILE BACKDROP OVERLAY -->
     <div x-cloak x-show="mobileSidebarOpen" 
-         class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 lg:hidden"
+         class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 lg:hidden print:hidden"
          x-transition:enter="transition-opacity ease-linear duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -174,7 +197,7 @@
          @click="mobileSidebarOpen = false"></div>
 
     <!-- SIDEBAR: FIXED DESKTOP & RESPONSIVE MOBILE SLIDE-OVER DRAWER -->
-    <aside class="fixed left-0 top-0 h-screen w-72 bg-white z-50 flex flex-col justify-between py-4 px-3.5 shadow-[1px_0_16px_rgba(15,23,42,0.03)] border-r border-slate-200/80 transition-transform duration-300 ease-in-out lg:translate-x-0"
+    <aside class="fixed left-0 top-0 h-screen w-72 bg-white z-50 flex flex-col justify-between py-4 px-3.5 shadow-[1px_0_16px_rgba(15,23,42,0.03)] border-r border-slate-200/80 transition-transform duration-300 ease-in-out lg:translate-x-0 print:hidden"
            :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
         
         <div class="flex flex-col gap-3 min-h-0 flex-1">
@@ -191,9 +214,13 @@
                 <div class="flex items-center gap-2.5 min-w-0">
                     <div class="w-9 h-9 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-500 to-amber-600 text-slate-950 font-heading font-extrabold text-sm flex items-center justify-center shrink-0 shadow-xs ring-2 ring-white">
                         @if($sellerAvatarUrl)
-                            <img src="{{ $sellerAvatarUrl }}" alt="{{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'Shop Logo' }}" class="w-full h-full object-cover">
+                            <img src="{{ $sellerAvatarUrl }}" 
+                                 alt="{{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'Shop Logo' }}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling?.classList.remove('hidden');">
+                            <span class="hidden">{{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}</span>
                         @else
-                            {{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}
+                            <span>{{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}</span>
                         @endif
                     </div>
                     <div class="flex flex-col min-w-0">
@@ -398,9 +425,9 @@
     </aside>
 
     <!-- MAIN WRAPPER (Offset by Sidebar) -->
-    <div class="pl-0 lg:pl-72">
+    <div class="pl-0 lg:pl-72 print:pl-0">
         <!-- FIXED TOP HEADER -->
-        <header class="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.02)] z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <header class="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.02)] z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 print:hidden">
             <!-- Mobile Hamburger Toggle (< 1024px) -->
             <button type="button" @click="mobileSidebarOpen = true" class="lg:hidden p-2 -ml-1 mr-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors shrink-0" aria-label="Open sidebar drawer">
                 <span class="material-symbols-outlined text-[24px]">menu</span>
@@ -459,9 +486,13 @@
                 <div class="flex items-center gap-2.5 pl-3 border-l border-slate-200">
                     <div class="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-slate-900 to-slate-800 text-amber-400 flex items-center justify-center font-heading font-bold text-xs shadow-xs ring-1 ring-slate-200 shrink-0">
                         @if($sellerAvatarUrl)
-                            <img src="{{ $sellerAvatarUrl }}" alt="{{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'Shop Logo' }}" class="w-full h-full object-cover">
+                            <img src="{{ $sellerAvatarUrl }}" 
+                                 alt="{{ $sellerProfile?->shop_name ?? $sellerUser?->name ?? 'Shop Logo' }}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling?.classList.remove('hidden');">
+                            <span class="hidden">{{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}</span>
                         @else
-                            {{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}
+                            <span>{{ strtoupper(substr($sellerProfile?->shop_name ?? $sellerUser?->name ?? 'S', 0, 1)) }}</span>
                         @endif
                     </div>
                     <div class="hidden md:flex flex-col text-left">
@@ -483,8 +514,8 @@
         <x-toast />
 
         <!-- MAIN OPERATING CANVAS -->
-        <main class="relative pt-24 pb-16 bg-[#F8FAFC] min-h-screen w-full px-4 sm:px-6 lg:px-8">
-            <div class="max-w-[1400px] mx-auto">
+        <main class="relative pt-24 pb-16 bg-[#F8FAFC] min-h-screen w-full px-4 sm:px-6 lg:px-8 print:pt-0 print:pb-0 print:px-0 print:bg-white print:min-h-0">
+            <div class="max-w-[1400px] mx-auto print:max-w-none print:w-full">
                 <x-seller.compliance-notice :profile="$sellerProfile" />
                 @yield('content')
             </div>

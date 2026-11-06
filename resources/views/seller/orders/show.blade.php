@@ -19,6 +19,7 @@
     $commVal = (float) $sellerOrder->commission_amount;
     $cessVal = (float) $sellerOrder->apmc_cess;
     $netVal = (float) ($sellerOrder->payout_amount > 0 ? $sellerOrder->payout_amount : $sellerOrder->net_payout_calculated);
+    $commRateVal = (float) ($sellerOrder->commission_rate ?: ($grossVal > 0 && $commVal > 0 ? round(($commVal / $grossVal) * 100, 1) : \App\Models\SiteSetting::getCommissionRate()));
 
     $statusBadge = match($sellerOrder->status) {
         'placed', 'pending' => ['bg' => 'bg-amber-50 text-amber-800 border-amber-200/80', 'dot' => 'bg-amber-500'],
@@ -165,7 +166,7 @@
                         <span class="font-mono font-bold text-slate-900">₹{{ number_format($grossVal, 2) }}</span>
                     </div>
                     <div class="flex justify-between text-rose-700">
-                        <span>Platform Commission (10%):</span>
+                        <span>Platform Commission ({{ (intval($commRateVal) == $commRateVal) ? intval($commRateVal) : number_format($commRateVal, 1) }}%):</span>
                         <span class="font-mono font-semibold">-₹{{ number_format($commVal, 2) }}</span>
                     </div>
                     @if($cessVal > 0)

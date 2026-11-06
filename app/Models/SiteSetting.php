@@ -137,7 +137,7 @@ class SiteSetting extends Model
     /**
      * Get platform commission rate percentage.
      */
-    public static function getCommissionRate(float $default = 8.5): float
+    public static function getCommissionRate(float $default = 10.0): float
     {
         $rate = static::get('commission_rate');
         if ($rate !== null && is_numeric($rate)) {

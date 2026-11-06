@@ -74,21 +74,21 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex flex-col gap-1">
                 <div class="flex items-center gap-2">
-                    <span class="font-mono text-[11px] text-brand-muted uppercase tracking-wider">Seller Center</span>
-                    <span class="text-outline-variant font-mono text-[11px]">/</span>
-                    <span class="font-mono text-[11px] text-brand-muted uppercase tracking-wider">Account</span>
-                    <span class="text-outline-variant font-mono text-[11px]">/</span>
-                    <span class="font-mono text-[11px] text-brand-amber font-semibold uppercase tracking-wider">Location &amp; Geofence</span>
+                    <span class="font-mono text-[11px] text-slate-500 uppercase tracking-wider">Seller Center</span>
+                    <span class="text-slate-300 font-mono text-[11px]">/</span>
+                    <span class="font-mono text-[11px] text-slate-500 uppercase tracking-wider">Account</span>
+                    <span class="text-slate-300 font-mono text-[11px]">/</span>
+                    <span class="font-mono text-[11px] text-amber-700 font-semibold uppercase tracking-wider">Location &amp; Geofence</span>
                 </div>
-                <h1 class="font-heading text-2xl lg:text-3xl text-primary font-bold tracking-tight">Location Telemetry &amp; Geofence</h1>
-                <p class="text-sm text-brand-muted">Configure your verified farm origin coordinates, dispatch hub geofence radius, and postal routing address.</p>
+                <h1 class="font-heading text-2xl lg:text-3xl text-slate-900 font-bold tracking-tight">Location Telemetry &amp; Geofence</h1>
+                <p class="text-sm text-slate-500">Configure your verified farm origin coordinates, dispatch hub geofence radius, and postal routing address.</p>
             </div>
             <div class="flex items-center gap-3 shrink-0">
-                <a href="{{ route('seller.account.profile') }}" class="h-11 px-4 rounded-[14px] bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors text-sm font-medium flex items-center gap-2 shadow-sm">
+                <a href="{{ route('seller.account.profile') }}" class="h-11 px-4 rounded-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/90 transition-colors text-xs font-semibold flex items-center gap-2 shadow-2xs">
                     <span class="material-symbols-outlined text-[18px]">undo</span>
                     <span>Back to Profile</span>
                 </a>
-                <button type="button" @click="$refs.locationForm.submit()" class="h-11 px-5 rounded-[14px] bg-brand-amber text-primary hover:brightness-105 active:scale-95 transition-all text-sm font-heading font-bold shadow-sm flex items-center gap-2">
+                <button type="button" @click="$refs.locationForm.submit()" class="h-11 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 active:scale-95 transition-all text-xs font-heading font-bold shadow-xs flex items-center gap-2 cursor-pointer">
                     <span class="material-symbols-outlined text-[20px]">save</span>
                     <span>Save Location</span>
                 </button>
@@ -127,12 +127,12 @@
                 </a>
             </div>
 
-            <div class="bg-white rounded-[14px] p-4 shadow-sm border border-[#E2DFD7]/60 flex flex-col gap-3 font-mono text-xs">
-                <span class="font-heading font-bold text-primary text-sm">Spatial Isolation</span>
-                <p class="text-brand-muted text-[11px] leading-relaxed">
+            <div class="bg-white rounded-2xl p-4 shadow-2xs border border-slate-200/80 flex flex-col gap-3 font-mono text-xs">
+                <span class="font-heading font-bold text-slate-900 text-sm">Spatial Isolation</span>
+                <p class="text-slate-500 text-[11px] leading-relaxed">
                     Farm spatial geometry and harvest coordinates are isolated to {{ $profile?->shop_name ?? 'Farm Store' }} (#BZ-SLR-{{ str_pad($profile?->id ?? 1, 4, '0', STR_PAD_LEFT) }}).
                 </p>
-                <div class="flex items-center gap-1.5 text-brand-green font-bold text-[10px] uppercase">
+                <div class="flex items-center gap-1.5 text-emerald-700 font-bold text-[10px] uppercase">
                     <span class="material-symbols-outlined text-[14px]">lock</span>
                     <span>WGS84 Datum Encrypted</span>
                 </div>
@@ -147,15 +147,15 @@
                 @method('PUT')
 
                 <!-- Telemetry & Address Card -->
-                <div class="bg-white rounded-[14px] p-6 shadow-sm border border-[#E2DFD7]/60 flex flex-col gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-2xs border border-slate-200/80 flex flex-col gap-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div class="flex flex-col">
-                            <span class="font-mono text-[10px] uppercase tracking-widest text-outline">Section 2.1</span>
-                            <h2 class="font-heading text-xl font-bold text-primary">Farm Origin &amp; Dispatch Hub Geofence</h2>
-                            <p class="text-sm text-brand-muted">Precise farm telemetry calculates delivery estimates and farmer-to-door fresh supply chains.</p>
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Section 2.1</span>
+                            <h2 class="font-heading text-xl font-bold text-slate-900">Farm Origin &amp; Dispatch Hub Geofence</h2>
+                            <p class="text-sm text-slate-500">Precise farm telemetry calculates delivery estimates and farmer-to-door fresh supply chains.</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
-                            <button type="button" @click="autoDetectGPS()" :disabled="gpsLoading" class="h-11 px-4 rounded-[12px] bg-brand-amber text-primary font-heading text-xs font-bold hover:brightness-105 active:scale-95 transition-all shadow-sm flex items-center gap-2">
+                            <button type="button" @click="autoDetectGPS()" :disabled="gpsLoading" class="h-11 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-heading text-xs font-bold active:scale-95 transition-all shadow-xs flex items-center gap-2 cursor-pointer">
                                 <span class="material-symbols-outlined text-[18px]" :class="{ 'animate-spin': gpsLoading }">my_location</span>
                                 <span x-text="gpsLoading ? 'Triangulating...' : (gpsLocked ? 'GPS Locked (±1.8m)' : 'GPS Auto-Detect')"></span>
                             </button>
@@ -163,75 +163,75 @@
                     </div>
 
                     <!-- Telemetry status bar -->
-                    <div class="p-3.5 rounded-[12px] bg-surface-container-low border border-[#E2DFD7]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-brand-green animate-ping"></span>
-                            <span class="font-mono text-xs font-bold text-primary">LIVE TELEMETRY ACTIVE: High-Precision GPS Lock</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span class="font-mono text-xs font-bold text-slate-900">LIVE TELEMETRY ACTIVE: High-Precision GPS Lock</span>
                         </div>
-                        <span class="font-mono text-[11px] text-brand-muted">Source: ISRO NavIC / Global WGS84 Datum</span>
+                        <span class="font-mono text-[11px] text-slate-500">Source: ISRO NavIC / Global WGS84 Datum</span>
                     </div>
 
                     <!-- Postal Address Fields -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5 md:col-span-2">
-                            <label class="text-xs font-heading font-semibold text-primary">Survey No. / Farm Lane Address</label>
-                            <input type="text" name="address" value="{{ old('address', $profile?->address ?? 'Plot 142, Agricultural Road') }}" class="w-full h-11 px-4 bg-surface-container-lowest rounded-[12px] text-sm text-primary border border-[#E2DFD7] focus:border-brand-amber outline-none shadow-sm" required>
-                            @error('address') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            <label class="text-xs font-heading font-semibold text-slate-700">Survey No. / Farm Lane Address</label>
+                            <input type="text" name="address" value="{{ old('address', $profile?->address ?? 'Plot 142, Agricultural Road') }}" class="w-full h-11 px-4 bg-white rounded-xl text-sm text-slate-900 border border-slate-300 focus:border-amber-500 outline-none shadow-2xs transition-all" required>
+                            @error('address') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-heading font-semibold text-primary">City / Tehsil</label>
-                            <input type="text" name="city" value="{{ old('city', $profile?->city ?? 'Contai') }}" class="w-full h-11 px-4 bg-surface-container-lowest rounded-[12px] text-sm text-primary border border-[#E2DFD7] focus:border-brand-amber outline-none shadow-sm" required>
-                            @error('city') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            <label class="text-xs font-heading font-semibold text-slate-700">City / Tehsil</label>
+                            <input type="text" name="city" value="{{ old('city', $profile?->city ?? 'Contai') }}" class="w-full h-11 px-4 bg-white rounded-xl text-sm text-slate-900 border border-slate-300 focus:border-amber-500 outline-none shadow-2xs transition-all" required>
+                            @error('city') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-heading font-semibold text-primary">State</label>
-                            <input type="text" name="state" value="{{ old('state', $profile?->state ?? 'West Bengal') }}" class="w-full h-11 px-4 bg-surface-container-lowest rounded-[12px] text-sm text-primary border border-[#E2DFD7] focus:border-brand-amber outline-none shadow-sm" required>
-                            @error('state') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            <label class="text-xs font-heading font-semibold text-slate-700">State</label>
+                            <input type="text" name="state" value="{{ old('state', $profile?->state ?? 'West Bengal') }}" class="w-full h-11 px-4 bg-white rounded-xl text-sm text-slate-900 border border-slate-300 focus:border-amber-500 outline-none shadow-2xs transition-all" required>
+                            @error('state') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-heading font-semibold text-primary">Postal PIN Code</label>
-                            <input type="text" name="postal_code" value="{{ old('postal_code', $profile?->postal_code ?? '721401') }}" class="w-full h-11 px-4 bg-surface-container-lowest rounded-[12px] font-mono text-sm text-primary border border-[#E2DFD7] focus:border-brand-amber outline-none shadow-sm" required>
-                            @error('postal_code') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            <label class="text-xs font-heading font-semibold text-slate-700">Postal PIN Code</label>
+                            <input type="text" name="postal_code" value="{{ old('postal_code', $profile?->postal_code ?? '721401') }}" class="w-full h-11 px-4 bg-white rounded-xl font-mono text-sm text-slate-900 border border-slate-300 focus:border-amber-500 outline-none shadow-2xs transition-all" required>
+                            @error('postal_code') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-heading font-semibold text-primary flex items-center justify-between">
+                            <label class="text-xs font-heading font-semibold text-slate-700 flex items-center justify-between">
                                 <span>Operating Coverage Radius (km)</span>
-                                <span class="font-mono text-xs font-bold text-brand-amber" x-text="radius + ' km'"></span>
+                                <span class="font-mono text-xs font-bold text-amber-700" x-text="radius + ' km'"></span>
                             </label>
-                            <input type="range" name="operating_radius_km" min="5" max="100" step="5" x-model="radius" @input="onRadiusChange()" class="w-full accent-brand-amber cursor-pointer mt-2">
-                            @error('operating_radius_km') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            <input type="range" name="operating_radius_km" min="5" max="100" step="5" x-model="radius" @input="onRadiusChange()" class="w-full accent-amber-500 cursor-pointer mt-2">
+                            @error('operating_radius_km') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <!-- Coordinate Telemetry Inputs (3 columns) -->
-                    <div class="p-4 rounded-[14px] bg-surface-container-low border border-[#E2DFD7]/60 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/60 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="flex flex-col gap-1">
-                            <span class="font-mono text-[10px] text-brand-muted uppercase">Latitude Coordinate</span>
-                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-[10px] border border-[#E2DFD7] shadow-sm">
-                                <span class="material-symbols-outlined text-[16px] text-brand-amber">north</span>
-                                <input type="number" step="any" name="latitude" x-model="lat" @input="onCoordChange()" class="w-full font-mono text-sm font-bold text-primary bg-transparent focus:outline-none" required>
+                            <span class="font-mono text-[10px] text-slate-500 uppercase">Latitude Coordinate</span>
+                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-300 shadow-2xs">
+                                <span class="material-symbols-outlined text-[16px] text-amber-600">north</span>
+                                <input type="number" step="any" name="latitude" x-model="lat" @input="onCoordChange()" class="w-full font-mono text-sm font-bold text-slate-900 bg-transparent focus:outline-none" required>
                             </div>
-                            @error('latitude') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            @error('latitude') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-1">
-                            <span class="font-mono text-[10px] text-brand-muted uppercase">Longitude Coordinate</span>
-                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-[10px] border border-[#E2DFD7] shadow-sm">
-                                <span class="material-symbols-outlined text-[16px] text-brand-amber">east</span>
-                                <input type="number" step="any" name="longitude" x-model="lng" @input="onCoordChange()" class="w-full font-mono text-sm font-bold text-primary bg-transparent focus:outline-none" required>
+                            <span class="font-mono text-[10px] text-slate-500 uppercase">Longitude Coordinate</span>
+                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-300 shadow-2xs">
+                                <span class="material-symbols-outlined text-[16px] text-amber-600">east</span>
+                                <input type="number" step="any" name="longitude" x-model="lng" @input="onCoordChange()" class="w-full font-mono text-sm font-bold text-slate-900 bg-transparent focus:outline-none" required>
                             </div>
-                            @error('longitude') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                            @error('longitude') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-1">
-                            <span class="font-mono text-[10px] text-brand-muted uppercase">Altitude / Elevation</span>
-                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-[10px] border border-[#E2DFD7] shadow-sm">
-                                <span class="material-symbols-outlined text-[16px] text-brand-amber">landscape</span>
-                                <input type="text" value="142m MSL" readonly class="w-full font-mono text-sm font-bold text-brand-muted bg-transparent focus:outline-none cursor-default">
+                            <span class="font-mono text-[10px] text-slate-500 uppercase">Altitude / Elevation</span>
+                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-300 shadow-2xs">
+                                <span class="material-symbols-outlined text-[16px] text-amber-600">landscape</span>
+                                <input type="text" value="142m MSL" readonly class="w-full font-mono text-sm font-bold text-slate-400 bg-transparent focus:outline-none cursor-default">
                             </div>
                         </div>
                     </div>
@@ -239,8 +239,8 @@
                     <!-- Interactive Farm Map & Geofence Card -->
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <span class="text-xs font-heading font-bold text-primary flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[18px] text-brand-amber">map</span>
+                            <span class="text-xs font-heading font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px] text-amber-600">map</span>
                                 Farm Geofence &amp; Origin Pin
                             </span>
                             <div class="flex items-center gap-2 flex-wrap">
@@ -252,12 +252,12 @@
                                         Google Satellite
                                     </button>
                                 </div>
-                                <a :href="'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng" target="_blank" class="px-2.5 py-1 rounded-[8px] bg-surface-container-low hover:bg-surface-container text-primary text-[11px] font-mono font-medium border border-[#E2DFD7] flex items-center gap-1 transition">
+                                <a :href="'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng" target="_blank" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-mono font-medium border border-slate-200/90 shadow-2xs flex items-center gap-1 transition">
                                     <span class="material-symbols-outlined text-[14px]">open_in_new</span>
                                     <span>Open in Google Maps</span>
                                 </a>
-                                <span class="font-mono text-[11px] text-brand-green font-bold flex items-center gap-1 bg-green-50 px-2 py-0.5 rounded border border-green-200">
-                                    <span class="material-symbols-outlined text-[14px]">verified</span> GPS VERIFIED
+                                <span class="font-mono text-[11px] text-emerald-700 font-bold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                                    <span class="material-symbols-outlined text-[14px] text-emerald-600">verified</span> GPS VERIFIED
                                 </span>
                             </div>
                         </div>

@@ -222,11 +222,11 @@
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 tracking-tight font-mono">₹{{ number_format($nextPayout) }}</span>
+                    <span class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 tracking-tight font-mono">₹{{ ($settlementDisplayAmount ?? $nextPayout) > 0 && fmod(($settlementDisplayAmount ?? $nextPayout), 1) != 0 ? number_format($settlementDisplayAmount ?? $nextPayout, 2) : number_format($settlementDisplayAmount ?? $nextPayout) }}</span>
                     <div class="flex items-center justify-between gap-1.5 mt-1">
                         <span class="font-sans text-[11px] text-slate-500">{{ $nextPayoutDate }}</span>
                         <a href="{{ route('seller.payouts.index') }}" class="font-mono text-[10px] font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-1.5 py-0.5 rounded border border-teal-200/50 transition-colors">
-                            {{ $sellerProfile?->commission_rate ? $sellerProfile->commission_rate.'%' : '10%' }} Fee
+                            {{ number_format($sellerProfile ? $sellerProfile->getEffectiveCommissionRate() : \App\Models\SiteSetting::getCommissionRate(), 1) }}% Fee
                         </a>
                     </div>
                 </div>
