@@ -3,6 +3,16 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use App\View\Components\Support\SectionHeader;
+use App\View\Components\Support\Tabs;
+use App\View\Components\Support\Avatar;
+use App\View\Components\Support\Pill;
+use App\View\Components\Support\Bubble;
+use App\View\Components\Support\Card;
+use App\View\Components\Support\EmptyState;
+use App\View\Components\Support\DecisionCard;
+use App\View\Components\Support\SearchFilter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,5 +42,18 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Throwable $e) {
             // Ignore during migrations or initial console boots
         }
+
+        // Register support namespace components for Blade
+        // This allows using <x-support::component-name> syntax in Laravel 12
+        // Using Blade::component() with namespace and component name
+        Blade::component('support::section-header', SectionHeader::class);
+        Blade::component('support::tabs', Tabs::class);
+        Blade::component('support::avatar', Avatar::class);
+        Blade::component('support::pill', Pill::class);
+        Blade::component('support::bubble', Bubble::class);
+        Blade::component('support::card', Card::class);
+        Blade::component('support::empty-state', EmptyState::class);
+        Blade::component('support::decision-card', DecisionCard::class);
+        Blade::component('support::search-filter', SearchFilter::class);
     }
 }

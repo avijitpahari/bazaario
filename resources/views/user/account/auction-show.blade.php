@@ -289,9 +289,13 @@
                                         <span class="font-bold font-heading text-sm text-white truncate">{{ $auction->seller->shop_name ?? ($auction->seller->user->name ?? ($auction->seller->name ?? 'Verified Seller')) }}</span>
                                         <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/30">VERIFIED SELLER</span>
                                     </div>
+                                    @php
+                                        $sellerTrust = $auction->seller->sellerProfile->trust_score ?? ($auction->seller->trust_score ?? 96.0);
+                                        $sellerRating = number_format(min(5.0, max(3.5, $sellerTrust / 20)), 1);
+                                    @endphp
                                     <span class="text-xs text-slate-400 flex items-center gap-1 mt-0.5 font-mono">
                                         <span class="material-symbols-outlined text-[13px] text-amber-400">star</span>
-                                        4.9 Rating • 100% Dispatched on time
+                                        {{ $sellerRating }} Rating • {{ number_format($sellerTrust, 0) }}% SLA Verified
                                     </span>
                                 </div>
                             </div>

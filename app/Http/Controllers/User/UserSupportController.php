@@ -89,7 +89,7 @@ class UserSupportController extends Controller
             'priority' => ['required', 'string', 'in:low,medium,high,urgent'],
             'message' => ['required', 'string', 'max:3000'],
             'order_id' => ['nullable', 'exists:orders,id'],
-            'attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,webp,pdf'],
+            'attachment' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf'],
         ]);
 
         $sellerId = null;
@@ -128,6 +128,18 @@ class UserSupportController extends Controller
             'attachment_type' => $attachmentType,
         ]);
 
+        try {
+            \App\Models\AdminFeed::record(
+                title: "New Support Ticket: #{$ticket->ticket_number}",
+                description: "Customer " . (Auth::user()?->name ?? 'User') . " opened ticket '{$ticket->subject}' (" . ucfirst($ticket->priority) . " priority).",
+                type: 'support',
+                icon: 'support_agent',
+                badgeText: strtoupper($ticket->priority),
+                badgeColor: $ticket->priority === 'urgent' ? 'rose' : ($ticket->priority === 'high' ? 'amber' : 'blue'),
+                actionUrl: route('admin.support.index')
+            );
+        } catch (\Throwable $feedEx) {}
+
         return redirect()->route('user.support.tickets.show', $ticket)
             ->with('success', "Ticket #{$ticket->ticket_number} created successfully. Our team and vendor have been notified.");
     }
@@ -157,7 +169,7 @@ class UserSupportController extends Controller
 
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:3000'],
-            'attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,webp,pdf'],
+            'attachment' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf'],
         ]);
 
         $attachmentPath = null;
@@ -177,10 +189,13 @@ class UserSupportController extends Controller
             'attachment_type' => $attachmentType,
         ]);
 
-        // If ticket was waiting on customer or resolved, reopen/await seller
-        $newStatus = in_array($ticket->status, ['waiting_customer', 'resolved']) ? 'in_progress' : $ticket->status;
+        // If ticket was waiting on customer, resolved, or closed, reopen and set to in_progress
+        $isReopening = in_array($ticket->status, ['resolved', 'closed']);
+        $newStatus = ($isReopening || $ticket->status === 'waiting_customer') ? 'in_progress' : $ticket->status;
         $ticket->update([
             'status' => $newStatus,
+            'resolved_at' => $isReopening ? null : $ticket->resolved_at,
+            'closed_at' => $isReopening ? null : $ticket->closed_at,
             'updated_at' => now(),
         ]);
 
@@ -228,6 +243,7 @@ class UserSupportController extends Controller
         $ticket->update([
             'status' => 'resolved',
             'resolved_at' => now(),
+            'closed_at' => now(),
             'updated_at' => now(),
         ]);
 
@@ -235,10 +251,35 @@ class UserSupportController extends Controller
             'ticket_id' => $ticket->id,
             'user_id' => Auth::id(),
             'sender_type' => 'system',
-            'message' => 'Ticket marked as resolved by customer.',
+            'message' => 'Ticket marked as resolved/closed by customer.',
         ]);
 
         return redirect()->route('user.support.tickets.show', $ticket)
             ->with('success', 'Ticket marked as resolved.');
+    }
+
+    /**
+     * Reopen a closed or resolved ticket.
+     */
+    public function reopenTicket(SupportTicket $ticket): RedirectResponse
+    {
+        abort_unless($ticket->user_id === Auth::id(), 403, 'Unauthorized access to this support ticket.');
+
+        $ticket->update([
+            'status' => 'open',
+            'resolved_at' => null,
+            'closed_at' => null,
+            'updated_at' => now(),
+        ]);
+
+        SupportTicketMessage::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => Auth::id(),
+            'sender_type' => 'system',
+            'message' => 'Ticket was reopened by customer for further assistance.',
+        ]);
+
+        return redirect()->route('user.support.tickets.show', $ticket)
+            ->with('info', 'Ticket has been reopened. Our customer care team and seller have been notified.');
     }
 }

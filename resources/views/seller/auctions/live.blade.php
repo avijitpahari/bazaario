@@ -77,7 +77,7 @@
         <div class="flex items-center gap-3">
             <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200/70 rounded-xl font-mono text-[11px] uppercase text-emerald-800 font-semibold shadow-2xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                APMC SPOT TICKER CONNECTED
+                SPOT TICKER CONNECTED
             </span>
             <span class="font-mono text-xs text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-xl shadow-2xs">
                 SELLER ID: #BZ-SLR-{{ str_pad($profile?->id ?? 1, 4, '0', STR_PAD_LEFT) }}
@@ -98,7 +98,7 @@
                 </span>
             </div>
             <p class="text-sm text-slate-500 leading-relaxed">
-                Live spot-market auctions, real-time bidder telemetry, and verified bulk agricultural allocations for <span class="font-semibold text-slate-800">{{ $profile?->shop_name ?? 'My Farm' }}</span>.
+                Live spot-market auctions, real-time bidder telemetry, and verified wholesale lot allocations for <span class="font-semibold text-slate-800">{{ $profile?->shop_name ?? 'My Store' }}</span>.
             </p>
         </div>
         <div class="flex items-center gap-3">
@@ -120,7 +120,7 @@
                 <span class="material-symbols-outlined text-[40px]">gavel</span>
             </div>
             <h2 class="font-heading text-xl font-bold text-slate-900">No Active Live Auctions Currently</h2>
-            <p class="text-sm text-slate-500 max-w-md mt-1 mb-6">There are currently no live bidding terminals broadcasting from your farm catalog. Create a scheduled or instant wholesale auction to begin receiving live trade orders.</p>
+            <p class="text-sm text-slate-500 max-w-md mt-1 mb-6">There are currently no live bidding terminals broadcasting from your store catalog. Create a scheduled or instant wholesale auction to begin receiving live trade orders.</p>
             <a href="{{ route('seller.auctions.create') }}" class="h-11 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-heading text-xs font-bold shadow-xs transition-all inline-flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
                 <span>Schedule a Lot Now</span>
@@ -157,14 +157,14 @@
                                         LIVE BIDDING
                                     </span>
                                     <span class="font-mono text-xs px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 uppercase">
-                                        APMC Lot #{{ $liveAuction->product_id }}
+                                        Lot #{{ $liveAuction->product_id }}
                                     </span>
                                 </div>
                                 <h2 class="font-heading text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-                                    {{ $liveAuction->product?->name ?? 'Grade A+ Farm Lot' }}
+                                    {{ $liveAuction->product?->name ?? 'Wholesale Consignment Lot' }}
                                 </h2>
                                 <p class="text-xs sm:text-sm text-slate-500 line-clamp-2">
-                                    {{ $liveAuction->product?->description ? Str::limit($liveAuction->product->description, 120) : 'Fresh farm harvest bulk allocation' }} • Unit: {{ $liveAuction->product?->unit_type ?? 'kg' }}
+                                    {{ $liveAuction->product?->description ? Str::limit($liveAuction->product->description, 120) : 'Consignment bulk allocation' }} • Unit: {{ $liveAuction->product?->unit_type ?? 'unit' }}
                                 </p>
                             </div>
                         </div>
@@ -173,29 +173,29 @@
                         <div class="flex sm:flex-col items-end gap-1.5 shrink-0">
                             <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/60 font-mono text-xs font-bold shadow-2xs">
                                 <span class="material-symbols-outlined text-[15px] text-emerald-600">verified</span>
-                                GI CERTIFIED
+                                VERIFIED LOT
                             </div>
-                            <span class="font-mono text-[11px] text-slate-400">Cold Chain Pre-Cooled</span>
+                            <span class="font-mono text-[11px] text-slate-400">Insured Dispatch</span>
                         </div>
                     </div>
 
                     <!-- Agronomic Specs Grid -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 text-xs">
                         <div class="flex flex-col">
-                            <span class="font-mono text-[10px] uppercase text-slate-400 font-bold">Harvest Date</span>
-                            <span class="font-heading font-bold text-slate-900 mt-0.5">{{ $liveAuction->product?->harvest_date ? \Carbon\Carbon::parse($liveAuction->product->harvest_date)->format('M d, Y') : 'Fresh Harvest' }}</span>
+                            <span class="font-mono text-[10px] uppercase text-slate-400 font-bold">Category</span>
+                            <span class="font-heading font-bold text-slate-900 mt-0.5 truncate">{{ $liveAuction->product?->category?->name ?? 'General Category' }}</span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-mono text-[10px] uppercase text-slate-400 font-bold">Shelf-Life</span>
-                            <span class="font-heading font-bold text-slate-900 mt-0.5">{{ $liveAuction->product?->expiry_days ?? 7 }} Days Window</span>
+                            <span class="font-mono text-[10px] uppercase text-slate-400 font-bold">Origin / Location</span>
+                            <span class="font-heading font-bold text-slate-900 mt-0.5 truncate">{{ $liveAuction->product?->farm_origin ?: 'Standard Facility' }}</span>
                         </div>
                         <div class="flex flex-col">
                             <span class="font-mono text-[10px] uppercase text-slate-400 font-bold">Stock Allocated</span>
-                            <span class="font-heading font-bold text-slate-900 mt-0.5">{{ $liveAuction->product?->stock ?? 100 }} {{ $liveAuction->product?->unit_type ?? 'kg' }}</span>
+                            <span class="font-heading font-bold text-slate-900 mt-0.5">{{ $liveAuction->product?->stock ?? 100 }} {{ $liveAuction->product?->unit_type ?? 'unit' }}</span>
                         </div>
                         <div class="flex flex-col">
                             <span class="font-mono text-[10px] uppercase text-slate-400 font-bold">Inspection Grade</span>
-                            <span class="font-heading font-bold text-slate-900 mt-0.5">APMC Grade A+ Verified</span>
+                            <span class="font-heading font-bold text-slate-900 mt-0.5">Grade Verified Lot</span>
                         </div>
                     </div>
 
@@ -272,7 +272,7 @@
                             </div>
                             <div class="flex items-center justify-between text-xs pt-3 mt-1 border-t border-slate-200/80 text-slate-500">
                                 <span>Policy: <strong class="text-slate-800">{{ $liveAuction->reserve_price ? 'Floor Protected' : 'Open Spot Clearance' }}</strong></span>
-                                <span class="font-mono text-[10px] text-emerald-700 font-bold">APMC Enforced</span>
+                                <span class="font-mono text-[10px] text-emerald-700 font-bold">Platform Enforced</span>
                             </div>
                         </div>
 
@@ -307,7 +307,7 @@
                                     Real-Time Bid Activity Stream
                                 </h3>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono text-[10px] uppercase font-bold">
-                                    ANONYMIZED APMC PROTOCOL
+                                    ANONYMIZED BIDDING PROTOCOL
                                 </span>
                             </div>
                             <span class="font-mono text-[11px] text-slate-400">Auto-updating live</span>
@@ -333,7 +333,7 @@
                                                 @endif
                                                 Bidder #***{{ substr(md5($bid->user_id), 0, 4) }}
                                             </td>
-                                            <td class="py-3.5 px-4 text-slate-500">Verified APMC Wholesale Node</td>
+                                            <td class="py-3.5 px-4 text-slate-500">Verified Wholesale Buyer Node</td>
                                             <td class="py-3.5 px-4 font-mono text-sm font-bold text-slate-900">₹{{ number_format($bid->amount, 2) }}</td>
                                             <td class="py-3.5 px-4 font-mono text-slate-500">{{ $bid->created_at ? $bid->created_at->format('h:i:s A') : 'Now' }}</td>
                                             <td class="py-3.5 px-4 text-right">
@@ -431,11 +431,11 @@
                     </a>
                 </div>
 
-                <!-- APMC Trust & Escrow Assurance Box -->
+                <!-- Platform Trust & Escrow Assurance Box -->
                 <div class="bg-gradient-to-br from-slate-50 via-amber-50/10 to-slate-50 rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-3">
                     <div class="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider">
                         <span class="material-symbols-outlined text-emerald-600 text-[18px]">verified_user</span>
-                        <span>APMC Escrow Protections</span>
+                        <span>Escrow &amp; Platform Protections</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-600">
                         <li class="flex items-center gap-2">
@@ -452,7 +452,7 @@
                         </li>
                         <li class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-[15px] text-emerald-600">check</span>
-                            <span>Direct farm-to-merchant invoice allocation</span>
+                            <span>Direct merchant-to-buyer invoice allocation</span>
                         </li>
                     </ul>
                 </div>

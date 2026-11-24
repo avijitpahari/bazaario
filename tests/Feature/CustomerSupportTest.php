@@ -330,4 +330,117 @@ class CustomerSupportTest extends TestCase
         $response = $this->actingAs($this->sellerB, 'seller')->get(route('seller.support.tickets.show', $ticketA));
         $response->assertStatus(403);
     }
+
+    public function test_customer_can_reopen_resolved_ticket(): void
+    {
+        $ticket = SupportTicket::create([
+            'ticket_number' => SupportTicket::generateTicketNumber(),
+            'user_id' => $this->customerA->id,
+            'seller_id' => $this->sellerA->id,
+            'category' => 'general',
+            'subject' => 'Ticket to be resolved and reopened',
+            'priority' => 'low',
+            'status' => 'resolved',
+            'resolved_at' => now()->subDay(),
+        ]);
+
+        $response = $this->actingAs($this->customerA, 'user')->post(route('user.support.tickets.reopen', $ticket));
+
+        $response->assertRedirect(route('user.support.tickets.show', $ticket));
+        $fresh = $ticket->fresh();
+        $this->assertEquals('open', $fresh->status);
+        $this->assertNull($fresh->resolved_at);
+        $this->assertNull($fresh->closed_at);
+
+        $this->assertDatabaseHas('support_ticket_messages', [
+            'ticket_id' => $ticket->id,
+            'sender_type' => 'system',
+            'message' => 'Ticket was reopened by customer for further assistance.',
+        ]);
+    }
+
+    public function test_customer_reply_to_resolved_ticket_automatically_reopens_it(): void
+    {
+        $ticket = SupportTicket::create([
+            'ticket_number' => SupportTicket::generateTicketNumber(),
+            'user_id' => $this->customerA->id,
+            'seller_id' => $this->sellerA->id,
+            'category' => 'general',
+            'subject' => 'Closed ticket follow-up',
+            'priority' => 'medium',
+            'status' => 'resolved',
+            'resolved_at' => now()->subHours(5),
+        ]);
+
+        $response = $this->actingAs($this->customerA, 'user')->post(route('user.support.tickets.reply', $ticket), [
+            'message' => 'Wait, the issue occurred again today when unpacking.',
+        ]);
+
+        $response->assertRedirect(route('user.support.tickets.show', $ticket));
+        $fresh = $ticket->fresh();
+        $this->assertEquals('in_progress', $fresh->status);
+        $this->assertNull($fresh->resolved_at);
+    }
+
+    public function test_live_chat_init_and_quick_faq_auto_replies(): void
+    {
+        // 146: Floating Live Chat Widget session init
+        $initResponse = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.init'), [
+            'visitor_id' => 'vis_alice_123',
+        ]);
+
+        $initResponse->assertStatus(200);
+        $initResponse->assertJsonStructure(['conversation_id', 'messages']);
+        $conversationId = $initResponse->json('conversation_id');
+
+        // 147: Quick FAQ Auto-Reply: Returns & Refunds
+        $faqResponse = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.quick-reply'), [
+            'conversation_id' => $conversationId,
+            'action' => 'faq_returns',
+        ]);
+
+        $faqResponse->assertStatus(200);
+        $this->assertTrue($faqResponse->json('success'));
+        $this->assertStringContainsString('Return & Escrow Refund Policy', $faqResponse->json('support_message.message'));
+
+        // 147: Quick FAQ Auto-Reply: Auction Rules
+        $auctionFaq = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.quick-reply'), [
+            'conversation_id' => $conversationId,
+            'action' => 'faq_auctions',
+        ]);
+        $auctionFaq->assertStatus(200);
+        $this->assertStringContainsString('Wholesale Spot Auctions', $auctionFaq->json('support_message.message'));
+
+        // 147: Quick FAQ Auto-Reply: Payments & Escrow
+        $paymentFaq = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.quick-reply'), [
+            'conversation_id' => $conversationId,
+            'action' => 'faq_payments',
+        ]);
+        $paymentFaq->assertStatus(200);
+        $this->assertStringContainsString('Escrow Buyer Protection', $paymentFaq->json('support_message.message'));
+    }
+
+    public function test_customer_can_create_ticket_with_pdf_document_attachment(): void
+    {
+        $fakePdf = UploadedFile::fake()->create('invoice_proof.pdf', 500, 'application/pdf');
+
+        $response = $this->actingAs($this->customerA, 'user')->post(route('user.support.tickets.store'), [
+            'subject' => 'Tax invoice mismatch discrepancy',
+            'category' => 'billing',
+            'priority' => 'medium',
+            'order_id' => $this->orderA->id,
+            'message' => 'Attached is the official signed receipt showing a discrepancy in GST credit.',
+            'attachment' => $fakePdf,
+        ]);
+
+        $ticket = SupportTicket::where('subject', 'Tax invoice mismatch discrepancy')->first();
+        $this->assertNotNull($ticket);
+        $this->assertEquals($this->orderA->id, $ticket->order_id);
+
+        $msg = $ticket->messages()->first();
+        $this->assertNotNull($msg->attachment_path);
+        $this->assertEquals('pdf', $msg->attachment_type);
+        $this->assertFalse($msg->isImageAttachment());
+        $this->assertNotEmpty($msg->attachment_url);
+    }
 }

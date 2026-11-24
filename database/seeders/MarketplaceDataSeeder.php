@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Auction;
+use App\Models\AuctionBid;
 use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\Product;
@@ -211,6 +213,38 @@ class MarketplaceDataSeeder extends Seeder
             ]
         );
 
+        // Seller 5: Lillian Blackburn's Shop
+        $sellerUser5 = User::updateOrCreate(
+            ['email' => 'seller@gmail.com'],
+            [
+                'name' => 'Lillian Blackburn',
+                'phone' => '9800000015',
+                'password' => Hash::make('Password123!'),
+                'role' => 'seller',
+                'preferred_language' => 'en',
+                'email_verified_at' => now(),
+                'status' => 'active',
+            ]
+        );
+        $seller5 = SellerProfile::updateOrCreate(
+            ['user_id' => $sellerUser5->id],
+            [
+                'shop_name' => "Lillian Blackburn's Shop",
+                'shop_slug' => 'lillian-blackburns-shop',
+                'bio' => 'Fresh certified farm produce, certified Alphonso mangoes, organic grains, and hyperlocal vegetables.',
+                'city' => 'Contai',
+                'state' => 'West Bengal',
+                'country' => 'India',
+                'status' => 'approved',
+                'seller_type' => 'Individual',
+                'commission_rate' => 5.00,
+                'trust_score' => 100.00,
+                'operating_radius_km' => 35,
+                'operating_days' => ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+                'verified_at' => now()->subMonths(3),
+            ]
+        );
+
         // Customer Users
         $buyer1 = User::updateOrCreate(
             ['email' => 'aarav.sharma@example.com'],
@@ -339,6 +373,31 @@ class MarketplaceDataSeeder extends Seeder
                     ['url' => 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', 'file' => 'leather_bag_1.jpg', 'is_primary' => true],
                     ['url' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80', 'file' => 'leather_bag_2.jpg', 'is_primary' => false],
                     ['url' => 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800&auto=format&fit=crop&q=80', 'file' => 'leather_bag_3.jpg', 'is_primary' => false],
+                ]
+            ],
+            [
+                'seller_id' => $sellerUser5->id,
+                'category_slug' => 'organic-food',
+                'name' => 'Organically Farmed Fresh Alphonso Mangoes (10kg Batch)',
+                'slug' => 'organically-farmed-fresh-alphonso-mangoes-10kg-batch',
+                'short_description' => 'GI certified export-grade Alphonso mangoes direct from certified coastal orchards.',
+                'description' => 'Certified organic coastal farm harvest. Hand-plucked, naturally carbide-free ripened, APMC Grade A+ inspected Alphonso mangoes. Packaged in ventilated eco-cushioned wholesale batches for maximum sweetness and aroma retention.',
+                'sale_type' => 'auction',
+                'price' => 2000.00,
+                'stock' => 44,
+                'sku' => 'BZ-MNG-1041',
+                'weight' => 10.0,
+                'length' => 45.0,
+                'width' => 30.0,
+                'height' => 20.0,
+                'processing_time_days' => 1,
+                'unit_type' => 'kg',
+                'harvest_date' => now()->subDays(1)->toDateString(),
+                'expiry_days' => 7,
+                'average_rating' => 4.95,
+                'total_reviews' => 88,
+                'images' => [
+                    ['url' => 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&auto=format&fit=crop&q=80', 'file' => 'alphonso_mangoes_1.jpg', 'is_primary' => true],
                 ]
             ],
             [
@@ -645,6 +704,38 @@ class MarketplaceDataSeeder extends Seeder
 
         foreach ($coupons as $cp) {
             Coupon::updateOrCreate(['code' => $cp['code']], $cp);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 5. SEED WHOLESALE AUCTIONS & TELEMETRY
+        // ─────────────────────────────────────────────────────────────
+        $this->command->info('Seeding Wholesale Auctions...');
+        $mangoProduct = Product::where('slug', 'organically-farmed-fresh-alphonso-mangoes-10kg-batch')->first();
+        if ($mangoProduct && isset($seller5)) {
+            $liveAuction = Auction::updateOrCreate(
+                ['product_id' => $mangoProduct->id, 'seller_id' => $seller5->id],
+                [
+                    'starting_price' => 2000.00,
+                    'reserve_price' => 1500.00,
+                    'current_price' => 14300.00,
+                    'minimum_increment' => 100.00,
+                    'starts_at' => now()->subHours(12),
+                    'ends_at' => now()->addHours(26),
+                    'status' => 'live',
+                ]
+            );
+
+            // Bids progression leading to ₹14,300.00
+            $bidAmounts = [2500.00, 5000.00, 8500.00, 11000.00, 14300.00];
+            foreach ($bidAmounts as $idx => $amt) {
+                AuctionBid::create([
+                    'auction_id' => $liveAuction->id,
+                    'user_id' => ($idx % 2 === 0) ? $buyer1->id : $buyer2->id,
+                    'amount' => $amt,
+                    'created_at' => now()->subHours(10 - ($idx * 2)),
+                    'updated_at' => now()->subHours(10 - ($idx * 2)),
+                ]);
+            }
         }
 
         $this->command->info('✅ Bazaario marketplace database successfully populated with categories, users, products, local image assets, reviews, and coupons!');

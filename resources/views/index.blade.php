@@ -1134,6 +1134,8 @@
     <!-- 10. GLOBAL GLASS FOOTER -->
     <x-footer />
 
+    <!-- Global Floating Live Support Chat Widget -->
+    <x-support-chat-widget />
 </body>
 
 </html>

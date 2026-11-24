@@ -55,12 +55,17 @@
 
         $telemetry = $telemetry ?? [
             'total_lots'          => 0,
+            'upcoming_count'      => 0,
             'ending_soon_count'   => 0,
-            'reserve_met_count'   => 0,
-            'clearance_vol'       => 4280000,
+            'user_active_count'   => 0,
             'user_leading_count'  => 0,
             'user_outbid_count'   => 0,
+            'user_leading_val'    => 0,
+            'user_locked_escrow'  => 0,
+            'reserve_met_count'   => 0,
             'won_count'           => 0,
+            'clearance_vol'       => 0,
+            'vol_growth'          => 0,
         ];
         $auctions = $auctions ?? collect();
         $filter   = $filter ?? 'all';
@@ -130,13 +135,17 @@
                 <div class="flex flex-wrap items-center gap-2.5">
                     <div class="bg-white shadow-xs px-3.5 py-1.5 rounded-full inline-flex items-center gap-2 text-xs text-slate-800 font-semibold border border-slate-200">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="tracking-wide text-[11px] font-mono">ESCROW VERIFIED BUYER</span>
+                        <span class="tracking-wide text-[11px] font-mono">
+                            {{ Auth::check() ? 'ESCROW VERIFIED BUYER' : 'ESCROW PROTECTED FLOOR' }}
+                        </span>
                         <span class="text-slate-300">•</span>
-                        <span class="text-slate-500 font-mono text-[11px]">VAULT #ESC-9041</span>
+                        <span class="text-slate-500 font-mono text-[11px]">
+                            VAULT #ESC-{{ str_pad(Auth::id() ?? 1000, 4, '0', STR_PAD_LEFT) }}
+                        </span>
                     </div>
                     <div class="bg-slate-900 text-white px-3.5 py-1.5 rounded-full shadow-xs inline-flex items-center gap-2 text-xs font-semibold">
                         <span class="material-symbols-outlined text-sm text-amber-400">lock</span>
-                        <span>Liquid Vault: <span class="font-mono font-bold text-amber-300">₹60,500.00</span></span>
+                        <span>Liquid Vault: <span class="font-mono font-bold text-amber-300">₹{{ number_format($telemetry['user_locked_escrow'] ?? 0, 2) }}</span></span>
                     </div>
                 </div>
             </div>
@@ -159,7 +168,7 @@
                 <div class="flex flex-wrap items-center gap-3 relative z-10 shrink-0">
                     <a href="{{ route('user.bids') }}" class="bg-slate-900 text-white hover:bg-slate-800 font-bold text-xs px-4 py-2.5 rounded-full inline-flex items-center gap-2 transition-all shadow-sm active:scale-95">
                         <span class="material-symbols-outlined text-base text-amber-400">history_edu</span>
-                        <span>My Active Bids ({{ $telemetry['user_leading_count'] + $telemetry['user_outbid_count'] }})</span>
+                        <span>My Active Bids ({{ $telemetry['user_active_count'] ?? ($telemetry['user_leading_count'] + $telemetry['user_outbid_count']) }})</span>
                     </a>
                 </div>
             </div>
@@ -187,7 +196,7 @@
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-mono">Your Leading Bids</span>
                         <div class="flex items-baseline gap-2 mt-0.5">
                             <span class="font-display text-lg font-bold text-emerald-700">{{ $telemetry['user_leading_count'] }} Lots Leading</span>
-                            <span class="text-xs text-slate-500 font-mono">₹{{ number_format($telemetry['user_leading_count'] * 25000) }}</span>
+                            <span class="text-xs text-slate-500 font-mono">₹{{ number_format($telemetry['user_leading_val'] ?? 0, 0) }}</span>
                         </div>
                     </div>
                 </div>
@@ -199,8 +208,10 @@
                     <div class="flex flex-col min-w-0">
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-mono">24h Clearance Vol</span>
                         <div class="flex items-baseline gap-2 mt-0.5">
-                            <span class="font-display text-lg font-bold text-slate-900 font-mono">₹{{ number_format($telemetry['clearance_vol'] / 100000, 1) }}L</span>
-                            <span class="text-xs text-emerald-600 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded">+18.4%</span>
+                            <span class="font-display text-lg font-bold text-slate-900 font-mono">₹{{ ($telemetry['clearance_vol'] ?? 0) >= 100000 ? number_format(($telemetry['clearance_vol'] ?? 0) / 100000, 1) . 'L' : number_format($telemetry['clearance_vol'] ?? 0, 0) }}</span>
+                            <span class="text-xs {{ ($telemetry['vol_growth'] ?? 0) >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} font-mono font-bold px-1.5 py-0.5 rounded">
+                                {{ ($telemetry['vol_growth'] ?? 0) >= 0 ? '+' : '' }}{{ $telemetry['vol_growth'] ?? 18.4 }}%
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -212,8 +223,8 @@
                     <div class="flex flex-col min-w-0">
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-mono">Anti-Sniping Engine</span>
                         <div class="flex items-baseline gap-2 mt-0.5">
-                            <span class="font-display text-lg font-bold text-slate-900 font-mono">0.2s Sync</span>
-                            <span class="text-xs text-emerald-600 font-mono font-bold">0 dropped</span>
+                            <span class="font-display text-lg font-bold text-slate-900 font-mono">Live Sync</span>
+                            <span class="text-xs text-emerald-600 font-mono font-bold">{{ $telemetry['total_lots'] }} active lots</span>
                         </div>
                     </div>
                 </div>
@@ -224,7 +235,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <a href="{{ route('auctions.index', ['filter' => 'all', 'sort' => $sort]) }}"
                         class="{{ $filter === 'all' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 transition-all">
-                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-400 {{ $filter === 'all' ? 'animate-pulse' : '' }}"></span>
                         <span>Live Floor ({{ $telemetry['total_lots'] }})</span>
                     </a>
                     <a href="{{ route('auctions.index', ['filter' => 'upcoming', 'sort' => $sort]) }}"
@@ -239,8 +250,8 @@
                     </a>
                     <a href="{{ route('auctions.index', ['filter' => 'active_bids', 'sort' => $sort]) }}"
                         class="{{ $filter === 'active_bids' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
-                        <span class="material-symbols-outlined text-sm text-emerald-600">front_hand</span>
-                        <span>Active Bids ({{ $telemetry['user_leading_count'] + $telemetry['user_outbid_count'] }})</span>
+                        <span class="material-symbols-outlined text-sm text-emerald-500">front_hand</span>
+                        <span>Active Bids ({{ $telemetry['user_active_count'] ?? ($telemetry['user_leading_count'] + $telemetry['user_outbid_count']) }})</span>
                     </a>
                     <a href="{{ route('auctions.index', ['filter' => 'reserve_met', 'sort' => $sort]) }}"
                         class="{{ $filter === 'reserve_met' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
@@ -249,16 +260,14 @@
                     </a>
                     <a href="{{ route('auctions.index', ['filter' => 'outbid_alerts', 'sort' => $sort]) }}"
                         class="{{ $filter === 'outbid_alerts' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
-                        <span class="material-symbols-outlined text-sm text-rose-500">notification_important</span>
+                        <span class="material-symbols-outlined text-sm text-rose-500">notifications_active</span>
                         <span>Outbid Alerts ({{ $telemetry['user_outbid_count'] }})</span>
                     </a>
-                    @if(Auth::check() && ($telemetry['won_count'] ?? 0) > 0)
-                        <a href="{{ route('auctions.index', ['filter' => 'won', 'sort' => $sort]) }}"
-                            class="{{ $filter === 'won' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
-                            <span class="material-symbols-outlined text-sm text-amber-400">emoji_events</span>
-                            <span>Won Lots ({{ $telemetry['won_count'] }})</span>
-                        </a>
-                    @endif
+                    <a href="{{ route('auctions.index', ['filter' => 'won', 'sort' => $sort]) }}"
+                        class="{{ $filter === 'won' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200' }} text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all">
+                        <span class="material-symbols-outlined text-sm text-amber-500">emoji_events</span>
+                        <span>Won Lots ({{ $telemetry['won_count'] }})</span>
+                    </a>
                 </div>
 
                 <div class="flex items-center gap-3 self-end md:self-auto shrink-0">
@@ -330,7 +339,12 @@
                                          onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80'" />
                                 </a>
                                 
-                                @if($isUpcoming)
+                                @if(Auth::check() && $auction->winner_id === Auth::id())
+                                    <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 px-3 py-1 rounded-full text-[11px] font-mono font-bold shadow-md">
+                                        <span class="material-symbols-outlined text-xs font-bold">emoji_events</span>
+                                        <span>YOU WON LOT</span>
+                                    </div>
+                                @elseif($isUpcoming)
                                     <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-sky-600 text-white px-3 py-1 rounded-full text-[11px] font-mono font-bold shadow-md">
                                         <span class="material-symbols-outlined text-xs">event</span>
                                         <span>UPCOMING</span>
@@ -353,7 +367,11 @@
                                 @endif
 
                                 <div class="absolute top-3 right-3 flex items-center gap-1.5">
-                                    @if($isUserLeading)
+                                    @if(Auth::check() && $auction->winner_id === Auth::id())
+                                        <span class="bg-amber-400 text-slate-950 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[12px]">trophy</span> Won
+                                        </span>
+                                    @elseif($isUserLeading)
                                         <span class="bg-emerald-500 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
                                             <span class="material-symbols-outlined text-[12px]">verified</span> Leading
                                         </span>
@@ -401,11 +419,15 @@
                                 </h2>
 
                                 <div class="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+                                    @php
+                                        $sellerTrust = $auction->seller->trust_score ?? 96.0;
+                                        $sellerRating = number_format(min(5.0, max(3.5, $sellerTrust / 20)), 1);
+                                    @endphp
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-medium">{{ $auction->seller->shop_name ?? ($auction->seller->user->name ?? ($auction->seller->name ?? 'Official Store')) }}</span>
                                         <span>•</span>
                                         <span class="inline-flex items-center text-amber-600 font-bold">
-                                            <span class="material-symbols-outlined text-sm">star</span> 4.9
+                                            <span class="material-symbols-outlined text-sm">star</span> {{ $sellerRating }}
                                         </span>
                                     </div>
                                     <span class="font-mono text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
@@ -471,11 +493,11 @@
                             <!-- Bid Placement Action Row -->
                             <div class="flex items-center gap-2 pt-1">
                                 <a href="{{ route('auctions.show', $auction->id) }}" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95">
-                                    <span>{{ $isUpcoming ? 'Preview Lot Room' : ($isEnded ? 'View Result' : 'Bid / Enter Room') }}</span>
+                                    <span>{{ (Auth::check() && $auction->winner_id === Auth::id()) ? 'Claim / View Won Lot' : ($isUpcoming ? 'Preview Lot Room' : ($isEnded ? 'View Result' : 'Bid / Enter Room')) }}</span>
                                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
 
-                                @if(!$isUpcoming && !$isEnded)
+                                @if(!$isUpcoming && !$isEnded && !(Auth::check() && $auction->winner_id === Auth::id()))
                                     <form action="{{ route('auctions.quickBid', $auction->id) }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="increment" value="{{ $auction->minimum_increment }}">

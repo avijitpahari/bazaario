@@ -38,7 +38,14 @@ class SellerProfile extends Model
         'trade_license_doc_path',
         'bank_doc_path',
         'fssai_doc_path',
+        'aadhaar_number',
+        'aadhaar_doc_path',
+        'mandi_license_number',
+        'mandi_license_doc_path',
+        'udyam_number',
+        'udyam_doc_path',
         'document_statuses',
+        'provided_documents',
         'rejection_reason',
     ];
 
@@ -53,6 +60,7 @@ class SellerProfile extends Model
             'operating_radius_km' => 'integer',
             'operating_days' => 'array',
             'document_statuses' => 'array',
+            'provided_documents' => 'array',
         ];
     }
 
@@ -233,6 +241,170 @@ class SellerProfile extends Model
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    /**
+     * Get a rich, structured collection of all documents provided by this merchant.
+     * Evaluates both uploaded files and entered identification numbers across all document types.
+     *
+     * @param bool $allSupported If true, returns all supported document definitions with their current state.
+     *                            If false (default), returns only documents that have been provided (file or number).
+     */
+    public function getProvidedDocumentsList(bool $allSupported = false): array
+    {
+        $definitions = [
+            'pan' => [
+                'key'             => 'pan',
+                'label'           => 'Permanent Account Number (PAN)',
+                'short_label'     => 'PAN Card',
+                'badge'           => 'Tax Compliance',
+                'badge_color'     => 'amber',
+                'icon'            => 'badge',
+                'number'          => $this->pan_number,
+                'secondary'       => null,
+                'number_label'    => 'PAN No',
+                'file_path'       => $this->pan_doc_path,
+                'is_mandatory'    => true,
+                'description'     => 'Individual proprietor or corporate PAN card proof',
+            ],
+            'bank' => [
+                'key'             => 'bank',
+                'label'           => 'Escrow Bank Account & Proof',
+                'short_label'     => 'Bank Account',
+                'badge'           => 'Escrow Payouts',
+                'badge_color'     => 'emerald',
+                'icon'            => 'account_balance',
+                'number'          => $this->bank_account_number,
+                'secondary'       => $this->bank_ifsc ? "IFSC: {$this->bank_ifsc}" : null,
+                'number_label'    => 'A/C No',
+                'file_path'       => $this->bank_doc_path,
+                'is_mandatory'    => true,
+                'description'     => 'Cancelled bank cheque leaf or first page of bank passbook / statement',
+            ],
+            'gstin' => [
+                'key'             => 'gstin',
+                'label'           => 'GST Registration Certificate',
+                'short_label'     => 'GSTIN Certificate',
+                'badge'           => 'Indirect Tax',
+                'badge_color'     => 'blue',
+                'icon'            => 'receipt_long',
+                'number'          => $this->gstin,
+                'secondary'       => null,
+                'number_label'    => 'GSTIN',
+                'file_path'       => $this->gstin_doc_path,
+                'is_mandatory'    => false,
+                'description'     => 'GST registration certificate with active tax identification number',
+            ],
+            'trade_license' => [
+                'key'             => 'trade_license',
+                'label'           => 'Municipality Trade License',
+                'short_label'     => 'Trade License',
+                'badge'           => 'Municipal Body',
+                'badge_color'     => 'purple',
+                'icon'            => 'domain',
+                'number'          => $this->trade_license_number,
+                'secondary'       => null,
+                'number_label'    => 'License No',
+                'file_path'       => $this->trade_license_doc_path,
+                'is_mandatory'    => false,
+                'description'     => 'Local municipal corporation or Panchayat trade / establishment license',
+            ],
+            'fssai' => [
+                'key'             => 'fssai',
+                'label'           => 'FSSAI Food Safety License',
+                'short_label'     => 'FSSAI Certificate',
+                'badge'           => 'Food & Agro',
+                'badge_color'     => 'green',
+                'icon'            => 'restaurant',
+                'number'          => $this->fssai_number,
+                'secondary'       => null,
+                'number_label'    => 'FSSAI No',
+                'file_path'       => $this->fssai_doc_path,
+                'is_mandatory'    => false,
+                'description'     => 'Food Safety and Standards Authority of India manufacturing / retailing license',
+            ],
+            'aadhaar' => [
+                'key'             => 'aadhaar',
+                'label'           => 'Aadhaar / Government Photo ID',
+                'short_label'     => 'Aadhaar / Gov ID',
+                'badge'           => 'Proprietor Identity',
+                'badge_color'     => 'indigo',
+                'icon'            => 'fingerprint',
+                'number'          => $this->aadhaar_number,
+                'secondary'       => null,
+                'number_label'    => 'ID No',
+                'file_path'       => $this->aadhaar_doc_path,
+                'is_mandatory'    => false,
+                'description'     => 'Government-issued photo identification proof (Aadhaar, Voter ID, or Passport)',
+            ],
+            'mandi_license' => [
+                'key'             => 'mandi_license',
+                'label'           => 'APMC / Mandi Market Trading License',
+                'short_label'     => 'Mandi License',
+                'badge'           => 'Wholesale & Auctions',
+                'badge_color'     => 'amber',
+                'icon'            => 'agriculture',
+                'number'          => $this->mandi_license_number,
+                'secondary'       => null,
+                'number_label'    => 'APMC No',
+                'file_path'       => $this->mandi_license_doc_path,
+                'is_mandatory'    => false,
+                'description'     => 'APMC market yard trading permit for agricultural auctions and wholesale consignments',
+            ],
+            'udyam' => [
+                'key'             => 'udyam',
+                'label'           => 'Udyam / MSME Registration',
+                'short_label'     => 'MSME Certificate',
+                'badge'           => 'Small Enterprise',
+                'badge_color'     => 'slate',
+                'icon'            => 'workspace_premium',
+                'number'          => $this->udyam_number,
+                'secondary'       => null,
+                'number_label'    => 'Udyam No',
+                'file_path'       => $this->udyam_doc_path,
+                'is_mandatory'    => false,
+                'description'     => 'Ministry of Micro, Small and Medium Enterprises (MSME) registration certificate',
+            ],
+        ];
+
+        $results = [];
+        $explicitProvided = is_array($this->provided_documents) ? $this->provided_documents : [];
+
+        foreach ($definitions as $key => $doc) {
+            $hasFile = !empty($doc['file_path']);
+            $hasNumber = !empty($doc['number']) || ($key === 'bank' && !empty($this->bank_ifsc));
+            $isExplicit = in_array($key, $explicitProvided);
+
+            $doc['has_file'] = $hasFile;
+            $doc['has_number'] = $hasNumber;
+            $doc['is_provided'] = $hasFile || $hasNumber || $isExplicit;
+            $doc['is_pdf'] = $hasFile && str_ends_with(strtolower($doc['file_path']), '.pdf');
+
+            // Determine status
+            if ($hasFile && $hasNumber) {
+                $doc['status'] = 'complete';
+                $doc['status_label'] = 'File Attached & Details Verified';
+                $doc['status_color'] = 'emerald';
+            } elseif ($hasFile) {
+                $doc['status'] = 'file_only';
+                $doc['status_label'] = 'Proof File Attached';
+                $doc['status_color'] = 'emerald';
+            } elseif ($hasNumber) {
+                $doc['status'] = 'details_only';
+                $doc['status_label'] = 'Details Provided — Awaiting File';
+                $doc['status_color'] = 'amber';
+            } else {
+                $doc['status'] = 'pending';
+                $doc['status_label'] = 'Not Provided';
+                $doc['status_color'] = 'slate';
+            }
+
+            if ($allSupported || $doc['is_provided']) {
+                $results[$key] = $doc;
+            }
+        }
+
+        return $results;
     }
 
     /**

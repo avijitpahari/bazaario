@@ -75,6 +75,12 @@
 
             <!-- Header Action Controls -->
             <div class="flex items-center gap-1">
+                <a href="{{ route('user.support.tickets.create') }}" 
+                   title="Open Support Ticket"
+                   style="width: 30px; height: 30px; border-radius: 9999px; background: rgba(255,255,255,0.12); color: #ffffff; display: flex; align-items: center; justify-content: center; text-decoration: none;" 
+                   class="hover:bg-white/25 transition-colors">
+                    <span class="material-symbols-outlined text-[17px]">confirmation_number</span>
+                </a>
                 <button type="button" @click="minimizeChat()" style="width: 30px; height: 30px; border-radius: 9999px; background: rgba(255,255,255,0.12); color: #ffffff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;" class="hover:bg-white/25 transition-colors">
                     <span class="material-symbols-outlined text-[18px]">remove</span>
                 </button>
@@ -109,39 +115,57 @@
                  class="grid grid-cols-2 gap-2 my-2 pt-1">
                 
                 <button type="button" 
-                        @click="sendQuickReply('product_info')"
-                        class="p-2.5 bg-white hover:bg-blue-50/80 border border-slate-200 hover:border-blue-300 rounded-xl text-left text-xs text-slate-700 hover:text-blue-700 flex items-center gap-2 transition-all shadow-2xs group">
-                    <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-[15px]">info</span>
-                    </span>
-                    <span class="font-medium text-[11px] leading-tight">Product information</span>
-                </button>
-
-                <button type="button" 
                         @click="sendQuickReply('track_order')"
-                        class="p-2.5 bg-white hover:bg-blue-50/80 border border-slate-200 hover:border-blue-300 rounded-xl text-left text-xs text-slate-700 hover:text-blue-700 flex items-center gap-2 transition-all shadow-2xs group">
+                        class="p-2 bg-white hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-300 rounded-xl text-left text-xs text-slate-700 hover:text-emerald-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
                     <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-[15px]">local_shipping</span>
                     </span>
-                    <span class="font-medium text-[11px] leading-tight">Track my order</span>
+                    <span class="font-medium text-[11px] leading-tight">Track order</span>
+                </button>
+
+                <button type="button" 
+                        @click="sendQuickReply('faq_returns')"
+                        class="p-2 bg-white hover:bg-rose-50/80 border border-slate-200 hover:border-rose-300 rounded-xl text-left text-xs text-slate-700 hover:text-rose-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">keyboard_return</span>
+                    </span>
+                    <span class="font-medium text-[11px] leading-tight">Returns &amp; refunds</span>
+                </button>
+
+                <button type="button" 
+                        @click="sendQuickReply('faq_auctions')"
+                        class="p-2 bg-white hover:bg-indigo-50/80 border border-slate-200 hover:border-indigo-300 rounded-xl text-left text-xs text-slate-700 hover:text-indigo-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">gavel</span>
+                    </span>
+                    <span class="font-medium text-[11px] leading-tight">Auction rules</span>
+                </button>
+
+                <button type="button" 
+                        @click="sendQuickReply('faq_payments')"
+                        class="p-2 bg-white hover:bg-amber-50/80 border border-slate-200 hover:border-amber-300 rounded-xl text-left text-xs text-slate-700 hover:text-amber-800 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">verified_user</span>
+                    </span>
+                    <span class="font-medium text-[11px] leading-tight">Escrow &amp; pay</span>
+                </button>
+
+                <button type="button" 
+                        @click="sendQuickReply('create_ticket')"
+                        class="p-2 bg-white hover:bg-blue-50/80 border border-slate-200 hover:border-blue-300 rounded-xl text-left text-xs text-slate-700 hover:text-blue-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">confirmation_number</span>
+                    </span>
+                    <span class="font-medium text-[11px] leading-tight">Open a ticket</span>
                 </button>
 
                 <button type="button" 
                         @click="sendQuickReply('talk_agent')"
-                        class="p-2.5 bg-white hover:bg-blue-50/80 border border-slate-200 hover:border-blue-300 rounded-xl text-left text-xs text-slate-700 hover:text-blue-700 flex items-center gap-2 transition-all shadow-2xs group">
-                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-[15px]">person</span>
+                        class="p-2 bg-white hover:bg-purple-50/80 border border-slate-200 hover:border-purple-300 rounded-xl text-left text-xs text-slate-700 hover:text-purple-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">support_agent</span>
                     </span>
                     <span class="font-medium text-[11px] leading-tight">Talk to an agent</span>
-                </button>
-
-                <button type="button" 
-                        @click="sendQuickReply('other')"
-                        class="p-2.5 bg-white hover:bg-blue-50/80 border border-slate-200 hover:border-blue-300 rounded-xl text-left text-xs text-slate-700 hover:text-blue-700 flex items-center gap-2 transition-all shadow-2xs group">
-                    <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-[15px]">help_outline</span>
-                    </span>
-                    <span class="font-medium text-[11px] leading-tight">Other question</span>
                 </button>
             </div>
 
@@ -278,6 +302,8 @@
             lightboxUrl: null,
 
             initWidget() {
+                window.bazaarioOpenChat = () => { this.openChat(); };
+
                 // Auto hide prompt after 10s if not interacted
                 setTimeout(() => { this.showPrompt = false; }, 10000);
 

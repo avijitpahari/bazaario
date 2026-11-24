@@ -102,56 +102,48 @@
                     </div>
                 </div>
 
-                <!-- KYC & Tax Registrations -->
+                <!-- KYC & Statutory Compliance Dossier -->
                 <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                    <span class="font-mono text-[10px] text-slate-400 uppercase font-bold">Tax & Statutory Compliance</span>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-1.5 font-mono text-xs">
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-500">GSTIN:</span>
-                            <div class="flex items-center gap-1.5">
-                                <span class="font-bold text-[#0F172A]">{{ $seller->gstin ?? 'Not Provided' }}</span>
-                                @if($seller->gstin_doc_path)
-                                    <a href="{{ Storage::url($seller->gstin_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View GST Certificate">📄</a>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-500">PAN:</span>
-                            <span class="font-bold text-[#0F172A]">{{ $seller->pan_number ?? 'Not Provided' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-500">Trade License:</span>
-                            <div class="flex items-center gap-1.5">
-                                <span class="font-bold text-[#0F172A]">{{ $seller->trade_license_number ?? 'Not Provided' }}</span>
-                                @if($seller->trade_license_doc_path)
-                                    <a href="{{ Storage::url($seller->trade_license_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View Trade License">📄</a>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-500">Bank IFSC:</span>
-                            <span class="font-bold text-[#0F172A]">{{ $seller->bank_ifsc ?? 'SBIN0000058' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-500">Bank A/C:</span>
-                            <div class="flex items-center gap-1.5">
-                                <span class="font-bold text-[#0F172A]">•••• {{ substr($seller->bank_account_number ?? '1234567890', -4) }}</span>
-                                @if($seller->bank_doc_path)
-                                    <a href="{{ Storage::url($seller->bank_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View Cheque Proof">📄</a>
-                                @endif
-                            </div>
-                        </div>
-                        @if($seller->fssai_number || $seller->fssai_doc_path)
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500">FSSAI / GI:</span>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-[#0F172A]">{{ $seller->fssai_number ?? 'Cleared' }}</span>
-                                    @if($seller->fssai_doc_path)
-                                        <a href="{{ Storage::url($seller->fssai_doc_path) }}" target="_blank" class="text-amber-700 font-bold hover:underline" title="View FSSAI Certificate">📄</a>
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono text-[10px] text-slate-400 uppercase font-bold">Statutory & KYC Documents</span>
+                        @php
+                            $sellerProvidedDocs = $seller->getProvidedDocumentsList(false);
+                            if (empty($sellerProvidedDocs)) {
+                                $sellerProvidedDocs = $seller->getProvidedDocumentsList(true);
+                            }
+                            $attachedDocsCount = collect($sellerProvidedDocs)->filter(fn($d) => $d['has_file'])->count();
+                        @endphp
+                        <span class="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                            {{ $attachedDocsCount }}/{{ count($sellerProvidedDocs) }} Proofs
+                        </span>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-2 font-mono text-xs">
+                        @forelse($sellerProvidedDocs as $docKey => $doc)
+                            <div class="flex justify-between items-center gap-2 py-1 {{ !$loop->last ? 'border-b border-slate-200/50' : '' }}">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="text-slate-500 truncate text-[11px]">{{ $doc['short_label'] }}:</span>
+                                    <span class="font-bold text-[#0F172A] truncate text-[11px]">{{ $doc['number'] ?: 'Not Provided' }}</span>
+                                    @if($doc['secondary'])
+                                        <span class="text-slate-400 text-[10px] truncate">({{ $doc['secondary'] }})</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    @if($doc['has_file'])
+                                        <a href="{{ Storage::url($doc['file_path']) }}" target="_blank" 
+                                           class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded transition" 
+                                           title="View {{ $doc['label'] }} Proof">
+                                            <span>Proof</span>
+                                            <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+                                        </a>
+                                    @else
+                                        <span class="text-[10px] text-slate-400 italic">No File</span>
                                     @endif
                                 </div>
                             </div>
-                        @endif
+                        @empty
+                            <p class="text-slate-400 italic text-center py-1 text-[11px]">No compliance documents provided.</p>
+                        @endforelse
                     </div>
                 </div>
 

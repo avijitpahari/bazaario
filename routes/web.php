@@ -201,6 +201,7 @@ Route::prefix('user')->name('user.')->middleware(['auth:user', 'user'])->group(f
         Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\User\UserSupportController::class, 'replyTicket'])->name('tickets.reply');
         Route::post('/tickets/{ticket}/escalate', [\App\Http\Controllers\User\UserSupportController::class, 'escalateTicket'])->name('tickets.escalate');
         Route::post('/tickets/{ticket}/close', [\App\Http\Controllers\User\UserSupportController::class, 'closeTicket'])->name('tickets.close');
+        Route::post('/tickets/{ticket}/reopen', [\App\Http\Controllers\User\UserSupportController::class, 'reopenTicket'])->name('tickets.reopen');
     });
 
     Route::get('/recommendations', [\App\Http\Controllers\AiAssistantController::class, 'recommendationsView'])->name('recommendations');
@@ -305,9 +306,12 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
     // Customer Inquiries & Store Support Desk
     Route::prefix('support')->name('support.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Seller\SellerSupportController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Seller\SellerSupportController::class, 'createTicket'])->name('tickets.create');
+        Route::post('/', [\App\Http\Controllers\Seller\SellerSupportController::class, 'storeTicket'])->name('tickets.store');
         Route::get('/tickets/{ticket}', [\App\Http\Controllers\Seller\SellerSupportController::class, 'showTicket'])->name('tickets.show');
         Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Seller\SellerSupportController::class, 'replyTicket'])->name('tickets.reply');
         Route::post('/tickets/{ticket}/status', [\App\Http\Controllers\Seller\SellerSupportController::class, 'updateStatus'])->name('tickets.status');
+        Route::post('/tickets/{ticket}/escalate', [\App\Http\Controllers\Seller\SellerSupportController::class, 'escalateTicket'])->name('tickets.escalate');
     });
 });
 
@@ -383,11 +387,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/settings/ai', [AdminDashboardController::class, 'aiSettings'])->name('settings.ai');
         Route::post('/settings/ai', [AdminDashboardController::class, 'updateAiSettings'])->name('settings.ai.update');
 
-        // Live Agent Support Desk & Chat
+        // Live Agent Support Desk & Chat + Support Ticket Management
         Route::get('/support', [\App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.index');
         Route::post('/support/conversations/{id}/reply', [\App\Http\Controllers\Admin\AdminSupportController::class, 'reply'])->name('support.reply');
         Route::post('/support/conversations/{id}/status', [\App\Http\Controllers\Admin\AdminSupportController::class, 'updateStatus'])->name('support.status');
         Route::get('/support/conversations/{id}/poll', [\App\Http\Controllers\Admin\AdminSupportController::class, 'pollMessages'])->name('support.poll');
+
+        // Support Tickets (Unified Dashboard)
+        Route::get('/support/tickets', [\App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.tickets.index');
+        Route::get('/support/tickets/{ticket}', [\App\Http\Controllers\Admin\AdminSupportController::class, 'showSupportTicket'])->name('support.tickets.show');
+        Route::post('/support/tickets/{ticket}/arbitrate', [\App\Http\Controllers\Admin\AdminSupportController::class, 'arbitrateSupportTicket'])->name('support.tickets.arbitrate');
+        Route::get('/support/tickets/{ticket}/poll', [\App\Http\Controllers\Admin\AdminSupportController::class, 'pollTicketMessages'])->name('support.tickets.poll');
+        Route::get('/support/tickets/escalated', [\App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.tickets.escalated');
 
         // ── Admin Impersonation ─────────────────────────────────────────────
         Route::post('/impersonate/{userId}', [\App\Http\Controllers\Admin\ImpersonationController::class, 'impersonate'])->name('impersonate');

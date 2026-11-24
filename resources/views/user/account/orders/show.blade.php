@@ -60,6 +60,13 @@
                     {{ $statusConfig['label'] }}
                 </span>
 
+                {{-- Feature 149: Link Order to Support Ticket --}}
+                <a href="{{ route('user.support.tickets.create', ['order_id' => $order->id]) }}" 
+                   class="px-4 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 font-button-text text-body-small font-semibold hover:bg-amber-100 transition-colors flex items-center gap-1.5 shadow-2xs">
+                    <span class="material-symbols-outlined text-[16px] text-amber-700">support_agent</span>
+                    <span>Get Order Help</span>
+                </a>
+
                 {{-- Feature 49: 1-Click Reorder Button --}}
                 <form action="{{ route('user.orders.reorder', $order->id) }}" method="POST">
                     @csrf
@@ -340,6 +347,22 @@
                         <span class="font-semibold text-slate-authority">Customer Note: </span>{{ $order->notes }}
                     </div>
                 @endif
+            </div>
+
+            {{-- Feature 149: Dedicated Order Support Box --}}
+            <div class="rounded-2xl bg-amber-50/70 border border-amber-200/80 p-5 flex flex-col gap-2.5">
+                <div class="flex items-center gap-2 text-amber-950 font-bold text-sm">
+                    <span class="material-symbols-outlined text-[20px] text-amber-600">help_center</span>
+                    <span>Need Help With This Order?</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Have an issue with delivery delay, damaged produce, or need a return? Create a support ticket linked to this order.
+                </p>
+                <a href="{{ route('user.support.tickets.create', ['order_id' => $order->id]) }}"
+                   class="mt-1 px-4 py-2.5 rounded-xl bg-slate-900 text-amber-400 font-button-text text-xs font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 shadow-xs">
+                    <span class="material-symbols-outlined text-[16px]">confirmation_number</span>
+                    <span>Open Linked Support Ticket</span>
+                </a>
             </div>
 
             <a href="{{ route('user.orders.index') }}"

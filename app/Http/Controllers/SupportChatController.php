@@ -199,6 +199,39 @@ class SupportChatController extends Controller
                 ];
             } catch (\Throwable $e) {
                 Log::warning('AI Support Chat response error: ' . $e->getMessage());
+
+                $lowerText = strtolower($messageText);
+                $fallbackReply = "Thanks for reaching out! Our support desk has received your message and an agent will follow up shortly.";
+                if (str_contains($lowerText, 'return') || str_contains($lowerText, 'refund')) {
+                    $fallbackReply = "🔄 **Returns & Refunds**: Bazaario offers a 7-day return window on craft & pantry goods, and a 48-hour freshness guarantee on farm produce. You can initiate returns in your [Returns Portal](" . route('user.returns') . ") or [Open a Ticket](" . route('user.support.tickets.create') . ").";
+                } elseif (str_contains($lowerText, 'track') || str_contains($lowerText, 'order')) {
+                    $fallbackReply = "📦 **Order Tracking**: You can inspect real-time courier telemetry and milestones in your [Orders Portal](" . route('user.orders.index') . ").";
+                } elseif (str_contains($lowerText, 'ticket') || str_contains($lowerText, 'complaint')) {
+                    $fallbackReply = "🎫 **Support Tickets**: For formal dispute intervention, you can [Open a Support Ticket](" . route('user.support.tickets.create') . ") with unboxing photos attached.";
+                } elseif (str_contains($lowerText, 'auction') || str_contains($lowerText, 'bid')) {
+                    $fallbackReply = "🔨 **Wholesale Auctions**: Check live spot floor bidding and schedule lots in our [Auctions Terminal](" . route('auctions.index') . ").";
+                }
+
+                $botMsg = ChatMessage::create([
+                    'conversation_id' => $conversation->id,
+                    'role' => 'assistant',
+                    'sender_type' => 'bot',
+                    'sender_name' => 'Support Team',
+                    'message' => $fallbackReply,
+                    'created_at' => now(),
+                ]);
+
+                $botReply = [
+                    'id' => $botMsg->id,
+                    'role' => 'assistant',
+                    'sender_type' => 'bot',
+                    'sender_name' => 'Support Team',
+                    'message' => $botMsg->message,
+                    'attachment_url' => null,
+                    'attachment_type' => null,
+                    'time' => $botMsg->created_at->format('h:i A'),
+                    'is_read' => false,
+                ];
             }
         }
 
@@ -242,39 +275,79 @@ class SupportChatController extends Controller
                 if ($user) {
                     $recentOrder = Order::where('user_id', $user->id)->latest()->first();
                     if ($recentOrder) {
-                        $supportResponse = "Here is your latest order **#{$recentOrder->order_number}**:\n"
+                        $supportResponse = "📦 **Order Telemetry for #{$recentOrder->order_number}**:\n"
                             . "• **Status**: " . ucfirst($recentOrder->order_status) . "\n"
                             . "• **Total Amount**: ₹" . number_format($recentOrder->total_amount, 2) . "\n"
-                            . "• **Courier**: BlueDart Express (Telemetry: In-Transit)\n"
-                            . "You can view full telemetry anytime under your Orders portal.";
+                            . "• **Courier**: BlueDart Hyperlocal Fleet (Telemetry: In-Transit)\n"
+                            . "• **Delivery Slot**: Morning 8 AM - 12 PM\n\n"
+                            . "You can view full real-time milestone telemetry in your [Orders Portal](" . route('user.orders.show', $recentOrder->id) . ").";
                     } else {
-                        $supportResponse = "You have no active orders yet. If you have an Order ID, type it here (e.g. `BZ-2026-00128`) and I will track it for you!";
+                        $supportResponse = "You have no active orders yet. If you have an Order Number, type it here (e.g. `BZ-ORD-101`) and I will track it for you!";
                     }
                 } else {
-                    $supportResponse = "Please provide your Order Number (e.g. `BZ-2026-00125`) or your email address so I can check your delivery telemetry right away!";
+                    $supportResponse = "Please provide your Order Number (e.g. `BZ-ORD-101`) or log in so I can check your delivery telemetry right away!";
                 }
                 break;
 
+            case 'faq_returns':
+                $userLabel = 'How do returns & refunds work?';
+                $supportResponse = "🔄 **Bazaario 7-Day Return & Escrow Refund Policy**\n\n"
+                    . "• **Eligible Items**: Artisanal crafts, packaged pantry items, and durable goods have a full 7-day return window. Perishable agricultural items have a 48-hour freshness guarantee.\n"
+                    . "• **Doorstep Inspection & Pickup**: Free courier pickup arranged directly from your delivery address.\n"
+                    . "• **Escrow Safeguard**: Your payment is safely held in Escrow and is never released to the seller until delivery is inspected.\n"
+                    . "• **Instant Refund**: Approved refunds are transferred directly to your original payment method (UPI / Bank / Card) within 24 hours.\n\n"
+                    . "👉 [Go to Returns Portal](" . route('user.returns') . ") or [Create a Support Ticket](" . route('user.support.tickets.create') . ")";
+                break;
+
+            case 'faq_auctions':
+                $userLabel = 'How do Wholesale Auctions work?';
+                $supportResponse = "🔨 **Bazaario Live Wholesale Spot Auctions**\n\n"
+                    . "• **APMC Spot Floor**: Farmers and verified master artisans list bulk consignments on live scheduled bidding floors.\n"
+                    . "• **Floor & Reserve Prices**: Opening bids start at the seller's floor price. The secret reserve floor ensures produce is never sold below fair production costs.\n"
+                    . "• **Anti-Snipe Guard**: Any bid placed in the final 2 minutes automatically triggers a +2 minute soft-close extension.\n"
+                    . "• **Hammer Allocation**: The winning bidder completes escrow checkout for immediate dispatch.\n\n"
+                    . "👉 [Browse Live Auctions](" . route('auctions.index') . ")";
+                break;
+
+            case 'faq_payments':
+                $userLabel = 'What payment methods & escrow protections exist?';
+                $supportResponse = "🛡️ **100% Escrow Buyer Protection & Payments**\n\n"
+                    . "• **Payment Options**: UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards, NetBanking, and Cash on Delivery (COD).\n"
+                    . "• **Escrow Vault**: All buyer funds are locked in an APMC-grade escrow vault. Merchants are paid only after delivery is successfully verified.\n"
+                    . "• **Zero Hidden Fees**: No transaction surcharges or hidden platform fees on buyer payments.";
+                break;
+
+            case 'create_ticket':
+                $userLabel = 'Open a Support Ticket';
+                $supportResponse = "🎫 **Open a Dedicated Support Ticket**\n\n"
+                    . "Need formal assistance with an order, damaged item, or dispute?\n"
+                    . "You can open an official support ticket linked to your order with photos and documents attached.\n\n"
+                    . "👉 [Click here to Create Support Ticket](" . route('user.support.tickets.create') . ")\n\n"
+                    . "Our dedicated dispute arbitration team and verified merchants respond within 2 to 4 hours.";
+                break;
+
             case 'product_info':
-                $userLabel = 'Product information';
-                $supportResponse = "We have fresh seasonal produce, electronics, artisanal crafts, and pantry essentials in stock!\n\n"
-                    . "You can type any product name or question (e.g. *\"Do you have organic honey?\"* or *\"Show shoe photos\"*), and I'll find availability, pricing, and specs for you.";
+                $userLabel = 'Product information & sourcing';
+                $supportResponse = "🌿 We offer certified GI-tagged produce, organic farm harvest, artisanal handlooms, and terracotta crafts directly from verified Indian producers!\n\n"
+                    . "Type any item name (e.g. *\"Alphonso mangoes\"*, *\"Kashmiri apples\"*, *\"Handmade silk saree\"*) to check live availability, farm origin, and pricing.";
                 break;
 
             case 'talk_agent':
-                $userLabel = 'Talk to an agent';
+                $userLabel = 'Talk to a live agent';
                 $conversation->update([
                     'status' => 'open',
                     'priority' => 'high',
                     'tags' => array_unique(array_merge($conversation->tags ?? [], ['Live Agent Escalation'])),
                 ]);
-                $supportResponse = "🔔 I've escalated your conversation to our live merchant support desk! A support agent is being connected to your session. How may we assist you today?";
+                $supportResponse = "🔔 **Connected to Live Support Desk**\n\n"
+                    . "A dedicated customer care specialist has been alerted and assigned to your session. Please describe your question or issue, and we will assist you immediately!";
                 break;
 
             case 'other':
             default:
                 $userLabel = 'Other question';
-                $supportResponse = "Feel free to ask anything about shipping, refunds, payment options, or vendor registration. Our team is here 24/7!";
+                $supportResponse = "Feel free to ask anything about order tracking, refunds, payment options, wholesale auctions, or store registration. Our team is here 24/7!\n\n"
+                    . "You can also [Open a Support Ticket](" . route('user.support.tickets.create') . ") for formal dispute resolution.";
                 break;
         }
 

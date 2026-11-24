@@ -200,11 +200,18 @@ class SellerOnboardingController extends Controller
             'bank_account_number'  => ['nullable', 'string', 'max:50'],
             'bank_ifsc'            => ['nullable', 'string', 'max:20'],
             'fssai_number'         => ['nullable', 'string', 'max:30'],
+            'aadhaar_number'       => ['nullable', 'string', 'max:50'],
+            'mandi_license_number' => ['nullable', 'string', 'max:50'],
+            'udyam_number'         => ['nullable', 'string', 'max:50'],
+            'provided_documents'   => ['nullable', 'array'],
             'gstin_doc'            => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
             'pan_doc'              => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
             'trade_license_doc'    => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
             'bank_doc'             => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
             'fssai_doc'            => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
+            'aadhaar_doc'          => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
+            'mandi_license_doc'    => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
+            'udyam_doc'            => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'],
         ], [
             'seller_type.required'     => 'Please choose a seller classification (Farmer, Kirana, Dark Store, or Individual).',
             'seller_type.in'           => 'The selected seller classification is invalid.',
@@ -259,6 +266,21 @@ class SellerOnboardingController extends Controller
             $fssaiDocPath = $request->file('fssai_doc')->storeAs('seller_documents/' . $user->id, 'fssai_' . $user->id . '_' . time() . '.' . $request->file('fssai_doc')->getClientOriginalExtension(), 'public');
         }
 
+        $aadhaarDocPath = null;
+        if ($request->hasFile('aadhaar_doc')) {
+            $aadhaarDocPath = $request->file('aadhaar_doc')->storeAs('seller_documents/' . $user->id, 'aadhaar_' . $user->id . '_' . time() . '.' . $request->file('aadhaar_doc')->getClientOriginalExtension(), 'public');
+        }
+
+        $mandiDocPath = null;
+        if ($request->hasFile('mandi_license_doc')) {
+            $mandiDocPath = $request->file('mandi_license_doc')->storeAs('seller_documents/' . $user->id, 'mandi_' . $user->id . '_' . time() . '.' . $request->file('mandi_license_doc')->getClientOriginalExtension(), 'public');
+        }
+
+        $udyamDocPath = null;
+        if ($request->hasFile('udyam_doc')) {
+            $udyamDocPath = $request->file('udyam_doc')->storeAs('seller_documents/' . $user->id, 'udyam_' . $user->id . '_' . time() . '.' . $request->file('udyam_doc')->getClientOriginalExtension(), 'public');
+        }
+
         // 3. Generate Deterministic Unique Shop Slug
         $baseSlug = Str::slug($validated['shop_name']);
         if (empty($baseSlug)) {
@@ -272,7 +294,7 @@ class SellerOnboardingController extends Controller
         }
 
         // 4. Atomic Database Mutation
-        $profile = DB::transaction(function () use ($user, $validated, $slug, $imagePath, $gstinDocPath, $panDocPath, $tradeLicenseDocPath, $bankDocPath, $fssaiDocPath) {
+        $profile = DB::transaction(function () use ($user, $validated, $slug, $imagePath, $gstinDocPath, $panDocPath, $tradeLicenseDocPath, $bankDocPath, $fssaiDocPath, $aadhaarDocPath, $mandiDocPath, $udyamDocPath) {
             $attributes = [
                 'shop_name'            => $validated['shop_name'],
                 'shop_slug'            => $slug,
@@ -289,8 +311,15 @@ class SellerOnboardingController extends Controller
                 'bank_account_number'  => $validated['bank_account_number'] ?? null,
                 'bank_ifsc'            => $validated['bank_ifsc'] ?? null,
                 'fssai_number'         => $validated['fssai_number'] ?? null,
+                'aadhaar_number'       => $validated['aadhaar_number'] ?? null,
+                'mandi_license_number' => $validated['mandi_license_number'] ?? null,
+                'udyam_number'         => $validated['udyam_number'] ?? null,
                 'status'               => 'pending',
             ];
+
+            if (!empty($validated['provided_documents']) && is_array($validated['provided_documents'])) {
+                $attributes['provided_documents'] = array_values(array_unique($validated['provided_documents']));
+            }
 
             if ($gstinDocPath) {
                 $attributes['gstin_doc_path'] = $gstinDocPath;
@@ -306,6 +335,15 @@ class SellerOnboardingController extends Controller
             }
             if ($fssaiDocPath) {
                 $attributes['fssai_doc_path'] = $fssaiDocPath;
+            }
+            if ($aadhaarDocPath) {
+                $attributes['aadhaar_doc_path'] = $aadhaarDocPath;
+            }
+            if ($mandiDocPath) {
+                $attributes['mandi_license_doc_path'] = $mandiDocPath;
+            }
+            if ($udyamDocPath) {
+                $attributes['udyam_doc_path'] = $udyamDocPath;
             }
 
             // Only attach columns if they exist in schema or model fillables
@@ -338,6 +376,18 @@ class SellerOnboardingController extends Controller
             'coordinates'  => [$profile->latitude, $profile->longitude],
             'submitted_at' => now()->toIso8601String(),
         ]);
+
+        try {
+            \App\Models\AdminFeed::record(
+                title: "New Merchant KYC: {$profile->shop_name}",
+                description: "{$profile->seller_type} in {$profile->city} submitted credentials for verification.",
+                type: 'kyc',
+                icon: 'assignment_ind',
+                badgeText: 'Pending KYC',
+                badgeColor: 'amber',
+                actionUrl: route('admin.sellers.approvals')
+            );
+        } catch (\Throwable $feedEx) {}
 
         // 6. Redirect to Pending Approval Gate
         return redirect()->route('seller.pending')
@@ -435,7 +485,7 @@ class SellerOnboardingController extends Controller
         }
 
         $validated = $request->validate([
-            'doc_type'             => ['required', 'string', Rule::in(['gstin', 'trade_license', 'bank', 'fssai', 'pan'])],
+            'doc_type'             => ['required', 'string', Rule::in(['gstin', 'trade_license', 'bank', 'fssai', 'pan', 'aadhaar', 'mandi_license', 'udyam'])],
             'document_file'        => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg,webp', 'max:5120'], // Max 5MB
             'gstin'                => ['nullable', 'string', 'max:20'],
             'pan_number'           => ['nullable', 'string', 'max:20'],
@@ -443,6 +493,9 @@ class SellerOnboardingController extends Controller
             'bank_account_number'  => ['nullable', 'string', 'max:50'],
             'bank_ifsc'            => ['nullable', 'string', 'max:20'],
             'fssai_number'         => ['nullable', 'string', 'max:30'],
+            'aadhaar_number'       => ['nullable', 'string', 'max:50'],
+            'mandi_license_number' => ['nullable', 'string', 'max:50'],
+            'udyam_number'         => ['nullable', 'string', 'max:50'],
         ], [
             'gstin.max'            => 'The GSTIN must not be greater than 20 characters (standard Indian GSTIN is 15 characters).',
             'bank_ifsc.max'        => 'The bank IFSC code must not be greater than 20 characters (standard IFSC is 11 characters).',
@@ -522,7 +575,46 @@ class SellerOnboardingController extends Controller
                 $docStatuses['fssai'] = 'uploaded';
                 $msg = 'FSSAI / GI Certification details uploaded successfully.';
                 break;
+
+            case 'aadhaar':
+                if (!empty($validated['aadhaar_number'])) {
+                    $profile->aadhaar_number = trim($validated['aadhaar_number']);
+                }
+                if ($filePath) {
+                    $profile->aadhaar_doc_path = $filePath;
+                }
+                $docStatuses['aadhaar'] = 'uploaded';
+                $msg = 'Aadhaar / Government ID proof uploaded successfully.';
+                break;
+
+            case 'mandi_license':
+                if (!empty($validated['mandi_license_number'])) {
+                    $profile->mandi_license_number = trim($validated['mandi_license_number']);
+                }
+                if ($filePath) {
+                    $profile->mandi_license_doc_path = $filePath;
+                }
+                $docStatuses['mandi_license'] = 'uploaded';
+                $msg = 'APMC / Mandi market trading license uploaded successfully.';
+                break;
+
+            case 'udyam':
+                if (!empty($validated['udyam_number'])) {
+                    $profile->udyam_number = trim($validated['udyam_number']);
+                }
+                if ($filePath) {
+                    $profile->udyam_doc_path = $filePath;
+                }
+                $docStatuses['udyam'] = 'uploaded';
+                $msg = 'Udyam / MSME registration certificate uploaded successfully.';
+                break;
         }
+
+        $provided = is_array($profile->provided_documents) ? $profile->provided_documents : [];
+        if (!in_array($docType, $provided)) {
+            $provided[] = $docType;
+        }
+        $profile->provided_documents = array_values(array_unique($provided));
 
         $profile->document_statuses = $docStatuses;
         $profile->save();

@@ -33,7 +33,7 @@
                 <form action="{{ route('user.support.tickets.close', $ticket) }}" method="POST">
                     @csrf
                     <button type="submit" 
-                            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5">
+                            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-outlined text-[16px]">check_circle</span>
                         <span>Mark Resolved</span>
                     </button>
@@ -42,16 +42,116 @@
                 <!-- Escalate Button (if not already escalated) -->
                 @if(!$ticket->is_escalated)
                     <button type="button" @click="escalateModalOpen = true"
-                            class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-colors flex items-center gap-1.5">
+                            class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-outlined text-[16px]">gavel</span>
                         <span>Escalate to Dispute</span>
                     </button>
                 @endif
+            @else
+                <!-- Reopen Ticket Button (Feature 153: Close / Reopen Ticket) -->
+                <form action="{{ route('user.support.tickets.reopen', $ticket) }}" method="POST">
+                    @csrf
+                    <button type="submit" 
+                            class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+                        <span>Reopen Ticket</span>
+                    </button>
+                </form>
             @endif
 
             <a href="{{ route('user.support.index') }}" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors">
                 Back to Hub
             </a>
+        </div>
+    </div>
+
+    {{-- Feature 151: Ticket Status Lifecycle Progression Tracker --}}
+    @php
+        $statusKey = $ticket->status;
+        $currentStepIndex = match($statusKey) {
+            'resolved', 'closed' => 3,
+            'escalated' => 2,
+            'in_progress', 'waiting_customer', 'waiting_seller' => 1,
+            default => 0, // 'open'
+        };
+    @endphp
+
+    <div class="rounded-3xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-xs flex flex-col gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2 text-slate-800 font-bold text-sm">
+                <span class="material-symbols-outlined text-amber-500 text-[20px]">timeline</span>
+                <span>Ticket Lifecycle Status Tracker</span>
+            </div>
+            <div class="text-xs text-slate-500 font-mono">
+                Status: <strong class="text-slate-900 uppercase font-bold">{{ str_replace('_', ' ', $ticket->status) }}</strong>
+                @if($ticket->resolved_at)
+                    • Resolved on {{ $ticket->resolved_at->format('d M Y') }}
+                @elseif($ticket->closed_at)
+                    • Closed on {{ $ticket->closed_at->format('d M Y') }}
+                @endif
+            </div>
+        </div>
+
+        <div class="relative py-2">
+            {{-- Stepper Progress Bar (Desktop) --}}
+            <div class="hidden sm:block absolute top-1/2 left-10 right-10 -translate-y-1/2 h-1 bg-slate-100 -z-0">
+                <div class="h-full {{ $ticket->is_escalated ? 'bg-rose-500' : 'bg-emerald-500' }} transition-all duration-500"
+                     style="width: {{ ($currentStepIndex / 3) * 100 }}%;"></div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
+                {{-- Step 1: Open --}}
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-xs
+                                {{ $currentStepIndex >= 0 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400' }}">
+                        <span class="material-symbols-outlined text-[18px]">add_task</span>
+                    </div>
+                    <span class="font-bold text-xs mt-2 text-slate-900">1. Logged</span>
+                    <span class="text-[11px] text-slate-500 mt-0.5">{{ $ticket->created_at->format('d M, h:i A') }}</span>
+                </div>
+
+                {{-- Step 2: Under Review / In Progress --}}
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-xs
+                                {{ $currentStepIndex >= 1 ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400' }}">
+                        <span class="material-symbols-outlined text-[18px]">search_insights</span>
+                    </div>
+                    <span class="font-bold text-xs mt-2 text-slate-900">2. In Review</span>
+                    <span class="text-[11px] text-slate-500 mt-0.5">Desk Investigation</span>
+                </div>
+
+                {{-- Step 3: Action / Arbitration --}}
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-xs
+                                {{ $ticket->is_escalated ? 'bg-rose-600 text-white ring-4 ring-rose-100' : ($currentStepIndex >= 2 ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400') }}">
+                        <span class="material-symbols-outlined text-[18px]">{{ $ticket->is_escalated ? 'gavel' : 'handshake' }}</span>
+                    </div>
+                    <span class="font-bold text-xs mt-2 {{ $ticket->is_escalated ? 'text-rose-700' : 'text-slate-900' }}">
+                        {{ $ticket->is_escalated ? '3. Escalate Dispute' : '3. Resolution' }}
+                    </span>
+                    <span class="text-[11px] text-slate-500 mt-0.5">
+                        {{ $ticket->is_escalated ? 'Escrow Protected' : 'Seller Conciliation' }}
+                    </span>
+                </div>
+
+                {{-- Step 4: Closed / Resolved --}}
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-xs
+                                {{ $currentStepIndex >= 3 ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400' }}">
+                        <span class="material-symbols-outlined text-[18px]">verified</span>
+                    </div>
+                    <span class="font-bold text-xs mt-2 text-slate-900">4. Finalized</span>
+                    <span class="text-[11px] text-slate-500 mt-0.5">
+                        @if($ticket->resolved_at)
+                            Resolved {{ $ticket->resolved_at->format('d M') }}
+                        @elseif($ticket->closed_at)
+                            Closed {{ $ticket->closed_at->format('d M') }}
+                        @else
+                            Pending
+                        @endif
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -169,42 +269,43 @@
             @endforeach
         </div>
 
-        <!-- Reply Form Box -->
-        @if($ticket->status !== 'closed')
-            <div class="p-5 sm:p-6 bg-slate-50/80 border-t border-slate-200">
-                <form action="{{ route('user.support.tickets.reply', $ticket) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3">
-                    @csrf
-                    <label for="reply_message" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                        Post a Reply
-                    </label>
-                    <textarea name="message" id="reply_message" rows="3" required placeholder="Type your response here..."
-                              class="w-full p-3.5 rounded-2xl border border-slate-300 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all bg-white placeholder:text-slate-400"></textarea>
-                    @error('message')
-                        <p class="text-rose-600 text-xs">{{ $message }}</p>
-                    @enderror
+        <!-- Reply Form Box (Chat & Reply to Ticket) -->
+        <div class="p-5 sm:p-6 bg-slate-50/80 border-t border-slate-200">
+            @if(in_array($ticket->status, ['resolved', 'closed']))
+                <div class="mb-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2 font-medium">
+                    <span class="material-symbols-outlined text-amber-700 text-lg shrink-0">info</span>
+                    <span>This ticket is currently marked as <strong>{{ $ticket->status }}</strong>. Replying below will automatically reopen the ticket and notify our support desk.</span>
+                </div>
+            @endif
 
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                        <div class="flex items-center gap-2">
-                            <label for="reply_attachment" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold cursor-pointer transition-colors">
-                                <span class="material-symbols-outlined text-[16px]">attach_file</span>
-                                <span>Attach File / Photo</span>
-                            </label>
-                            <input type="file" name="attachment" id="reply_attachment" accept=".jpg,.jpeg,.png,.webp,.pdf" class="hidden" onchange="document.getElementById('file-chosen-name').textContent = this.files[0] ? this.files[0].name : '';">
-                            <span id="file-chosen-name" class="text-xs text-slate-500 font-mono truncate max-w-[200px]"></span>
-                        </div>
+            <form action="{{ route('user.support.tickets.reply', $ticket) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3">
+                @csrf
+                <label for="reply_message" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Post a Reply
+                </label>
+                <textarea name="message" id="reply_message" rows="3" required placeholder="Type your response or question here..."
+                          class="w-full p-3.5 rounded-2xl border border-slate-300 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all bg-white placeholder:text-slate-400"></textarea>
+                @error('message')
+                    <p class="text-rose-600 text-xs">{{ $message }}</p>
+                @enderror
 
-                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[16px] text-amber-400">send</span>
-                            <span>Send Reply</span>
-                        </button>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                    <div class="flex items-center gap-2">
+                        <label for="reply_attachment" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold cursor-pointer transition-colors shadow-2xs">
+                            <span class="material-symbols-outlined text-[16px]">attach_file</span>
+                            <span>Attach Photo / PDF (up to 10MB)</span>
+                        </label>
+                        <input type="file" name="attachment" id="reply_attachment" accept=".jpg,.jpeg,.png,.webp,.pdf" class="hidden" onchange="document.getElementById('file-chosen-name').textContent = this.files[0] ? this.files[0].name : '';">
+                        <span id="file-chosen-name" class="text-xs text-slate-500 font-mono truncate max-w-[200px]"></span>
                     </div>
-                </form>
-            </div>
-        @else
-            <div class="p-6 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500">
-                This ticket has been marked as closed. If you have further issues, you can open a new ticket from the support hub.
-            </div>
-        @endif
+
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px] text-amber-400">send</span>
+                        <span>{{ in_array($ticket->status, ['resolved', 'closed']) ? 'Reopen & Post Reply' : 'Send Reply' }}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
 
     </div>
 

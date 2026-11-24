@@ -289,6 +289,16 @@ class CheckoutController extends Controller
                             ]);
                         }
                     }
+
+                    \App\Models\AdminFeed::record(
+                        title: "Order Placed: #{$order->order_number}",
+                        description: "₹" . number_format($order->total_amount, 2) . " from {$order->delivery_full_name} ({$order->delivery_city}).",
+                        type: 'order',
+                        icon: 'shopping_bag',
+                        badgeText: 'New Order',
+                        badgeColor: 'emerald',
+                        actionUrl: route('admin.orders.show', $order->id)
+                    );
                 } catch (\Throwable $notifEx) {
                     \Illuminate\Support\Facades\Log::warning('Failed generating order notification: ' . $notifEx->getMessage());
                 }

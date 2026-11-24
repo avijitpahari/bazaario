@@ -282,5 +282,8 @@
 
     <!-- Global Footer -->
     <x-footer />
+
+    <!-- Global Floating Live Support Chat Widget -->
+    <x-support-chat-widget />
 </body>
 </html>

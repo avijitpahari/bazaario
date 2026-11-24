@@ -40,7 +40,7 @@
         <div class="flex items-center gap-3">
             <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200/70 rounded-xl font-mono text-[11px] uppercase text-emerald-800 font-semibold shadow-2xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                APMC SPOT TICKER CONNECTED
+                SPOT TICKER CONNECTED
             </span>
         </div>
     </div>
@@ -80,7 +80,7 @@
                     <div class="flex items-start gap-4">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-slate-50 shrink-0 border border-slate-200/80 shadow-2xs flex items-center justify-center p-2">
                             <img src="{{ $thumb }}" 
-                                 alt="{{ $auction->product?->name ?? 'Produce' }}" 
+                                 alt="{{ $auction->product?->name ?? 'Product' }}" 
                                  class="w-full h-full object-contain"
                                  onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                         </div>
@@ -157,11 +157,11 @@
                             </span>
                             <div>
                                 <h4 class="font-heading text-sm font-bold text-slate-900">
-                                    {{ $bidsCount > 0 ? 'Active Binding Bids Locked (APMC Rule)' : 'Eligible for Consignment Cancellation' }}
+                                    {{ $bidsCount > 0 ? 'Active Binding Bids Locked (Platform Rule)' : 'Eligible for Consignment Cancellation' }}
                                 </h4>
                                 <p class="text-xs text-slate-500 mt-0.5 max-w-xl leading-relaxed">
                                     @if($bidsCount > 0)
-                                        Under APMC wholesale spot-trading regulations, lots that have received verified buyer bids cannot be unilaterally cancelled. The highest valid bid will be awarded at auction close.
+                                        Under wholesale spot-trading regulations, lots that have received verified buyer bids cannot be unilaterally cancelled. The highest valid bid will be awarded at auction close.
                                     @else
                                         No binding bids have been submitted for this lot yet. You may withdraw and cancel this wholesale consignment permanently from the spot exchange.
                                     @endif

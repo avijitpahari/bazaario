@@ -671,6 +671,9 @@
     <!-- FOOTER -->
     <x-footer />
 
+    <!-- Global Floating Live Support Chat Widget -->
+    <x-support-chat-widget />
+
     <!-- JAVASCRIPT FOR GALLERY & CART -->
     <script>
         const galleryImages = {!! json_encode($galleryImages) !!};

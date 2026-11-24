@@ -62,6 +62,18 @@ class AuctionController extends Controller
                 }
 
                 $lockedAuction->save();
+
+                try {
+                    \App\Models\AdminFeed::record(
+                        title: "Live Bid: Lot #AUC-{$lockedAuction->id}",
+                        description: "Highest bid raised to ₹" . number_format($bidAmount, 2) . " by @{$user->name}.",
+                        type: 'auction',
+                        icon: 'gavel',
+                        badgeText: 'Live Bid',
+                        badgeColor: 'amber',
+                        actionUrl: route('admin.auctions.show', $lockedAuction->id)
+                    );
+                } catch (\Throwable $feedEx) {}
             });
         } catch (ValidationException $e) {
             if ($request->wantsJson() || $request->ajax()) {

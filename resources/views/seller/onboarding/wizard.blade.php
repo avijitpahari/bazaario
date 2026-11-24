@@ -29,6 +29,20 @@
     $existingFssai = old('fssai_number', $profile?->fssai_number ?? '');
     $existingBank = old('bank_account_number', $profile?->bank_account_number ?? '');
     $existingIfsc = old('bank_ifsc', $profile?->bank_ifsc ?? '');
+    $existingAadhaar = old('aadhaar_number', $profile?->aadhaar_number ?? '');
+    $existingMandi = old('mandi_license_number', $profile?->mandi_license_number ?? '');
+    $existingUdyam = old('udyam_number', $profile?->udyam_number ?? '');
+
+    $existingProvided = array_values(array_unique(array_merge(
+        ['pan', 'bank'],
+        $profile?->provided_documents ?? [],
+        $profile?->gstin || $profile?->gstin_doc_path ? ['gstin'] : [],
+        $profile?->trade_license_number || $profile?->trade_license_doc_path ? ['trade_license'] : [],
+        $profile?->fssai_number || $profile?->fssai_doc_path ? ['fssai'] : [],
+        $profile?->aadhaar_number || $profile?->aadhaar_doc_path ? ['aadhaar'] : [],
+        $profile?->mandi_license_number || $profile?->mandi_license_doc_path ? ['mandi_license'] : [],
+        $profile?->udyam_number || $profile?->udyam_doc_path ? ['udyam'] : []
+    )));
 @endphp
 
 @section('content')
@@ -49,6 +63,10 @@
     initialFssai: '{{ addslashes($existingFssai) }}',
     initialBank: '{{ addslashes($existingBank) }}',
     initialIfsc: '{{ addslashes($existingIfsc) }}',
+    initialAadhaar: '{{ addslashes($existingAadhaar) }}',
+    initialMandi: '{{ addslashes($existingMandi) }}',
+    initialUdyam: '{{ addslashes($existingUdyam) }}',
+    initialActiveDocs: @json($existingProvided),
     existingLogo: '{{ $profile?->logo_path ? asset('storage/' . $profile->logo_path) : '' }}'
 })" class="w-full">
 
@@ -413,130 +431,350 @@
                                   class="w-full px-4 py-3 bg-brand-subtle border border-brand-outline text-brand-slate text-sm rounded-[14px] focus:outline-none focus:border-brand-amber transition"></textarea>
                     </div>
 
-                    <!-- Business Verification, Tax & Bank Details Section -->
-                    <div class="p-5 bg-brand-subtle border border-brand-outline rounded-[14px] space-y-4">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-brand-amber text-[18px]">verified_user</span>
-                            <h4 class="text-xs font-bold font-heading text-brand-slate uppercase tracking-wider">Business Verification &amp; Bank Details</h4>
-                        </div>
-                        <p class="text-xs text-brand-muted">Provide your registration details and escrow bank credentials for admin clearance.</p>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">GSTIN Number (Optional)</label>
-                                <input type="text" name="gstin" x-model="gstin" @input="gstin = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. 19AAACG1234A1Z5" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
+                    <!-- Business Verification, Tax & Compliance Documents Section -->
+                    <div class="p-5 sm:p-6 bg-brand-subtle border border-brand-outline rounded-[14px] space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-brand-amber text-[22px]">folder_shared</span>
+                                <div>
+                                    <h4 class="text-xs font-bold font-heading text-brand-slate uppercase tracking-wider">Business Verification &amp; Compliance Documents</h4>
+                                    <p class="text-[11px] text-brand-muted">Choose which documents you can provide from the dropdown below to verify your merchant store.</p>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">PAN Number (Optional)</label>
-                                <input type="text" name="pan_number" x-model="panNumber" @input="panNumber = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. ABCDE1234F" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Trade License Number (Optional)</label>
-                                <input type="text" name="trade_license_number" x-model="tradeLicense" maxlength="50" placeholder="e.g. TL-MED-2024-8841" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">FSSAI / GI Certification (Optional)</label>
-                                <input type="text" name="fssai_number" x-model="fssaiNumber" maxlength="30" placeholder="e.g. 10020031000123" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Escrow Bank Account Number</label>
-                                <input type="text" name="bank_account_number" x-model="bankAccount" @input="bankAccount = $event.target.value.replace(/[^0-9A-Za-z]/g, '')" maxlength="50" placeholder="e.g. 918010023456789" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] font-mono">
-                            </div>
-                            <div>
-                                <label class="block font-medium text-brand-slate mb-1">Bank IFSC Code</label>
-                                <input type="text" name="bank_ifsc" x-model="bankIfsc" @input="bankIfsc = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. HDFC0001234" class="w-full px-3.5 py-2.5 bg-white border border-brand-outline rounded-[10px] uppercase font-mono">
-                            </div>
+                            <span class="text-[11px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shrink-0 self-start sm:self-auto flex items-center gap-1.5 shadow-2xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span x-text="activeDocs.length + ' Documents Selected'">2 Documents Selected</span>
+                            </span>
                         </div>
 
-                        <!-- DYNAMIC DOCUMENT UPLOAD SECTION (Reveals when credentials are entered) -->
-                        <div x-show="gstin.trim() !== '' || panNumber.trim() !== '' || tradeLicense.trim() !== '' || fssaiNumber.trim() !== '' || bankAccount.trim() !== '' || bankIfsc.trim() !== ''"
-                             x-transition:enter="transition ease-out duration-300"
-                             x-transition:enter-start="opacity-0 -translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             class="mt-5 pt-4 border-t border-brand-outline/80 space-y-4">
+                        <!-- DOCUMENT CHOOSER DROPDOWN SELECTOR -->
+                        <div class="p-4 bg-white border border-brand-outline rounded-[12px] shadow-2xs space-y-2.5">
+                            <label class="block text-xs font-heading font-bold text-brand-slate flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-brand-amber text-[18px]">add_circle</span>
+                                <span>Choose Documents to Provide:</span>
+                            </label>
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <div class="relative flex-1">
+                                    <select x-model="selectedDocToAdd" 
+                                            @change="if(selectedDocToAdd) { addDocument(selectedDocToAdd); }" 
+                                            class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline text-brand-slate text-xs rounded-[10px] focus:outline-none focus:border-brand-amber font-body cursor-pointer">
+                                        <option value="">-- Choose a document from the list to add (+ Select) --</option>
+                                        <template x-for="item in availableDocCatalog" :key="item.key">
+                                            <option :value="item.key" 
+                                                    :disabled="isDocActive(item.key)" 
+                                                    x-text="(isDocActive(item.key) ? '✓ ' : '+ ') + item.label + ' (' + item.badge + ')' + (item.mandatory ? ' [Recommended]' : '')">
+                                            </option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <button type="button" 
+                                        @click="addDocument(selectedDocToAdd)" 
+                                        :disabled="!selectedDocToAdd || isDocActive(selectedDocToAdd)" 
+                                        class="px-4 py-2.5 bg-brand-amber hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-brand-slate font-heading text-xs font-bold rounded-[10px] transition shrink-0 flex items-center justify-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[16px]">add</span>
+                                    <span>Add Document</span>
+                                </button>
+                            </div>
                             
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
-                                    <h5 class="text-xs font-bold font-heading text-brand-slate uppercase tracking-wider">Compliance Documents Upload</h5>
-                                </div>
-                                <span class="text-[11px] font-mono text-brand-amber font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                                    Unlocked via Entered Credentials
-                                </span>
+                            <!-- Quick-add suggestion chips -->
+                            <div class="flex items-center gap-1.5 pt-1 flex-wrap text-[11px] text-slate-500">
+                                <span class="font-semibold text-slate-600">Quick suggestions:</span>
+                                <template x-for="item in availableDocCatalog" :key="'chip-' + item.key">
+                                    <button type="button" 
+                                            @click="isDocActive(item.key) ? null : addDocument(item.key)" 
+                                            class="px-2 py-0.5 rounded text-[10px] font-mono transition cursor-pointer flex items-center gap-1"
+                                            :class="isDocActive(item.key) ? 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-300' : 'bg-slate-100 text-slate-700 hover:bg-amber-100 border border-slate-200'">
+                                        <span x-show="isDocActive(item.key)">✓</span>
+                                        <span x-text="item.shortLabel || item.label"></span>
+                                    </button>
+                                </template>
                             </div>
-                            <p class="text-[11px] text-brand-muted">Upload verifying certificates or passbooks for the details entered above (PDF, JPG, PNG up to 5MB).</p>
+                        </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                                
-                                <!-- GSTIN / PAN Document Upload Option -->
-                                <div x-show="gstin.trim() !== '' || panNumber.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 01</span>
-                                        <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">GSTIN / PAN</span>
-                                    </div>
-                                    <p class="font-heading font-bold text-xs text-brand-slate">GSTIN / PAN Certificate</p>
+                        <!-- HIDDEN TRACKING INPUTS FOR CHOSEN DOCUMENTS -->
+                        <template x-for="docKey in activeDocs" :key="'hidden-prov-' + docKey">
+                            <input type="hidden" name="provided_documents[]" :value="docKey">
+                        </template>
+
+                        <!-- ACTIVE SELECTED DOCUMENTS CARDS -->
+                        <div class="space-y-4 pt-1">
+                            
+                            <!-- 1. PAN Card Card -->
+                            <div x-show="isDocActive('pan')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
                                     <div class="flex items-center gap-2">
-                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
-                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
-                                            <span x-text="gstinDocName ? 'Replace File' : 'Choose File'">Choose File</span>
-                                            <input type="file" name="gstin_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="gstinDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
-                                        </label>
-                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="gstinDocName || 'No file selected'"></span>
+                                        <span class="material-symbols-outlined text-amber-600 text-[18px]">badge</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">Permanent Account Number (PAN Card)</h5>
+                                            <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">Direct Tax ID • Recommended</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('pan')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">PAN Number</label>
+                                        <input type="text" name="pan_number" x-model="panNumber" @input="panNumber = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. ABCDE1234F" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] uppercase font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach PAN Card Proof File</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.pan ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="pan_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.pan = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.pan || 'PDF, JPG, PNG (Max 5MB)'"></span>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- Trade License Document Upload Option -->
-                                <div x-show="tradeLicense.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 02</span>
-                                        <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">Trade License</span>
-                                    </div>
-                                    <p class="font-heading font-bold text-xs text-brand-slate">Municipality Trade License</p>
-                                    <div class="flex items-center gap-2">
-                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
-                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
-                                            <span x-text="tradeDocName ? 'Replace File' : 'Choose File'">Choose File</span>
-                                            <input type="file" name="trade_license_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="tradeDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
-                                        </label>
-                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="tradeDocName || 'No file selected'"></span>
-                                    </div>
-                                </div>
-
-                                <!-- Bank Verification Document Upload Option -->
-                                <div x-show="bankAccount.trim() !== '' || bankIfsc.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 03</span>
-                                        <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">Bank Proof</span>
-                                    </div>
-                                    <p class="font-heading font-bold text-xs text-brand-slate">Cancelled Cheque / Passbook Proof</p>
-                                    <div class="flex items-center gap-2">
-                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
-                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
-                                            <span x-text="bankDocName ? 'Replace File' : 'Choose File'">Choose File</span>
-                                            <input type="file" name="bank_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="bankDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
-                                        </label>
-                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="bankDocName || 'No file selected'"></span>
-                                    </div>
-                                </div>
-
-                                <!-- FSSAI Document Upload Option -->
-                                <div x-show="fssaiNumber.trim() !== ''" class="p-3.5 bg-white border border-brand-outline rounded-[12px] space-y-2 hover:border-brand-amber/50 transition">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono text-[10px] font-bold text-brand-muted uppercase">Document 04</span>
-                                        <span class="text-[10px] font-mono font-bold text-green-800 bg-green-50 px-1.5 py-0.5 rounded">FSSAI / GI</span>
-                                    </div>
-                                    <p class="font-heading font-bold text-xs text-brand-slate">FSSAI / GI Certification Certificate</p>
-                                    <div class="flex items-center gap-2">
-                                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition">
-                                            <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
-                                            <span x-text="fssaiDocName ? 'Replace File' : 'Choose File'">Choose File</span>
-                                            <input type="file" name="fssai_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="fssaiDocName = $event.target.files[0] ? $event.target.files[0].name : ''">
-                                        </label>
-                                        <span class="text-[11px] font-mono text-slate-500 truncate max-w-[180px]" x-text="fssaiDocName || 'No file selected'"></span>
-                                    </div>
-                                </div>
-
                             </div>
+
+                            <!-- 2. Bank Details Card -->
+                            <div x-show="isDocActive('bank')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-emerald-600 text-[18px]">account_balance</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">Escrow Bank Account &amp; Cancelled Cheque / Passbook</h5>
+                                            <span class="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">Payouts &amp; Escrow • Required</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('bank')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Bank Account Number</label>
+                                        <input type="text" name="bank_account_number" x-model="bankAccount" @input="bankAccount = $event.target.value.replace(/[^0-9A-Za-z]/g, '')" maxlength="50" placeholder="e.g. 918010023456789" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Bank IFSC Code</label>
+                                        <input type="text" name="bank_ifsc" x-model="bankIfsc" @input="bankIfsc = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. HDFC0001234" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] uppercase font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach Cheque / Passbook</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.bank ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="bank_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.bank = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.bank || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. GSTIN Registration Card -->
+                            <div x-show="isDocActive('gstin')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-blue-600 text-[18px]">receipt_long</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">GST Registration Certificate (GSTIN)</h5>
+                                            <span class="text-[10px] font-mono font-bold text-blue-800 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">Indirect Tax</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('gstin')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">GSTIN Number</label>
+                                        <input type="text" name="gstin" x-model="gstin" @input="gstin = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" maxlength="20" placeholder="e.g. 19AAACG1234A1Z5" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] uppercase font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach GST Certificate File</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.gstin ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="gstin_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.gstin = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.gstin || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Trade License Card -->
+                            <div x-show="isDocActive('trade_license')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-purple-600 text-[18px]">domain</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">Municipality Trade License / Shop &amp; Establishment</h5>
+                                            <span class="text-[10px] font-mono font-bold text-purple-800 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">Local Municipal Body</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('trade_license')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Trade License Number</label>
+                                        <input type="text" name="trade_license_number" x-model="tradeLicense" maxlength="50" placeholder="e.g. TL-MED-2024-8841" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach Trade License Proof</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.trade_license ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="trade_license_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.trade_license = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.trade_license || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. FSSAI Food Safety Card -->
+                            <div x-show="isDocActive('fssai')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-green-600 text-[18px]">restaurant</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">FSSAI Food Safety &amp; Standards License / Registration</h5>
+                                            <span class="text-[10px] font-mono font-bold text-green-800 bg-green-50 px-1.5 py-0.2 rounded border border-green-200">Food, Grains &amp; Agro</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('fssai')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">FSSAI License / Registration No</label>
+                                        <input type="text" name="fssai_number" x-model="fssaiNumber" maxlength="30" placeholder="e.g. 10020031000123" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach FSSAI Certificate File</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.fssai ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="fssai_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.fssai = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.fssai || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 6. Aadhaar / Gov Photo ID Card -->
+                            <div x-show="isDocActive('aadhaar')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-indigo-600 text-[18px]">fingerprint</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">Aadhaar Card / Government Photo ID Proof</h5>
+                                            <span class="text-[10px] font-mono font-bold text-indigo-800 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-200">Proprietor Identity</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('aadhaar')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Aadhaar / Photo ID Number</label>
+                                        <input type="text" name="aadhaar_number" x-model="aadhaarNumber" maxlength="50" placeholder="e.g. 9876 5432 1098 or Voter ID" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach Photo ID Proof File</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.aadhaar ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="aadhaar_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.aadhaar = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.aadhaar || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 7. APMC / Mandi License Card -->
+                            <div x-show="isDocActive('mandi_license')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-amber-600 text-[18px]">agriculture</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">APMC / Mandi Market Trading License</h5>
+                                            <span class="text-[10px] font-mono font-bold text-amber-900 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-300">Wholesale &amp; Live Auctions</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('mandi_license')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">APMC License Number</label>
+                                        <input type="text" name="mandi_license_number" x-model="mandiLicense" maxlength="50" placeholder="e.g. APMC-WB-2024-1049" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach APMC Permit Document</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.mandi_license ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="mandi_license_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.mandi_license = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.mandi_license || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 8. Udyam / MSME Certificate Card -->
+                            <div x-show="isDocActive('udyam')" x-transition class="p-4 bg-white border border-brand-outline rounded-[12px] space-y-3 shadow-2xs hover:border-brand-amber/50 transition">
+                                <div class="flex items-center justify-between border-b border-brand-outline/60 pb-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-slate-600 text-[18px]">workspace_premium</span>
+                                        <div>
+                                            <h5 class="text-xs font-bold font-heading text-brand-slate">Udyam / MSME Registration Certificate</h5>
+                                            <span class="text-[10px] font-mono font-bold text-slate-800 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-300">Small Enterprise Registration</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="removeDocument('udyam')" class="text-slate-400 hover:text-rose-600 text-[11px] font-mono transition cursor-pointer flex items-center gap-0.5" title="Remove from list">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Udyam Registration Number</label>
+                                        <input type="text" name="udyam_number" x-model="udyamNumber" maxlength="50" placeholder="e.g. UDYAM-WB-00-1234567" class="w-full px-3.5 py-2.5 bg-brand-subtle border border-brand-outline rounded-[10px] font-mono text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-brand-slate mb-1">Attach Udyam Certificate File</label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-brand-subtle hover:bg-amber-100 text-brand-slate text-[11px] font-mono font-bold rounded-lg border border-brand-outline transition shrink-0">
+                                                <span class="material-symbols-outlined text-[16px] text-brand-amber">upload_file</span>
+                                                <span x-text="docFiles.udyam ? 'Replace File' : 'Choose File'">Choose File</span>
+                                                <input type="file" name="udyam_doc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="hidden" @change="docFiles.udyam = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                            </label>
+                                            <span class="text-[11px] font-mono text-slate-500 truncate" x-text="docFiles.udyam || 'PDF, JPG, PNG'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -878,6 +1116,35 @@
                             </div>
                         </div>
 
+                        <!-- CARD 5: VERIFICATION & COMPLIANCE DOCUMENTS PACKET -->
+                        <div class="border border-brand-outline rounded-[14px] p-5 bg-brand-subtle/50">
+                            <div class="flex items-center justify-between border-b border-brand-outline/80 pb-3 mb-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+                                    <h3 class="font-heading font-bold text-xs text-brand-slate uppercase tracking-wider">Verification Documents Packet (<span x-text="activeDocs.length"></span> Documents)</h3>
+                                </div>
+                                <button type="button" @click="goToStep(3)" class="text-xs font-mono font-semibold text-brand-amber hover:text-brand-amber-dark flex items-center gap-1">
+                                    Edit ✏️
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <template x-for="docKey in activeDocs" :key="'review-' + docKey">
+                                    <div class="p-3 bg-white border border-brand-outline rounded-[10px] space-y-1 shadow-2xs">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-brand-slate" x-text="getDocLabel(docKey)"></span>
+                                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                                                  :class="docFiles[docKey] ? 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-300' : 'bg-amber-100 text-amber-850 font-semibold border border-amber-200'">
+                                                <span x-text="docFiles[docKey] ? '✓ File Attached' : 'Details Pending File'"></span>
+                                            </span>
+                                        </div>
+                                        <div class="text-[11px] font-mono text-brand-muted truncate">
+                                            <span x-text="getDocSummaryNumber(docKey)"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- Step 5 Bottom Navigation -->
@@ -956,10 +1223,72 @@ function sellerWizard(config) {
         fssaiNumber: config.initialFssai || '',
         bankAccount: config.initialBank || '',
         bankIfsc: config.initialIfsc || '',
-        gstinDocName: '',
-        tradeDocName: '',
-        bankDocName: '',
-        fssaiDocName: '',
+        aadhaarNumber: config.initialAadhaar || '',
+        mandiLicense: config.initialMandi || '',
+        udyamNumber: config.initialUdyam || '',
+        activeDocs: (config.initialActiveDocs && config.initialActiveDocs.length) ? config.initialActiveDocs : ['pan', 'bank'],
+        selectedDocToAdd: '',
+
+        availableDocCatalog: [
+            { key: 'pan', label: 'Permanent Account Number (PAN Card)', shortLabel: 'PAN Card', badge: 'Direct Tax ID', icon: 'badge', mandatory: true },
+            { key: 'bank', label: 'Escrow Bank Account & Cheque / Passbook', shortLabel: 'Bank Account', badge: 'Payouts & Escrow', icon: 'account_balance', mandatory: true },
+            { key: 'gstin', label: 'GST Registration Certificate (GSTIN)', shortLabel: 'GSTIN Certificate', badge: 'Indirect Tax', icon: 'receipt_long', mandatory: false },
+            { key: 'trade_license', label: 'Municipality Trade License / Shop & Est.', shortLabel: 'Trade License', badge: 'Municipal Body', icon: 'domain', mandatory: false },
+            { key: 'fssai', label: 'FSSAI Food Safety License / Registration', shortLabel: 'FSSAI License', badge: 'Food & Agro', icon: 'restaurant', mandatory: false },
+            { key: 'aadhaar', label: 'Aadhaar Card / Government Photo ID', shortLabel: 'Aadhaar / Gov ID', badge: 'Proprietor Identity', icon: 'fingerprint', mandatory: false },
+            { key: 'mandi_license', label: 'APMC / Mandi Market Trading License', shortLabel: 'Mandi License', badge: 'Wholesale & Auctions', icon: 'agriculture', mandatory: false },
+            { key: 'udyam', label: 'Udyam / MSME Registration Certificate', shortLabel: 'MSME Certificate', badge: 'Small Business', icon: 'workspace_premium', mandatory: false }
+        ],
+
+        docFiles: {
+            pan: '',
+            bank: '',
+            gstin: '',
+            trade_license: '',
+            fssai: '',
+            aadhaar: '',
+            mandi_license: '',
+            udyam: ''
+        },
+
+        addDocument(key) {
+            if (!key) key = this.selectedDocToAdd;
+            if (!key) return;
+            if (!this.activeDocs.includes(key)) {
+                this.activeDocs.push(key);
+                this.notify('Added ' + this.getDocLabel(key) + ' to your application packet.', 'info');
+            }
+            this.selectedDocToAdd = '';
+        },
+
+        removeDocument(key) {
+            this.activeDocs = this.activeDocs.filter(k => k !== key);
+            this.notify('Removed document from application packet.', 'info');
+        },
+
+        isDocActive(key) {
+            return this.activeDocs.includes(key);
+        },
+
+        getDocLabel(key) {
+            const found = this.availableDocCatalog.find(d => d.key === key);
+            return found ? found.label : key.toUpperCase();
+        },
+
+        getDocSummaryNumber(key) {
+            switch (key) {
+                case 'pan': return this.panNumber ? 'PAN: ' + this.panNumber : 'PAN No Pending';
+                case 'bank': return (this.bankAccount ? 'A/C: ••••' + this.bankAccount.slice(-4) : 'A/C Pending') + (this.bankIfsc ? ' • IFSC: ' + this.bankIfsc : '');
+                case 'gstin': return this.gstin ? 'GSTIN: ' + this.gstin : 'GSTIN Pending';
+                case 'trade_license': return this.tradeLicense ? 'Lic: ' + this.tradeLicense : 'Trade Lic Pending';
+                case 'fssai': return this.fssaiNumber ? 'FSSAI: ' + this.fssaiNumber : 'FSSAI Pending';
+                case 'aadhaar': return this.aadhaarNumber ? 'ID: ' + this.aadhaarNumber : 'ID Pending';
+                case 'mandi_license': return this.mandiLicense ? 'APMC: ' + this.mandiLicense : 'APMC Pending';
+                case 'udyam': return this.udyamNumber ? 'Udyam: ' + this.udyamNumber : 'Udyam Pending';
+                default: return 'Details Attached';
+            }
+        },
+
         imagePreview: config.existingLogo || '',
         imageName: config.existingLogo ? 'storefront_image.jpg' : '',
         imageSize: config.existingLogo ? '1.2 MB' : '',

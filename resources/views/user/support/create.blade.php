@@ -109,7 +109,7 @@
             <!-- Form Row 5: Photo / Document Attachment -->
             <div>
                 <label for="attachment" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Attach Photo / Proof / Invoice <span class="text-slate-400 font-normal lowercase">(optional, JPG, PNG, WEBP, PDF up to 5MB)</span>
+                    Attach Photo / Proof / Invoice <span class="text-slate-400 font-normal lowercase">(optional, JPG, PNG, WEBP, PDF up to 10MB)</span>
                 </label>
                 <input type="file" name="attachment" id="attachment" accept=".jpg,.jpeg,.png,.webp,.pdf"
                        class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">

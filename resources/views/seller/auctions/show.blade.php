@@ -42,7 +42,7 @@
             <div class="flex items-start gap-4">
                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-slate-50 shrink-0 border border-slate-200/80 shadow-2xs flex items-center justify-center p-2">
                     <img src="{{ $thumb }}" 
-                         alt="{{ $auction->product?->name ?? 'Produce' }}" 
+                         alt="{{ $auction->product?->name ?? 'Product' }}" 
                          class="w-full h-full object-contain"
                          onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                 </div>

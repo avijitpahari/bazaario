@@ -16,7 +16,7 @@
                 </span>
             </div>
             <h1 class="font-headline-lg text-2xl md:text-3xl font-bold text-[#0F172A] tracking-tight">
-                Good morning, {{ Auth::guard('admin')->user()->name ?? 'Rajesh' }}
+                Good {{ now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening') }}, {{ Auth::guard('admin')->user()?->name ?? 'Administrator' }}
             </h1>
             <p class="font-body-md text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Monitor Bazaario marketplace activity, live auctions, seller operations, and order fulfilment across multi-district delivery corridors.
@@ -189,8 +189,8 @@
                 <div class="relative w-full h-[220px] bg-slate-50/70 rounded-xl p-3 border border-slate-100 flex flex-col justify-between overflow-hidden">
                     <!-- Peak Data Tooltip Overlay -->
                     <div class="absolute top-8 right-24 bg-[#0F172A] text-white px-3 py-1.5 rounded-lg shadow-md z-10 flex flex-col items-center pointer-events-none">
-                        <span class="font-label-sm text-[10px] text-slate-300 tracking-wider uppercase">Oct Peak Volume</span>
-                        <span class="font-label-md text-xs text-[#F5A623] font-bold">₹6,42,100</span>
+                        <span class="font-label-sm text-[10px] text-slate-300 tracking-wider uppercase">Recorded Peak</span>
+                        <span class="font-label-md text-xs text-[#F5A623] font-bold">₹{{ number_format($peakDailyVolume ?? 0, 0) }}</span>
                         <div class="w-2 h-2 bg-[#0F172A] rotate-45 -mb-1"></div>
                     </div>
 
@@ -237,8 +237,8 @@
                         <div class="flex flex-col min-w-0">
                             <span class="font-body-sm text-xs text-slate-500">Direct Retail Marketplace</span>
                             <div class="flex items-baseline gap-2">
-                                <span class="font-label-lg text-sm font-bold text-[#0F172A]">₹29,12,850</span>
-                                <span class="font-label-sm text-[11px] text-slate-500 font-semibold">(75.8%)</span>
+                                <span class="font-label-lg text-sm font-bold text-[#0F172A]">₹{{ number_format($retailGmv, 2) }}</span>
+                                <span class="font-label-sm text-[11px] text-slate-500 font-semibold">({{ $retailShare }}%)</span>
                             </div>
                         </div>
                     </div>
@@ -247,8 +247,8 @@
                         <div class="flex flex-col min-w-0">
                             <span class="font-body-sm text-xs text-amber-900 font-medium">Wholesale & Live Auction Bids</span>
                             <div class="flex items-baseline gap-2">
-                                <span class="font-label-lg text-sm font-bold text-[#0F172A]">₹9,30,000</span>
-                                <span class="font-label-sm text-[11px] text-amber-800 font-bold">(24.2%)</span>
+                                <span class="font-label-lg text-sm font-bold text-[#0F172A]">₹{{ number_format($auctionGmv, 2) }}</span>
+                                <span class="font-label-sm text-[11px] text-amber-800 font-bold">({{ $auctionShare }}%)</span>
                             </div>
                         </div>
                     </div>
@@ -385,47 +385,93 @@
                 </div>
             </div>
 
-            <!-- 2. Top Regional Hubs -->
+            <!-- 2. Live Administrative Activity Feed -->
+            <div class="p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex flex-col gap-3.5">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <h3 class="font-headline-sm text-base font-bold text-[#0F172A]">Live Administrative Feed</h3>
+                    </div>
+                    <span class="font-label-sm text-[10px] text-slate-500 font-mono font-semibold">{{ $adminFeeds->count() }} Events</span>
+                </div>
+
+                <div class="flex flex-col divide-y divide-slate-100">
+                    @forelse($adminFeeds as $feed)
+                        <div class="py-3 first:pt-0 last:pb-0 flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center 
+                                {{ $feed->badge_color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : '' }}
+                                {{ $feed->badge_color === 'amber' ? 'bg-amber-50 text-amber-600' : '' }}
+                                {{ $feed->badge_color === 'blue' ? 'bg-blue-50 text-blue-600' : '' }}
+                                {{ $feed->badge_color === 'rose' ? 'bg-rose-50 text-rose-600' : '' }}
+                                {{ !in_array($feed->badge_color, ['emerald', 'amber', 'blue', 'rose']) ? 'bg-slate-100 text-slate-600' : '' }}
+                            ">
+                                <span class="material-symbols-outlined text-[18px]">{{ $feed->icon ?: 'notifications' }}</span>
+                            </div>
+                            <div class="flex flex-col min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="font-body-md text-xs font-bold text-[#0F172A] truncate">{{ $feed->title }}</span>
+                                    <span class="font-mono text-[9px] text-slate-400 shrink-0">{{ $feed->created_at->diffForHumans(null, true) }}</span>
+                                </div>
+                                @if($feed->description)
+                                    <p class="font-body-sm text-[11px] text-slate-500 line-clamp-2 mt-0.5">{{ $feed->description }}</p>
+                                @endif
+                                <div class="flex items-center justify-between mt-1.5">
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold font-mono uppercase tracking-wider
+                                        {{ $feed->badge_color === 'emerald' ? 'bg-emerald-100/70 text-emerald-800' : '' }}
+                                        {{ $feed->badge_color === 'amber' ? 'bg-amber-100/70 text-amber-800' : '' }}
+                                        {{ $feed->badge_color === 'blue' ? 'bg-blue-100/70 text-blue-800' : '' }}
+                                        {{ $feed->badge_color === 'rose' ? 'bg-rose-100/70 text-rose-800' : '' }}
+                                        {{ !in_array($feed->badge_color, ['emerald', 'amber', 'blue', 'rose']) ? 'bg-slate-100 text-slate-700' : '' }}
+                                    ">
+                                        {{ $feed->badge_text ?: ucfirst($feed->type) }}
+                                    </span>
+                                    @if($feed->action_url)
+                                        <a href="{{ $feed->action_url }}" class="text-[10px] text-amber-700 font-bold hover:underline flex items-center gap-0.5">
+                                            <span>Inspect</span>
+                                            <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="py-6 text-center text-xs text-slate-400">
+                            <span class="material-symbols-outlined text-3xl text-slate-300 block mb-1">inbox</span>
+                            No platform activity feed entries recorded yet.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- 3. Top Regional Hubs -->
             <div class="p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex flex-col gap-3.5">
                 <div class="flex items-center justify-between">
                     <h3 class="font-headline-sm text-base font-bold text-[#0F172A]">Top Regional Hubs</h3>
                     <span class="material-symbols-outlined text-[20px] text-slate-400">share_location</span>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <!-- Hub 1 -->
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="font-bold text-[#0F172A]">1. Kolkata Metro</span>
-                            <span class="font-label-md font-bold text-[#0F172A]">₹18.2L</span>
+                    @forelse($topHubs as $index => $hub)
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-[#0F172A]">{{ $index + 1 }}. {{ $hub->hub_name }}</span>
+                                <span class="font-label-md font-bold text-[#0F172A]">₹{{ number_format((float)$hub->total_volume, 2) }}</span>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                                <div class="h-full {{ $index === 0 ? 'bg-[#0F172A]' : ($index === 1 ? 'bg-[#F5A623]' : 'bg-slate-600') }} rounded-full" style="width: {{ $hub->percentage }}%"></div>
+                            </div>
                         </div>
-                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full bg-[#0F172A] rounded-full" style="width: 78%"></div>
+                    @empty
+                        <div class="py-4 text-center text-xs text-slate-400">
+                            No regional fulfillment hub volume recorded yet.
                         </div>
-                    </div>
-                    <!-- Hub 2 -->
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="font-bold text-[#0F172A]">2. Contai & Digha Coastal</span>
-                            <span class="font-label-md font-bold text-[#0F172A]">₹11.4L</span>
-                        </div>
-                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full bg-[#F5A623] rounded-full" style="width: 58%"></div>
-                        </div>
-                    </div>
-                    <!-- Hub 3 -->
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="font-bold text-[#0F172A]">3. Howrah & Midnapore</span>
-                            <span class="font-label-md font-bold text-[#0F172A]">₹6.8L</span>
-                        </div>
-                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full bg-slate-600 rounded-full" style="width: 38%"></div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
-            <!-- 3. Live Auction Pulse Section -->
+            <!-- 4. Live Auction Pulse Section -->
             <div class="p-5 rounded-xl bg-[#0F172A] text-white shadow-md flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">

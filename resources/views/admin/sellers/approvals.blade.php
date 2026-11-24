@@ -218,7 +218,9 @@
                         @php 
                             $isActive = $activeSeller && $activeSeller->id === $seller->id; 
                             $sellerLogo = $seller->logo_path ? Storage::url($seller->logo_path) : null;
-                            $docCount = ($seller->gstin_doc_path ? 1 : 0) + ($seller->trade_license_doc_path ? 1 : 0) + ($seller->bank_doc_path ? 1 : 0) + ($seller->fssai_doc_path ? 1 : 0);
+                            $sellerDocs = $seller->getProvidedDocumentsList(false);
+                            $docCount = collect($sellerDocs)->filter(fn($d) => $d['has_file'])->count();
+                            $sellerDocsTotal = max(count($sellerDocs), 1);
                         @endphp
                         <a href="{{ request()->fullUrlWithQuery(['selected' => $seller->id]) }}" 
                            class="p-4 rounded-2xl bg-white border-2 transition-all block relative {{ $isActive ? 'border-amber-500 shadow-md ring-2 ring-amber-500/20 bg-amber-50/15' : 'border-slate-200/90 hover:border-slate-300 shadow-2xs hover:bg-slate-50/60' }}">
@@ -267,15 +269,15 @@
                             <!-- Document Readiness & Date Row -->
                             <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-100 text-[10px] text-slate-500 font-label-sm">
                                 <div class="flex items-center gap-1">
-                                    @if($docCount === 4)
+                                    @if($docCount > 0 && $docCount >= $sellerDocsTotal)
                                         <span class="inline-flex items-center gap-0.5 text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                                             <span class="material-symbols-outlined text-[12px]">verified</span>
-                                            4/4 Docs Complete
+                                            {{ $docCount }}/{{ $sellerDocsTotal }} Docs Complete
                                         </span>
                                     @elseif($docCount > 0)
                                         <span class="inline-flex items-center gap-0.5 text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                                             <span class="material-symbols-outlined text-[12px]">upload_file</span>
-                                            {{ $docCount }}/4 Docs
+                                            {{ $docCount }}/{{ $sellerDocsTotal }} Docs
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-0.5 text-slate-500 font-medium bg-slate-100 px-1.5 py-0.5 rounded">
@@ -306,7 +308,12 @@
                 @php
                     $activeLogo = $activeSeller->logo_path ? Storage::url($activeSeller->logo_path) : null;
                     $activeBanner = $activeSeller->banner_path ? Storage::url($activeSeller->banner_path) : null;
-                    $docCountActive = ($activeSeller->gstin_doc_path ? 1 : 0) + ($activeSeller->trade_license_doc_path ? 1 : 0) + ($activeSeller->bank_doc_path ? 1 : 0) + ($activeSeller->fssai_doc_path ? 1 : 0);
+                    $activeDocsList = $activeSeller->getProvidedDocumentsList(false);
+                    if (empty($activeDocsList)) {
+                        $activeDocsList = $activeSeller->getProvidedDocumentsList(true);
+                    }
+                    $docCountActive = collect($activeDocsList)->filter(fn($d) => $d['has_file'])->count();
+                    $docTotalActive = count($activeDocsList);
                 @endphp
                 <div class="col-span-12 lg:col-span-8 flex flex-col gap-5">
                     
@@ -564,270 +571,102 @@
                                 </div>
                             </div>
 
-                            <!-- The 4 KYC Compliance Regulatory Documents -->
+                            <!-- Dynamic Statutory & Regulatory KYC Documents Packet -->
                             <div>
                                 <div class="flex items-center justify-between mb-3 px-1">
                                     <div class="flex items-center gap-1.5">
                                         <span class="material-symbols-outlined text-amber-600 text-lg">folder_shared</span>
                                         <h3 class="font-headline-sm text-sm font-bold text-[#0F172A]">Statutory & Regulatory KYC Documents</h3>
                                     </div>
-                                    <span class="text-[11px] font-bold {{ $docCountActive === 4 ? 'text-emerald-700' : 'text-amber-700' }} font-label-sm">
-                                        {{ $docCountActive }}/4 Documents Attached
+                                    <span class="text-[11px] font-bold {{ $docCountActive >= $docTotalActive ? 'text-emerald-700' : 'text-amber-700' }} font-label-sm">
+                                        {{ $docCountActive }}/{{ $docTotalActive }} Documents Attached
                                     </span>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    
-                                    <!-- Document 01: GSTIN & PAN -->
-                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[190px] shadow-2xs hover:border-slate-300 transition-colors">
-                                        <div>
-                                            <div class="flex items-start justify-between">
-                                                <div>
-                                                    <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold tracking-wider">Document 01</span>
-                                                    <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">GSTIN Registration Certificate</h4>
-                                                    
-                                                    <div class="flex items-center gap-1.5 mt-1.5">
-                                                        <span class="font-mono text-xs text-slate-900 font-bold bg-white px-2 py-0.5 rounded border border-slate-200/80 inline-block shadow-2xs">
-                                                            GSTIN: {{ $activeSeller->gstin ?: 'Not Provided' }}
-                                                        </span>
-                                                        @if($activeSeller->gstin)
-                                                            <button type="button" @click="copyToClipboard('{{ $activeSeller->gstin }}', 'gstin')" class="p-1 text-slate-400 hover:text-slate-700 rounded transition cursor-pointer" title="Copy GSTIN">
-                                                                <span class="material-symbols-outlined text-[14px]" x-text="copiedField === 'gstin' ? 'check' : 'content_copy'">content_copy</span>
-                                                            </button>
-                                                        @endif
+                                    @forelse($activeDocsList as $docKey => $doc)
+                                        <div class="p-4 rounded-xl bg-slate-50 border {{ $doc['has_file'] ? 'border-emerald-200/90 bg-emerald-50/20' : ($doc['has_number'] ? 'border-amber-200/90 bg-amber-50/20' : 'border-slate-200/90') }} flex flex-col justify-between min-h-[190px] shadow-2xs hover:border-slate-300 transition-colors">
+                                            <div>
+                                                <div class="flex items-start justify-between">
+                                                    <div class="min-w-0 pr-2">
+                                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                                            <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold tracking-wider">DOC {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold uppercase
+                                                                @if($doc['badge_color'] === 'emerald') bg-emerald-100 text-emerald-800
+                                                                @elseif($doc['badge_color'] === 'amber') bg-amber-100 text-amber-900
+                                                                @elseif($doc['badge_color'] === 'blue') bg-blue-100 text-blue-800
+                                                                @elseif($doc['badge_color'] === 'purple') bg-purple-100 text-purple-800
+                                                                @elseif($doc['badge_color'] === 'indigo') bg-indigo-100 text-indigo-800
+                                                                @else bg-slate-200 text-slate-800 @endif">
+                                                                {{ $doc['badge'] }}
+                                                            </span>
+                                                            @if(!empty($doc['is_mandatory']))
+                                                                <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-bold uppercase">Mandatory</span>
+                                                            @endif
+                                                        </div>
+                                                        <h4 class="font-bold text-xs text-[#0F172A] mt-1">{{ $doc['label'] }}</h4>
+                                                        
+                                                        <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                                            <span class="font-mono text-xs text-slate-900 font-bold bg-white px-2 py-0.5 rounded border border-slate-200/80 inline-block shadow-2xs">
+                                                                {{ $doc['number_label'] }}: {{ $doc['number'] ?: 'Not Provided' }}
+                                                            </span>
+                                                            @if($doc['number'])
+                                                                <button type="button" @click="copyToClipboard('{{ $doc['number'] }}', '{{ $docKey }}')" class="p-1 text-slate-400 hover:text-slate-700 rounded transition cursor-pointer" title="Copy {{ $doc['number_label'] }}">
+                                                                    <span class="material-symbols-outlined text-[14px]" x-text="copiedField === '{{ $docKey }}' ? 'check' : 'content_copy'">content_copy</span>
+                                                                </button>
+                                                            @endif
+                                                            @if(!empty($doc['secondary']))
+                                                                <span class="font-mono text-xs text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs">
+                                                                    {{ $doc['secondary'] }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
                                                     </div>
+                                                    <span class="material-symbols-outlined {{ $doc['has_file'] ? 'text-emerald-600' : ($doc['has_number'] ? 'text-amber-500' : 'text-slate-400') }} text-2xl shrink-0">
+                                                        {{ $doc['has_file'] ? 'verified' : ($doc['has_number'] ? 'edit_note' : 'pending') }}
+                                                    </span>
                                                 </div>
-                                                <span class="material-symbols-outlined {{ $activeSeller->gstin_doc_path ? 'text-emerald-600' : ($activeSeller->gstin ? 'text-amber-500' : 'text-slate-400') }} text-2xl">
-                                                    {{ $activeSeller->gstin_doc_path ? 'verified' : ($activeSeller->gstin ? 'edit_note' : 'pending') }}
-                                                </span>
-                                            </div>
 
-                                            @if($activeSeller->gstin_doc_path)
-                                                @php
-                                                    $isGstinPdf = str_ends_with(strtolower($activeSeller->gstin_doc_path), '.pdf');
-                                                @endphp
-                                                <div class="mt-3 flex items-center gap-2 flex-wrap">
-                                                    <button type="button" 
-                                                            @click="openDoc('{{ Storage::url($activeSeller->gstin_doc_path) }}', 'GSTIN Certificate — {{ addslashes($activeSeller->shop_name) }}')"
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold transition shadow-2xs cursor-pointer">
-                                                        <span class="material-symbols-outlined text-sm">visibility</span>
-                                                        <span>Inspect Uploaded Certificate</span>
-                                                        <span class="text-[9px] uppercase font-mono px-1 py-0.2 bg-amber-200 rounded text-amber-950 font-bold">{{ $isGstinPdf ? 'PDF' : 'IMAGE' }}</span>
-                                                    </button>
-                                                    <a href="{{ Storage::url($activeSeller->gstin_doc_path) }}" target="_blank" class="text-slate-400 hover:text-slate-600 p-1" title="Open in new tab">
-                                                        <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between text-xs">
-                                            <div class="flex items-center gap-1">
-                                                <span class="{{ $activeSeller->pan_number ? 'text-slate-700 font-mono font-semibold' : 'text-slate-400' }} text-[11px]">
-                                                    PAN: <b class="text-slate-900">{{ $activeSeller->pan_number ?: 'Not Provided' }}</b>
-                                                </span>
-                                                @if($activeSeller->pan_number)
-                                                    <button type="button" @click="copyToClipboard('{{ $activeSeller->pan_number }}', 'pan')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer" title="Copy PAN">
-                                                        <span class="material-symbols-outlined text-[13px]" x-text="copiedField === 'pan' ? 'check' : 'content_copy'">content_copy</span>
-                                                    </button>
+                                                @if($doc['has_file'])
+                                                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                                                        <button type="button" 
+                                                                @click="openDoc('{{ Storage::url($doc['file_path']) }}', '{{ addslashes($doc['label']) }} — {{ addslashes($activeSeller->shop_name) }}')"
+                                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold transition shadow-2xs cursor-pointer">
+                                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                                            <span>Inspect Uploaded {{ $docKey === 'gstin' ? 'Certificate' : ($docKey === 'trade_license' ? 'License' : ($docKey === 'bank' ? 'Cancelled Cheque / Passbook' : ($docKey === 'fssai' ? 'FSSAI Certificate' : 'Proof'))) }}</span>
+                                                            <span class="text-[9px] uppercase font-mono px-1 py-0.2 bg-amber-200 rounded text-amber-950 font-bold">{{ $doc['is_pdf'] ? 'PDF' : 'IMAGE' }}</span>
+                                                        </button>
+                                                        <a href="{{ Storage::url($doc['file_path']) }}" target="_blank" class="text-slate-400 hover:text-slate-600 p-1" title="Open in new tab">
+                                                            <span class="material-symbols-outlined text-[15px]">open_in_new</span>
+                                                        </a>
+                                                    </div>
                                                 @endif
                                             </div>
 
-                                            @if($activeSeller->gstin_doc_path)
-                                                <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-0.5">
-                                                    <span class="material-symbols-outlined text-[14px]">task_alt</span> File Attached
+                                            <div class="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between text-xs">
+                                                <span class="text-slate-500 text-[11px] truncate max-w-[180px]" title="{{ $doc['description'] ?? '' }}">
+                                                    {{ $doc['description'] ?? 'Compliance verification document' }}
                                                 </span>
-                                            @elseif($activeSeller->gstin || $activeSeller->pan_number)
-                                                <span class="text-amber-700 font-bold text-[11px] flex items-center gap-0.5">
-                                                    <span class="material-symbols-outlined text-[14px]">check</span> Details Only
-                                                </span>
-                                            @else
-                                                <span class="text-slate-400 text-[11px]">Pending Upload</span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <!-- Document 02: Municipality Trade License -->
-                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[190px] shadow-2xs hover:border-slate-300 transition-colors">
-                                        <div>
-                                            <div class="flex items-start justify-between">
-                                                <div>
-                                                    <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold tracking-wider">Document 02</span>
-                                                    <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">Municipality Trade License</h4>
-                                                    
-                                                    <div class="flex items-center gap-1.5 mt-1.5">
-                                                        <span class="font-mono text-xs text-slate-900 font-bold bg-white px-2 py-0.5 rounded border border-slate-200/80 inline-block shadow-2xs">
-                                                            Lic: {{ $activeSeller->trade_license_number ?: 'Not Provided' }}
-                                                        </span>
-                                                        @if($activeSeller->trade_license_number)
-                                                            <button type="button" @click="copyToClipboard('{{ $activeSeller->trade_license_number }}', 'trade')" class="p-1 text-slate-400 hover:text-slate-700 rounded transition cursor-pointer" title="Copy Trade License">
-                                                                <span class="material-symbols-outlined text-[14px]" x-text="copiedField === 'trade' ? 'check' : 'content_copy'">content_copy</span>
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <span class="material-symbols-outlined {{ $activeSeller->trade_license_doc_path ? 'text-emerald-600' : ($activeSeller->trade_license_number ? 'text-amber-500' : 'text-slate-400') }} text-2xl">
-                                                    {{ $activeSeller->trade_license_doc_path ? 'verified' : ($activeSeller->trade_license_number ? 'edit_note' : 'pending') }}
-                                                </span>
+                                                @if($doc['has_file'])
+                                                    <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-0.5 shrink-0">
+                                                        <span class="material-symbols-outlined text-[14px]">task_alt</span> Verified Attached
+                                                    </span>
+                                                @elseif($doc['has_number'])
+                                                    <span class="text-amber-700 font-bold text-[11px] flex items-center gap-0.5 shrink-0">
+                                                        <span class="material-symbols-outlined text-[14px]">check</span> Details Provided
+                                                    </span>
+                                                @else
+                                                    <span class="text-slate-400 text-[11px] shrink-0">Pending Upload</span>
+                                                @endif
                                             </div>
-
-                                            @if($activeSeller->trade_license_doc_path)
-                                                @php
-                                                    $isTradePdf = str_ends_with(strtolower($activeSeller->trade_license_doc_path), '.pdf');
-                                                @endphp
-                                                <div class="mt-3 flex items-center gap-2 flex-wrap">
-                                                    <button type="button" 
-                                                            @click="openDoc('{{ Storage::url($activeSeller->trade_license_doc_path) }}', 'Trade License — {{ addslashes($activeSeller->shop_name) }}')"
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold transition shadow-2xs cursor-pointer">
-                                                        <span class="material-symbols-outlined text-sm">visibility</span>
-                                                        <span>Inspect Uploaded License</span>
-                                                        <span class="text-[9px] uppercase font-mono px-1 py-0.2 bg-amber-200 rounded text-amber-950 font-bold">{{ $isTradePdf ? 'PDF' : 'IMAGE' }}</span>
-                                                    </button>
-                                                    <a href="{{ Storage::url($activeSeller->trade_license_doc_path) }}" target="_blank" class="text-slate-400 hover:text-slate-600 p-1" title="Open in new tab">
-                                                        <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                                                    </a>
-                                                </div>
-                                            @endif
                                         </div>
-
-                                        <div class="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between text-xs">
-                                            <span class="text-slate-500 text-[11px]">Fiscal Year {{ now()->year }} / Local Urban Body</span>
-                                            @if($activeSeller->trade_license_doc_path)
-                                                <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-0.5">
-                                                    <span class="material-symbols-outlined text-[14px]">task_alt</span> File Attached
-                                                </span>
-                                            @elseif($activeSeller->trade_license_number)
-                                                <span class="text-amber-700 font-bold text-[11px] flex items-center gap-0.5">
-                                                    <span class="material-symbols-outlined text-[14px]">check</span> Details Provided
-                                                </span>
-                                            @else
-                                                <span class="text-slate-400 text-[11px]">Pending Verification</span>
-                                            @endif
+                                    @empty
+                                        <div class="col-span-full p-8 text-center bg-white rounded-xl border border-dashed border-slate-300">
+                                            <span class="material-symbols-outlined text-3xl text-slate-400 mb-1">folder_open</span>
+                                            <p class="text-xs font-bold text-slate-700">No compliance documents submitted</p>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">The seller has not uploaded statutory PAN, bank, or license credentials.</p>
                                         </div>
-                                    </div>
-
-                                    <!-- Document 03: Escrow Bank Verification -->
-                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[190px] shadow-2xs hover:border-slate-300 transition-colors">
-                                        <div>
-                                            <div class="flex items-start justify-between">
-                                                <div>
-                                                    <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold tracking-wider">Document 03</span>
-                                                    <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">Escrow Bank Account Verification</h4>
-                                                    
-                                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                                                        <div class="flex items-center gap-1">
-                                                            <span class="font-mono text-xs text-slate-900 font-bold bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs">
-                                                                IFSC: {{ $activeSeller->bank_ifsc ?: 'Not Provided' }}
-                                                            </span>
-                                                            @if($activeSeller->bank_ifsc)
-                                                                <button type="button" @click="copyToClipboard('{{ $activeSeller->bank_ifsc }}', 'ifsc')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer" title="Copy IFSC">
-                                                                    <span class="material-symbols-outlined text-[13px]" x-text="copiedField === 'ifsc' ? 'check' : 'content_copy'">content_copy</span>
-                                                                </button>
-                                                            @endif
-                                                        </div>
-                                                        <div class="flex items-center gap-1">
-                                                            <span class="font-mono text-xs text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs">
-                                                                A/C: {{ $activeSeller->bank_account_number ?: 'Not Provided' }}
-                                                            </span>
-                                                            @if($activeSeller->bank_account_number)
-                                                                <button type="button" @click="copyToClipboard('{{ $activeSeller->bank_account_number }}', 'acct')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer" title="Copy Account No">
-                                                                    <span class="material-symbols-outlined text-[13px]" x-text="copiedField === 'acct' ? 'check' : 'content_copy'">content_copy</span>
-                                                                </button>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <span class="material-symbols-outlined {{ $activeSeller->bank_doc_path ? 'text-emerald-600' : ($activeSeller->bank_account_number ? 'text-amber-500' : 'text-slate-400') }} text-2xl">
-                                                    {{ $activeSeller->bank_doc_path ? 'verified' : ($activeSeller->bank_account_number ? 'check_circle' : 'pending') }}
-                                                </span>
-                                            </div>
-
-                                            @if($activeSeller->bank_doc_path)
-                                                @php
-                                                    $isBankPdf = str_ends_with(strtolower($activeSeller->bank_doc_path), '.pdf');
-                                                @endphp
-                                                <div class="mt-3 flex items-center gap-2 flex-wrap">
-                                                    <button type="button" 
-                                                            @click="openDoc('{{ Storage::url($activeSeller->bank_doc_path) }}', 'Bank Cheque / Passbook — {{ addslashes($activeSeller->shop_name) }}')"
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold transition shadow-2xs cursor-pointer">
-                                                        <span class="material-symbols-outlined text-sm">visibility</span>
-                                                        <span>Inspect Cancelled Cheque / Passbook</span>
-                                                        <span class="text-[9px] uppercase font-mono px-1 py-0.2 bg-amber-200 rounded text-amber-950 font-bold">{{ $isBankPdf ? 'PDF' : 'IMAGE' }}</span>
-                                                    </button>
-                                                    <a href="{{ Storage::url($activeSeller->bank_doc_path) }}" target="_blank" class="text-slate-400 hover:text-slate-600 p-1" title="Open in new tab">
-                                                        <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between text-xs">
-                                            <span class="text-slate-600 text-[11px] font-label-sm flex items-center gap-1">
-                                                <span class="material-symbols-outlined text-[13px] text-slate-400">payments</span>
-                                                NEFT / Escrow Payouts Ready
-                                            </span>
-                                            @if($activeSeller->bank_doc_path)
-                                                <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-0.5">
-                                                    <span class="material-symbols-outlined text-[14px]">task_alt</span> File Attached
-                                                </span>
-                                            @elseif($activeSeller->bank_account_number)
-                                                <span class="text-amber-700 font-semibold text-[11px]">Details Provided</span>
-                                            @else
-                                                <span class="text-slate-400 text-[11px]">Awaiting Bank Details</span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <!-- Document 04: FSSAI / Food & Quality Certification -->
-                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[190px] shadow-2xs hover:border-slate-300 transition-colors">
-                                        <div>
-                                            <div class="flex items-start justify-between">
-                                                <div>
-                                                    <span class="font-label-sm text-[10px] text-slate-400 uppercase font-bold tracking-wider">Document 04</span>
-                                                    <h4 class="font-bold text-xs text-[#0F172A] mt-0.5">FSSAI / Food & Quality Certification</h4>
-                                                    
-                                                    <div class="flex items-center gap-1.5 mt-1.5">
-                                                        <span class="font-mono text-xs text-slate-900 font-bold bg-white px-2 py-0.5 rounded border border-slate-200/80 inline-block shadow-2xs">
-                                                            {{ $activeSeller->fssai_number ? 'FSSAI: ' . $activeSeller->fssai_number : 'Standard Clearance (Non-Perishable)' }}
-                                                        </span>
-                                                        @if($activeSeller->fssai_number)
-                                                            <button type="button" @click="copyToClipboard('{{ $activeSeller->fssai_number }}', 'fssai')" class="p-1 text-slate-400 hover:text-slate-700 rounded transition cursor-pointer" title="Copy FSSAI">
-                                                                <span class="material-symbols-outlined text-[14px]" x-text="copiedField === 'fssai' ? 'check' : 'content_copy'">content_copy</span>
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <span class="material-symbols-outlined text-emerald-600 text-2xl">eco</span>
-                                            </div>
-
-                                            @if($activeSeller->fssai_doc_path)
-                                                @php
-                                                    $isFssaiPdf = str_ends_with(strtolower($activeSeller->fssai_doc_path), '.pdf');
-                                                @endphp
-                                                <div class="mt-3 flex items-center gap-2 flex-wrap">
-                                                    <button type="button" 
-                                                            @click="openDoc('{{ Storage::url($activeSeller->fssai_doc_path) }}', 'FSSAI Certificate — {{ addslashes($activeSeller->shop_name) }}')"
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold transition shadow-2xs cursor-pointer">
-                                                        <span class="material-symbols-outlined text-sm">visibility</span>
-                                                        <span>Inspect FSSAI Certificate</span>
-                                                        <span class="text-[9px] uppercase font-mono px-1 py-0.2 bg-amber-200 rounded text-amber-950 font-bold">{{ $isFssaiPdf ? 'PDF' : 'IMAGE' }}</span>
-                                                    </button>
-                                                    <a href="{{ Storage::url($activeSeller->fssai_doc_path) }}" target="_blank" class="text-slate-400 hover:text-slate-600 p-1" title="Open in new tab">
-                                                        <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between text-xs">
-                                            <span class="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                                                <span class="material-symbols-outlined text-[13px]">gavel</span>
-                                                Auction & Retail Eligible
-                                            </span>
-                                            <span class="text-slate-600 text-[11px] font-semibold">{{ $activeSeller->fssai_doc_path ? 'File Attached' : ($activeSeller->fssai_number ? 'Cleared' : 'Standard Exemption') }}</span>
-                                        </div>
-                                    </div>
-
+                                    @endforelse
                                 </div>
                             </div>
 

@@ -311,6 +311,134 @@ class SellerAuctionAndProfileTest extends TestCase
     }
 
     /**
+     * Test 1.11b: Approved seller can create an auction by adding a product manually on the fly.
+     */
+    public function test_tier1_approved_seller_can_create_auction_by_adding_product_manually(): void
+    {
+        Storage::fake('public');
+
+        $seller = $this->createApprovedSeller();
+        $category = Category::create([
+            'name'   => 'Organic Apples & Pears',
+            'slug'   => 'organic-apples-pears',
+            'status' => 'active',
+        ]);
+
+        $startsAt = Carbon::now()->addHour()->toDateTimeString();
+        $endsAt = Carbon::now()->addHours(8)->toDateTimeString();
+
+        $image = UploadedFile::fake()->image('kashmiri_apples.jpg', 600, 600);
+
+        $payload = [
+            'product_source'      => 'manual',
+            'manual_name'         => 'Kashmiri Royal Delicious Apples (Grade A)',
+            'manual_category_id'  => $category->id,
+            'manual_stock'        => 250,
+            'manual_unit_type'    => 'Boxes',
+            'manual_price'        => 3200.00,
+            'manual_description'  => 'Fresh harvest hand-picked orchard boxes with APMC seal.',
+            'manual_farm_origin'  => 'Srinagar Orchard Block 7',
+            'manual_harvest_date' => Carbon::now()->subDays(2)->toDateString(),
+            'manual_image'        => $image,
+            'starting_price'      => 2800.00,
+            'reserve_price'       => 3500.00,
+            'minimum_increment'   => 150.00,
+            'starts_at'           => $startsAt,
+            'ends_at'             => $endsAt,
+        ];
+
+        $response = $this->actingAs($seller, 'seller')
+            ->post(route('seller.auctions.store'), $payload);
+
+        $response->assertRedirect(route('seller.auctions.index'));
+        $response->assertSessionHas('success');
+
+        // Verify product was created on the fly
+        $this->assertDatabaseHas('products', [
+            'seller_id'   => $seller->id,
+            'category_id' => $category->id,
+            'name'        => 'Kashmiri Royal Delicious Apples (Grade A)',
+            'sale_type'   => 'auction',
+            'stock'       => 250,
+            'unit_type'   => 'Boxes',
+            'status'      => 'active',
+            'farm_origin' => 'Srinagar Orchard Block 7',
+        ]);
+
+        $product = Product::where('name', 'Kashmiri Royal Delicious Apples (Grade A)')->first();
+        $this->assertNotNull($product);
+
+        // Verify auction was linked to the newly created product
+        $this->assertDatabaseHas('auctions', [
+            'seller_id'         => $seller->sellerProfile->id,
+            'product_id'        => $product->id,
+            'starting_price'    => 2800.00,
+            'reserve_price'     => 3500.00,
+            'current_price'     => 2800.00,
+            'minimum_increment' => 150.00,
+            'status'            => 'scheduled',
+        ]);
+
+        // Verify image was saved and linked
+        $this->assertDatabaseHas('product_images', [
+            'product_id' => $product->id,
+            'is_primary' => true,
+        ]);
+    }
+
+    /**
+     * Test 1.11c: Seller with zero products can access create form and create auction manually without blocking screen.
+     */
+    public function test_tier1_seller_with_no_products_can_view_create_form_and_create_auction_manually(): void
+    {
+        $seller = $this->createApprovedSeller();
+        // Zero products created for this seller
+
+        $viewResponse = $this->actingAs($seller, 'seller')->get(route('seller.auctions.create'));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Create Wholesale Auction Lot');
+        $viewResponse->assertSee('Add Product Manually');
+        $viewResponse->assertSee('My Listed Products');
+
+        $startsAt = Carbon::now()->addHour()->toDateTimeString();
+        $endsAt = Carbon::now()->addHours(4)->toDateTimeString();
+
+        $payload = [
+            'product_source'      => 'manual',
+            'manual_name'         => 'Nagpur Organic Oranges (Fresh Harvest)',
+            'manual_stock'        => 500,
+            'manual_unit_type'    => 'kg',
+            'manual_price'        => 1200.00,
+            'manual_description'  => 'Grade A juicy sweet citrus consignment directly from farm.',
+            'starting_price'      => 1000.00,
+            'reserve_price'       => 1400.00,
+            'minimum_increment'   => 50.00,
+            'starts_at'           => $startsAt,
+            'ends_at'             => $endsAt,
+        ];
+
+        $postResponse = $this->actingAs($seller, 'seller')
+            ->post(route('seller.auctions.store'), $payload);
+
+        $postResponse->assertRedirect(route('seller.auctions.index'));
+        $postResponse->assertSessionHas('success');
+
+        $this->assertDatabaseHas('products', [
+            'seller_id' => $seller->id,
+            'name'      => 'Nagpur Organic Oranges (Fresh Harvest)',
+            'sale_type' => 'auction',
+            'stock'     => 500,
+        ]);
+
+        $createdProduct = Product::where('name', 'Nagpur Organic Oranges (Fresh Harvest)')->first();
+        $this->assertDatabaseHas('auctions', [
+            'seller_id'      => $seller->sellerProfile->id,
+            'product_id'     => $createdProduct->id,
+            'starting_price' => 1000.00,
+        ]);
+    }
+
+    /**
      * Test 1.12: Approved seller can access live bidding terminal for active lot.
      * Feature 38
      */
@@ -1035,5 +1163,33 @@ class SellerAuctionAndProfileTest extends TestCase
             ->get(route('seller.auctions.show', $auction));
         $showResponse->assertStatus(200);
         $showResponse->assertSee('Reserve Met', false);
+    }
+
+    /**
+     * Test: Auction creation workstation renders all listed categories across the marketplace,
+     * demonstrating that auctions are open for all merchandise and sellers, not just farmers.
+     */
+    public function test_auction_creation_view_renders_all_marketplace_categories(): void
+    {
+        $seller = $this->createApprovedSeller();
+
+        $response = $this->actingAs($seller, 'seller')
+            ->get(route('seller.auctions.create'));
+
+        $response->assertStatus(200);
+
+        // General merchandise & catalog categories are visible
+        $response->assertSee('All Listed Categories');
+        $response->assertSee('Artisan & Handmade Crafts');
+        $response->assertSee('Electronics & Gadgets');
+        $response->assertSee('Fashion & Apparel');
+        $response->assertSee('Home & Living');
+        $response->assertSee('Luxury Horology & Watches');
+        $response->assertSee('Rare Collectibles & Antiques');
+        $response->assertSee('Dairy & Farm Items');
+
+        // Farm-only restrictive labels have been replaced with inclusive terminology
+        $response->assertDontSee('Produce Category *', false);
+        $response->assertDontSee('APMC Classification', false);
     }
 }

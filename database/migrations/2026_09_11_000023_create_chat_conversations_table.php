@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained('users')->cascadeOnDelete();
             $table->string('title', 255)->nullable();
-            $table->enum('status', ['active', 'closed'])->default('active');
+            $table->string('status', 50)->default('active');
             $table->timestamps();
         });
     }

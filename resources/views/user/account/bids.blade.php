@@ -123,11 +123,11 @@
                         <div class="flex flex-wrap items-center gap-2.5">
                             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-status-green/10 text-status-green font-label-micro text-label-micro font-medium border border-status-green/20">
                                 <span class="w-2 h-2 rounded-full bg-status-green animate-ping"></span>
-                                <span>ESCROW VERIFIED BUYER • VAULT #ESC-9041 • UID: BZ-891-IN</span>
+                                <span>ESCROW VERIFIED BUYER • VAULT #ESC-{{ str_pad($user->id ?? 1000, 4, '0', STR_PAD_LEFT) }} • UID: BZ-{{ str_pad($user->id ?? 1, 3, '0', STR_PAD_LEFT) }}-IN</span>
                             </div>
                             <button @click="vaultModalOpen = true" type="button" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-authority text-canvas-ivory font-label-micro text-label-micro hover:bg-slate-authority/90 transition-colors cursor-pointer">
                                 <span class="material-symbols-outlined text-[14px] text-amber-action">lock</span>
-                                <span>Vault: ₹{{ number_format($stats['total_locked_escrow'] + 18800, 2) }}</span>
+                                <span>Vault: ₹{{ number_format($stats['total_locked_escrow'], 2) }}</span>
                                 <span class="material-symbols-outlined text-[14px] opacity-70">tune</span>
                             </button>
                         </div>
@@ -180,7 +180,7 @@
                                 </div>
                                 <p class="font-label-micro text-label-micro text-status-green flex items-center gap-1 mt-1 font-semibold">
                                     <span class="material-symbols-outlined text-[14px]">verified</span>
-                                    Secured across {{ count($auctions) > 0 ? count($auctions) : 4 }} active lots
+                                    Secured across {{ $stats['active_count'] }} active lots
                                 </p>
                             </div>
                         </div>
@@ -230,11 +230,11 @@
                                         Lot #AUC-{{ $stats['upcoming_auction']->id }} • {{ $stats['upcoming_auction']->product->name ?? 'Live Item' }}
                                     </p>
                                 @else
-                                    <div class="font-label-eyebrow text-headline-section font-bold tracking-tight font-mono text-error">
-                                        00:45:12
+                                    <div class="font-label-eyebrow text-headline-section font-bold tracking-tight font-mono text-slate-400">
+                                        None Active
                                     </div>
                                     <p class="font-label-micro text-label-micro text-on-surface-variant truncate mt-1">
-                                        Lot #AUC-8092 • Vintage Submariner
+                                        No pending lot closures
                                     </p>
                                 @endif
                             </div>
@@ -250,7 +250,7 @@
                             </div>
                             <div>
                                 <div class="font-display-hero text-headline-section font-bold text-canvas-ivory tracking-tight">
-                                    {{ $stats['win_rate'] }}% <span class="font-mono text-body-small font-normal text-amber-action">({{ $stats['won_count'] > 0 ? $stats['won_count'] : 14 }} Lots Won)</span>
+                                    {{ $stats['win_rate'] }}% <span class="font-mono text-body-small font-normal text-amber-action">({{ $stats['won_count'] }} Lots Won)</span>
                                 </div>
                                 <p class="font-label-micro text-label-micro text-canvas-ivory/60 mt-1">
                                     Top 5% bidder accuracy rank
@@ -393,11 +393,16 @@
                                                     {{ $prod->name }}
                                                 </a>
                                             </h3>
+                                            @php
+                                                $aucSellerTrust = $auc->seller->sellerProfile->trust_score ?? ($auc->seller->trust_score ?? 96.0);
+                                                $aucSellerRating = number_format(min(5.0, max(3.5, $aucSellerTrust / 20)), 1);
+                                                $sellerName = $auc->seller->sellerProfile->business_name ?? ($auc->seller->shop_name ?? ($auc->seller->name ?? 'Verified Merchant'));
+                                            @endphp
                                             <p class="font-body-small text-body-small text-on-surface-variant mt-0.5 flex items-center gap-1.5">
-                                                <span>Seller: {{ $auc->seller->sellerProfile->business_name ?? ($auc->seller->name ?? 'Official Store') }}</span>
+                                                <span>Seller: {{ $sellerName }}</span>
                                                 <span class="text-slate-authority/20">•</span>
                                                 <span class="text-amber-action flex items-center">
-                                                    <span class="material-symbols-outlined text-[14px]">star</span> 4.9 (120 sales)
+                                                    <span class="material-symbols-outlined text-[14px]">star</span> {{ $aucSellerRating }} SLA Verified
                                                 </span>
                                             </p>
                                         </div>
@@ -641,7 +646,7 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <h3 class="font-headline-section text-title-card font-bold text-slate-authority">Escrow Vault Inspector</h3>
-                            <span class="px-2 py-0.5 rounded-full bg-status-green/10 text-status-green font-mono text-[10px] font-bold">SECURE #ESC-9041</span>
+                            <span class="px-2 py-0.5 rounded-full bg-status-green/10 text-status-green font-mono text-[10px] font-bold">SECURE #ESC-{{ str_pad($user->id ?? 1000, 4, '0', STR_PAD_LEFT) }}</span>
                         </div>
                         <p class="font-body-small text-xs text-on-surface-variant mt-0.5">Audited cryptographic collateral ledger protecting your auction bids.</p>
                     </div>
@@ -652,21 +657,16 @@
             </div>
 
             <!-- Balances Matrix -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="p-4 rounded-2xl bg-surface-container-low border border-slate-authority/10 flex flex-col gap-1">
-                    <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Liquid Vault Balance</span>
-                    <span class="font-mono font-bold text-title-card text-slate-authority">₹18,800.00</span>
-                    <span class="font-label-micro text-[10px] text-status-green font-medium">Available for instant bidding</span>
-                </div>
-                <div class="p-4 rounded-2xl bg-surface-container-low border border-slate-authority/10 flex flex-col gap-1">
-                    <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Locked Collateral</span>
+                    <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Active Locked Collateral</span>
                     <span class="font-mono font-bold text-title-card text-amber-action">₹{{ number_format($stats['total_locked_escrow'], 2) }}</span>
-                    <span class="font-label-micro text-[10px] text-on-surface-variant">Across {{ count($auctions) }} active lots</span>
+                    <span class="font-label-micro text-[10px] text-on-surface-variant">Across {{ $stats['active_count'] }} active lots</span>
                 </div>
                 <div class="p-4 rounded-2xl bg-slate-authority text-canvas-ivory shadow-sm flex flex-col gap-1">
-                    <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-canvas-ivory/60">Total Vault Value</span>
-                    <span class="font-mono font-bold text-title-card text-canvas-ivory">₹{{ number_format($stats['total_locked_escrow'] + 18800, 2) }}</span>
-                    <span class="font-label-micro text-[10px] text-canvas-ivory/60">100% Protected collateral</span>
+                    <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-canvas-ivory/60">Protected Vault Total</span>
+                    <span class="font-mono font-bold text-title-card text-canvas-ivory">₹{{ number_format($stats['total_locked_escrow'], 2) }}</span>
+                    <span class="font-label-micro text-[10px] text-status-green font-medium">100% Instant refund on outbid</span>
                 </div>
             </div>
 

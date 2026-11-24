@@ -20,6 +20,7 @@ use App\Models\SellerProfile;
 use App\Models\Payout;
 use App\Models\OrderReturn;
 use App\Models\SiteSetting;
+use App\Models\AdminFeed;
 
 class AdminDashboardController extends Controller
 {
@@ -127,7 +128,68 @@ class AdminDashboardController extends Controller
             ->take(4)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'analytics', 'recentOrders', 'pendingSellers', 'liveAuctions'));
+        // Dynamic Channel Breakdown (Direct Retail vs Live Wholesale Auctions)
+        $retailGmv = (float) Order::where('order_type', '!=', 'auction')
+            ->whereIn('order_status', ['processing', 'completed'])
+            ->sum('total_amount');
+
+        $auctionGmv = (float) Order::where('order_type', 'auction')
+            ->whereIn('order_status', ['processing', 'completed'])
+            ->sum('total_amount');
+
+        $splitTotal = $retailGmv + $auctionGmv;
+        $retailShare = $splitTotal > 0 ? round(($retailGmv / $splitTotal) * 100, 1) : 0.0;
+        $auctionShare = $splitTotal > 0 ? round(($auctionGmv / $splitTotal) * 100, 1) : 0.0;
+
+        // Dynamic Peak Order Volume
+        $peakDailyVolume = (float) (Order::selectRaw('MAX(total_amount) as max_vol')->value('max_vol') ?? 0);
+
+        // Dynamic Top Regional Fulfillment Hubs
+        $topHubs = Order::whereNotIn('order_status', ['cancelled', 'refunded'])
+            ->whereNotNull('delivery_city')
+            ->where('delivery_city', '!=', '')
+            ->select('delivery_city as hub_name', DB::raw('COUNT(*) as total_orders'), DB::raw('SUM(total_amount) as total_volume'))
+            ->groupBy('delivery_city')
+            ->orderByDesc('total_volume')
+            ->take(3)
+            ->get();
+
+        if ($topHubs->isEmpty()) {
+            $topHubs = DB::table('seller_orders')
+                ->join('seller_profiles', 'seller_orders.seller_id', '=', 'seller_profiles.user_id')
+                ->select('seller_profiles.city as hub_name', DB::raw('COUNT(*) as total_orders'), DB::raw('SUM(seller_orders.subtotal) as total_volume'))
+                ->whereNotIn('seller_orders.status', ['cancelled', 'returned'])
+                ->whereNotNull('seller_profiles.city')
+                ->where('seller_profiles.city', '!=', '')
+                ->groupBy('seller_profiles.city')
+                ->orderByDesc('total_volume')
+                ->take(3)
+                ->get();
+        }
+
+        $maxHubVolume = (float) ($topHubs->max('total_volume') ?: 1);
+        $topHubs = $topHubs->map(function ($hub) use ($maxHubVolume) {
+            $hub->percentage = round(((float)$hub->total_volume / $maxHubVolume) * 100);
+            return $hub;
+        });
+
+        // Dynamic Admin Telemetry Feeds
+        $adminFeeds = AdminFeed::latest()->take(6)->get();
+
+        return view('admin.dashboard', compact(
+            'stats',
+            'analytics',
+            'recentOrders',
+            'pendingSellers',
+            'liveAuctions',
+            'retailGmv',
+            'auctionGmv',
+            'retailShare',
+            'auctionShare',
+            'peakDailyVolume',
+            'topHubs',
+            'adminFeeds'
+        ));
     }
 
     /**
@@ -259,6 +321,16 @@ class AdminDashboardController extends Controller
                     ]);
                 }
 
+                AdminFeed::record(
+                    title: "Merchant Verified: {$seller->shop_name}",
+                    description: "KYC credentials approved. Merchant store activated for catalog publishing.",
+                    type: 'kyc',
+                    icon: 'verified',
+                    badgeText: 'Approved',
+                    badgeColor: 'emerald',
+                    actionUrl: route('admin.sellers.show', $seller->id)
+                );
+
                 return back()->with('success', "Merchant \"{$seller->shop_name}\" has been successfully verified & activated!");
             });
         } catch (\Throwable $e) {
@@ -299,6 +371,16 @@ class AdminDashboardController extends Controller
                         'status' => 'suspended',
                     ]);
                 }
+
+                AdminFeed::record(
+                    title: "Merchant Application Rejected: {$seller->shop_name}",
+                    description: "Reason: {$cleanReason}",
+                    type: 'kyc',
+                    icon: 'block',
+                    badgeText: 'Rejected',
+                    badgeColor: 'rose',
+                    actionUrl: route('admin.sellers.approvals')
+                );
 
                 return back()->with('success', "Merchant application for \"{$seller->shop_name}\" was rejected.");
             });
@@ -786,6 +868,16 @@ class AdminDashboardController extends Controller
                             'payout_reference' => 'ORDER-' . strtoupper($request->order_status) . '-' . date('Ymd'),
                         ]);
                 }
+
+                AdminFeed::record(
+                    title: "Order #{$order->order_number} " . ucfirst($request->order_status),
+                    description: "Fulfillment status updated to {$request->order_status}.",
+                    type: 'order',
+                    icon: 'local_shipping',
+                    badgeText: ucfirst($request->order_status),
+                    badgeColor: $request->order_status === 'completed' ? 'emerald' : ($request->order_status === 'cancelled' ? 'rose' : 'blue'),
+                    actionUrl: route('admin.orders.show', $order->id)
+                );
 
                 return back()->with('success', "Order #{$order->order_number} status updated to \"{$request->order_status}\".");
             });

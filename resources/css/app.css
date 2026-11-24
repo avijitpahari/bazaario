@@ -284,7 +284,7 @@ h2 {
     padding-left: 0.75rem;
     margin: 0.5rem 0;
     color: #64748b;
-    font-style: italic;
+    font-style: italic.
 }
 .chat-markdown a {
     color: #2563eb;
@@ -294,4 +294,240 @@ h2 {
 .chat-markdown a:hover {
     color: #1d4ed8;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════ */
+/* SUPPORT PANEL DESIGN TOKENS — Warm Modernist Extended                           */
+/* ════════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+    /* Support Panel — Semantic Status Colors */
+    --color-support-status-open: #F59E0B;
+    --color-support-status-open-bg: #FFFBEB;
+    --color-support-status-open-text: #92400E;
+    --color-support-status-progress: #3B82F6;
+    --color-support-status-progress-bg: #EFF6FF;
+    --color-support-status-progress-text: #1E40AF;
+    --color-support-status-waiting-customer: #8B5CF6;
+    --color-support-status-waiting-customer-bg: #F5F3FF;
+    --color-support-status-waiting-customer-text: #5B21B6;
+    --color-support-status-waiting-seller: #6366F1;
+    --color-support-status-waiting-seller-bg: #EEF2FF;
+    --color-support-status-waiting-seller-text: #3730A3;
+    --color-support-status-escalated: #EF4444;
+    --color-support-status-escalated-bg: #FEF2F2;
+    --color-support-status-escalated-text: #B91C1C;
+    --color-support-status-resolved: #10B981;
+    --color-support-status-resolved-bg: #ECFDF5;
+    --color-support-status-resolved-text: #065F46;
+    --color-support-status-closed: #64748B;
+    --color-support-status-closed-bg: #F8FAFC;
+    --color-support-status-closed-text: #475569;
+
+    /* Support Panel — Priority Colors */
+    --color-support-priority-urgent: #EF4444;
+    --color-support-priority-urgent-bg: #FEF2F2;
+    --color-support-priority-urgent-text: #B91C1C;
+    --color-support-priority-high: #F97316;
+    --color-support-priority-high-bg: #FFF7ED;
+    --color-support-priority-high-text: #9A3412;
+    --color-support-priority-medium: #3B82F6;
+    --color-support-priority-medium-bg: #EFF6FF;
+    --color-support-priority-medium-text: #1E40AF;
+    --color-support-priority-low: #10B981;
+    --color-support-priority-low-bg: #ECFDF5;
+    --color-support-priority-low-text: #065F46;
+
+    /* Support Panel — Role Colors */
+    --color-support-role-customer: #3B82F6;
+    --color-support-role-customer-bg: #EFF6FF;
+    --color-support-role-customer-text: #1E40AF;
+    --color-support-role-seller: #6366F1;
+    --color-support-role-seller-bg: #EEF2FF;
+    --color-support-role-seller-text: #3730A3;
+    --color-support-role-admin: #8B5CF6;
+    --color-support-role-admin-bg: #F5F3FF;
+    --color-support-role-admin-text: #5B21B6;
+    --color-support-role-system: #64748B;
+    --color-support-role-system-bg: #F1F5F9;
+    --color-support-role-system-text: #475569;
+
+    /* Support Panel — Elevation Tokens */
+    --shadow-support-surface: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-support-raised: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+    --shadow-support-overlay: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
+    --shadow-support-glass: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 0 1px rgba(255, 255, 255, 0.8) inset;
+
+    /* Support Panel — Transition Tokens */
+    --transition-support-fast: 100ms ease-out;
+    --transition-support-base: 150ms ease-out;
+    --transition-support-slow: 250ms ease-out;
+
+    /* Support Panel — Spacing Scale (4px baseline) */
+    --spacing-support-1: 0.25rem;   /* 4px */
+    --spacing-support-2: 0.5rem;    /* 8px */
+    --spacing-support-3: 0.75rem;   /* 12px */
+    --spacing-support-4: 1rem;      /* 16px */
+    --spacing-support-5: 1.25rem;   /* 20px */
+    --spacing-support-6: 1.5rem;    /* 24px */
+    --spacing-support-8: 2rem;      /* 32px */
+    --spacing-support-10: 2.5rem;   /* 40px */
+    --spacing-support-12: 3rem;     /* 48px */
+
+    /* Support Panel — Radius Tokens */
+    --radius-support-sm: 0.375rem;   /* 6px */
+    --radius-support-md: 0.5rem;     /* 8px */
+    --radius-support-lg: 0.75rem;    /* 12px */
+    --radius-support-xl: 1rem;       /* 16px */
+    --radius-support-2xl: 1.25rem;   /* 20px */
+    --radius-support-full: 9999px;
+}
+
+/* Support Panel — Utility Classes */
+.support-card {
+    @apply bg-white border border-slate-200/80 rounded-2xl shadow-support-surface transition-all duration-150;
+}
+.support-card-raised {
+    @apply bg-white border border-slate-200/60 rounded-2xl shadow-support-raised transition-all duration-150;
+}
+.support-card-overlay {
+    @apply bg-white/95 backdrop-blur-sm border border-slate-200/50 rounded-2xl shadow-support-overlay transition-all duration-150;
+}
+.support-card-glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl shadow-support-glass transition-all duration-150;
+}
+
+.support-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase transition-all duration-150;
+}
+.support-pill-sm {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-medium uppercase transition-all duration-150;
+}
+
+.support-avatar {
+    @apply flex-shrink-0 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold ring-1 ring-slate-300;
+}
+.support-avatar-sm {
+    @apply w-7 h-7 text-xs;
+}
+.support-avatar-md {
+    @apply w-8 h-8 text-xs;
+}
+.support-avatar-lg {
+    @apply w-10 h-10 text-sm;
+}
+.support-avatar-xl {
+    @apply w-12 h-12 text-base;
+}
+
+.support-avatar-customer { @apply bg-blue-100 text-blue-700; }
+.support-avatar-seller { @apply bg-indigo-100 text-indigo-700; }
+.support-avatar-agent { @apply bg-gradient-to-br from-blue-600 to-indigo-600 text-white; }
+.support-avatar-bot { @apply bg-indigo-100 text-indigo-600; }
+.support-avatar-system { @apply bg-slate-100 text-slate-600; }
+
+.support-status-dot {
+    @apply absolute bottom-0 right-0 rounded-full ring-2 ring-white;
+}
+.support-status-dot-sm { @apply w-2 h-2; }
+.support-status-dot-md { @apply w-2.5 h-2.5; }
+.support-status-dot-lg { @apply w-3 h-3; }
+
+.support-status-open { @apply bg-emerald-500; }
+.support-status-progress { @apply bg-blue-500; }
+.support-status-waiting { @apply bg-amber-500; }
+.support-status-escalated { @apply bg-rose-500 animate-pulse; }
+.support-status-resolved { @apply bg-emerald-500; }
+.support-status-closed { @apply bg-slate-400; }
+
+/* Support Panel — Focus Visible */
+.support-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+}
+
+/* Support Panel — Skeleton Loader */
+.support-skeleton {
+    @apply animate-pulse bg-slate-200 rounded;
+}
+.support-skeleton-text {
+    @apply h-4 w-3/4;
+}
+.support-skeleton-text-sm {
+    @apply h-3 w-1/2;
+}
+.support-skeleton-avatar {
+    @apply w-10 h-10 rounded-full;
+}
+.support-skeleton-card {
+    @apply h-24 w-full rounded-2xl;
+}
+
+/* Support Panel — Empty State */
+.support-empty {
+    @apply flex flex-col items-center justify-center py-12 px-6 text-center;
+}
+.support-empty-icon {
+    @apply w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-400;
+}
+.support-empty-title {
+    @apply font-heading font-semibold text-sm text-slate-700 mb-1;
+}
+.support-empty-desc {
+    @apply text-xs text-slate-400 max-w-xs;
+}
+
+/* Support Panel — Message Bubbles */
+.support-bubble {
+    @apply max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed shadow-sm transition-all duration-150;
+}
+.support-bubble-customer {
+    @apply bg-white border border-slate-200/90 rounded-tl-sm;
+}
+.support-bubble-seller {
+    @apply bg-indigo-50/70 border border-indigo-100 rounded-tl-sm;
+}
+.support-bubble-agent {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-sm;
+}
+.support-bubble-bot {
+    @apply bg-indigo-50/70 border border-indigo-100 rounded-tl-sm;
+}
+.support-bubble-system {
+    @apply bg-slate-100 border border-slate-200;
+}
+.support-bubble-system.arbitration {
+    @apply bg-rose-50 border border-rose-200 text-rose-800 font-semibold;
+}
+.support-bubble-system.escalation {
+    @apply bg-amber-50 border border-amber-200 text-amber-800;
+}
+.support-bubble-system.status-change {
+    @apply bg-blue-50 border border-blue-200 text-blue-800;
+}
+
+/* Support Panel — Polling Indicator */
+.support-polling {
+    @apply inline-flex items-center gap-1.5 text-[10px] text-slate-400 font-mono;
+}
+.support-polling-dot {
+    @apply w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse;
+}
+
+/* Support Panel — Staggered Entrance */
+@keyframes support-fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.support-stagger > * {
+    animation: support-fade-in-up 300ms ease-out backwards;
+}
+.support-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.support-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.support-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.support-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.support-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.support-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.support-stagger > *:nth-child(7) { animation-delay: 240ms; }
+.support-stagger > *:nth-child(8) { animation-delay: 280ms; }
+.support-stagger > *:nth-child(9) { animation-delay: 320ms; }
+.support-stagger > *:nth-child(10) { animation-delay: 360ms; }
 

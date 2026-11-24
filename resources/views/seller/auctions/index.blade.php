@@ -36,7 +36,7 @@
         <div class="flex items-center gap-3">
             <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200/70 rounded-xl font-mono text-[11px] uppercase text-emerald-800 font-semibold shadow-2xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                APMC SPOT TICKER CONNECTED
+                SPOT TICKER CONNECTED
             </span>
             <span class="font-mono text-xs text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-xl shadow-2xs">
                 SELLER ID: #BZ-SLR-{{ str_pad($profile?->id ?? 1, 4, '0', STR_PAD_LEFT) }}
@@ -57,7 +57,7 @@
                 </span>
             </div>
             <p class="text-sm text-slate-500 leading-relaxed">
-                Live spot-market auctions, real-time bidder telemetry, and verified bulk agricultural allocations for <span class="font-semibold text-slate-800">{{ $profile?->shop_name ?? 'My Farm' }}</span>.
+                Live spot-market auctions, real-time bidder telemetry, and verified wholesale lot allocations for <span class="font-semibold text-slate-800">{{ $profile?->shop_name ?? 'My Store' }}</span>.
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
@@ -213,16 +213,16 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-200/80 shadow-2xs flex items-center justify-center p-1">
                                         <img src="{{ $thumbUrl }}" 
-                                             alt="{{ $auc->product?->name ?? 'Produce' }}" 
+                                             alt="{{ $auc->product?->name ?? 'Product' }}" 
                                              class="w-full h-full object-contain"
                                              onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                                     </div>
                                     <div class="min-w-0">
                                         <a href="{{ route('seller.auctions.show', $auc) }}" class="font-heading font-bold text-slate-900 hover:text-amber-600 transition-colors truncate block">
-                                            {{ $auc->product?->name ?? 'Agricultural Lot' }}
+                                            {{ $auc->product?->name ?? 'Auction Lot' }}
                                         </a>
                                         <div class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
-                                            <span class="truncate">{{ $auc->product?->category?->name ?? 'Farm Produce' }}</span>
+                                            <span class="truncate">{{ $auc->product?->category?->name ?? 'General Category' }}</span>
                                             <span>•</span>
                                             <span class="font-mono">Unit: {{ $auc->product?->unit_type ?? 'lot' }}</span>
                                         </div>

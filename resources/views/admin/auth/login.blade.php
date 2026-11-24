@@ -67,17 +67,6 @@
                     </div>
                 @endif
 
-                <!-- Demo Autofill Helper -->
-                <div class="mb-5 p-3 rounded-xl bg-[#0F172A]/70 border border-[#334155]/60 flex items-center justify-between text-xs">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[16px] text-[#F5A623]">key</span>
-                        <span class="text-slate-300 font-label-sm text-[11px]">admin@bazaario.com</span>
-                    </div>
-                    <button type="button" onclick="autofillDemo()" class="text-[11px] font-semibold text-[#F5A623] hover:underline cursor-pointer">
-                        Autofill Credentials
-                    </button>
-                </div>
-
                 <!-- Form -->
                 <form action="{{ route('admin.login.submit') }}" method="POST" class="space-y-4">
                     @csrf
@@ -93,10 +82,10 @@
                                 id="email" 
                                 name="email" 
                                 type="email" 
-                                value="{{ old('email', 'admin@bazaario.com') }}" 
+                                value="{{ old('email') }}" 
                                 required 
                                 autofocus
-                                placeholder="admin@bazaario.com"
+                                placeholder="name@domain.com"
                                 class="w-full pl-10 pr-4 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#F5A623] focus:ring-1 focus:ring-[#F5A623] transition-all font-body-md"
                             />
                         </div>
@@ -118,13 +107,12 @@
                                 type="password" 
                                 required 
                                 placeholder="••••••••••••"
-                                value="Password123!"
                                 class="w-full pl-10 pr-11 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#F5A623] focus:ring-1 focus:ring-[#F5A623] transition-all font-body-md"
                             />
                             <button 
                                 type="button" 
                                 onclick="togglePasswordVisibility()" 
-                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
                             >
                                 <span id="togglePasswordIcon" class="material-symbols-outlined text-[18px]">visibility</span>
                             </button>
@@ -205,11 +193,6 @@
                 passwordInput.type = 'password';
                 icon.textContent = 'visibility';
             }
-        }
-
-        function autofillDemo() {
-            document.getElementById('email').value = 'admin@bazaario.com';
-            document.getElementById('password').value = 'Password123!';
         }
     </script>
 </body>
