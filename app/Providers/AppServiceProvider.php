@@ -21,7 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (file_exists(app_path('helpers.php'))) {
+            require_once app_path('helpers.php');
+        }
     }
 
     /**
@@ -29,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Custom Blade directive for Indian Rupee formatting
+        Blade::directive('inr', function ($expression) {
+            return "<?php echo '₹' . number_format((float)({$expression}), 2); ?>";
+        });
         try {
             view()->composer('*', function ($view) {
                 $view->with([

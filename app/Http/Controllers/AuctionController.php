@@ -16,6 +16,14 @@ class AuctionController extends Controller
      */
     public function placeBid(Request $request, $auction)
     {
+        if (!\App\Models\SiteSetting::isAuctionEnabled()) {
+            $msg = 'The wholesale auction system is currently paused by platform administration.';
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['message' => $msg], 403);
+            }
+            return back()->with('error', $msg);
+        }
+
         if (!Auth::check()) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['message' => 'Please sign in to place a bid on live auctions.'], 401);

@@ -63,6 +63,11 @@ class Auction extends Model
         return $this->hasMany(AuctionBid::class);
     }
 
+    public function disputes(): HasMany
+    {
+        return $this->hasMany(AuctionDispute::class);
+    }
+
     // Scopes
 
     public function scopeActive($query)
@@ -91,6 +96,16 @@ class Auction extends Model
     }
 
     // Helpers
+
+    public function getFormattedCurrentPriceAttribute(): string
+    {
+        return '₹' . number_format((float) ($this->current_price ?? 0), 2);
+    }
+
+    public function getFormattedStartingPriceAttribute(): string
+    {
+        return '₹' . number_format((float) ($this->starting_price ?? 0), 2);
+    }
 
     public function isLive(): bool
     {

@@ -21,23 +21,31 @@
             </p>
         </div>
 
-        <!-- Filter Presets -->
-        <div class="inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 shadow-2xs self-start lg:self-center">
-            <a href="{{ route('seller.support.index') }}" 
-               class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ is_null($statusFilter) ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
-                All ({{ $totalCount }})
-            </a>
-            <a href="{{ route('seller.support.index', ['status' => 'open']) }}" 
-               class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ $statusFilter === 'open' ? 'bg-white text-amber-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
-                Action Required ({{ $openCount }})
-            </a>
-            <a href="{{ route('seller.support.index', ['status' => 'escalated']) }}" 
-               class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ $statusFilter === 'escalated' ? 'bg-white text-rose-700 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
-                Escalated ({{ $escalatedCount }})
-            </a>
-            <a href="{{ route('seller.support.index', ['status' => 'resolved']) }}" 
-               class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ $statusFilter === 'resolved' ? 'bg-white text-emerald-800 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
-                Resolved ({{ $resolvedCount }})
+        <!-- Actions & Filter Presets -->
+        <div class="flex flex-wrap items-center gap-3 self-start lg:self-center">
+            <div class="inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 shadow-2xs">
+                <a href="{{ route('seller.support.index') }}" 
+                   class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ is_null($statusFilter) ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
+                    All ({{ $totalCount }})
+                </a>
+                <a href="{{ route('seller.support.index', ['status' => 'open']) }}" 
+                   class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ $statusFilter === 'open' ? 'bg-white text-amber-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
+                    Action Required ({{ $openCount }})
+                </a>
+                <a href="{{ route('seller.support.index', ['status' => 'escalated']) }}" 
+                   class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ $statusFilter === 'escalated' ? 'bg-white text-rose-700 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
+                    Escalated ({{ $escalatedCount }})
+                </a>
+                <a href="{{ route('seller.support.index', ['status' => 'resolved']) }}" 
+                   class="px-3.5 py-1.5 rounded-lg text-xs transition-all {{ $statusFilter === 'resolved' ? 'bg-white text-emerald-800 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium' }}">
+                    Resolved ({{ $resolvedCount }})
+                </a>
+            </div>
+
+            <a href="{{ route('seller.support.tickets.create') }}" 
+               class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-[16px] text-amber-400">add_circle</span>
+                <span>Raise Ticket</span>
             </a>
         </div>
     </div>

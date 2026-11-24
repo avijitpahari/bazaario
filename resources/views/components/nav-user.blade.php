@@ -52,7 +52,7 @@
     if ($cartCount === 0) {
         $cartCount = count(session('cart', []));
     }
-    $wishlistCount = count(session('wishlist', []));
+    $wishlistCount = $currentUser ? ($currentUser->wishlist?->items()->count() ?? 0) : count(session('wishlist', []));
 @endphp
 
 <!-- ── STICKY CUSTOMER NAVBAR CONTAINER ── -->
@@ -62,9 +62,11 @@
         notificationsOpen: false, 
         cartOpen: false,
         searchFocus: false,
-        mobileMenuOpen: false 
-    }" 
-    class="sticky top-0 z-50 font-sans text-slate-900 selection:bg-amber-100 px-4 sm:px-6 pt-3 pb-2">
+        mobileMenuOpen: false,
+        wishlistCount: {{ $wishlistCount }}
+    }"
+    @wishlist-updated.window="wishlistCount = $event.detail.count" 
+    class="sticky top-0 z-50 font-sans text-slate-900 selection:bg-amber-100 bg-[#FCFBF7]/90 backdrop-blur-md px-4 sm:px-6 py-2.5 transition-all border-b border-amber-900/5 shadow-xs">
 
     <!-- ── LEVEL 1: MAIN DESKTOP NAVBAR ── -->
     <div class="max-w-7xl mx-auto bg-white rounded-full border border-slate-200/80 shadow-md px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -220,12 +222,13 @@
             <a href="{{ route('user.wishlist.index') }}" 
                class="relative p-2 text-slate-700 hover:text-red-500 rounded-full hover:bg-slate-100 transition-colors"
                aria-label="Wishlist">
-                <span class="material-symbols-outlined text-2xl">favorite</span>
-                @if($wishlistCount > 0)
-                    <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs">
-                        {{ $wishlistCount }}
-                    </span>
-                @endif
+                <span class="material-symbols-outlined text-2xl" :class="{'text-red-500': wishlistCount > 0}">favorite</span>
+                <span x-show="wishlistCount > 0" 
+                      x-text="wishlistCount" 
+                      x-transition
+                      class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs">
+                    {{ $wishlistCount }}
+                </span>
             </a>
 
             <!-- Notifications 🔔 (P18: Dynamic count & conditional badge) -->
@@ -407,6 +410,7 @@
                                 $dashRoute = match($currentUser->role) {
                                     'admin' => route('admin.dashboard'),
                                     'seller' => route('seller.dashboard'),
+                                    'support_agent', 'support' => route('agent.dashboard'),
                                     default => route('user.dashboard'),
                                 };
                             @endphp
@@ -574,8 +578,8 @@
             <!-- Footer Action inside Drawer -->
             <div class="pt-4 border-t border-slate-100">
                 @if($currentUser)
-                    <a href="{{ route('user.dashboard') }}" class="w-full py-2.5 text-center bg-slate-900 text-white font-bold rounded-xl block">
-                        Go to Dashboard
+                    <a href="{{ $dashRoute }}" class="w-full py-2.5 text-center bg-slate-900 text-white font-bold rounded-xl block">
+                        Go to {{ in_array($currentUser->role, ['support_agent', 'support']) ? 'Support Workstation' : 'Dashboard' }}
                     </a>
                 @else
                     <div class="grid grid-cols-2 gap-2">

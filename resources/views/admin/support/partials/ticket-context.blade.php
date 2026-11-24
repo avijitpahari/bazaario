@@ -1,3 +1,57 @@
+<!-- QUICK TICKET CONTROLS CARD -->
+<div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-xs font-bold font-heading text-slate-800">
+            <span class="material-symbols-outlined text-[18px] text-blue-600">tune</span>
+            <span>Ticket Properties</span>
+        </div>
+        <span class="text-[10px] text-slate-400 font-mono">#{{ $activeTicket->ticket_number }}</span>
+    </div>
+
+    <form action="{{ route('admin.support.tickets.status', $activeTicket) }}" method="POST" class="space-y-3">
+        @csrf
+        <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Status</label>
+            <select name="status" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                <option value="open" {{ $activeTicket->status === 'open' ? 'selected' : '' }}>Open</option>
+                <option value="in_progress" {{ $activeTicket->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                <option value="waiting_customer" {{ $activeTicket->status === 'waiting_customer' ? 'selected' : '' }}>Waiting on Customer</option>
+                <option value="waiting_seller" {{ $activeTicket->status === 'waiting_seller' ? 'selected' : '' }}>Waiting on Seller</option>
+                <option value="escalated" {{ $activeTicket->status === 'escalated' ? 'selected' : '' }}>Escalated to Dispute</option>
+                <option value="resolved" {{ $activeTicket->status === 'resolved' ? 'selected' : '' }}>Resolved</option>
+                <option value="closed" {{ $activeTicket->status === 'closed' ? 'selected' : '' }}>Closed</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Priority</label>
+            <select name="priority" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                <option value="low" {{ $activeTicket->priority === 'low' ? 'selected' : '' }}>Low Priority</option>
+                <option value="medium" {{ $activeTicket->priority === 'medium' ? 'selected' : '' }}>Medium Priority</option>
+                <option value="high" {{ $activeTicket->priority === 'high' ? 'selected' : '' }}>High Priority</option>
+                <option value="urgent" {{ $activeTicket->priority === 'urgent' ? 'selected' : '' }}>Urgent Priority</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Assigned Agent</label>
+            <select name="assigned_agent_id" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                <option value="">-- Unassigned --</option>
+                @foreach($agents ?? [] as $agent)
+                    <option value="{{ $agent->id }}" {{ $activeTicket->assigned_agent_id === $agent->id ? 'selected' : '' }}>
+                        {{ $agent->name }} ({{ ucfirst($agent->role) }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <button type="submit" class="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-[15px] text-amber-400">check_circle</span>
+            <span>Update Properties</span>
+        </button>
+    </form>
+</div>
+
 <!-- ARBITRATION ACTIONS CARD -->
 <div class="p-4 rounded-2xl bg-gradient-to-br from-rose-50 to-amber-50 border border-rose-100 shadow-sm">
     <h3 class="font-heading font-bold text-sm text-rose-900 mb-3 flex items-center gap-2">
@@ -237,18 +291,22 @@
 <script>
     // Toggle custom action and refund amount fields based on decision selection
     document.addEventListener('change', function(e) {
-        if (e.target.name === 'decision') {
+        if (e.target && e.target.name === 'decision') {
             const customField = document.getElementById('custom-action-field');
             const refundField = document.getElementById('refund-amount-field');
-            if (e.target.value === 'custom') {
-                customField.classList.remove('hidden');
-            } else {
-                customField.classList.add('hidden');
+            if (customField) {
+                if (e.target.value === 'custom') {
+                    customField.classList.remove('hidden');
+                } else {
+                    customField.classList.add('hidden');
+                }
             }
-            if (e.target.value === 'approve_refund') {
-                refundField.classList.remove('hidden');
-            } else {
-                refundField.classList.add('hidden');
+            if (refundField) {
+                if (e.target.value === 'approve_refund') {
+                    refundField.classList.remove('hidden');
+                } else {
+                    refundField.classList.add('hidden');
+                }
             }
         }
     });

@@ -48,6 +48,11 @@ class DashboardController extends Controller
         // ── Total spent ──────────────────────────────────────────────────────
         $totalSpent = $user->orders()->where('payment_status', 'paid')->sum('total_amount');
 
+        // ── Support Tickets ──────────────────────────────────────────────────
+        $activeTicketsCount = \App\Models\SupportTicket::where('user_id', $user->id)
+            ->whereIn('status', ['open', 'in_progress', 'escalated'])
+            ->count();
+
         return view('user.account.dashboard', compact(
             'user',
             'greeting',
@@ -57,7 +62,8 @@ class DashboardController extends Controller
             'activeBids',
             'availableCoupons',
             'recentOrders',
-            'totalSpent'
+            'totalSpent',
+            'activeTicketsCount'
         ));
     }
 }

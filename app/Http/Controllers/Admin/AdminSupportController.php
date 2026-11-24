@@ -87,7 +87,7 @@ class AdminSupportController extends Controller
             }
         } elseif ($viewMode === 'tickets' || $viewMode === 'escalated') {
             // Support Tickets
-            $ticketQuery = SupportTicket::with(['user', 'seller', 'order', 'latestMessage'])
+            $ticketQuery = SupportTicket::with(['user', 'seller', 'order', 'latestMessage', 'assignedAgent'])
                 ->orderByDesc('updated_at');
 
             // Filter by view mode
@@ -136,19 +136,29 @@ class AdminSupportController extends Controller
 
             // Select the active ticket
             if ($selectedTicketId) {
-                $activeTicket = SupportTicket::with(['user', 'seller', 'order', 'messages.user', 'orderItem.product'])
+                $activeTicket = SupportTicket::with(['user', 'seller', 'order', 'messages.user', 'orderItem.product', 'assignedAgent'])
                     ->find($selectedTicketId);
             }
 
             if (!$activeTicket && $tickets->isNotEmpty()) {
-                $activeTicket = SupportTicket::with(['user', 'seller', 'order', 'messages.user', 'orderItem.product'])
+                $activeTicket = SupportTicket::with(['user', 'seller', 'order', 'messages.user', 'orderItem.product', 'assignedAgent'])
                     ->find($tickets->first()->id);
             }
         }
 
+        // Check for related OrderReturn for active ticket
+        $relatedReturn = null;
+        if ($activeTicket && $activeTicket->order_id) {
+            $relatedReturn = OrderReturn::where('order_id', $activeTicket->order_id)
+                ->whereIn('status', ['requested', 'approved', 'pickup_scheduled', 'received', 'refund_processing', 'refunded'])
+                ->with(['orderItem', 'user'])
+                ->latest()
+                ->first();
+        }
+
         // Available agents
-        $agents = User::whereIn('role', ['admin', 'manager', 'support'])
-            ->select('id', 'name', 'email', 'role')
+        $agents = User::whereIn('role', ['admin', 'manager', 'support', 'support_agent'])
+            ->select('id', 'name', 'email', 'role', 'department', 'staff_id')
             ->get();
 
         // Categories for filter dropdown
@@ -162,6 +172,7 @@ class AdminSupportController extends Controller
             'chatResolvedCount',
             'tickets',
             'activeTicket',
+            'relatedReturn',
             'ticketOpenCount',
             'ticketEscalatedCount',
             'ticketResolvedCount',
@@ -307,7 +318,7 @@ class AdminSupportController extends Controller
                     'attachment_url' => $msg->attachment_url,
                     'attachment_type' => $msg->attachment_type,
                     'time' => $msg->created_at ? $msg->created_at->format('h:i A') : now()->format('h:i A'),
-                    'is_read' => (bool) $msg->is_read,
+                    'is_read' => (bool) ($msg->is_read ?? false),
                 ];
             });
 
@@ -333,6 +344,7 @@ class AdminSupportController extends Controller
             'order.sellerOrders.seller.sellerProfile',
             'orderItem.product',
             'messages.user',
+            'assignedAgent',
         ]);
 
         // Check for related OrderReturn (dispute)
@@ -361,7 +373,7 @@ class AdminSupportController extends Controller
         $viewMode = $request->query('view', 'tickets');
         $tab = $request->query('tab', 'open');
 
-        $ticketQuery = SupportTicket::with(['user', 'seller', 'order', 'latestMessage'])
+        $ticketQuery = SupportTicket::with(['user', 'seller', 'order', 'latestMessage', 'assignedAgent'])
             ->orderByDesc('updated_at');
 
         // Filter by view mode
@@ -409,12 +421,14 @@ class AdminSupportController extends Controller
         $tickets = $ticketQuery->paginate(20)->withQueryString();
 
         // Available agents
-        $agents = User::whereIn('role', ['admin', 'manager', 'support'])
-            ->select('id', 'name', 'email', 'role')
+        $agents = User::whereIn('role', ['admin', 'manager', 'support', 'support_agent'])
+            ->select('id', 'name', 'email', 'role', 'department', 'staff_id')
             ->get();
 
         // Categories for filter dropdown
         $ticketCategories = ['order_issue', 'return_refund', 'delivery_delay', 'auction', 'billing', 'escrow_payout', 'kyc_clearance', 'listing_error', 'account_issue', 'general'];
+
+        $activeTicket = $ticket;
 
         return view('admin.support.ticket-show', compact(
             'ticket',
@@ -556,6 +570,129 @@ class AdminSupportController extends Controller
     }
 
     /**
+     * Post an admin / agent reply to a support ticket.
+     */
+    public function replySupportTicket(Request $request, SupportTicket $ticket): JsonResponse|RedirectResponse
+    {
+        $admin = Auth::guard('admin')->user() ?? Auth::user();
+        abort_unless($admin && in_array($admin->role, ['admin', 'manager', 'support']), 403);
+
+        $validated = $request->validate([
+            'message' => ['nullable', 'string', 'max:3000'],
+            'attachment' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf'],
+            'status' => ['nullable', 'string', 'in:open,in_progress,waiting_customer,waiting_seller,resolved,closed'],
+        ]);
+
+        $messageText = trim((string) ($validated['message'] ?? ''));
+        $attachmentPath = null;
+        $attachmentType = null;
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $attachmentPath = $file->store('support_attachments', 'public');
+            $attachmentType = $file->getClientOriginalExtension();
+        }
+
+        if (empty($messageText) && empty($attachmentPath)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'error' => 'Please provide a message or attachment.'], 422);
+            }
+            return back()->with('error', 'Please provide a message or attachment.');
+        }
+
+        $msg = SupportTicketMessage::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => $admin->id,
+            'sender_type' => 'admin',
+            'message' => $messageText ?: 'Attached document.',
+            'attachment_path' => $attachmentPath,
+            'attachment_type' => $attachmentType,
+        ]);
+
+        $ticketUpdates = [
+            'updated_at' => now(),
+        ];
+
+        if (!empty($validated['status'])) {
+            $ticketUpdates['status'] = $validated['status'];
+            if (in_array($validated['status'], ['resolved', 'closed'])) {
+                $ticketUpdates['resolved_at'] = now();
+            }
+        } elseif ($ticket->status === 'open') {
+            $ticketUpdates['status'] = 'in_progress';
+        }
+
+        $ticket->update($ticketUpdates);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => [
+                    'id' => $msg->id,
+                    'sender_type' => 'admin',
+                    'sender_name' => $admin->name ?? 'Support Desk',
+                    'message' => $msg->message,
+                    'attachment_url' => $msg->attachment_url,
+                    'attachment_type' => $msg->attachment_type,
+                    'time' => $msg->created_at->format('h:i A'),
+                ],
+                'ticket_status' => $ticket->status,
+            ]);
+        }
+
+        return redirect()->route('admin.support.tickets.show', $ticket)
+            ->with('success', 'Admin reply posted to ticket #' . $ticket->ticket_number);
+    }
+
+    /**
+     * Quick status or priority update for support tickets.
+     */
+    public function updateTicketStatus(Request $request, SupportTicket $ticket): RedirectResponse
+    {
+        $admin = Auth::guard('admin')->user() ?? Auth::user();
+        abort_unless($admin && in_array($admin->role, ['admin', 'manager', 'support']), 403);
+
+        $validated = $request->validate([
+            'status' => ['nullable', 'string', 'in:open,in_progress,waiting_customer,waiting_seller,resolved,closed,escalated'],
+            'priority' => ['nullable', 'string', 'in:low,medium,high,urgent'],
+            'assigned_agent_id' => ['nullable', 'exists:users,id'],
+        ]);
+
+        $updates = ['updated_at' => now()];
+
+        if (!empty($validated['status'])) {
+            $updates['status'] = $validated['status'];
+            if (in_array($validated['status'], ['resolved', 'closed'])) {
+                $updates['resolved_at'] = now();
+            }
+            if ($validated['status'] === 'escalated') {
+                $updates['is_escalated'] = true;
+                $updates['escalated_at'] = now();
+            }
+        }
+
+        if (!empty($validated['priority'])) {
+            $updates['priority'] = $validated['priority'];
+        }
+
+        if (array_key_exists('assigned_agent_id', $validated)) {
+            $updates['assigned_agent_id'] = $validated['assigned_agent_id'];
+        }
+
+        $ticket->update($updates);
+
+        SupportTicketMessage::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => $admin->id,
+            'sender_type' => 'system',
+            'message' => "Admin {$admin->name} updated ticket properties: Status: " . ucfirst(str_replace('_', ' ', $ticket->status)) . " | Priority: " . ucfirst($ticket->priority),
+        ]);
+
+        return redirect()->route('admin.support.tickets.show', $ticket)
+            ->with('success', "Ticket #{$ticket->ticket_number} updated successfully.");
+    }
+
+    /**
      * Poll for new Support Ticket messages (real-time updates).
      */
     public function pollTicketMessages(Request $request, SupportTicket $ticket): JsonResponse
@@ -564,18 +701,19 @@ class AdminSupportController extends Controller
 
         $newMessages = SupportTicketMessage::where('ticket_id', $ticket->id)
             ->where('id', '>', $afterId)
+            ->with(['user.sellerProfile'])
             ->orderBy('id', 'asc')
             ->get()
             ->map(function ($msg) {
                 return [
                     'id' => $msg->id,
                     'sender_type' => $msg->sender_type,
-                    'sender_name' => $msg->user?->name ?? ($msg->sender_type === 'system' ? 'System' : 'Unknown'),
+                    'sender_name' => $msg->user?->sellerProfile?->shop_name ?? ($msg->user?->name ?? ($msg->sender_type === 'system' ? 'System' : 'Support Desk')),
                     'message' => $msg->message,
                     'attachment_url' => $msg->attachment_url,
                     'attachment_type' => $msg->attachment_type,
                     'time' => $msg->created_at ? $msg->created_at->format('h:i A') : now()->format('h:i A'),
-                    'is_read' => (bool) $msg->is_read,
+                    'is_read' => (bool) ($msg->is_read ?? false),
                 ];
             });
 

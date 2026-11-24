@@ -154,6 +154,34 @@ class SellerProfile extends Model
         return $finalScore;
     }
 
+    public function getBannerUrlAttribute(): ?string
+    {
+        if (empty($this->banner_path)) {
+            return null;
+        }
+        if (\Illuminate\Support\Str::startsWith($this->banner_path, ['http://', 'https://'])) {
+            return $this->banner_path;
+        }
+        if (\Illuminate\Support\Str::startsWith($this->banner_path, ['images/', 'storage/']) || file_exists(public_path($this->banner_path))) {
+            return asset($this->banner_path);
+        }
+        return \Illuminate\Support\Facades\Storage::url($this->banner_path);
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (empty($this->logo_path)) {
+            return null;
+        }
+        if (\Illuminate\Support\Str::startsWith($this->logo_path, ['http://', 'https://'])) {
+            return $this->logo_path;
+        }
+        if (\Illuminate\Support\Str::startsWith($this->logo_path, ['images/', 'storage/']) || file_exists(public_path($this->logo_path))) {
+            return asset($this->logo_path);
+        }
+        return \Illuminate\Support\Facades\Storage::url($this->logo_path);
+    }
+
     public static function getCityCoordinates(?string $city): array
     {
         $cityMap = [

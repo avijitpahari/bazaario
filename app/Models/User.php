@@ -21,6 +21,9 @@ class User extends Authenticatable
         'phone',
         'password',
         'role',
+        'staff_id',
+        'department',
+        'is_online',
         'profile_image',
         'bio',
         'email_verified_at',
@@ -37,6 +40,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_online' => 'boolean',
         ];
     }
 
@@ -60,6 +64,26 @@ class User extends Authenticatable
     public function addresses(): HasMany
     {
         return $this->hasMany(Address::class);
+    }
+
+    public function supportTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    public function sellerSupportTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class, 'seller_id');
+    }
+
+    public function assignedTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_agent_id');
+    }
+
+    public function assignedConversations(): HasMany
+    {
+        return $this->hasMany(ChatConversation::class, 'assigned_agent_id');
     }
 
     public function defaultAddress(): HasOne
@@ -154,6 +178,29 @@ class User extends Authenticatable
             return 'Tier-2 Trusted Buyer';
         }
         return 'Tier-1 Verified Buyer';
+    }
+
+    /**
+     * Role checks
+     */
+    public function isSupportAgent(): bool
+    {
+        return in_array($this->role, ['support_agent', 'support']);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isSeller(): bool
+    {
+        return $this->role === 'seller';
+    }
+
+    public function isCustomer(): bool
+    {
+        return in_array($this->role, ['user', 'customer']);
     }
 
     /**

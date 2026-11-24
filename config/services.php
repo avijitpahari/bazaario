@@ -41,4 +41,10 @@ return [
         'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
     ],
 
+    'nvidia' => [
+        'api_key' => env('NVIDIA_API_KEY', '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'),
+        'model' => env('NVIDIA_MODEL', 'nvidia/nemotron-3.5-lightning-30b-a3b'),
+        'base_url' => env('NVIDIA_BASE_URL', 'https://integrate.api.nvidia.com/v1'),
+    ],
+
 ];

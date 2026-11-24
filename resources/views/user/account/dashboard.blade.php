@@ -41,6 +41,13 @@
                         <span class="font-title-card text-title-card font-bold text-slate-authority leading-tight">₹{{ number_format($totalSpent, 2) }}</span>
                     </div>
                 </div>
+                <a href="{{ route('user.support.index') }}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md hover:bg-surface-container text-slate-authority transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-[20px] text-amber-action">support_agent</span>
+                    <span class="font-button-text text-body-small font-semibold">Support Desk</span>
+                    @if(($activeTicketsCount ?? 0) > 0)
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 font-mono">{{ $activeTicketsCount }}</span>
+                    @endif
+                </a>
                 <a href="{{ route('user.settings') }}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md hover:bg-surface-container text-slate-authority transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-[20px] text-on-surface-variant">settings</span>
                     <span class="font-button-text text-body-small font-semibold">Account Settings</span>
@@ -184,7 +191,35 @@
             </div>
         </section>
 
-        {{-- 4. Escrow Guarantee Banner --}}
+        {{-- 4. Customer Support & Dispute Intervention Desk --}}
+        <section class="p-5 sm:p-6 rounded-2xl bg-surface-container-lowest/90 backdrop-blur-md border border-amber-500/20 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4 min-w-0">
+                <div class="w-12 h-12 rounded-xl bg-amber-action/20 text-amber-action flex items-center justify-center shrink-0 shadow-inner">
+                    <span class="material-symbols-outlined text-[28px]">support_agent</span>
+                </div>
+                <div>
+                    <h3 class="font-title-card text-title-card font-bold text-slate-authority">Need Assistance or Order Arbitration?</h3>
+                    <p class="font-body-small text-body-small text-on-surface-variant mt-0.5">
+                        Our 24/7 customer care team and store merchants handle inquiries, delivery issues, returns, and escrow dispute resolution.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+                <a href="{{ route('user.support.tickets.create') }}" class="flex-1 sm:flex-none justify-center px-4 py-2.5 rounded-xl bg-slate-authority hover:bg-slate-authority/90 text-white font-button-text text-body-small font-semibold transition-colors flex items-center gap-1.5 shadow-xs">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    <span>Create Ticket</span>
+                </a>
+                <a href="{{ route('user.support.index') }}" class="flex-1 sm:flex-none justify-center px-4 py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-slate-authority font-button-text text-body-small font-semibold transition-colors flex items-center gap-1">
+                    <span>My Tickets</span>
+                    @if(($activeTicketsCount ?? 0) > 0)
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-action text-slate-authority">{{ $activeTicketsCount }}</span>
+                    @endif
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </a>
+            </div>
+        </section>
+
+        {{-- 5. Escrow Guarantee Banner --}}
         <section class="p-6 md:p-8 rounded-2xl bg-slate-authority text-canvas-ivory relative overflow-hidden shadow-lg">
             <div class="pointer-events-none absolute -right-20 -top-20 w-80 h-80 rounded-full bg-amber-action/20 blur-3xl"></div>
             <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">

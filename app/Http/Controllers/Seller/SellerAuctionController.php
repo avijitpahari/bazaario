@@ -68,6 +68,10 @@ class SellerAuctionController extends Controller
      */
     public function create(): View|RedirectResponse
     {
+        if (!\App\Models\SiteSetting::isAuctionEnabled()) {
+            return redirect()->route('seller.auctions.index')->with('error', 'Wholesale auction listings are currently paused by platform administration.');
+        }
+
         $seller = Auth::guard('seller')->user() ?? Auth::user();
         if (!$seller) {
             return redirect()->route('login');
@@ -116,6 +120,10 @@ class SellerAuctionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (!\App\Models\SiteSetting::isAuctionEnabled()) {
+            return redirect()->route('seller.auctions.index')->with('error', 'Wholesale auction listings are currently paused by platform administration.');
+        }
+
         $seller = Auth::guard('seller')->user() ?? Auth::user();
         if (!$seller) {
             return redirect()->route('login');

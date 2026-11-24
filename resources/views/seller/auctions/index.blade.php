@@ -26,6 +26,21 @@
 
 <div class="flex flex-col w-full pb-16">
 
+    @if(!\App\Models\SiteSetting::isAuctionEnabled())
+        <div class="mb-4 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-2xl text-amber-600">pause_circle</span>
+                <div>
+                    <strong class="font-bold text-xs uppercase tracking-wider block">Wholesale Auction Engine is Temporarily Paused</strong>
+                    <p class="text-xs text-amber-800 mt-0.5">Platform administrators have temporarily paused live bidding and new auction listing submissions.</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-amber-200/80 font-mono text-[10px] font-bold text-amber-950 uppercase shrink-0">
+                LISTING STANDBY
+            </span>
+        </div>
+    @endif
+
     <!-- BREADCRUMB & METRIC STATUS BAR -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 mb-2">
         <div class="flex items-center gap-2 text-xs font-mono text-slate-500">

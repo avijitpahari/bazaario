@@ -219,16 +219,22 @@
         <!-- 4. LIVE AUCTIONS TAB -->
         <div x-show="activeTab === 'auctions'" x-cloak class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
             <div class="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5 flex flex-col gap-4">
-                <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
-                    <span class="material-symbols-outlined text-amber-600 text-xl">gavel</span>
-                    <h3 class="font-bold text-sm text-[#0F172A]">Auction Floor Operating Rules</h3>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-600 text-xl">gavel</span>
+                        <h3 class="font-bold text-sm text-[#0F172A]">Auction Floor Operating Rules</h3>
+                    </div>
+                    <a href="{{ route('admin.settings.auctions') }}" class="text-[11px] font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1">
+                        <span>Dedicated Controls</span>
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Auction System Status</label>
                     <select name="auction_system_enabled" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none">
-                        <option value="1" {{ ($settings['auction_system_enabled'] ?? '1') == '1' ? 'selected' : '' }}>Enabled (Live bidding active)</option>
-                        <option value="0" {{ ($settings['auction_system_enabled'] ?? '1') == '0' ? 'selected' : '' }}>Paused (Auctions hidden from catalog)</option>
+                        <option value="1" {{ (\App\Models\SiteSetting::isAuctionEnabled()) ? 'selected' : '' }}>🟢 Enabled (Live bidding active across marketplace)</option>
+                        <option value="0" {{ (!\App\Models\SiteSetting::isAuctionEnabled()) ? 'selected' : '' }}>🔴 Paused (Bidding disabled & maintenance notice displayed)</option>
                     </select>
                 </div>
 

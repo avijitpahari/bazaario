@@ -18,6 +18,7 @@
         'customer' => 'support-avatar-customer',
         'seller' => 'support-avatar-seller',
         'agent' => 'support-avatar-agent',
+        'admin' => 'support-avatar-agent',
         'bot' => 'support-avatar-bot',
         'system' => 'support-avatar-system',
     ];

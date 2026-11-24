@@ -195,10 +195,14 @@ class SellerSupportController extends Controller
 
         // Determine customer if order linked
         $customerId = null;
+        $orderId = null;
         if (!empty($validated['order_id'])) {
             $sellerOrder = SellerOrder::where('seller_id', $sellerId)->with('order.user')->find($validated['order_id']);
-            if ($sellerOrder && $sellerOrder->order) {
-                $customerId = $sellerOrder->order->user_id;
+            if ($sellerOrder) {
+                $orderId = $sellerOrder->order_id;
+                if ($sellerOrder->order) {
+                    $customerId = $sellerOrder->order->user_id;
+                }
             }
         }
 
@@ -206,7 +210,7 @@ class SellerSupportController extends Controller
             'ticket_number' => SupportTicket::generateTicketNumber(),
             'user_id' => $customerId ?? $sellerId, // If no customer, assign to seller as initiator
             'seller_id' => $sellerId,
-            'order_id' => $validated['order_id'] ? SellerOrder::where('seller_id', $sellerId)->find($validated['order_id'])?->order_id : null,
+            'order_id' => $orderId,
             'category' => $validated['category'],
             'subject' => $validated['subject'],
             'priority' => $validated['priority'],
@@ -275,10 +279,12 @@ class SellerSupportController extends Controller
             'message' => "🚨 TICKET ESCALATED: Seller escalated this issue for admin dispute review. Reason: {$validated['escalation_reason']}",
         ]);
 
+        $profile = SellerProfile::where('user_id', $user->id)->first();
+
         try {
             \App\Models\AdminFeed::record(
                 title: "Ticket Escalated: #{$ticket->ticket_number}",
-                description: "Seller " . (($profile?->shop_name) ?? 'Store') . " escalated ticket '{$ticket->subject}' for admin arbitration.",
+                description: "Seller " . (($profile?->shop_name) ?? $user->name ?? 'Store') . " escalated ticket '{$ticket->subject}' for admin arbitration.",
                 type: 'support',
                 icon: 'gavel',
                 badgeText: 'ESCALATED',

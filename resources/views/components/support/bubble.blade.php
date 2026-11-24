@@ -14,7 +14,7 @@
     $senderClasses = match($sender) {
         'customer' => 'support-bubble support-bubble-customer',
         'seller' => 'support-bubble support-bubble-seller',
-        'agent' => 'support-bubble support-bubble-agent',
+        'agent', 'admin' => 'support-bubble support-bubble-agent',
         'bot' => 'support-bubble support-bubble-bot',
         'system' => 'support-bubble support-bubble-system' . ($systemType ? ' ' . $systemType : ''),
         default => 'support-bubble support-bubble-customer',
@@ -23,7 +23,7 @@
     $avatarClasses = match($sender) {
         'customer' => 'support-avatar support-avatar-sm support-avatar-customer',
         'seller' => 'support-avatar support-avatar-sm support-avatar-seller',
-        'agent' => 'support-avatar support-avatar-sm support-avatar-agent',
+        'agent', 'admin' => 'support-avatar support-avatar-sm support-avatar-agent',
         'bot' => 'support-avatar support-avatar-sm support-avatar-bot',
         'system' => 'support-avatar support-avatar-sm support-avatar-system',
         default => 'support-avatar support-avatar-sm support-avatar-customer',
@@ -31,7 +31,7 @@
 
     $alignClass = $align ?? match($sender) {
         'customer', 'seller' => 'justify-start',
-        'agent', 'bot', 'system' => 'justify-center',
+        'agent', 'admin', 'bot', 'system' => 'justify-center',
         default => 'justify-start',
     };
 
@@ -48,9 +48,10 @@
             <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold text-indigo-600">
                 <span>Seller Reply</span>
             </div>
-        @elseif($sender === 'agent')
+        @elseif($sender === 'agent' || $sender === 'admin')
             <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold text-blue-600">
-                <span>Agent Reply</span>
+                <span class="material-symbols-outlined text-[13px]">verified</span>
+                <span>Support Desk Reply</span>
             </div>
         @endif
 

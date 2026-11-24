@@ -20,6 +20,7 @@ class SupportTicketMessage extends Model
         'message',
         'attachment_path',
         'attachment_type',
+        'is_read',
         'created_at',
     ];
 
@@ -54,7 +55,7 @@ class SupportTicketMessage extends Model
             return $this->attachment_path;
         }
 
-        return Storage::disk('public')->url($this->attachment_path);
+        return asset('storage/' . ltrim($this->attachment_path, '/'));
     }
 
     public function isImageAttachment(): bool

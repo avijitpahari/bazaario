@@ -115,6 +115,32 @@
                 </div>
             @endif
 
+            <!-- Paused Warning Banner if Auctions are Disabled -->
+            @if (!\App\Models\SiteSetting::isAuctionEnabled())
+                <div class="glass-card rounded-3xl p-6 sm:p-8 border-2 border-amber-300 bg-amber-50/80 text-slate-900 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-3xl">pause_circle</span>
+                        </div>
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-200/80 text-amber-900 text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
+                                WHOLESALE AUCTIONS PAUSED
+                            </div>
+                            <h2 class="text-lg sm:text-xl font-bold font-['Outfit'] text-slate-900">
+                                Live Floor Bidding is Temporarily Suspended
+                            </h2>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                                The platform administration has temporarily paused the wholesale auction floor. Bids cannot be placed at this time, and scheduled lots are on standby. Browse our catalog for direct buy products in the meantime.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('products.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-colors shrink-0 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">storefront</span>
+                        <span>Browse Catalog</span>
+                    </a>
+                </div>
+            @endif
+
             <!-- 1. Sub-Header & Telemetry Strip -->
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-1">
                 <div class="flex flex-wrap items-center gap-3">
@@ -145,7 +171,7 @@
                     </div>
                     <div class="bg-slate-900 text-white px-3.5 py-1.5 rounded-full shadow-xs inline-flex items-center gap-2 text-xs font-semibold">
                         <span class="material-symbols-outlined text-sm text-amber-400">lock</span>
-                        <span>Liquid Vault: <span class="font-mono font-bold text-amber-300">₹{{ number_format($telemetry['user_locked_escrow'] ?? 0, 2) }}</span></span>
+                        <span>Liquid Vault: <span class="font-mono font-bold text-amber-300">{{ format_inr($telemetry['user_locked_escrow'] ?? 0) }}</span></span>
                     </div>
                 </div>
             </div>
@@ -196,7 +222,7 @@
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-mono">Your Leading Bids</span>
                         <div class="flex items-baseline gap-2 mt-0.5">
                             <span class="font-display text-lg font-bold text-emerald-700">{{ $telemetry['user_leading_count'] }} Lots Leading</span>
-                            <span class="text-xs text-slate-500 font-mono">₹{{ number_format($telemetry['user_leading_val'] ?? 0, 0) }}</span>
+                            <span class="text-xs text-slate-500 font-mono">{{ format_inr($telemetry['user_leading_val'] ?? 0) }}</span>
                         </div>
                     </div>
                 </div>
@@ -445,7 +471,7 @@
                                         {{ $isUpcoming ? 'Starting Floor' : 'Current Floor Bid' }}
                                     </span>
                                     <span class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight font-mono">
-                                        ₹{{ number_format($auction->current_price ?: $auction->starting_price, 0) }}
+                                        {{ format_inr($auction->current_price ?: $auction->starting_price) }}
                                     </span>
                                     @if($isReserveMet)
                                         <span class="text-[11px] text-emerald-600 inline-flex items-center gap-1 mt-0.5 font-semibold">
@@ -453,7 +479,7 @@
                                         </span>
                                     @else
                                         <span class="text-[11px] text-amber-700 inline-flex items-center gap-1 mt-0.5 font-semibold">
-                                            <span class="material-symbols-outlined text-xs">info</span> Reserve: ₹{{ number_format($auction->reserve_price, 0) }}
+                                            <span class="material-symbols-outlined text-xs">info</span> Reserve: {{ format_inr($auction->reserve_price) }}
                                         </span>
                                     @endif
                                 </div>
@@ -486,7 +512,7 @@
                             <div class="flex items-center justify-between text-slate-600 text-xs bg-white px-3 py-1.5 rounded-xl border border-slate-200/60 font-mono">
                                 <span>Next Minimum Step:</span>
                                 <span class="font-bold text-slate-900">
-                                    ₹{{ number_format($minNextStep, 0) }} (+₹{{ number_format($auction->minimum_increment, 0) }})
+                                    {{ format_inr($minNextStep) }} (+{{ format_inr($auction->minimum_increment) }})
                                 </span>
                             </div>
 

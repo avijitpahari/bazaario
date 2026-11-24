@@ -127,7 +127,7 @@
                             </div>
                             <button @click="vaultModalOpen = true" type="button" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-authority text-canvas-ivory font-label-micro text-label-micro hover:bg-slate-authority/90 transition-colors cursor-pointer">
                                 <span class="material-symbols-outlined text-[14px] text-amber-action">lock</span>
-                                <span>Vault: ₹{{ number_format($stats['total_locked_escrow'], 2) }}</span>
+                                <span>Vault: {{ format_inr($stats['total_locked_escrow']) }}</span>
                                 <span class="material-symbols-outlined text-[14px] opacity-70">tune</span>
                             </button>
                         </div>
@@ -176,7 +176,7 @@
                             </div>
                             <div>
                                 <div class="font-display-hero text-headline-section font-bold text-slate-authority tracking-tight">
-                                    ₹{{ number_format($stats['total_locked_escrow'], 0) }}<span class="text-body-small font-normal text-on-surface-variant">.00</span>
+                                    {{ format_inr($stats['total_locked_escrow']) }}
                                 </div>
                                 <p class="font-label-micro text-label-micro text-status-green flex items-center gap-1 mt-1 font-semibold">
                                     <span class="material-symbols-outlined text-[14px]">verified</span>
@@ -374,7 +374,7 @@
                                             @else
                                                 <span class="px-2.5 py-0.5 rounded-full bg-error/10 text-error font-label-micro text-label-micro font-semibold flex items-center gap-1">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-                                                    Outbid by ₹{{ number_format($auc->current_price - $userBidAmount, 0) }}
+                                                    Outbid by {{ format_inr($auc->current_price - $userBidAmount) }}
                                                 </span>
                                             @endif
                                             <span class="text-on-surface-variant/40">•</span>
@@ -412,14 +412,14 @@
                                             <div>
                                                 <span class="font-label-micro text-label-micro text-on-surface-variant uppercase block">Your Bid</span>
                                                 <span class="font-mono font-bold text-body-lead text-slate-authority">
-                                                    ₹{{ number_format($userBidAmount, 0) }}
+                                                    {{ format_inr($userBidAmount) }}
                                                 </span>
                                                 <span class="font-label-micro text-[10px] text-on-surface-variant block">Vault Collateral</span>
                                             </div>
                                             <div>
                                                 <span class="font-label-micro text-label-micro text-on-surface-variant uppercase block">Current Lead</span>
                                                 <span class="font-mono font-bold text-body-lead {{ $isLeading ? 'text-status-green' : 'text-error' }}">
-                                                    ₹{{ number_format($auc->current_price, 0) }}
+                                                    {{ format_inr($auc->current_price) }}
                                                 </span>
                                                 <span class="font-label-micro text-[10px] text-on-surface-variant block">
                                                     {{ $isLeading ? 'You are leading ✓' : 'by Bidder #' . ($highestOverallBid ? $highestOverallBid->user_id : '719') }}
@@ -428,10 +428,10 @@
                                             <div>
                                                 <span class="font-label-micro text-label-micro text-on-surface-variant uppercase block">Min Counter</span>
                                                 <span class="font-mono font-bold text-body-lead text-status-green">
-                                                    ₹{{ number_format($nextMinBid, 0) }}
+                                                    {{ format_inr($nextMinBid) }}
                                                 </span>
                                                 <span class="font-label-micro text-[10px] text-on-surface-variant block">
-                                                    +₹{{ number_format($auc->minimum_increment, 0) }} step
+                                                    +{{ format_inr($auc->minimum_increment) }} step
                                                 </span>
                                             </div>
                                         </div>
@@ -448,7 +448,7 @@
                                                 <input type="hidden" name="increment" value="{{ $auc->minimum_increment }}">
                                                 <button class="w-full px-4 py-3 rounded-xl bg-card-white hover:bg-surface-container text-slate-authority font-button-text text-body-small font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-sm border border-slate-authority/10" type="submit">
                                                     <span class="material-symbols-outlined text-[18px] text-amber-action">bolt</span>
-                                                    Raise Bid (+₹{{ number_format($auc->minimum_increment, 0) }})
+                                                    Raise Bid (+{{ format_inr($auc->minimum_increment) }})
                                                 </button>
                                             </form>
                                         @else
@@ -457,7 +457,7 @@
                                                 <input type="hidden" name="amount" value="{{ $nextMinBid }}">
                                                 <button class="w-full px-4 py-3 rounded-xl bg-amber-action text-slate-authority font-button-text text-body-small font-bold hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm" type="submit">
                                                     <span class="material-symbols-outlined text-[18px]">bolt</span>
-                                                    Counter-Bid ₹{{ number_format($nextMinBid, 0) }}
+                                                    Counter-Bid {{ format_inr($nextMinBid) }}
                                                 </button>
                                             </form>
                                             <form action="{{ route('auctions.quickBid', $auc->id) }}" method="POST">
@@ -660,12 +660,12 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="p-4 rounded-2xl bg-surface-container-low border border-slate-authority/10 flex flex-col gap-1">
                     <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Active Locked Collateral</span>
-                    <span class="font-mono font-bold text-title-card text-amber-action">₹{{ number_format($stats['total_locked_escrow'], 2) }}</span>
+                    <span class="font-mono font-bold text-title-card text-amber-action">{{ format_inr($stats['total_locked_escrow']) }}</span>
                     <span class="font-label-micro text-[10px] text-on-surface-variant">Across {{ $stats['active_count'] }} active lots</span>
                 </div>
                 <div class="p-4 rounded-2xl bg-slate-authority text-canvas-ivory shadow-sm flex flex-col gap-1">
                     <span class="font-label-micro text-[10px] font-bold uppercase tracking-wider text-canvas-ivory/60">Protected Vault Total</span>
-                    <span class="font-mono font-bold text-title-card text-canvas-ivory">₹{{ number_format($stats['total_locked_escrow'], 2) }}</span>
+                    <span class="font-mono font-bold text-title-card text-canvas-ivory">{{ format_inr($stats['total_locked_escrow']) }}</span>
                     <span class="font-label-micro text-[10px] text-status-green font-medium">100% Instant refund on outbid</span>
                 </div>
             </div>
@@ -693,7 +693,7 @@
                                 </div>
                             </div>
                             <div class="text-right shrink-0">
-                                <span class="font-mono font-bold text-slate-authority">₹{{ number_format($lotBidAmt, 2) }}</span>
+                                <span class="font-mono font-bold text-slate-authority">{{ format_inr($lotBidAmt) }}</span>
                                 <span class="font-label-micro text-[10px] text-status-green block font-semibold">LOCKED IN ESCROW</span>
                             </div>
                         </div>

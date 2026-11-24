@@ -6,7 +6,9 @@ use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Services\GeminiApiService;
+use App\Services\NvidiaApiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -117,7 +119,7 @@ class SupportChatController extends Controller
     /**
      * Send a user message in the active support chat.
      */
-    public function sendMessage(Request $request, GeminiApiService $gemini): JsonResponse
+    public function sendMessage(Request $request, NvidiaApiService $nvidia, ?GeminiApiService $gemini = null): JsonResponse
     {
         $request->validate([
             'conversation_id' => 'required|exists:chat_conversations,id',
@@ -159,9 +161,9 @@ class SupportChatController extends Controller
             'status' => in_array($conversation->status, ['resolved', 'closed']) ? 'open' : $conversation->status,
         ]);
 
-        // Automated AI reply if not actively locked to a live human agent
+        // Automated AI reply for customer messages (always active so shoppers get instant 24/7 AI answers)
         $botReply = null;
-        $shouldAiReply = empty($conversation->assigned_agent_id);
+        $shouldAiReply = !empty($messageText);
 
         if ($shouldAiReply && !empty($messageText)) {
             try {
@@ -174,7 +176,15 @@ class SupportChatController extends Controller
                     ->values()
                     ->toArray();
 
-                $aiResult = $gemini->chat($messageText, $history, $user, $conversation->id);
+                $provider = SiteSetting::get('ai_provider') ?: 'nvidia';
+                $aiResult = null;
+
+                if ($provider === 'gemini' && $gemini && !empty($gemini->resolveApiKey())) {
+                    $aiResult = $gemini->chat($messageText, $history, $user, $conversation->id);
+                } else {
+                    $aiResult = $nvidia->chat($messageText, $history, $user, $conversation->id);
+                }
+
                 $replyText = $aiResult['reply'] ?? "Thanks for contacting us! An agent will also review your conversation shortly.";
 
                 $botMsg = ChatMessage::create([
@@ -343,11 +353,57 @@ class SupportChatController extends Controller
                     . "A dedicated customer care specialist has been alerted and assigned to your session. Please describe your question or issue, and we will assist you immediately!";
                 break;
 
+            case 'delivery_delay':
+                $userLabel = 'What if my delivery is delayed?';
+                $supportResponse = "⏱️ **Delivery Delay & SLA Resolution**\n\n"
+                    . "• **Automated Tracking**: Our carrier tracking rail alerts regional hub coordinators when scheduled delivery windows are exceeded.\n"
+                    . "• **Direct Driver Check**: Hyperlocal drivers coordinate directly through the merchant dispatch rail.\n"
+                    . "• **Immediate Assistance**: You can [Open a Delivery Ticket](" . route('user.support.tickets.create', ['category' => 'delivery_delay']) . ") for priority carrier check.";
+                break;
+
+            case 'faq_perishables':
+                $userLabel = 'Can I return fresh farm produce or perishables?';
+                $supportResponse = "🌿 **48-Hour Fresh Produce Freshness Guarantee**\n\n"
+                    . "• **Harvest Direct**: Farm produce is harvested and packed fresh.\n"
+                    . "• **48-Hour Window**: If produce arrives bruised or damaged, report within 48 hours.\n"
+                    . "• **Instant Photo Credit**: Attach an unboxing photo in a [Support Ticket](" . route('user.support.tickets.create', ['category' => 'return_refund']) . ") for immediate escrow credit without needing to return spoiled produce.";
+                break;
+
+            case 'faq_escrow':
+                $userLabel = 'How does 100% Escrow Buyer Protection work?';
+                $supportResponse = "🛡️ **100% Escrow Buyer Protection**\n\n"
+                    . "• **Buyer Vault**: Your funds are deposited in a verified APMC Escrow Vault upon order placement.\n"
+                    . "• **Safeguarded Payment**: The seller is never paid until the item is delivered and inspected.\n"
+                    . "• **Guaranteed Return**: If an item is damaged or counterfeit, Bazaario releases your full refund directly.";
+                break;
+
+            case 'faq_anti_snipe':
+                $userLabel = 'What is the Anti-Snipe Guard on auctions?';
+                $supportResponse = "⚡ **Anti-Snipe Guard & Soft Close**\n\n"
+                    . "• **Fair Bidding**: Prevents robotic last-second sniping on wholesale floor lots.\n"
+                    . "• **+2 Minute Reset**: Any bid in the final 2 minutes extends the closing clock by 2 minutes.\n"
+                    . "• **Final Hammer**: Lot only concludes when 2 full minutes pass without higher bids.";
+                break;
+
+            case 'faq_arbitration':
+                $userLabel = 'How does Admin Dispute Arbitration work?';
+                $supportResponse = "⚖️ **Executive Admin Dispute Arbitration**\n\n"
+                    . "• **48-Hour Seller Window**: Merchants must respond to open tickets within 48 hours.\n"
+                    . "• **Escalation Trigger**: Click 'Escalate Dispute' to call in Bazaario's Executive Council.\n"
+                    . "• **Independent Review**: Council inspects courier tracking and photos to authorize immediate escrow refund overrides.";
+                break;
+
             case 'other':
             default:
-                $userLabel = 'Other question';
-                $supportResponse = "Feel free to ask anything about order tracking, refunds, payment options, wholesale auctions, or store registration. Our team is here 24/7!\n\n"
-                    . "You can also [Open a Support Ticket](" . route('user.support.tickets.create') . ") for formal dispute resolution.";
+                $faqItem = \App\Services\SupportFaqService::find($action);
+                if ($faqItem) {
+                    $userLabel = $faqItem['question'];
+                    $supportResponse = $faqItem['answer'];
+                } else {
+                    $userLabel = 'Other question';
+                    $supportResponse = "Feel free to ask anything about order tracking, refunds, payment options, wholesale auctions, or store registration. Our team is here 24/7!\n\n"
+                        . "You can also [Open a Support Ticket](" . route('user.support.tickets.create') . ") for formal dispute resolution.";
+                }
                 break;
         }
 

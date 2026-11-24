@@ -4,29 +4,100 @@
 
 @section('content')
 <div class="flex flex-col w-full gap-space-lg">
+    @php
+        $auctionEnabled = \App\Models\SiteSetting::isAuctionEnabled();
+    @endphp
+
+    <!-- Paused Warning Banner if Auctions are Disabled -->
+    @if(!$auctionEnabled)
+        <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400 text-slate-900 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 font-bold">
+                    <span class="material-symbols-outlined text-2xl">pause</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-sm sm:text-base text-slate-950">Wholesale Auction System is PAUSED</h3>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-200 text-amber-900 uppercase">Disabled</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-0.5">Shoppers cannot place bids, new lots cannot be listed by sellers, and public floor shows a maintenance notice.</p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('admin.auctions.toggleSystem') }}" class="shrink-0">
+                @csrf
+                <input type="hidden" name="enabled" value="1">
+                <button type="submit" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">play_circle</span>
+                    <span>Enable / Resume Auction System</span>
+                </button>
+            </form>
+        </div>
+    @endif
+
     <!-- Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
         <div>
             <div class="flex items-center gap-space-sm">
                 <h1 class="font-headline-lg text-2xl md:text-3xl font-bold text-[#0F172A] tracking-tight">Live Auction Terminal</h1>
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-mono text-[11px] font-bold border border-emerald-200/60 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
-                    ENGINE V4.2 ACTIVE
-                </span>
+                @if($auctionEnabled)
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-mono text-[11px] font-bold border border-emerald-200/60 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
+                        ENGINE V4.2 ACTIVE
+                    </span>
+                @else
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-mono text-[11px] font-bold border border-amber-300 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                        SYSTEM PAUSED
+                    </span>
+                @endif
             </div>
             <p class="font-body-md text-xs sm:text-sm text-slate-500 mt-1">Real-time bidding desk, anti-sniping velocity engine, and live bid moderation controls.</p>
         </div>
         <!-- Right Header Controls -->
-        <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('admin.auctions.index') }}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors {{ !request('status') ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' }}">
-                All Lots ({{ $stats['total'] }})
-            </a>
-            <a href="{{ route('admin.auctions.index', ['status' => 'live']) }}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors {{ request('status') === 'live' ? 'bg-amber-500 text-slate-950 font-bold border-amber-500' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' }}">
-                Live Now ({{ $stats['live'] }})
-            </a>
-            <a href="{{ route('admin.auctions.index', ['status' => 'ended']) }}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors {{ request('status') === 'ended' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' }}">
-                Hammer Down ({{ $stats['ended'] }})
-            </a>
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Master Enable / Disable Toggle Button -->
+            <form method="POST" action="{{ route('admin.auctions.toggleSystem') }}" 
+                  onsubmit="{{ $auctionEnabled ? "return confirm('Are you sure you want to pause wholesale auctions? Buyers will not be able to bid and sellers cannot create lots.');" : '' }}">
+                @csrf
+                <input type="hidden" name="enabled" value="{{ $auctionEnabled ? '0' : '1' }}">
+                @if($auctionEnabled)
+                    <button type="submit" 
+                            class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                            title="Click to pause public bidding and seller lot creations">
+                        <span class="material-symbols-outlined text-[18px]">pause_circle</span>
+                        <span>Pause Auction System</span>
+                    </button>
+                @else
+                    <button type="submit" 
+                            class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                            title="Click to enable wholesale auction floor">
+                        <span class="material-symbols-outlined text-[18px]">play_circle</span>
+                        <span>Enable Auction System</span>
+                    </button>
+                @endif
+            </form>
+
+            <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.auctions.disputes.index') }}" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-800 text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs">
+                    <span class="material-symbols-outlined text-[16px]">gavel</span>
+                    <span>Disputes Desk</span>
+                    @php $openDisputes = \App\Models\AuctionDispute::whereIn('status', ['open', 'under_review'])->count(); @endphp
+                    @if($openDisputes > 0)
+                        <span class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-mono">{{ $openDisputes }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.auctions.index') }}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors {{ !request('status') ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' }}">
+                    All Lots ({{ $stats['total'] }})
+                </a>
+                <a href="{{ route('admin.auctions.index', ['status' => 'live']) }}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors {{ request('status') === 'live' ? 'bg-amber-500 text-slate-950 font-bold border-amber-500' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' }}">
+                    Live Now ({{ $stats['live'] }})
+                </a>
+                <a href="{{ route('admin.auctions.index', ['status' => 'ended']) }}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors {{ request('status') === 'ended' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' }}">
+                    Hammer Down ({{ $stats['ended'] }})
+                </a>
+            </div>
         </div>
     </div>
 

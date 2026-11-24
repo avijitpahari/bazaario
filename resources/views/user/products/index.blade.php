@@ -251,10 +251,21 @@
                         </a>
                     </div>
                 @else
+                    @php
+                        $curUser = Auth::guard('user')->user() ?? Auth::user();
+                        $wishlistProductIds = [];
+                        if ($curUser) {
+                            $wishlistProductIds = $curUser->wishlist ? $curUser->wishlist->items->pluck('product_id')->map(fn($id) => (int)$id)->toArray() : [];
+                        } else {
+                            $wishlistProductIds = array_map('intval', session('wishlist', []));
+                        }
+                    @endphp
+
                     <!-- Product Grid Cards (Feature 16) -->
                     <div :class="viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3' : 'space-y-4'">
                         @foreach($products as $product)
                             @php
+                                $inWishlist = in_array((int)$product->id, $wishlistProductIds);
                                 $imgUrl = $product->main_image_url;
                                 $sellerProfile = $product->seller ? $product->seller->sellerProfile : null;
                                 $sellerName = $sellerProfile ? $sellerProfile->shop_name : ($product->seller ? $product->seller->name : 'Bazaario Artisan');
@@ -280,17 +291,27 @@
                                                  onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                                         </a>
 
-                                        <div class="absolute top-2 left-2 z-10">
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider shadow-xs backdrop-blur-md {{ $badgeClass }}">
+                                        <!-- Top Left Badge -->
+                                        <div class="absolute top-2.5 left-2.5 z-10 pointer-events-none">
+                                            <span class="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider shadow-xs backdrop-blur-md {{ $badgeClass }}">
                                                 {{ $badge }}
                                             </span>
                                         </div>
 
-                                        <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')" 
-                                                class="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 backdrop-blur-md text-slate-700 hover:text-red-500 hover:bg-white transition-all shadow-xs z-10"
-                                                :class="{'text-red-500': isInWishlist({{ $product->id }})}"
-                                                aria-label="Wishlist">
-                                            <span class="material-symbols-outlined text-sm leading-none block">favorite</span>
+                                        <!-- Top Right Wishlist Button (Properly Aligned & Vibrant Red Indication) -->
+                                        <button type="button"
+                                                @click.stop="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')" 
+                                                data-wishlist-product="{{ $product->id }}"
+                                                class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-sm z-10 active:scale-90 cursor-pointer {{ $inWishlist ? 'bg-white text-red-500 ring-1 ring-red-200 shadow-md' : 'bg-white/90 text-slate-700 hover:text-red-500 hover:bg-white' }}"
+                                                :class="isInWishlist({{ $product->id }}) ? 'bg-white text-red-500 ring-1 ring-red-200 shadow-md' : 'bg-white/90 text-slate-700 hover:text-red-500 hover:bg-white'"
+                                                aria-label="Wishlist"
+                                                title="{{ $inWishlist ? 'Remove from Wishlist' : 'Save to Wishlist' }}">
+                                            <span class="material-symbols-outlined text-[18px] leading-none select-none transition-transform duration-200"
+                                                  style="{{ $inWishlist ? "font-variation-settings: 'FILL' 1;" : "font-variation-settings: 'FILL' 0;" }}"
+                                                  :style="isInWishlist({{ $product->id }}) ? 'font-variation-settings: \'FILL\' 1;' : 'font-variation-settings: \'FILL\' 0;'"
+                                                  x-text="isInWishlist({{ $product->id }}) ? 'favorite' : 'favorite_border'">
+                                                {{ $inWishlist ? 'favorite' : 'favorite_border' }}
+                                            </span>
                                         </button>
                                     </div>
 
@@ -328,9 +349,10 @@
                                     <div class="pt-2 border-t border-slate-100 flex flex-col gap-1.5">
                                         <div class="flex items-baseline justify-between gap-1">
                                             <div class="flex items-baseline gap-1 truncate">
-                                                <span class="text-xs sm:text-sm font-mono font-bold text-slate-900">₹{{ number_format($product->price, 2) }}</span>
+                                                <span class="text-xs sm:text-sm font-mono font-bold text-slate-900">{{ format_inr($product->price) }}</span>
+                                                <span class="font-sans text-[10px] text-slate-400">/ {{ $product->unit_type ?? 'piece' }}</span>
                                                 @if($originalPrice > $product->price)
-                                                    <span class="text-[10px] font-mono text-slate-400 line-through">₹{{ number_format($originalPrice, 2) }}</span>
+                                                    <span class="text-[10px] font-mono text-slate-400 line-through">{{ format_inr($originalPrice) }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -384,9 +406,12 @@
 
                                 <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 border-slate-100 pt-2 sm:pt-0">
                                     <div>
-                                        <span class="text-base font-mono font-bold text-slate-900">₹{{ number_format($product->price, 2) }}</span>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="text-base font-mono font-bold text-slate-900">{{ format_inr($product->price) }}</span>
+                                            <span class="font-sans text-xs text-slate-400">/ {{ $product->unit_type ?? 'piece' }}</span>
+                                        </div>
                                         @if($originalPrice > $product->price)
-                                            <span class="text-xs font-mono text-slate-400 line-through block">₹{{ number_format($originalPrice, 2) }}</span>
+                                            <span class="text-xs font-mono text-slate-400 line-through block">{{ format_inr($originalPrice) }}</span>
                                         @endif
                                     </div>
                                     <div class="flex items-center gap-2">
@@ -603,7 +628,7 @@
                 viewMode: 'grid',
                 mobileFiltersOpen: false,
                 radiusValue: {{ (int)request('radius', 0) }},
-                wishlist: [],
+                wishlist: @json($wishlistProductIds ?? []),
                 toast: {
                     visible: false,
                     message: '',
@@ -613,39 +638,76 @@
 
                 init() {
                     try {
-                        const dbWishlist = @json(auth()->guard('user')->check() && auth()->guard('user')->user()->wishlist ? auth()->guard('user')->user()->wishlist->items->pluck('product_id') : []);
-                        if (dbWishlist && dbWishlist.length > 0) {
-                            this.wishlist = dbWishlist;
-                        } else {
-                            const saved = localStorage.getItem('bazaario_wishlist');
-                            if (saved) this.wishlist = JSON.parse(saved);
+                        const saved = localStorage.getItem('bazaario_wishlist');
+                        if (saved) {
+                            const localWish = JSON.parse(saved);
+                            if (Array.isArray(localWish)) {
+                                this.wishlist = Array.from(new Set([...this.wishlist.map(Number), ...localWish.map(Number)]));
+                            }
                         }
                     } catch(e) {}
+
+                    window.addEventListener('wishlist-updated', (e) => {
+                        if (e.detail && e.detail.product_id !== undefined) {
+                            const pId = Number(e.detail.product_id);
+                            if (e.detail.in_wishlist) {
+                                if (!this.wishlist.map(Number).includes(pId)) this.wishlist.push(pId);
+                            } else {
+                                this.wishlist = this.wishlist.filter(id => Number(id) !== pId);
+                            }
+                        }
+                    });
                 },
 
                 isInWishlist(id) {
-                    return this.wishlist.includes(id);
+                    return this.wishlist.map(Number).includes(Number(id));
                 },
 
-                toggleWishlist(id, name) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '{{ route('user.wishlist.store') }}';
+                async toggleWishlist(id, name) {
+                    const numId = Number(id);
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        const res = await fetch("{{ route('wishlist.toggle') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token || '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ product_id: numId })
+                        });
 
-                    const csrf = document.createElement('input');
-                    csrf.type = 'hidden';
-                    csrf.name = '_token';
-                    csrf.value = '{{ csrf_token() }}';
-                    form.appendChild(csrf);
-
-                    const productIdInput = document.createElement('input');
-                    productIdInput.type = 'hidden';
-                    productIdInput.name = 'product_id';
-                    productIdInput.value = id;
-                    form.appendChild(productIdInput);
-
-                    document.body.appendChild(form);
-                    form.submit();
+                        const data = await res.json();
+                        if (data.success) {
+                            if (data.in_wishlist) {
+                                if (!this.wishlist.map(Number).includes(numId)) this.wishlist.push(numId);
+                                this.showToast(`Saved "${name}" to your wishlist!`, 'cart', 'favorite');
+                            } else {
+                                this.wishlist = this.wishlist.filter(itemId => Number(itemId) !== numId);
+                                this.showToast(`Removed "${name}" from your wishlist.`, 'cart', 'favorite_border');
+                            }
+                            localStorage.setItem('bazaario_wishlist', JSON.stringify(this.wishlist));
+                            window.dispatchEvent(new CustomEvent('wishlist-updated', { detail: { count: data.count, in_wishlist: data.in_wishlist, product_id: numId } }));
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        // Fallback
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route('user.wishlist.store') }}';
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+                        form.appendChild(csrf);
+                        const productIdInput = document.createElement('input');
+                        productIdInput.type = 'hidden';
+                        productIdInput.name = 'product_id';
+                        productIdInput.value = id;
+                        form.appendChild(productIdInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
                 },
 
                 showToast(msg, type = 'cart', icon = 'check') {

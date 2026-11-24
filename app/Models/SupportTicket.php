@@ -17,8 +17,10 @@ class SupportTicket extends Model
         'ticket_number',
         'user_id',
         'seller_id',
+        'assigned_agent_id',
         'order_id',
         'order_item_id',
+        'auction_id',
         'category',
         'subject',
         'priority',
@@ -54,6 +56,11 @@ class SupportTicket extends Model
         return $this->belongsTo(User::class, 'seller_id');
     }
 
+    public function assignedAgent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_agent_id');
+    }
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
@@ -62,6 +69,11 @@ class SupportTicket extends Model
     public function orderItem(): BelongsTo
     {
         return $this->belongsTo(OrderItem::class);
+    }
+
+    public function auction(): BelongsTo
+    {
+        return $this->belongsTo(Auction::class);
     }
 
     public function messages(): HasMany
@@ -95,7 +107,12 @@ class SupportTicket extends Model
             'delivery_delay' => 'Shipping & Delivery Delay',
             'auction' => 'Live Auction Inquiry',
             'billing' => 'Payment & Billing Question',
-            default => 'General Customer Inquiry',
+            'escrow_payout' => 'Escrow Payout Inquiry',
+            'kyc_clearance' => 'KYC Verification & Clearance',
+            'listing_error' => 'Product Listing Issue',
+            'account_issue' => 'Account & Store Suspension',
+            'general' => 'General Inquiry',
+            default => ucfirst(str_replace('_', ' ', $this->category ?? 'General Inquiry')),
         };
     }
 

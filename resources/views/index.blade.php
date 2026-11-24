@@ -293,48 +293,73 @@
                                 @if($featuredAuction ?? null)
                                     @php
                                         $auctionProd = $featuredAuction->product ?? null;
-                                        $auctionImg = $auctionProd ? $auctionProd->main_image_url : asset('images/products/compass_1.jpg');
+                                        $auctionImg = $auctionProd ? $auctionProd->main_image_url : asset('images/products/watch_1.jpg');
+                                        $bidsCount = $featuredAuction->bids_count ?? ($featuredAuction->bids ? $featuredAuction->bids->count() : 0);
                                     @endphp
                                     <img alt="{{ $featuredAuction->product->name ?? 'Featured Auction' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $auctionImg }}" loading="lazy" decoding="async">
-                                    <span class="absolute bottom-2 right-2 bg-slate-900/90 text-white font-mono text-[10px] px-2 py-0.5 rounded border border-white/10">
-                                        {{ $featuredAuction->bids_count ?? $featuredAuction->bids->count() }} Bids
+                                    <div class="absolute top-2 left-2 flex items-center gap-1 bg-rose-600/90 text-white font-mono text-[9px] font-bold px-2 py-0.5 rounded-full backdrop-blur-xs">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                        LIVE FLOOR
+                                    </div>
+                                    <span class="absolute bottom-2 right-2 bg-slate-900/90 text-amber-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-white/10">
+                                        {{ $bidsCount }} {{ Str::plural('Bid', $bidsCount) }} Placed
                                     </span>
                                 @else
-                                    <img alt="Vintage Desk Compass & Sundial" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ asset('images/products/compass_1.jpg') }}" loading="lazy" decoding="async">
-                                    <span class="absolute bottom-2 right-2 bg-slate-900/90 text-white font-mono text-[10px] px-2 py-0.5 rounded border border-white/10">24 Bids</span>
+                                    <img alt="Rolex Submariner Date" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ asset('images/products/watch_1.jpg') }}" loading="lazy" decoding="async">
+                                    <div class="absolute top-2 left-2 flex items-center gap-1 bg-rose-600/90 text-white font-mono text-[9px] font-bold px-2 py-0.5 rounded-full backdrop-blur-xs">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                        LIVE FLOOR
+                                    </div>
+                                    <span class="absolute bottom-2 right-2 bg-slate-900/90 text-amber-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-white/10">14 Bids Placed</span>
                                 @endif
                             </div>
 
                             @if($featuredAuction ?? null)
-                                <div class="text-[11px] text-slate-200 font-semibold font-display line-clamp-1">
+                                <div class="text-xs text-slate-100 font-bold font-display line-clamp-1 mb-1.5">
                                     {{ $featuredAuction->product->name ?? 'Featured Auction Item' }}
                                 </div>
-                                <div class="flex items-center justify-between mt-1">
+                                <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/10 text-left">
                                     <div>
-                                        <span class="font-mono text-[9px] text-slate-400 block uppercase">Current Bid</span>
-                                        <span class="font-display text-lg font-bold text-amber-400">₹ {{ number_format($featuredAuction->current_price ?? $featuredAuction->starting_price ?? 0, 0) }}</span>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="font-mono text-[9px] text-slate-400 block uppercase">Ends in</span>
-                                        <span class="font-mono text-xs font-bold text-white flex items-center gap-1 justify-end">
-                                            <span class="material-symbols-outlined text-[12px] text-amber-400">timer</span>
-                                            {{ $featuredAuction->ends_at ? $featuredAuction->ends_at->diffForHumans() : 'Ending soon' }}
+                                        <span class="font-mono text-[9px] text-slate-400 block uppercase tracking-wider">Current High Bid</span>
+                                        <span class="font-display text-base font-extrabold text-amber-400 leading-tight block">
+                                            ₹{{ number_format((float) ($featuredAuction->current_price ?? $featuredAuction->starting_price ?? 0), 2) }}
                                         </span>
+                                        <span class="font-mono text-[9px] text-slate-400 block mt-0.5">
+                                            Start: ₹{{ number_format((float) ($featuredAuction->starting_price ?? 0), 2) }}
+                                        </span>
+                                    </div>
+                                    <div class="text-right flex flex-col justify-between">
+                                        <div>
+                                            <span class="font-mono text-[9px] text-slate-400 block uppercase tracking-wider">Time Remaining</span>
+                                            <span class="font-mono text-xs font-bold text-white flex items-center gap-1 justify-end mt-0.5">
+                                                <span class="material-symbols-outlined text-[13px] text-amber-400">timer</span>
+                                                {{ $featuredAuction->ends_at ? $featuredAuction->ends_at->diffForHumans() : 'Live' }}
+                                            </span>
+                                        </div>
+                                        <a href="{{ route('auctions.show', $featuredAuction->id) }}" class="inline-flex items-center justify-end gap-1 text-[10px] font-bold text-amber-400 hover:text-amber-300 transition-colors font-mono uppercase mt-1">
+                                            Bid Now <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
+                                        </a>
                                     </div>
                                 </div>
                             @else
-                                <div class="text-[11px] text-slate-200 font-semibold font-display">Vintage 1954 Leica M3</div>
-                                <div class="flex items-center justify-between mt-1">
+                                <div class="text-xs text-slate-100 font-bold font-display line-clamp-1 mb-1.5">Rolex Submariner Date 41mm (Ref. 126610LN)</div>
+                                <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/10 text-left">
                                     <div>
-                                        <span class="font-mono text-[9px] text-slate-400 block uppercase">Current Bid</span>
-                                        <span class="font-display text-lg font-bold text-amber-400">₹ 8,500</span>
+                                        <span class="font-mono text-[9px] text-slate-400 block uppercase tracking-wider">Current High Bid</span>
+                                        <span class="font-display text-base font-extrabold text-amber-400 leading-tight block">₹ 10,25,000</span>
+                                        <span class="font-mono text-[9px] text-slate-400 block mt-0.5">Start: ₹ 9,50,000</span>
                                     </div>
-                                    <div class="text-right">
-                                        <span class="font-mono text-[9px] text-slate-400 block uppercase">Ends in</span>
-                                        <span class="font-mono text-xs font-bold text-white flex items-center gap-1 justify-end">
-                                            <span class="material-symbols-outlined text-[12px] text-amber-400">timer</span>
-                                            00:14:32
-                                        </span>
+                                    <div class="text-right flex flex-col justify-between">
+                                        <div>
+                                            <span class="font-mono text-[9px] text-slate-400 block uppercase tracking-wider">Time Remaining</span>
+                                            <span class="font-mono text-xs font-bold text-white flex items-center gap-1 justify-end mt-0.5">
+                                                <span class="material-symbols-outlined text-[13px] text-amber-400">timer</span>
+                                                18h left
+                                            </span>
+                                        </div>
+                                        <a href="{{ route('auctions.index') }}" class="inline-flex items-center justify-end gap-1 text-[10px] font-bold text-amber-400 hover:text-amber-300 transition-colors font-mono uppercase mt-1">
+                                            Bid Now <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
+                                        </a>
                                     </div>
                                 </div>
                             @endif
@@ -407,10 +432,23 @@
             </div>
 
             <!-- 5 Product Cards Grid -->
+            @php
+                $hUser = Auth::guard('user')->user() ?? Auth::user();
+                $homeWishlistIds = [];
+                if ($hUser) {
+                    $homeWishlistIds = $hUser->wishlist ? $hUser->wishlist->items->pluck('product_id')->map(fn($id) => (int)$id)->toArray() : [];
+                } else {
+                    $homeWishlistIds = array_map('intval', session('wishlist', []));
+                }
+            @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
                 @forelse(($trendingProducts ?? []) as $index => $prod)
                     @php
+                        $inHomeWishlist = in_array((int)$prod->id, $homeWishlistIds);
                         $prodImage = $prod->main_image_url;
+                        if (!$prodImage || str_contains($prodImage, 'product-placeholder.svg')) {
+                            $prodImage = $prod->primaryImage?->url ?? $prod->images->first()?->url ?? asset('images/categories/organic_food.jpg');
+                        }
                         if ($prod->created_at && $prod->created_at->diffInDays() <= 7) {
                             $badgeText = 'NEW';
                             $badgeStyle = 'bg-emerald-600 text-white';
@@ -429,17 +467,32 @@
                         }
                         
                         $productSlugOrId = $prod->slug ?? $prod->id;
+                        $rVal = (float)($prod->average_rating ?? 0);
+                        if ($rVal <= 0) {
+                            $rVal = (float)($prod->rating ?? 0);
+                        }
+                        $rDisplay = $rVal > 0 ? number_format($rVal, 1) : '4.8';
                     @endphp
                     
                     <div class="glass-panel rounded-2xl p-3.5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-glass group">
                         <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100 mb-3 flex items-center justify-center">
-                            <span class="absolute top-2.5 left-2.5 font-mono text-[10px] {{ $badgeStyle }} px-2 py-0.5 rounded backdrop-blur-md font-bold z-10">
+                            <span class="absolute top-2.5 left-2.5 font-mono text-[10px] {{ $badgeStyle }} px-2 py-0.5 rounded backdrop-blur-md font-bold z-10 pointer-events-none">
                                 {{ $badgeText }}
                             </span>
+                            <button type="button" 
+                                    onclick="window.bazaarioToggleWishlist({{ $prod->id }}, this)"
+                                    data-wishlist-product="{{ $prod->id }}"
+                                    title="{{ $inHomeWishlist ? 'Remove from Wishlist' : 'Save to Wishlist' }}"
+                                    class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-sm z-10 active:scale-90 cursor-pointer {{ $inHomeWishlist ? 'bg-white text-red-500 ring-1 ring-red-200 shadow-md' : 'bg-white/90 text-slate-700 hover:text-red-500 hover:bg-white' }}">
+                                <span class="material-symbols-outlined text-[18px] leading-none select-none transition-transform duration-200"
+                                      style="{{ $inHomeWishlist ? "font-variation-settings: 'FILL' 1;" : "font-variation-settings: 'FILL' 0;" }}">
+                                    {{ $inHomeWishlist ? 'favorite' : 'favorite_border' }}
+                                </span>
+                            </button>
                             <a href="{{ route('products.show', $productSlugOrId) }}" class="w-full h-full block">
                                 <img alt="{{ $prod->name }}" 
                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                     src="{{ $prodImage ?? 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80' }}"
+                                     src="{{ $prodImage }}"
                                      loading="lazy"
                                      decoding="async">
                             </a>
@@ -447,7 +500,7 @@
                         <div>
                             <div class="flex items-center justify-between font-mono text-[10px] text-slate-500 mb-1">
                                 <span>{{ $prod->category->name ?? 'General' }}</span>
-                                <span class="flex items-center text-amber-600 font-bold">★ {{ number_format($prod->rating ?? 4.8, 1) }}</span>
+                                <span class="flex items-center text-amber-600 font-bold">★ {{ $rDisplay }}</span>
                             </div>
                             <h4 class="font-display font-bold text-sm text-slate-900 line-clamp-1 mb-0.5">
                                 <a href="{{ route('products.show', $productSlugOrId) }}" class="hover:text-amber-600 transition-colors">
@@ -458,17 +511,20 @@
                             
                             <div class="flex items-center justify-between pt-2 border-t border-slate-100">
                                 <div>
-                                    <span class="font-display font-bold text-base text-slate-900" data-price-inr="{{ $prod->price }}">₹ {{ number_format($prod->price, 0) }}</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="font-display font-bold text-base text-slate-900">₹{{ number_format((float) ($prod->price ?? 0), 2) }}</span>
+                                        <span class="font-sans text-[11px] font-normal text-slate-500">/ {{ $prod->unit_type ?? 'piece' }}</span>
+                                    </div>
                                     @if($prod->original_price ?? ($prod->old_price ?? null))
-                                        <span class="text-[10px] text-slate-400 line-through block -mt-1" data-price-inr="{{ $prod->original_price ?? $prod->old_price }}">
-                                            ₹ {{ number_format($prod->original_price ?? $prod->old_price, 0) }}
+                                        <span class="text-[11px] text-slate-400 line-through block -mt-0.5">
+                                            ₹{{ number_format((float) ($prod->original_price ?? $prod->old_price), 2) }}
                                         </span>
                                     @endif
                                 </div>
                                 <form action="{{ route('cart.store') }}" method="POST" class="inline">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $prod->id }}">
-                                    <button type="submit" aria-label="Add to cart" class="w-8 h-8 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-sm">
+                                    <button type="submit" aria-label="Add to cart" class="w-8 h-8 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-sm cursor-pointer">
                                         <span class="material-symbols-outlined text-[17px]">shopping_bag</span>
                                     </button>
                                 </form>
@@ -493,8 +549,11 @@
                             <p class="text-xs text-slate-500 mb-3">Noise Cancelling 30h</p>
                             <div class="flex items-center justify-between pt-2 border-t border-slate-100">
                                 <div>
-                                    <span class="font-display font-bold text-base text-slate-900">₹ 2,499</span>
-                                    <span class="text-[10px] text-slate-400 line-through block -mt-1">₹ 3,299</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="font-display font-bold text-base text-slate-900">₹ 2,499</span>
+                                        <span class="font-sans text-[11px] font-normal text-slate-500">/ piece</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 line-through block -mt-0.5">₹ 3,299</span>
                                 </div>
                                 <a href="{{ route('products.index') }}" aria-label="View product" class="w-8 h-8 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-sm">
                                     <span class="material-symbols-outlined text-[17px]">shopping_bag</span>
@@ -508,7 +567,7 @@
 
         @unless(\App\Models\SiteSetting::isSingleVendor())
         <!-- 5.5 FEATURED SELLERS SHELF -->
-        <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-12" id="featured-sellers">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
                 <div>
                     <div class="font-mono text-[11px] uppercase tracking-wider text-amber-600 font-bold mb-1">
@@ -528,8 +587,8 @@
                         $shopName = $profile->shop_name ?? ($seller->name . "'s Store");
                         $city = $profile->city ?? 'Marketplace Seller';
                         $bio = $profile->bio ?? 'Verified seller on Bazaario offering authentic products with fast delivery.';
-                        $logo = $profile && $profile->logo_path ? \Illuminate\Support\Facades\Storage::url($profile->logo_path) : null;
-                        $banner = $profile && $profile->banner_path ? \Illuminate\Support\Facades\Storage::url($profile->banner_path) : null;
+                        $logo = $profile?->logo_url;
+                        $banner = $profile?->banner_url;
                         $trustScore = $profile->trust_score ?? 98;
                     @endphp
                     <div class="glass-panel rounded-3xl p-5 hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl group flex flex-col justify-between relative overflow-hidden bg-white/70 backdrop-blur-md">
@@ -842,7 +901,7 @@
                         $shopName = $profile->shop_name ?? ($seller->name . "'s Stall");
                         $city = $profile->city ?? 'Local Market';
                         $bio = $profile->bio ?? 'Verified neighbourhood artisan offering fresh goods and crafts.';
-                        $logo = $profile && $profile->logo_path ? Storage::url($profile->logo_path) : null;
+                        $logo = $profile?->logo_url;
                         $trustScore = $profile->trust_score ?? 98;
                         $distance = isset($seller->distance_km) ? number_format($seller->distance_km, 1) : '1.2';
                     @endphp

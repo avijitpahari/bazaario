@@ -10,26 +10,62 @@
          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
          class="pointer-events-auto flex items-center gap-3">
         
-        <!-- "Need help? Chat with us" Tooltip Bubble (Left of the button) -->
+        <!-- "Need help? Chat with us" Teaser Bubble (Left of the button) -->
         <div x-show="showPrompt && !isOpen"
              x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-x-3 scale-95"
+             x-transition:enter-end="opacity-100 translate-x-0 scale-100"
              x-transition:leave="transition ease-in duration-200"
-             style="background: #ffffff; color: #1e293b; padding: 8px 14px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; white-space: nowrap; position: relative; user-select: none;">
-            <span>Need help? <strong style="color: #2563eb;">Chat with us</strong></span>
-            <button type="button" @click.stop="showPrompt = false" style="color: #94a3b8; margin-left: 2px; border: none; background: none; cursor: pointer; display: flex; align-items: center;" title="Dismiss">
-                <span class="material-symbols-outlined text-[15px]">close</span>
+             x-transition:leave-start="opacity-100 translate-x-0 scale-100"
+             x-transition:leave-end="opacity-0 translate-x-3 scale-95"
+             @click="openChat()"
+             class="group relative flex flex-row items-center gap-2.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl pl-2.5 pr-2 py-1.5 shadow-[0_8px_25px_-5px_rgba(15,23,42,0.14),0_2px_6px_-1px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_30px_-5px_rgba(15,23,42,0.2)] hover:border-blue-300/80 cursor-pointer select-none transition-all duration-200 pointer-events-auto shrink-0"
+             style="display: inline-flex !important; flex-direction: row !important; align-items: center !important; white-space: nowrap !important;"
+             title="Click to open live chat">
+
+            <!-- Friendly Avatar with Online Pulse -->
+            <div class="relative shrink-0 flex items-center justify-center">
+                <div class="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white ring-1 ring-white/90 shadow-2xs">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80" 
+                         alt="Support" 
+                         class="w-full h-full object-cover">
+                </div>
+                <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+            </div>
+
+            <!-- Prompt Label -->
+            <div class="text-[12px] font-medium text-slate-700 leading-none shrink-0 flex items-center gap-1 select-none">
+                <span>Need help?</span>
+                <strong class="font-bold text-blue-600 group-hover:text-blue-700 group-hover:underline transition-colors">Chat with us</strong>
+            </div>
+
+            <!-- Compact Dismiss Button -->
+            <button type="button" 
+                    @click.stop="showPrompt = false" 
+                    title="Dismiss"
+                    aria-label="Dismiss chat prompt"
+                    class="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors ml-0.5 cursor-pointer border-0 bg-transparent p-0"
+                    style="display: inline-flex !important; align-items: center !important; justify-content: center !important;">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
             </button>
+
             <!-- Caret arrow pointing toward the chat button -->
-            <div style="position: absolute; right: -5px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 10px; height: 10px; background: #ffffff; border-right: 1px solid #e2e8f0; border-top: 1px solid #e2e8f0;"></div>
+            <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border-t border-r border-slate-200/90 rotate-45 pointer-events-none"></div>
         </div>
 
         <!-- Floating Chat Circle Button -->
         <button type="button"
                 @click="openChat()"
-                style="width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 9999px; background: linear-gradient(135deg, #2563eb 0%, #4338ca 100%); color: #ffffff; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.5); display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; position: relative; transition: transform 0.2s;"
-                class="hover:scale-105 active:scale-95 focus:outline-none">
-            <span class="material-symbols-outlined" 
-                  style="font-size: 30px; color: #ffffff; line-height: 1;">chat</span>
+                aria-label="Open Live Chat"
+                style="width: 58px; height: 58px; min-width: 58px; min-height: 58px; border-radius: 9999px; background: linear-gradient(135deg, #2563eb 0%, #4338ca 100%); color: #ffffff; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.45), 0 4px 10px -2px rgba(37,99,235,0.3); display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.25); cursor: pointer; position: relative; transition: transform 0.2s, box-shadow 0.2s;"
+                class="hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/40 group">
+            
+            <svg class="w-7 h-7 text-white transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
 
             <!-- Unread Badge Counter -->
             <span x-show="unreadCount > 0" 
@@ -167,6 +203,24 @@
                     </span>
                     <span class="font-medium text-[11px] leading-tight">Talk to an agent</span>
                 </button>
+
+                <button type="button" 
+                        @click="sendQuickReply('faq_escrow')"
+                        class="p-2 bg-white hover:bg-teal-50/80 border border-slate-200 hover:border-teal-300 rounded-xl text-left text-xs text-slate-700 hover:text-teal-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">shield</span>
+                    </span>
+                    <span class="font-medium text-[11px] leading-tight">Escrow guarantee</span>
+                </button>
+
+                <button type="button" 
+                        @click="sendQuickReply('delivery_delay')"
+                        class="p-2 bg-white hover:bg-amber-50/80 border border-slate-200 hover:border-amber-300 rounded-xl text-left text-xs text-slate-700 hover:text-amber-700 flex items-center gap-2 transition-all shadow-2xs group cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[15px]">schedule</span>
+                    </span>
+                    <span class="font-medium text-[11px] leading-tight">Delivery delay</span>
+                </button>
             </div>
 
             <!-- Dynamic Messages List -->
@@ -303,6 +357,13 @@
 
             initWidget() {
                 window.bazaarioOpenChat = () => { this.openChat(); };
+                window.bazaarioTriggerFaq = async (action) => {
+                    this.openChat();
+                    if (!this.conversationId) {
+                        await this.initSession();
+                    }
+                    await this.sendQuickReply(action);
+                };
 
                 // Auto hide prompt after 10s if not interacted
                 setTimeout(() => { this.showPrompt = false; }, 10000);
@@ -403,6 +464,10 @@
                 escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
                 escaped = escaped.replace(/\*(.+?)\*/g, '<em>$1</em>');
                 escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-slate-800 px-1 py-0.5 rounded font-mono text-[11px]">$1</code>');
+                escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, href) => {
+                    const cleanHref = href.replace(/&amp;/g, '&');
+                    return `<a href="${cleanHref}" class="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800 underline underline-offset-2">${label} &rarr;</a>`;
+                });
                 escaped = escaped.replace(/^[\s]*[-*•]\s+(.+)$/gm, '<li class="ml-4">$1</li>');
                 escaped = escaped.replace(/(<li[\s\S]*?<\/li>)/g, '<ul class="my-1.5 space-y-0.5">$1</ul>');
                 escaped = escaped.replace(/\n/g, '<br>');
@@ -425,6 +490,11 @@
             },
 
             async sendQuickReply(action) {
+                if (!this.conversationId) {
+                    await this.initSession();
+                }
+                if (!this.conversationId) return;
+
                 this.showQuickReplies = false;
                 this.isTyping = true;
                 this.scrollToBottom();
@@ -435,6 +505,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': token || ''
                         },
                         body: JSON.stringify({
@@ -471,6 +542,11 @@
                 const file = this.selectedFile;
                 if (!text && !file) return;
 
+                if (!this.conversationId) {
+                    await this.initSession();
+                }
+                if (!this.conversationId) return;
+
                 const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                 this.isSending = true;
 
@@ -498,7 +574,10 @@
                 try {
                     const res = await fetch("{{ route('support.chat.send') }}", {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': token || '' },
+                        headers: { 
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token || '' 
+                        },
                         body: formData
                     });
                     const data = await res.json();

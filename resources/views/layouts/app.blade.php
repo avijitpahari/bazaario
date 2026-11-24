@@ -48,6 +48,72 @@
     <!-- Global Floating Live Support Chat Widget -->
     <x-support-chat-widget />
 
+    <script>
+    if (!window.bazaarioToggleWishlist) {
+        window.bazaarioToggleWishlist = async function(productId, btnElement = null) {
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                if (btnElement) {
+                    btnElement.classList.add('scale-125');
+                    setTimeout(() => btnElement.classList.remove('scale-125'), 200);
+                }
+
+                const res = await fetch("{{ route('wishlist.toggle') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token || ''
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                });
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = "{{ route('login') }}";
+                        return;
+                    }
+                    throw new Error('Failed to toggle wishlist');
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    window.dispatchEvent(new CustomEvent('wishlist-updated', { 
+                        detail: { count: data.count, in_wishlist: data.in_wishlist, product_id: productId } 
+                    }));
+
+                    document.querySelectorAll(`[data-wishlist-product="${productId}"]`).forEach(btn => {
+                        const icon = btn.querySelector('.material-symbols-outlined') || btn;
+                        if (data.in_wishlist) {
+                            btn.classList.add('text-red-500', 'bg-white', 'ring-1', 'ring-red-200', 'shadow-md');
+                            btn.classList.remove('text-slate-700', 'bg-white/90');
+                            btn.title = 'Remove from Wishlist';
+                            if (icon) {
+                                icon.textContent = 'favorite';
+                                icon.style.fontVariationSettings = "'FILL' 1";
+                            }
+                        } else {
+                            btn.classList.remove('text-red-500', 'ring-1', 'ring-red-200', 'shadow-md');
+                            btn.classList.add('text-slate-700', 'bg-white/90');
+                            btn.title = 'Save to Wishlist';
+                            if (icon) {
+                                icon.textContent = 'favorite_border';
+                                icon.style.fontVariationSettings = "'FILL' 0";
+                            }
+                        }
+                    });
+
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, data.in_wishlist ? 'success' : 'info');
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+    }
+    </script>
+
     @stack('scripts')
 </body>
 

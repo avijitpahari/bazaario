@@ -224,7 +224,7 @@
                     @forelse($tickets as $t)
                         @php
                             $isSelected = $activeTicket && $activeTicket->id === $t->id;
-                            $initiatorName = $t->seller_id ? ($t->seller->sellerProfile->shop_name ?? $t->seller->name) : ($t->user->name ?? 'Unknown');
+                            $initiatorName = $t->seller_id ? ($t->seller?->sellerProfile?->shop_name ?? $t->seller?->name ?? 'Seller') : ($t->user?->name ?? 'Unknown');
                             $initiatorType = $t->seller_id ? 'seller' : 'customer';
                             $latest = $t->latestMessage;
                             $status = $t->is_escalated ? 'escalated' : ($t->status === 'open' ? 'open' : ($t->status === 'in_progress' ? 'progress' : 'closed'));
@@ -308,7 +308,7 @@
                             <div class="flex items-center gap-3">
                                 @php
                                     $avatarType = $activeTicket->seller_id ? 'seller' : 'customer';
-                                    $avatarName = $activeTicket->seller_id ? ($activeTicket->seller->sellerProfile->shop_name ?? $activeTicket->seller->name) : ($activeTicket->user->name ?? 'Unknown');
+                                    $avatarName = $activeTicket->seller_id ? ($activeTicket->seller?->sellerProfile?->shop_name ?? $activeTicket->seller?->name ?? 'Seller') : ($activeTicket->user?->name ?? 'Unknown');
                                     $avatarStatus = $activeTicket->is_escalated ? 'escalated' : ($activeTicket->status === 'open' ? 'open' : ($activeTicket->status === 'in_progress' ? 'progress' : 'closed'));
                                 @endphp
                                 <x-support::avatar
@@ -328,7 +328,7 @@
                                         @endif
                                     </div>
                                     <p class="text-[11px] text-slate-500 font-mono">
-                                        {{ $activeTicket->seller_id ? 'Seller: ' . ($activeTicket->seller->sellerProfile->shop_name ?? $activeTicket->seller->name) : 'Customer: ' . ($activeTicket->user->name ?? 'Unknown') }}
+                                        {{ $activeTicket->seller_id ? 'Seller: ' . ($activeTicket->seller?->sellerProfile?->shop_name ?? $activeTicket->seller?->name ?? 'Seller') : 'Customer: ' . ($activeTicket->user?->name ?? 'Unknown') }}
                                         · {{ $activeTicket->created_at ? $activeTicket->created_at->format('M d, Y h:i A') : 'Today' }}
                                     </p>
                                 </div>
@@ -353,6 +353,12 @@
                                 <span class="text-slate-400">Priority:</span>
                                 <x-support::pill variant="priority" :value="$activeTicket->priority" size="sm" />
                             </div>
+                            @if($activeTicket->assignedAgent)
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400">Assigned:</span>
+                                    <span class="font-medium text-slate-800">{{ $activeTicket->assignedAgent->name }}</span>
+                                </div>
+                            @endif
                             @if($activeTicket->order_id)
                                 <div class="flex items-center gap-1.5">
                                     <span class="text-slate-400">Order:</span>
@@ -361,7 +367,7 @@
                                     </a>
                                 </div>
                             @endif
-                            @if($activeTicket->seller_id && $activeTicket->seller->sellerProfile)
+                            @if($activeTicket->seller_id && $activeTicket->seller?->sellerProfile)
                                 <div class="flex items-center gap-1.5">
                                     <span class="text-slate-400">Store:</span>
                                     <a href="{{ route('admin.sellers.show', $activeTicket->seller->sellerProfile->id) }}" class="px-2 py-0.5 rounded bg-white border border-slate-200 font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 transition-colors support-focus">
@@ -409,7 +415,7 @@
 
                         <!-- Admin Quick Reply -->
                         <div class="p-4 bg-white border-t border-slate-200 shrink-0">
-                            <form action="{{ route('admin.support.tickets.show', $activeTicket) }}#ticket-chat-thread" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
+                            <form action="{{ route('admin.support.tickets.reply', $activeTicket) }}#ticket-chat-thread" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
                                 @csrf
                                 <label class="w-9 h-9 rounded-xl border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-slate-50 flex items-center justify-center cursor-pointer transition-colors support-focus" title="Attach evidence/document">
                                     <span class="material-symbols-outlined text-[20px]">attach_file</span>

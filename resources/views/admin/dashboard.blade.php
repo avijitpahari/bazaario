@@ -37,6 +37,14 @@
                 <span class="material-symbols-outlined text-[18px]">verified_user</span>
                 <span>View Pending Seller Approvals ({{ $stats['pending_kyc'] ?? 0 }})</span>
             </a>
+            @php $pendingSupportCount = \App\Models\SupportTicket::whereIn('status', ['open', 'escalated'])->count(); @endphp
+            <a href="{{ route('admin.support.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200/90 text-slate-800 hover:bg-slate-50 transition-colors shadow-2xs font-body-md text-xs font-semibold">
+                <span class="material-symbols-outlined text-[18px] text-blue-600">headset_mic</span>
+                <span>Support Desk</span>
+                @if($pendingSupportCount > 0)
+                    <span class="px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 font-mono text-[10px] font-bold">{{ $pendingSupportCount }}</span>
+                @endif
+            </a>
         </div>
     </section>
 

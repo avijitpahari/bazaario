@@ -78,6 +78,287 @@
         </a>
     </div>
 
+    <!-- ── 147: QUICK FAQ AUTO-REPLY INTERACTIVE MODULE ── -->
+    <div x-data="{
+            faqs: {{ Js::from($faqs) }},
+            searchQuery: '',
+            selectedCategory: 'all',
+            expandedFaq: null,
+            helpfulFeedback: {},
+            
+            get filteredFaqs() {
+                const q = this.searchQuery.toLowerCase().trim();
+                return this.faqs.filter(faq => {
+                    const matchCategory = this.selectedCategory === 'all' || faq.category === this.selectedCategory;
+                    if (!matchCategory) return false;
+                    if (!q) return true;
+                    return faq.question.toLowerCase().includes(q) ||
+                           faq.summary.toLowerCase().includes(q) ||
+                           faq.answer.toLowerCase().includes(q) ||
+                           (faq.tags && faq.tags.some(t => t.toLowerCase().includes(q)));
+                });
+            },
+            
+            toggleFaq(id) {
+                this.expandedFaq = (this.expandedFaq === id) ? null : id;
+            },
+            
+            triggerChatFaq(action) {
+                if (window.bazaarioTriggerFaq) {
+                    window.bazaarioTriggerFaq(action);
+                } else if (window.bazaarioOpenChat) {
+                    window.bazaarioOpenChat();
+                }
+            },
+            
+            rateHelpful(id, isHelpful) {
+                this.helpfulFeedback[id] = isHelpful;
+            },
+            
+            formatFaqText(text) {
+                if (!text) return '';
+                let formatted = text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong class=\'font-bold text-slate-900\'>$1</strong>')
+                    .replace(/•\s+(.+)$/gm, '<li class=\'flex items-start gap-2 text-slate-700 my-1\'><span class=\'w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0\'></span><span>$1</span></li>')
+                    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' class=\'font-bold text-blue-600 hover:text-blue-800 underline underline-offset-2 inline-flex items-center gap-0.5\'>$1 &rarr;</a>')
+                    .replace(/\n\n/g, '<div class=\'h-2\'></div>')
+                    .replace(/\n/g, '<br>');
+                return formatted;
+            }
+         }"
+         id="quick-faq-section"
+         class="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/90 shadow-sm flex flex-col gap-6">
+
+        <!-- Module Header -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-mono font-bold uppercase tracking-wider border border-blue-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <span>QUICK FAQ AUTO-REPLY</span>
+                    </span>
+                    <span class="text-xs font-mono text-slate-400">INSTANT AUTO-ANSWERS</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-black font-['Outfit'] text-slate-900 tracking-tight">
+                    Instant Auto-Reply Solutions &amp; FAQs
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Get immediate, verified answers to common inquiries without waiting in the support agent queue.
+                </p>
+            </div>
+
+            <!-- Quick Live Chat Trigger -->
+            <button type="button" 
+                    @click="triggerChatFaq('other')"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-500/20 shrink-0 self-start lg:self-auto cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">chat</span>
+                <span>Ask Support Bot in Real-Time</span>
+            </button>
+        </div>
+
+        <!-- Search Bar & Category Filter Pills -->
+        <div class="flex flex-col gap-3">
+            <!-- Search Input -->
+            <div class="relative w-full">
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                <input type="text" 
+                       x-model="searchQuery" 
+                       placeholder="Search instant FAQ auto-replies (e.g. returns, escrow, delivery delay, wholesale bidding, refunds)..." 
+                       class="w-full pl-10 pr-10 py-3 rounded-2xl bg-slate-50 border border-slate-200/90 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all">
+                <button type="button" 
+                        x-show="searchQuery.length > 0" 
+                        @click="searchQuery = ''" 
+                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold bg-slate-200/60 w-5 h-5 rounded-full flex items-center justify-center">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Category Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                <button type="button" 
+                        @click="selectedCategory = 'all'" 
+                        :class="selectedCategory === 'all' ? 'bg-slate-900 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer">
+                    All FAQs (<span x-text="faqs.length"></span>)
+                </button>
+                <button type="button" 
+                        @click="selectedCategory = 'orders'" 
+                        :class="selectedCategory === 'orders' ? 'bg-emerald-700 text-white font-bold shadow-xs' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">local_shipping</span>
+                    <span>Orders &amp; Tracking</span>
+                </button>
+                <button type="button" 
+                        @click="selectedCategory = 'returns'" 
+                        :class="selectedCategory === 'returns' ? 'bg-rose-700 text-white font-bold shadow-xs' : 'bg-rose-50 text-rose-800 hover:bg-rose-100'"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">keyboard_return</span>
+                    <span>Returns &amp; Refunds</span>
+                </button>
+                <button type="button" 
+                        @click="selectedCategory = 'payments'" 
+                        :class="selectedCategory === 'payments' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'bg-amber-50 text-amber-800 hover:bg-amber-100'"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">verified_user</span>
+                    <span>Escrow &amp; Payments</span>
+                </button>
+                <button type="button" 
+                        @click="selectedCategory = 'auctions'" 
+                        :class="selectedCategory === 'auctions' ? 'bg-indigo-700 text-white font-bold shadow-xs' : 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100'"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">gavel</span>
+                    <span>Wholesale Auctions</span>
+                </button>
+                <button type="button" 
+                        @click="selectedCategory = 'support'" 
+                        :class="selectedCategory === 'support' ? 'bg-blue-700 text-white font-bold shadow-xs' : 'bg-blue-50 text-blue-800 hover:bg-blue-100'"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">confirmation_number</span>
+                    <span>Tickets &amp; Disputes</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FAQ Auto-Reply Accordion List -->
+        <div class="space-y-3">
+            <template x-for="faq in filteredFaqs" :key="faq.id">
+                <div class="border rounded-2xl overflow-hidden transition-all duration-200"
+                     :class="expandedFaq === faq.id ? 'border-amber-400/90 shadow-md bg-amber-500/[0.02]' : 'border-slate-200/90 hover:border-slate-300 bg-white'">
+                    
+                    <!-- Question Trigger Row -->
+                    <button type="button" 
+                            @click="toggleFaq(faq.id)" 
+                            class="w-full p-4 sm:p-5 text-left flex items-start sm:items-center justify-between gap-3 cursor-pointer group">
+                        
+                        <div class="flex items-start sm:items-center gap-3.5 flex-1 min-w-0">
+                            <!-- Category Icon -->
+                            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 transition-transform group-hover:scale-105"
+                                 :class="{
+                                     'bg-emerald-100 text-emerald-700': faq.category === 'orders',
+                                     'bg-rose-100 text-rose-700': faq.category === 'returns',
+                                     'bg-amber-100 text-amber-800': faq.category === 'payments',
+                                     'bg-indigo-100 text-indigo-700': faq.category === 'auctions',
+                                     'bg-blue-100 text-blue-700': faq.category === 'support'
+                                 }">
+                                <span class="material-symbols-outlined text-[20px]" x-text="faq.icon"></span>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <span class="px-2 py-0.2 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider"
+                                          :class="{
+                                              'bg-emerald-50 text-emerald-700 border border-emerald-200': faq.category === 'orders',
+                                              'bg-rose-50 text-rose-700 border border-rose-200': faq.category === 'returns',
+                                              'bg-amber-50 text-amber-800 border border-amber-200': faq.category === 'payments',
+                                              'bg-indigo-50 text-indigo-700 border border-indigo-200': faq.category === 'auctions',
+                                              'bg-blue-50 text-blue-700 border border-blue-200': faq.category === 'support'
+                                          }"
+                                          x-text="faq.category_label"></span>
+                                    <span class="px-2 py-0.2 rounded-md bg-slate-100 text-slate-600 text-[9px] font-mono font-semibold">
+                                        ⚡ Auto-Reply Ready
+                                    </span>
+                                </div>
+                                <h3 class="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit'] group-hover:text-amber-800 transition-colors leading-snug"
+                                    x-text="faq.question"></h3>
+                                <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1" x-text="faq.summary"></p>
+                            </div>
+                        </div>
+
+                        <!-- Chevron indicator -->
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:bg-slate-200"
+                             :class="expandedFaq === faq.id ? 'rotate-180 bg-amber-500 text-slate-950 font-bold' : ''">
+                            <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+                        </div>
+                    </button>
+
+                    <!-- Expandable Auto-Reply Content Body -->
+                    <div x-show="expandedFaq === faq.id" 
+                         x-collapse 
+                         class="px-4 pb-5 sm:px-5 sm:pb-6 pt-1 border-t border-slate-100">
+                        
+                        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm leading-relaxed text-slate-800 shadow-2xs">
+                            <div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200/60 text-[11px] font-mono text-slate-500">
+                                <span class="material-symbols-outlined text-sm text-emerald-600">verified</span>
+                                <span>Official Bazaario Customer Care Auto-Reply</span>
+                            </div>
+
+                            <div class="chat-faq-body text-slate-800" x-html="formatFaqText(faq.answer)"></div>
+
+                            <!-- Action Triggers -->
+                            <div class="mt-4 pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <!-- 1. Trigger Live Chat with this FAQ -->
+                                    <button type="button" 
+                                            @click="triggerChatFaq(faq.chat_action)"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer">
+                                        <span class="material-symbols-outlined text-[15px]">chat</span>
+                                        <span>Ask in Live Chat</span>
+                                    </button>
+
+                                    <!-- 2. Direct Portal Link -->
+                                    <a :href="faq.action_url" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-semibold text-xs border border-slate-200 transition-colors shadow-2xs">
+                                        <span x-text="faq.action_label"></span>
+                                        <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    </a>
+                                </div>
+
+                                <!-- Feedback Widget -->
+                                <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">
+                                    <span>Helpful?</span>
+                                    <template x-if="helpfulFeedback[faq.id] === undefined">
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" @click="rateHelpful(faq.id, true)" class="p-1 hover:text-emerald-600 transition-colors cursor-pointer" title="Yes, helpful">
+                                                👍
+                                            </button>
+                                            <button type="button" @click="rateHelpful(faq.id, false)" class="p-1 hover:text-rose-600 transition-colors cursor-pointer" title="No, need more help">
+                                                👎
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="helpfulFeedback[faq.id] === true">
+                                        <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">check</span>
+                                            <span>Thanks for your feedback!</span>
+                                        </span>
+                                    </template>
+                                    <template x-if="helpfulFeedback[faq.id] === false">
+                                        <a href="{{ route('user.support.tickets.create') }}" class="text-blue-600 font-bold underline">
+                                            Open Ticket &rarr;
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+
+            <!-- Search No-Match Empty State -->
+            <div x-show="filteredFaqs.length === 0" 
+                 class="p-8 text-center flex flex-col items-center justify-center gap-2 rounded-2xl bg-slate-50 border border-dashed border-slate-300">
+                <span class="material-symbols-outlined text-3xl text-slate-400">search_off</span>
+                <p class="text-xs sm:text-sm font-bold text-slate-700">No matching Quick FAQ auto-replies found for "<span x-text="searchQuery"></span>"</p>
+                <p class="text-xs text-slate-500">Need specific help? Contact our live support specialists directly:</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <button type="button" 
+                            @click="triggerChatFaq('other')" 
+                            class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer">
+                        Ask in Live Chat
+                    </button>
+                    <a href="{{ route('user.support.tickets.create') }}" 
+                       class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-colors">
+                        Create Support Ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Active Tickets & Inquiries Section -->
     <div id="tickets-section" class="flex flex-col gap-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -132,7 +413,7 @@
                                     @endif
                                     @if($ticket->seller)
                                         <span>•</span>
-                                        <span>Merchant: <strong>{{ $ticket->seller->sellerProfile->shop_name ?? $ticket->seller->name }}</strong></span>
+                                        <span>Merchant: <strong>{{ $ticket->seller?->sellerProfile?->shop_name ?? $ticket->seller?->name ?? 'Merchant' }}</strong></span>
                                     @endif
                                     <span>•</span>
                                     <span>Updated {{ $ticket->updated_at->diffForHumans() }}</span>

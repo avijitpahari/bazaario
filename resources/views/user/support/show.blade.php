@@ -174,7 +174,7 @@
                 @if($ticket->seller)
                     <div class="text-right hidden sm:block">
                         <span class="text-[10px] text-slate-500 uppercase font-mono block">Assigned Store</span>
-                        <span class="font-bold text-slate-900">{{ $ticket->seller->sellerProfile->shop_name ?? $ticket->seller->name }}</span>
+                        <span class="font-bold text-slate-900">{{ $ticket->seller?->sellerProfile?->shop_name ?? $ticket->seller?->name ?? 'Merchant' }}</span>
                     </div>
                 @endif
                 <a href="{{ route('user.orders.show', $ticket->order->id) }}" 
@@ -219,33 +219,49 @@
                         </div>
                     @else
                         <!-- Chat Bubble Message -->
-                        <div class="flex items-start gap-3.5 {{ $msg->sender_type === 'customer' ? 'flex-row-reverse text-right' : '' }}">
+                        @php
+                            $isCustomer = $msg->sender_type === 'customer';
+                            $isAdmin = in_array($msg->sender_type, ['admin', 'agent']);
+                            $isSeller = $msg->sender_type === 'seller';
+                        @endphp
+                        <div class="flex items-start gap-3.5 {{ $isCustomer ? 'flex-row-reverse text-right' : '' }}">
                             
                             <!-- Avatar -->
-                            <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-bold text-xs {{ $msg->sender_type === 'customer' ? 'bg-slate-900 text-amber-400' : 'bg-amber-500 text-slate-950 shadow-xs' }}">
-                                @if($msg->sender_type === 'customer')
+                            <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-bold text-xs 
+                                {{ $isCustomer ? 'bg-slate-900 text-amber-400' : ($isAdmin ? 'bg-blue-600 text-white shadow-xs' : 'bg-amber-500 text-slate-950 shadow-xs') }}">
+                                @if($isCustomer)
                                     <span>{{ strtoupper(substr($msg->user?->name ?? 'You', 0, 1)) }}</span>
+                                @elseif($isAdmin)
+                                    <span class="material-symbols-outlined text-[18px]">support_agent</span>
                                 @else
                                     <span class="material-symbols-outlined text-[18px]">storefront</span>
                                 @endif
                             </div>
 
-                            <div class="flex flex-col gap-1 max-w-xl {{ $msg->sender_type === 'customer' ? 'items-end' : 'items-start' }}">
+                            <div class="flex flex-col gap-1 max-w-xl {{ $isCustomer ? 'items-end' : 'items-start' }}">
                                 <div class="flex items-center gap-2 text-xs">
-                                    <span class="font-bold text-slate-900">
-                                        {{ $msg->sender_type === 'customer' ? 'You' : ($ticket->seller?->sellerProfile?->shop_name ?? 'Store Merchant') }}
+                                    <span class="font-bold {{ $isAdmin ? 'text-blue-700 flex items-center gap-1' : 'text-slate-900' }}">
+                                        @if($isCustomer)
+                                            You
+                                        @elseif($isAdmin)
+                                            <span class="material-symbols-outlined text-[15px] text-blue-600">verified</span>
+                                            <span>Bazaario Support Desk</span>
+                                        @else
+                                            {{ $ticket->seller?->sellerProfile?->shop_name ?? 'Store Merchant' }}
+                                        @endif
                                     </span>
                                     <span class="text-slate-400 font-mono text-[10px]">
                                         {{ $msg->created_at->format('d M Y, h:i A') }}
                                     </span>
                                 </div>
 
-                                <div class="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed {{ $msg->sender_type === 'customer' ? 'bg-slate-900 text-white rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200/60' }}">
+                                <div class="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed 
+                                    {{ $isCustomer ? 'bg-slate-900 text-white rounded-tr-none' : ($isAdmin ? 'bg-blue-50 text-slate-900 rounded-tl-none border border-blue-200' : 'bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200/60') }}">
                                     <p class="whitespace-pre-line text-left">{{ $msg->message }}</p>
 
                                     <!-- Attachment Preview -->
                                     @if($msg->attachment_path)
-                                        <div class="mt-3 pt-2.5 border-t {{ $msg->sender_type === 'customer' ? 'border-slate-800' : 'border-slate-200' }}">
+                                        <div class="mt-3 pt-2.5 border-t {{ $isCustomer ? 'border-slate-800' : ($isAdmin ? 'border-blue-200' : 'border-slate-200') }}">
                                             @if($msg->isImageAttachment())
                                                 <a href="{{ $msg->attachment_url }}" target="_blank" class="block group relative overflow-hidden rounded-xl border border-slate-700/30 max-w-xs">
                                                     <img src="{{ $msg->attachment_url }}" alt="Attachment" class="w-full max-h-48 object-cover group-hover:scale-105 transition-transform duration-200">

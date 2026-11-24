@@ -11,13 +11,19 @@
         <div>
             <div class="flex items-center gap-space-sm mb-1">
                 <h1 class="font-headline-lg text-2xl md:text-3xl font-bold text-[#0F172A] tracking-tight">AI Engine Hub & Model Operations</h1>
-                <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 font-mono text-[11px] font-bold border border-indigo-200/60 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-ping"></span>
-                    {{ strtoupper($settings['gemini_model'] ?? 'GEMINI 1.5 FLASH') }} ACTIVE
+                @php
+                    $activeProvider = $settings['ai_provider'] ?? 'nvidia';
+                    $activeModel = $activeProvider === 'nvidia' 
+                        ? ($settings['nvidia_model'] ?? 'nvidia/nemotron-3.5-lightning-30b-a3b')
+                        : ($settings['gemini_model'] ?? 'gemini-1.5-flash');
+                @endphp
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-mono text-[11px] font-bold border border-emerald-200/60 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
+                    {{ strtoupper($activeProvider) }}: {{ strtoupper(basename(str_replace('/', '-', $activeModel))) }} ACTIVE
                 </span>
             </div>
             <p class="font-body-md text-xs sm:text-sm text-slate-500">
-                Configure autonomous shopping assistants, automated support auto-triage, vector catalog embeddings, and Bengali/Hindi translation models.
+                Configure autonomous shopping assistants, NVIDIA NIM / Gemini live chat auto-reply, automated support auto-triage, and escrow telemetry.
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -63,13 +69,86 @@
         </div>
     </div>
 
+    <!-- Active Provider Selection -->
+    <div class="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-600 text-xl">hub</span>
+                    <h3 class="font-bold text-sm text-[#0F172A]">Primary AI Provider Strategy</h3>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Select the active AI engine for Live Chat customer auto-replies, product recommendations, and automated dispute analysis.</p>
+            </div>
+            <div class="w-full md:w-80">
+                <select name="ai_provider" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono">
+                    <option value="nvidia" {{ ($settings['ai_provider'] ?? 'nvidia') === 'nvidia' ? 'selected' : '' }}>
+                        🟢 NVIDIA NIM Foundation (Nemotron / Llama / Mistral)
+                    </option>
+                    <option value="gemini" {{ ($settings['ai_provider'] ?? '') === 'gemini' ? 'selected' : '' }}>
+                        🔵 Google Gemini API (Flash / Pro)
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- AI Model Credentials & Hyperparameters -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
-        <!-- Panel 1: LLM Engine Credentials -->
+        <!-- Panel 1: NVIDIA NIM Foundation Model Credentials -->
         <div class="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5 flex flex-col gap-4">
-            <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
-                <span class="material-symbols-outlined text-indigo-600 text-xl">smart_toy</span>
-                <h3 class="font-bold text-sm text-[#0F172A]">Google Gemini API & Foundation Model</h3>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-600 text-xl">memory</span>
+                    <h3 class="font-bold text-sm text-[#0F172A]">NVIDIA NIM / AI Foundation</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    NVIDIA API
+                </span>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">NVIDIA API Key</label>
+                    <input 
+                        type="password" 
+                        name="nvidia_api_key" 
+                        value="{{ $settings['nvidia_api_key'] ?? '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' }}" 
+                        placeholder="nvapi-..." 
+                        class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                    <span class="text-[10px] text-slate-400 mt-1 block">Provisioned NVIDIA NIM key for live chat auto-reply & policy reasoning.</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Target NIM Model</label>
+                    <select name="nvidia_model" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-body-sm font-mono">
+                        <option value="nvidia/nemotron-3.5-lightning-30b-a3b" {{ ($settings['nvidia_model'] ?? 'nvidia/nemotron-3.5-lightning-30b-a3b') === 'nvidia/nemotron-3.5-lightning-30b-a3b' ? 'selected' : '' }}>
+                            nvidia/nemotron-3.5-lightning-30b-a3b (Verified Active & Ultra-Fast)
+                        </option>
+                        <option value="minimaxai/minimax-m3.1-flash" {{ ($settings['nvidia_model'] ?? '') === 'minimaxai/minimax-m3.1-flash' ? 'selected' : '' }}>
+                            minimaxai/minimax-m3.1-flash (High Throughput)
+                        </option>
+                        <option value="mistralai/mistral-large-4-1t-a52b" {{ ($settings['nvidia_model'] ?? '') === 'mistralai/mistral-large-4-1t-a52b' ? 'selected' : '' }}>
+                            mistralai/mistral-large-4-1t-a52b (Dense Reasoning)
+                        </option>
+                        <option value="meta/llama-3.3-70b-instruct" {{ ($settings['nvidia_model'] ?? '') === 'meta/llama-3.3-70b-instruct' ? 'selected' : '' }}>
+                            meta/llama-3.3-70b-instruct (Meta Foundation)
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Google Gemini Credentials -->
+        <div class="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5 flex flex-col gap-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-600 text-xl">smart_toy</span>
+                    <h3 class="font-bold text-sm text-[#0F172A]">Google Gemini API & Foundation Model</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    GEMINI API
+                </span>
             </div>
 
             <div class="flex flex-col gap-3">
@@ -82,7 +161,7 @@
                         placeholder="AIzaSy..." 
                         class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono"
                     />
-                    <span class="text-[10px] text-slate-400 mt-1 block">Used for product descriptions, translation, and automated order triage.</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Used for descriptions, translation, and automated order triage.</span>
                 </div>
 
                 <div>
@@ -99,34 +178,47 @@
                         </option>
                     </select>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Temperature (Creativity)</label>
-                        <input 
-                            type="number" 
-                            step="0.1" 
-                            min="0.0" 
-                            max="1.0" 
-                            name="temperature" 
-                            value="{{ $settings['temperature'] ?? '0.7' }}" 
-                            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono"
-                        />
-                        <span class="text-[10px] text-slate-400 mt-0.5 block">0.0 (Deterministic) - 1.0 (Creative)</span>
-                    </div>
+    <!-- Hyperparameters & Autonomous Settlement -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+        <!-- Panel 3: Temperature & Confidence -->
+        <div class="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+                <span class="material-symbols-outlined text-amber-600 text-xl">tune</span>
+                <h3 class="font-bold text-sm text-[#0F172A]">Inference & Confidence Parameters</h3>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Temperature (Creativity)</label>
+                    <input 
+                        type="number" 
+                        step="0.1" 
+                        min="0.0" 
+                        max="1.0" 
+                        name="temperature" 
+                        value="{{ $settings['temperature'] ?? '0.6' }}" 
+                        class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                    <span class="text-[10px] text-slate-400 mt-0.5 block">0.0 (Deterministic) - 1.0 (Creative)</span>
+                </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Dispute Confidence Threshold (%)</label>
-                        <input 
-                            type="number" 
-                            min="50" 
-                            max="100" 
-                            name="dispute_confidence_threshold" 
-                            value="{{ $settings['dispute_confidence_threshold'] ?? '85' }}" 
-                            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono"
-                        />
-                        <span class="text-[10px] text-slate-400 mt-0.5 block">Minimum confidence score to suggest resolution</span>
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Dispute Confidence Threshold (%)</label>
+                    <input 
+                        type="number" 
+                        min="50" 
+                        max="100" 
+                        name="dispute_confidence_threshold" 
+                        value="{{ $settings['dispute_confidence_threshold'] ?? '85' }}" 
+                        class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-[#0F172A] focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                    <span class="text-[10px] text-slate-400 mt-0.5 block">Minimum confidence score to suggest resolution</span>
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>

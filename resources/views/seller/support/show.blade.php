@@ -108,32 +108,48 @@
                         </div>
                     @else
                         <!-- Message Bubble -->
-                        <div class="flex items-start gap-3.5 {{ $msg->sender_type === 'seller' ? 'flex-row-reverse text-right' : '' }}">
+                        @php
+                            $isSeller = $msg->sender_type === 'seller';
+                            $isAdmin = in_array($msg->sender_type, ['admin', 'agent']);
+                            $isCustomer = $msg->sender_type === 'customer';
+                        @endphp
+                        <div class="flex items-start gap-3.5 {{ $isSeller ? 'flex-row-reverse text-right' : '' }}">
                             
                             <!-- Avatar -->
-                            <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-bold text-xs {{ $msg->sender_type === 'seller' ? 'bg-amber-500 text-slate-950 shadow-xs ring-2 ring-white' : 'bg-slate-100 text-slate-700 border border-slate-200' }}">
-                                @if($msg->sender_type === 'seller')
+                            <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-bold text-xs 
+                                {{ $isSeller ? 'bg-amber-500 text-slate-950 shadow-xs ring-2 ring-white' : ($isAdmin ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200') }}">
+                                @if($isSeller)
                                     <span class="material-symbols-outlined text-[18px]">storefront</span>
+                                @elseif($isAdmin)
+                                    <span class="material-symbols-outlined text-[18px]">support_agent</span>
                                 @else
                                     <span>{{ strtoupper(substr($msg->user?->name ?? 'C', 0, 1)) }}</span>
                                 @endif
                             </div>
 
-                            <div class="flex flex-col gap-1 max-w-xl {{ $msg->sender_type === 'seller' ? 'items-end' : 'items-start' }}">
+                            <div class="flex flex-col gap-1 max-w-xl {{ $isSeller ? 'items-end' : 'items-start' }}">
                                 <div class="flex items-center gap-2 text-xs">
-                                    <span class="font-bold text-slate-900">
-                                        {{ $msg->sender_type === 'seller' ? 'You (Store)' : ($msg->user?->name ?? 'Customer') }}
+                                    <span class="font-bold {{ $isAdmin ? 'text-blue-700 flex items-center gap-1' : 'text-slate-900' }}">
+                                        @if($isSeller)
+                                            You (Store)
+                                        @elseif($isAdmin)
+                                            <span class="material-symbols-outlined text-[15px] text-blue-600">verified</span>
+                                            <span>Bazaario Support Desk</span>
+                                        @else
+                                            {{ $msg->user?->name ?? 'Customer' }}
+                                        @endif
                                     </span>
                                     <span class="text-slate-400 font-mono text-[10px]">
                                         {{ $msg->created_at->format('d M Y, h:i A') }}
                                     </span>
                                 </div>
 
-                                <div class="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed {{ $msg->sender_type === 'seller' ? 'bg-amber-500 text-slate-950 font-medium rounded-tr-none shadow-xs' : 'bg-slate-50 text-slate-800 rounded-tl-none border border-slate-200/80' }}">
+                                <div class="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed 
+                                    {{ $isSeller ? 'bg-amber-500 text-slate-950 font-medium rounded-tr-none shadow-xs' : ($isAdmin ? 'bg-blue-50 text-slate-900 rounded-tl-none border border-blue-200' : 'bg-slate-50 text-slate-800 rounded-tl-none border border-slate-200/80') }}">
                                     <p class="whitespace-pre-line text-left">{{ $msg->message }}</p>
 
                                     @if($msg->attachment_path)
-                                        <div class="mt-3 pt-2.5 border-t {{ $msg->sender_type === 'seller' ? 'border-amber-600/40' : 'border-slate-200' }}">
+                                        <div class="mt-3 pt-2.5 border-t {{ $isSeller ? 'border-amber-600/40' : ($isAdmin ? 'border-blue-200' : 'border-slate-200') }}">
                                             @if($msg->isImageAttachment())
                                                 <a href="{{ $msg->attachment_url }}" target="_blank" class="block group relative overflow-hidden rounded-xl border border-slate-700/20 max-w-xs">
                                                     <img src="{{ $msg->attachment_url }}" alt="Attachment" class="w-full max-h-48 object-cover group-hover:scale-105 transition-transform duration-200">

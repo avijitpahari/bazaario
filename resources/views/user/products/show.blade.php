@@ -60,11 +60,14 @@
 
     // Wishlist check
     $isWishlisted = false;
-    if (Auth::guard('user')->check() && $prod) {
-        $wishlist = Auth::guard('user')->user()->wishlist()->with('items')->first();
+    $currUser = Auth::guard('user')->user() ?? Auth::user();
+    if ($currUser && $prod) {
+        $wishlist = $currUser->wishlist()->with('items')->first();
         if ($wishlist && $wishlist->items->where('product_id', $prod->id)->isNotEmpty()) {
             $isWishlisted = true;
         }
+    } elseif ($prod) {
+        $isWishlisted = in_array((int)$prod->id, array_map('intval', session('wishlist', [])));
     }
 @endphp
 <!DOCTYPE html>
@@ -278,11 +281,11 @@
                     <!-- Feature 27: Dynamic Pricing Section -->
                     <div class="pt-3 border-t border-slate-100 flex items-baseline gap-3 flex-wrap">
                         <span class="font-display font-bold text-3xl md:text-4xl text-[#0F172A] tracking-tight" id="active-price">
-                            ₹{{ number_format($prodPrice, 2) }}
+                            {{ format_inr($prodPrice) }}
                         </span>
                         <span class="text-sm font-mono text-slate-500 font-medium">/ {{ $prodUnitType }}</span>
                         <span class="text-lg text-slate-400 line-through font-medium" id="mrp-price">
-                            MRP ₹{{ number_format(round($prodPrice * 1.25), 2) }}
+                            MRP {{ format_inr(round($prodPrice * 1.25)) }}
                         </span>
                         <span class="rounded-card px-2.5 py-1 bg-amber-100 text-amber-800 font-mono text-xs font-bold">
                             20% OFF
@@ -339,9 +342,12 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="w-12 h-12 rounded-card border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 hover:text-red-500 flex items-center justify-center transition active:scale-95 shadow-xs {{ $isWishlisted ? 'text-red-500' : '' }}"
+                                    class="w-12 h-12 rounded-card border flex items-center justify-center transition active:scale-95 shadow-xs cursor-pointer {{ $isWishlisted ? 'text-red-500 bg-red-50/60 border-red-200 ring-1 ring-red-200' : 'text-slate-700 bg-slate-50 hover:bg-white border-slate-200 hover:text-red-500' }}"
                                     onclick="toggleWishlist(this)" title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist' }}">
-                                    <span class="material-symbols-outlined text-[22px]">{{ $isWishlisted ? 'favorite' : 'favorite_border' }}</span>
+                                    <span class="material-symbols-outlined text-[22px] leading-none select-none transition-transform"
+                                          style="{{ $isWishlisted ? "font-variation-settings: 'FILL' 1;" : "font-variation-settings: 'FILL' 0;" }}">
+                                        {{ $isWishlisted ? 'favorite' : 'favorite_border' }}
+                                    </span>
                                 </button>
                             </div>
                         @else
@@ -650,7 +656,7 @@
                                     <span>★ {{ number_format($rel->average_rating ?: 4.8, 1) }}</span>
                                 </div>
                                 <h3 class="font-display font-bold text-sm text-[#0F172A] truncate">{{ $rel->name }}</h3>
-                                <p class="font-mono font-bold text-base text-[#0F172A] mt-1">₹{{ number_format($rel->price, 2) }}</p>
+                                <p class="font-mono font-bold text-base text-[#0F172A] mt-1">{{ format_inr($rel->price) }}</p>
                             </div>
                         </a>
                         <form action="{{ route('cart.store') }}" method="POST" class="mt-3">
@@ -765,27 +771,76 @@
             form.submit();
         }
 
-        function toggleWishlist(btn) {
+        async function toggleWishlist(btn) {
             const productId = '{{ $product->id }}';
+            try {
+                if (btn) {
+                    btn.classList.add('scale-125');
+                    setTimeout(() => btn.classList.remove('scale-125'), 200);
+                }
 
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route('user.wishlist.store') }}';
+                const res = await fetch("{{ route('wishlist.toggle') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                });
 
-            const csrf = document.createElement('input');
-            csrf.type = 'hidden';
-            csrf.name = '_token';
-            csrf.value = '{{ csrf_token() }}';
-            form.appendChild(csrf);
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = "{{ route('login') }}";
+                        return;
+                    }
+                    throw new Error('Failed to update wishlist');
+                }
 
-            const productIdInput = document.createElement('input');
-            productIdInput.type = 'hidden';
-            productIdInput.name = 'product_id';
-            productIdInput.value = productId;
-            form.appendChild(productIdInput);
+                const data = await res.json();
+                if (data.success) {
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (data.in_wishlist) {
+                        btn.classList.add('text-red-500', 'bg-red-50/60', 'border-red-200', 'ring-1', 'ring-red-200');
+                        btn.classList.remove('text-slate-700', 'bg-slate-50', 'border-slate-200');
+                        btn.title = 'Remove from Wishlist';
+                        if (icon) {
+                            icon.textContent = 'favorite';
+                            icon.style.fontVariationSettings = "'FILL' 1";
+                        }
+                    } else {
+                        btn.classList.remove('text-red-500', 'bg-red-50/60', 'border-red-200', 'ring-1', 'ring-red-200');
+                        btn.classList.add('text-slate-700', 'bg-slate-50', 'border-slate-200');
+                        btn.title = 'Save to Wishlist';
+                        if (icon) {
+                            icon.textContent = 'favorite_border';
+                            icon.style.fontVariationSettings = "'FILL' 0";
+                        }
+                    }
 
-            document.body.appendChild(form);
-            form.submit();
+                    window.dispatchEvent(new CustomEvent('wishlist-updated', { detail: { count: data.count, in_wishlist: data.in_wishlist } }));
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, data.in_wishlist ? 'success' : 'info');
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('user.wishlist.store') }}';
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = '{{ csrf_token() }}';
+                form.appendChild(csrf);
+                const productIdInput = document.createElement('input');
+                productIdInput.type = 'hidden';
+                productIdInput.name = 'product_id';
+                productIdInput.value = productId;
+                form.appendChild(productIdInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </body>

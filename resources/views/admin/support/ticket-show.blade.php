@@ -82,7 +82,7 @@
                 @forelse($tickets as $t)
                     @php
                         $isSelected = $activeTicket && $activeTicket->id === $t->id;
-                        $initiatorName = $t->seller_id ? ($t->seller->sellerProfile->shop_name ?? $t->seller->name) : ($t->user->name ?? 'Unknown');
+                        $initiatorName = $t->seller_id ? ($t->seller?->sellerProfile?->shop_name ?? $t->seller?->name ?? 'Seller') : ($t->user?->name ?? 'Unknown');
                         $initiatorType = $t->seller_id ? 'seller' : 'customer';
                         $latest = $t->latestMessage;
                         $status = $t->is_escalated ? 'escalated' : ($t->status === 'open' ? 'open' : ($t->status === 'in_progress' ? 'progress' : 'closed'));
@@ -146,7 +146,7 @@
                         <div class="flex items-center gap-3">
                             @php
                                 $avatarType = $activeTicket->seller_id ? 'seller' : 'customer';
-                                $avatarName = $activeTicket->seller_id ? ($activeTicket->seller->sellerProfile->shop_name ?? $activeTicket->seller->name) : ($activeTicket->user->name ?? 'Unknown');
+                                $avatarName = $activeTicket->seller_id ? ($activeTicket->seller?->sellerProfile?->shop_name ?? $activeTicket->seller?->name ?? 'Seller') : ($activeTicket->user?->name ?? 'Unknown');
                                 $avatarStatus = $activeTicket->is_escalated ? 'escalated' : ($activeTicket->status === 'open' ? 'open' : ($activeTicket->status === 'in_progress' ? 'progress' : 'closed'));
                             @endphp
                             <x-support::avatar
@@ -166,7 +166,7 @@
                                     @endif
                                 </div>
                                 <p class="text-[11px] text-slate-500 font-mono">
-                                    {{ $activeTicket->seller_id ? 'Seller: ' . ($activeTicket->seller->sellerProfile->shop_name ?? $activeTicket->seller->name) : 'Customer: ' . ($activeTicket->user->name ?? 'Unknown') }}
+                                    {{ $activeTicket->seller_id ? 'Seller: ' . ($activeTicket->seller?->sellerProfile?->shop_name ?? $activeTicket->seller?->name ?? 'Seller') : 'Customer: ' . ($activeTicket->user?->name ?? 'Unknown') }}
                                     · {{ $activeTicket->created_at ? $activeTicket->created_at->format('M d, Y h:i A') : 'Today' }}
                                 </p>
                             </div>
@@ -202,7 +202,7 @@
                                 </a>
                             </div>
                         @endif
-                        @if($activeTicket->seller_id && $activeTicket->seller->sellerProfile)
+                        @if($activeTicket->seller_id && $activeTicket->seller?->sellerProfile)
                             <div class="flex items-center gap-1.5">
                                 <span class="text-slate-400">Store:</span>
                                 <a href="{{ route('admin.sellers.show', $activeTicket->seller->sellerProfile->id) }}" class="px-2 py-0.5 rounded bg-white border border-slate-200 font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 transition-colors support-focus">
@@ -223,8 +223,13 @@
 
                         @foreach($activeTicket->messages as $msg)
                             @php
-                                $sender = $msg->sender_type;
-                                $senderName = $sender === 'customer' ? ($msg->user?->name ?? 'Customer') : ($sender === 'seller' ? ($msg->user?->sellerProfile?->shop_name ?? $msg->user?->name ?? 'Seller') : ($sender === 'agent' ? ($msg->sender_name ?? 'Live Agent') : 'System'));
+                                $sender = in_array($msg->sender_type, ['admin', 'agent']) ? 'agent' : $msg->sender_type;
+                                $senderName = match($msg->sender_type) {
+                                    'customer' => $msg->user?->name ?? 'Customer',
+                                    'seller' => $msg->user?->sellerProfile?->shop_name ?? $msg->user?->name ?? 'Seller',
+                                    'admin', 'agent' => $msg->user?->name ?? $msg->sender_name ?? 'Support Agent',
+                                    default => 'System',
+                                };
                                 $isArbitration = str_contains($msg->message, 'ARBITRATION') || str_contains($msg->message, 'ARBITRATED') || str_contains($msg->message, 'ESCALATED');
                                 $isEscalation = str_contains($msg->message, 'ESCALATED');
                                 $isStatusChange = str_contains($msg->message, 'updated status') || str_contains($msg->message, 'status to:');
@@ -253,7 +258,7 @@
 
                     <!-- Admin Reply Form -->
                     <div class="p-4 bg-white border-t border-slate-200 shrink-0">
-                        <form action="{{ route('admin.support.tickets.show', $activeTicket) }}#ticket-chat-thread" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
+                        <form action="{{ route('admin.support.tickets.reply', $activeTicket) }}#ticket-chat-thread" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
                             @csrf
                             <input type="hidden" name="_method" value="POST">
 
@@ -296,6 +301,60 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <div class="hidden lg:flex bg-white border border-slate-200 rounded-2xl flex-col h-full overflow-y-auto p-5 space-y-6 support-stagger lg:w-[320px] min-w-0">
             @if($activeTicket)
+                <!-- QUICK TICKET CONTROLS CARD -->
+                <x-support::card elevation="surface" class="border border-slate-200 bg-slate-50/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-1.5 text-xs font-bold font-heading text-slate-800">
+                            <span class="material-symbols-outlined text-[18px] text-blue-600">tune</span>
+                            <span>Ticket Properties</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-mono">#{{ $activeTicket->ticket_number }}</span>
+                    </div>
+
+                    <form action="{{ route('admin.support.tickets.status', $activeTicket) }}" method="POST" class="space-y-3">
+                        @csrf
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Status</label>
+                            <select name="status" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                                <option value="open" {{ $activeTicket->status === 'open' ? 'selected' : '' }}>Open</option>
+                                <option value="in_progress" {{ $activeTicket->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                <option value="waiting_customer" {{ $activeTicket->status === 'waiting_customer' ? 'selected' : '' }}>Waiting on Customer</option>
+                                <option value="waiting_seller" {{ $activeTicket->status === 'waiting_seller' ? 'selected' : '' }}>Waiting on Seller</option>
+                                <option value="escalated" {{ $activeTicket->status === 'escalated' ? 'selected' : '' }}>Escalated to Dispute</option>
+                                <option value="resolved" {{ $activeTicket->status === 'resolved' ? 'selected' : '' }}>Resolved</option>
+                                <option value="closed" {{ $activeTicket->status === 'closed' ? 'selected' : '' }}>Closed</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Priority</label>
+                            <select name="priority" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                                <option value="low" {{ $activeTicket->priority === 'low' ? 'selected' : '' }}>Low Priority</option>
+                                <option value="medium" {{ $activeTicket->priority === 'medium' ? 'selected' : '' }}>Medium Priority</option>
+                                <option value="high" {{ $activeTicket->priority === 'high' ? 'selected' : '' }}>High Priority</option>
+                                <option value="urgent" {{ $activeTicket->priority === 'urgent' ? 'selected' : '' }}>Urgent Priority</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Assigned Agent</label>
+                            <select name="assigned_agent_id" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                                <option value="">-- Unassigned --</option>
+                                @foreach($agents ?? [] as $agent)
+                                    <option value="{{ $agent->id }}" {{ $activeTicket->assigned_agent_id === $agent->id ? 'selected' : '' }}>
+                                        {{ $agent->name }} ({{ ucfirst($agent->role) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer support-focus">
+                            <span class="material-symbols-outlined text-[15px] text-amber-400">check_circle</span>
+                            <span>Update Properties</span>
+                        </button>
+                    </form>
+                </x-support::card>
+
                 <!-- ARBITRATION ACTIONS CARD -->
                 <x-support::card elevation="overlay" class="bg-gradient-to-br from-rose-50 to-amber-50 border border-rose-100">
                     <div class="flex items-center gap-2 mb-3">
@@ -304,7 +363,7 @@
                     </div>
                     <p class="text-[11px] text-rose-700 mb-4">Review evidence, hear both parties, and issue a binding decision.</p>
 
-                    <form action="{{ route('admin.support.tickets.arbitrate', $activeTicket) }}" method="POST" class="space-y-3" @submit.prevent="submitArbitration">
+                    <form action="{{ route('admin.support.tickets.arbitrate', $activeTicket) }}" method="POST" class="space-y-3" @submit="if(!canSubmit || !confirm('Are you sure you want to issue this arbitration decision? This action cannot be undone.')) { $event.preventDefault(); }">
                         @csrf
 
                         <!-- Decision Selection -->

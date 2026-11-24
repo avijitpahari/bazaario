@@ -58,7 +58,7 @@
             <!-- Brand / Logo Area -->
             <div class="p-5 border-b border-[#1E293B] shrink-0">
                 <div class="flex items-center justify-between">
-                    <x-brand-logo theme="dark" :link="route('admin.dashboard')" badge="ADMIN" :showTagline="true" />
+                    <x-brand-logo theme="dark" :link="route('admin.dashboard')" badge="ADMIN" />
                     <button @click="mobileMenuOpen = false" class="md:hidden text-slate-400 hover:text-white p-1 ml-2">
                         <span class="material-symbols-outlined text-[20px]">close</span>
                     </button>
@@ -149,12 +149,31 @@
 
                 <!-- Live Auctions -->
                 <a href="{{ route('admin.auctions.index') }}" 
-                   class="flex items-center justify-between py-2.5 rounded-lg transition-all {{ str_starts_with($currentRoute, 'admin.auctions') ? 'bg-amber-500/15 text-amber-400 font-bold border-l-4 border-amber-400 pl-3 pr-3 rounded-r-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 px-3' }}">
+                   class="flex items-center justify-between py-2.5 rounded-lg transition-all {{ ($currentRoute === 'admin.auctions.index' || $currentRoute === 'admin.auctions.show') ? 'bg-amber-500/15 text-amber-400 font-bold border-l-4 border-amber-400 pl-3 pr-3 rounded-r-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 px-3' }}">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-[20px]">bolt</span>
                         <span>Live Auctions</span>
                     </div>
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    @if(\App\Models\SiteSetting::isAuctionEnabled())
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="System Active"></span>
+                    @else
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">PAUSED</span>
+                    @endif
+                </a>
+
+                <!-- Auction Disputes -->
+                <a href="{{ route('admin.auctions.disputes.index') }}" 
+                   class="flex items-center justify-between py-2.5 rounded-lg transition-all {{ str_starts_with($currentRoute, 'admin.auctions.disputes') ? 'bg-amber-500/15 text-amber-400 font-bold border-l-4 border-amber-400 pl-3 pr-3 rounded-r-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 px-3' }}">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[20px]">gavel</span>
+                        <span>Auction Disputes</span>
+                    </div>
+                    @php
+                        $openDisputeCount = \App\Models\AuctionDispute::whereIn('status', ['open', 'under_review'])->count();
+                    @endphp
+                    @if($openDisputeCount > 0)
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500 text-white">{{ $openDisputeCount }}</span>
+                    @endif
                 </a>
 
                 <!-- Payouts -->
@@ -163,6 +182,28 @@
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
                         <span>Payouts</span>
+                    </div>
+                </a>
+
+                <!-- Live Support Desk -->
+                <a href="{{ route('admin.support.index') }}" 
+                   class="flex items-center justify-between py-2.5 rounded-lg transition-all {{ ($currentRoute === 'admin.support.index' || str_starts_with($currentRoute, 'admin.support.tickets')) ? 'bg-amber-500/15 text-amber-400 font-bold border-l-4 border-amber-400 pl-3 pr-3 rounded-r-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 px-3' }}">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[20px]">support_agent</span>
+                        <span>Support Desk</span>
+                    </div>
+                    @php $openSupportTickets = \App\Models\SupportTicket::whereIn('status', ['open', 'escalated'])->count(); @endphp
+                    @if($openSupportTickets > 0)
+                        <span class="px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-mono text-[10px] font-bold">{{ $openSupportTickets }}</span>
+                    @endif
+                </a>
+
+                <!-- Support Staff & Agents -->
+                <a href="{{ route('admin.support.agents.index') }}" 
+                   class="flex items-center justify-between py-2 rounded-lg transition-all text-xs {{ str_starts_with($currentRoute, 'admin.support.agents') ? 'bg-amber-500/15 text-amber-400 font-bold border-l-4 border-amber-400 pl-3 pr-3 rounded-r-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 px-3' }}">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[18px]">badge</span>
+                        <span>Support Staff</span>
                     </div>
                 </a>
 
@@ -286,13 +327,20 @@
             <!-- Top Header Actions -->
             <div class="flex items-center gap-2 sm:gap-space-md ml-2 shrink-0">
                 <!-- Live Auctions Indicator -->
-                <a href="{{ route('admin.auctions.index') }}" class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 hover:bg-emerald-100 transition-colors">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span class="font-label-sm text-[11px] font-semibold text-emerald-700">Live Auctions</span>
-                </a>
+                @if(\App\Models\SiteSetting::isAuctionEnabled())
+                    <a href="{{ route('admin.auctions.index') }}" class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 hover:bg-emerald-100 transition-colors" title="Wholesale Auctions are Active">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span class="font-label-sm text-[11px] font-semibold text-emerald-700">Auctions Active</span>
+                    </a>
+                @else
+                    <a href="{{ route('admin.auctions.index') }}" class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 hover:bg-amber-100 transition-colors" title="Wholesale Auctions are Paused">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span class="font-label-sm text-[11px] font-semibold text-amber-800">Auctions Paused</span>
+                    </a>
+                @endif
 
                 <!-- Notifications -->
                 <button class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors">

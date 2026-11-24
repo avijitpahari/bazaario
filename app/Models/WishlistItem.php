@@ -10,9 +10,20 @@ class WishlistItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['wishlist_id', 'product_id'];
+    protected $fillable = [
+        'wishlist_id',
+        'product_id',
+        'note',
+    ];
 
     const UPDATED_AT = null;
+
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+        ];
+    }
 
     public function wishlist(): BelongsTo
     {

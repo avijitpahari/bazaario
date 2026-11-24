@@ -48,13 +48,17 @@ class UserSupportController extends Controller
             ->take(5)
             ->get();
 
+        // Categorized Quick FAQs for Instant Auto-Reply
+        $faqs = \App\Services\SupportFaqService::all();
+
         return view('user.support.index', compact(
             'tickets',
             'returns',
             'totalTickets',
             'openTickets',
             'resolvedTickets',
-            'statusFilter'
+            'statusFilter',
+            'faqs'
         ));
     }
 
@@ -72,8 +76,9 @@ class UserSupportController extends Controller
 
         $selectedOrderId = $request->query('order_id');
         $selectedOrder = $selectedOrderId ? Order::where('user_id', $userId)->find($selectedOrderId) : null;
+        $faqs = \App\Services\SupportFaqService::all();
 
-        return view('user.support.create', compact('recentOrders', 'selectedOrder'));
+        return view('user.support.create', compact('recentOrders', 'selectedOrder', 'faqs'));
     }
 
     /**

@@ -418,6 +418,38 @@ class CustomerSupportTest extends TestCase
         ]);
         $paymentFaq->assertStatus(200);
         $this->assertStringContainsString('Escrow Buyer Protection', $paymentFaq->json('support_message.message'));
+
+        // Extended Quick FAQ actions
+        $escrowFaq = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.quick-reply'), [
+            'conversation_id' => $conversationId,
+            'action' => 'faq_escrow',
+        ]);
+        $escrowFaq->assertStatus(200);
+        $this->assertStringContainsString('Buyer Protection', $escrowFaq->json('support_message.message'));
+
+        $delayFaq = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.quick-reply'), [
+            'conversation_id' => $conversationId,
+            'action' => 'delivery_delay',
+        ]);
+        $delayFaq->assertStatus(200);
+        $this->assertStringContainsString('Delivery Delay', $delayFaq->json('support_message.message'));
+    }
+
+    public function test_customer_panel_displays_quick_faq_auto_reply_module(): void
+    {
+        // 1. Visit Customer Support Hub
+        $response = $this->actingAs($this->customerA, 'user')->get(route('user.support.index'));
+        $response->assertStatus(200);
+        $response->assertSee('QUICK FAQ AUTO-REPLY', false);
+        $response->assertSee('Instant Auto-Reply Solutions &amp; FAQs', false);
+        $response->assertSee('How do returns, doorstep inspections, and escrow refunds work?', false);
+        $response->assertSee('Ask in Live Chat', false);
+
+        // 2. Visit Ticket Create Form and verify Quick FAQ suggestions
+        $createResponse = $this->actingAs($this->customerA, 'user')->get(route('user.support.tickets.create'));
+        $createResponse->assertStatus(200);
+        $createResponse->assertSee('QUICK FAQ AUTO-REPLY', false);
+        $createResponse->assertSee('Ask in Chat', false);
     }
 
     public function test_customer_can_create_ticket_with_pdf_document_attachment(): void
@@ -442,5 +474,217 @@ class CustomerSupportTest extends TestCase
         $this->assertEquals('pdf', $msg->attachment_type);
         $this->assertFalse($msg->isImageAttachment());
         $this->assertNotEmpty($msg->attachment_url);
+    }
+
+    public function test_seller_can_create_and_submit_assistance_ticket(): void
+    {
+        $response = $this->actingAs($this->sellerA, 'seller')->get(route('seller.support.tickets.create'));
+        $response->assertStatus(200);
+        $response->assertSee('Raise Merchant Assistance Ticket');
+
+        $fakeProof = UploadedFile::fake()->create('tax_license.pdf', 300, 'application/pdf');
+
+        $postResponse = $this->actingAs($this->sellerA, 'seller')->post(route('seller.support.tickets.store'), [
+            'category' => 'escrow_payout',
+            'priority' => 'high',
+            'subject' => 'Escrow payout settlement verification',
+            'message' => 'Please verify why the settlement for last batch has not credited.',
+            'attachment' => $fakeProof,
+        ]);
+
+        $postResponse->assertStatus(302);
+        $ticket = SupportTicket::where('subject', 'Escrow payout settlement verification')->first();
+        $this->assertNotNull($ticket);
+        $this->assertEquals($this->sellerA->id, $ticket->seller_id);
+        $this->assertEquals('escrow_payout', $ticket->category);
+        $this->assertEquals('high', $ticket->priority);
+        $this->assertEquals('open', $ticket->status);
+    }
+
+    public function test_admin_can_access_support_console_and_arbitrate_ticket(): void
+    {
+        $admin = User::create([
+            'name' => 'Chief Administrator',
+            'email' => 'admin@bazaario.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'status' => 'active',
+        ]);
+
+        $ticket = SupportTicket::create([
+            'ticket_number' => 'TCK-TEST-999',
+            'user_id' => $this->customerA->id,
+            'seller_id' => $this->sellerA->id,
+            'category' => 'refund',
+            'priority' => 'urgent',
+            'status' => 'escalated',
+            'subject' => 'Buyer-Seller damaged shipment dispute',
+            'is_escalated' => true,
+            'escalated_at' => now(),
+            'escalation_reason' => 'Item arrived damaged and seller refused refund.',
+        ]);
+
+        SupportTicketMessage::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => $this->customerA->id,
+            'sender_type' => 'customer',
+            'message' => 'Box was broken and contents spilled.',
+        ]);
+
+        // Admin support index
+        $indexResponse = $this->actingAs($admin, 'admin')->get(route('admin.support.index'));
+        $indexResponse->assertStatus(200);
+
+        // Admin ticket show
+        $showResponse = $this->actingAs($admin, 'admin')->get(route('admin.support.tickets.show', $ticket));
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee('TCK-TEST-999');
+
+        // Admin arbitrate
+        $arbitrateResponse = $this->actingAs($admin, 'admin')->post(route('admin.support.tickets.arbitrate', $ticket), [
+            'decision' => 'approve_refund',
+            'arbitration_notes' => 'Approved 100% refund from escrow holding.',
+            'refund_amount' => 500,
+        ]);
+
+        $arbitrateResponse->assertStatus(302);
+        $ticket->refresh();
+        $this->assertEquals('resolved', $ticket->status);
+    }
+
+    public function test_admin_can_post_reply_to_support_ticket(): void
+    {
+        $admin = User::create([
+            'name' => 'Agent Sharma',
+            'email' => 'sharma@bazaario.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'status' => 'active',
+        ]);
+
+        $ticket = SupportTicket::create([
+            'ticket_number' => 'TCK-ADMIN-REPLY',
+            'user_id' => $this->customerA->id,
+            'seller_id' => $this->sellerA->id,
+            'category' => 'order_issue',
+            'priority' => 'high',
+            'status' => 'open',
+            'subject' => 'Missing package item in cargo delivery',
+        ]);
+
+        $replyResponse = $this->actingAs($admin, 'admin')->post(route('admin.support.tickets.reply', $ticket), [
+            'message' => 'We are contacting the delivery depot in Contai right now to locate your parcel.',
+            'status' => 'in_progress',
+        ]);
+
+        $replyResponse->assertStatus(302);
+        $ticket->refresh();
+        $this->assertEquals('in_progress', $ticket->status);
+
+        $lastMessage = $ticket->messages()->latest('id')->first();
+        $this->assertNotNull($lastMessage);
+        $this->assertEquals('admin', $lastMessage->sender_type);
+        $this->assertStringContainsString('delivery depot in Contai', $lastMessage->message);
+
+        // Test customer view renders the admin verified badge
+        $customerView = $this->actingAs($this->customerA, 'user')->get(route('user.support.tickets.show', $ticket));
+        $customerView->assertStatus(200);
+        $customerView->assertSee('Bazaario Support Desk');
+
+        // Test seller view also renders the admin verified badge
+        $sellerView = $this->actingAs($this->sellerA, 'seller')->get(route('seller.support.tickets.show', $ticket));
+        $sellerView->assertStatus(200);
+        $sellerView->assertSee('Bazaario Support Desk');
+    }
+
+    public function test_admin_can_update_ticket_status_and_priority(): void
+    {
+        $admin = User::create([
+            'name' => 'Supervisor Roy',
+            'email' => 'roy@bazaario.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'status' => 'active',
+        ]);
+
+        $ticket = SupportTicket::create([
+            'ticket_number' => 'TCK-STATUS-UPDATE',
+            'user_id' => $this->customerA->id,
+            'seller_id' => $this->sellerA->id,
+            'category' => 'general',
+            'priority' => 'low',
+            'status' => 'open',
+            'subject' => 'Question regarding harvest delivery slots',
+        ]);
+
+        $updateResponse = $this->actingAs($admin, 'admin')->post(route('admin.support.tickets.status', $ticket), [
+            'status' => 'waiting_customer',
+            'priority' => 'urgent',
+        ]);
+
+        $updateResponse->assertStatus(302);
+        $ticket->refresh();
+        $this->assertEquals('waiting_customer', $ticket->status);
+        $this->assertEquals('urgent', $ticket->priority);
+    }
+
+    public function test_chat_auto_reply_with_nvidia_ai_service(): void
+    {
+        // 1. Initialize chat session
+        $initResponse = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.init'), [
+            'visitor_id' => 'vis_alice_nvidia_test',
+        ]);
+        $initResponse->assertStatus(200);
+        $convId = $initResponse->json('conversation_id');
+
+        // 2. Send message asking about return policy
+        $sendResponse = $this->actingAs($this->customerA, 'user')->postJson(route('support.chat.send'), [
+            'conversation_id' => $convId,
+            'message' => 'What is your return policy for farm harvest and escrow refund?',
+        ]);
+
+        $sendResponse->assertStatus(200);
+        $sendResponse->assertJsonStructure([
+            'success',
+            'sent_message' => ['id', 'role', 'message'],
+            'bot_reply' => ['id', 'role', 'sender_name', 'message'],
+        ]);
+
+        $botReply = $sendResponse->json('bot_reply');
+        $this->assertNotNull($botReply);
+        $this->assertNotEmpty($botReply['message']);
+
+        // Check that the bot message is recorded in database
+        $this->assertDatabaseHas('chat_messages', [
+            'id' => $botReply['id'],
+            'conversation_id' => $convId,
+            'role' => 'assistant',
+            'sender_type' => 'bot',
+        ]);
+    }
+
+    public function test_admin_can_update_ai_settings_with_nvidia_config(): void
+    {
+        $admin = User::create([
+            'name' => 'Tech Admin',
+            'email' => 'techadmin@bazaario.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.settings.ai.update'), [
+            'ai_provider' => 'nvidia',
+            'nvidia_api_key' => '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',
+            'nvidia_model' => 'nvidia/nemotron-3.5-lightning-30b-a3b',
+            'temperature' => '0.6',
+            'auto_triage_enabled' => 'true',
+            'dispute_confidence_threshold' => '90',
+        ]);
+
+        $response->assertStatus(302);
+        $this->assertEquals('nvidia', \App\Models\SiteSetting::get('ai_provider'));
+        $this->assertEquals('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', \App\Models\SiteSetting::get('nvidia_api_key'));
+        $this->assertEquals('nvidia/nemotron-3.5-lightning-30b-a3b', \App\Models\SiteSetting::get('nvidia_model'));
     }
 }

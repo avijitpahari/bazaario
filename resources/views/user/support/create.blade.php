@@ -20,19 +20,122 @@
         </p>
     </div>
 
-    <!-- Ticket Form Card -->
-    <div class="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/90 shadow-sm">
-        <form action="{{ route('user.support.tickets.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-6">
-            @csrf
+    <!-- Ticket Form Card with Quick FAQ Suggestions -->
+    <div x-data="{
+            selectedCategory: '{{ old('category', request('category', 'order_issue')) }}',
+            showFaqSuggestion: true,
+            solved: false,
+            
+            get faqTip() {
+                switch(this.selectedCategory) {
+                    case 'return_refund':
+                        return {
+                            title: 'Need a return or refund?',
+                            answer: 'Bazaario provides a 7-day return window on craft and pantry goods, and a 48-hour freshness guarantee on farm produce. You can initiate an instant doorstep return with 1-click in the Returns Portal without waiting for a support ticket reply!',
+                            action_url: '{{ route('user.returns') }}',
+                            action_label: 'Open Returns Portal',
+                            chat_action: 'faq_returns'
+                        };
+                    case 'delivery_delay':
+                        return {
+                            title: 'Tracking or shipment delay?',
+                            answer: 'Real-time courier telemetry tracks your package from Packing & Sealing to Doorstep Handover. If your delivery slot is delayed, our automated dispatch monitor alerts the logistics desk immediately.',
+                            action_url: '{{ route('user.orders.index') }}',
+                            action_label: 'Track Active Orders',
+                            chat_action: 'track_order'
+                        };
+                    case 'auction':
+                        return {
+                            title: 'Wholesale auction question?',
+                            answer: 'Winning bidders receive an immediate hammer allocation notice and have 24 hours to complete escrow checkout. All live auctions feature an Anti-Snipe +2 minute soft-close guard.',
+                            action_url: '{{ route('auctions.index') }}',
+                            action_label: 'Browse Live Floor',
+                            chat_action: 'faq_auctions'
+                        };
+                    case 'billing':
+                        return {
+                            title: 'Payment or escrow question?',
+                            answer: 'All payments on Bazaario are 100% safeguarded in an APMC-grade Escrow Vault. Funds are never released to the merchant until you inspect and approve your delivery. Zero extra surcharges.',
+                            action_url: '{{ route('user.orders.index') }}',
+                            action_label: 'View Orders & Receipts',
+                            chat_action: 'faq_payments'
+                        };
+                    default:
+                        return {
+                            title: 'Need quick assistance?',
+                            answer: 'Our automated support bot can answer questions about tracking, returns, escrow guarantees, and product sourcing in real-time.',
+                            action_url: '{{ route('user.support.index') }}#quick-faq-section',
+                            action_label: 'Browse Quick FAQs',
+                            chat_action: 'other'
+                        };
+                }
+            },
+            
+            triggerChat(action) {
+                if (window.bazaarioTriggerFaq) {
+                    window.bazaarioTriggerFaq(action);
+                } else if (window.bazaarioOpenChat) {
+                    window.bazaarioOpenChat();
+                }
+            }
+         }"
+         class="flex flex-col gap-6">
 
-            <!-- Form Row 1: Category & Priority -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="category" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Inquiry Category <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="category" id="category" required
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all bg-slate-50/50">
+        <!-- Dynamic Quick FAQ Auto-Reply Suggestion Banner -->
+        <div x-show="showFaqSuggestion && !solved" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/30">
+                    <span class="material-symbols-outlined text-[20px]">bolt</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.2 rounded-md bg-amber-500 text-slate-950 text-[9px] font-mono font-black uppercase tracking-wider">
+                            QUICK FAQ AUTO-REPLY
+                        </span>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 font-['Outfit']" x-text="faqTip.title"></h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed max-w-2xl" x-text="faqTip.answer"></p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                <button type="button" 
+                        @click="triggerChat(faqTip.chat_action)"
+                        class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors flex items-center gap-1 shadow-2xs cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">chat</span>
+                    <span>Ask in Chat</span>
+                </button>
+                <a :href="faqTip.action_url" 
+                   class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-semibold text-xs border border-slate-200 transition-colors shadow-2xs">
+                    <span x-text="faqTip.action_label"></span>
+                </a>
+                <button type="button" 
+                        @click="showFaqSuggestion = false" 
+                        title="Dismiss Tip"
+                        class="text-slate-400 hover:text-slate-600 p-1">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Ticket Form Card -->
+        <div class="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/90 shadow-sm">
+            <form action="{{ route('user.support.tickets.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-6">
+                @csrf
+
+                <!-- Form Row 1: Category & Priority -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="category" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Inquiry Category <span class="text-rose-500">*</span>
+                        </label>
+                        <select name="category" id="category" required x-model="selectedCategory"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all bg-slate-50/50">
                         <option value="order_issue" {{ old('category') === 'order_issue' ? 'selected' : '' }}>Order &amp; Product Defect</option>
                         <option value="return_refund" {{ old('category') === 'return_refund' ? 'selected' : '' }}>Return &amp; Escrow Refund Request</option>
                         <option value="delivery_delay" {{ old('category') === 'delivery_delay' ? 'selected' : '' }}>Shipping / Delivery Delay</option>
@@ -130,6 +233,7 @@
             </div>
         </form>
     </div>
+</div>
 
 </div>
 @endsection

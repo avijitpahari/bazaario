@@ -247,13 +247,13 @@
                             <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60">
                                 <span class="font-mono text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Starting Floor</span>
                                 <span class="font-mono font-bold text-slate-900 text-base mt-1 block">
-                                    ₹{{ number_format($auction->starting_price, 0) }}
+                                    {{ format_inr($auction->starting_price) }}
                                 </span>
                             </div>
                             <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60">
                                 <span class="font-mono text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Min Increment</span>
                                 <span class="font-mono font-bold text-slate-900 text-base mt-1 block">
-                                    ₹{{ number_format($auction->minimum_increment, 0) }}
+                                    {{ format_inr($auction->minimum_increment) }}
                                 </span>
                             </div>
                             <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60">
@@ -354,7 +354,7 @@
                                         {{ $isUpcoming ? 'Starting Floor' : ($isEnded ? 'Final Winning Bid' : 'Current Leading Bid') }}
                                     </span>
                                     <div class="font-mono text-3xl font-extrabold text-slate-900 leading-tight mt-0.5">
-                                        ₹{{ number_format($auction->current_price ?: $auction->starting_price, 0) }}
+                                        {{ format_inr($auction->current_price ?: $auction->starting_price) }}
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -395,7 +395,15 @@
                             @endif
                         </div>
 
-                        @if(!$isEnded && !$isUpcoming)
+                        @if(!\App\Models\SiteSetting::isAuctionEnabled())
+                            <div class="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-slate-900 text-center flex flex-col items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-3xl text-amber-600">pause_circle</span>
+                                <strong class="font-bold text-sm uppercase tracking-wider text-amber-900">Wholesale Auction Floor Paused</strong>
+                                <p class="text-xs text-slate-600 max-w-sm">
+                                    The wholesale auction floor has been temporarily paused by platform administration. Bids cannot be placed at this time.
+                                </p>
+                            </div>
+                        @elseif(!$isEnded && !$isUpcoming)
                             <!-- Quick Increment Preset Buttons -->
                             <div>
                                 <label class="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
@@ -439,7 +447,7 @@
                                 @csrf
                                 <div>
                                     <label class="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1.5">
-                                        Custom Bid Amount (Min: ₹{{ number_format($minNextBid, 0) }})
+                                        Custom Bid Amount (Min: {{ format_inr($minNextBid) }})
                                     </label>
                                     <div class="relative flex items-center">
                                         <span class="absolute left-4 font-mono font-bold text-slate-500 text-base">₹</span>
@@ -520,7 +528,7 @@
                                         </div>
                                     </div>
                                     <span class="font-mono font-bold {{ $index === 0 ? 'text-emerald-700 text-sm' : 'text-slate-900' }}">
-                                        ₹{{ number_format($b->amount, 0) }}
+                                        {{ format_inr($b->amount) }}
                                     </span>
                                 </div>
                             @empty
@@ -572,7 +580,7 @@
                                     </h4>
                                 </div>
                                 <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-100">
-                                    <span class="font-mono font-bold text-slate-900 text-xs">₹{{ number_format($rel->current_price, 0) }}</span>
+                                    <span class="font-mono font-bold text-slate-900 text-xs">{{ format_inr($rel->current_price) }}</span>
                                     <span class="text-xs font-bold text-amber-600 font-mono flex items-center gap-0.5">Bid →</span>
                                 </div>
                             </a>

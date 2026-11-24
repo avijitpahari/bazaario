@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -14,6 +15,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Auction;
 use App\Models\AuctionBid;
+use App\Models\AuctionDispute;
 use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\SellerProfile;
@@ -911,16 +913,246 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Toggle Platform Wholesale Auction System (Enable / Disable)
+     */
+    public function toggleAuctionSystem(Request $request)
+    {
+        $current = SiteSetting::isAuctionEnabled();
+        $newStatus = $request->has('enabled')
+            ? ($request->boolean('enabled') ? '1' : '0')
+            : ($current ? '0' : '1');
+
+        SiteSetting::set('auction_system_enabled', $newStatus);
+
+        $statusLabel = ($newStatus === '1') ? 'enabled' : 'paused';
+        $message = ($newStatus === '1')
+            ? 'Wholesale Auction System has been successfully enabled! Live floor bidding and seller lot creations are active.'
+            : 'Wholesale Auction System has been paused. Public bidding and new lot listings are temporarily restricted.';
+
+        try {
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+        } catch (\Throwable $e) {}
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'enabled' => ($newStatus === '1'),
+                'status' => $statusLabel,
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Master Auction Disputes Console (List & Filter)
+     */
+    public function auctionDisputes(Request $request)
+    {
+        $status = $request->query('status', 'all');
+        $type = $request->query('type');
+        $priority = $request->query('priority');
+        $search = $request->query('search');
+
+        $query = AuctionDispute::with(['auction.product', 'claimant', 'seller.user', 'winner', 'arbitratedBy']);
+
+        if (in_array($status, ['open', 'under_review', 'resolved', 'dismissed'])) {
+            $query->where('status', $status);
+        }
+
+        if ($type) {
+            $query->where('dispute_type', $type);
+        }
+
+        if ($priority) {
+            $query->where('priority', $priority);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('dispute_number', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhereHas('claimant', fn($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
+                  ->orWhereHas('auction.product', fn($p) => $p->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $disputes = $query->latest()->paginate(15)->withQueryString();
+
+        $stats = [
+            'total'            => AuctionDispute::count(),
+            'open'             => AuctionDispute::where('status', 'open')->count(),
+            'under_review'     => AuctionDispute::where('status', 'under_review')->count(),
+            'resolved'         => AuctionDispute::whereIn('status', ['resolved', 'dismissed'])->count(),
+            'contested_escrow' => (float) AuctionDispute::whereIn('status', ['open', 'under_review'])->sum('contested_amount'),
+        ];
+
+        return view('admin.auctions.disputes.index', compact('disputes', 'stats', 'status', 'type', 'priority', 'search'));
+    }
+
+    /**
+     * View Auction Dispute Detail & Arbitration Dossier
+     */
+    public function auctionDisputeShow(Request $request, $id)
+    {
+        $dispute = AuctionDispute::with([
+            'auction.product.category',
+            'auction.seller.user',
+            'auction.winner',
+            'auction.bids.user',
+            'claimant',
+            'seller.user',
+            'winner',
+            'arbitratedBy'
+        ])->findOrFail($id);
+
+        $auction = $dispute->auction;
+        $bids = $auction ? $auction->bids()->with('user')->orderByDesc('amount')->get() : collect();
+
+        return view('admin.auctions.disputes.show', compact('dispute', 'auction', 'bids'));
+    }
+
+    /**
+     * Arbitrate Auction Dispute inside Atomic DB Transaction
+     */
+    public function arbitrateAuctionDispute(Request $request, $id)
+    {
+        $admin = Auth::guard('admin')->user() ?? Auth::user();
+        abort_unless($admin && in_array($admin->role, ['admin', 'manager', 'support']), 403);
+
+        $validated = $request->validate([
+            'ruling'        => ['required', 'in:refund_buyer,payout_seller,void_lot,reassign_winner,dismissed'],
+            'ruling_notes'  => ['required', 'string', 'max:2500'],
+            'refund_amount' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        try {
+            return DB::transaction(function () use ($validated, $id, $admin) {
+                $dispute = AuctionDispute::lockForUpdate()->findOrFail($id);
+                $auction = Auction::lockForUpdate()->find($dispute->auction_id);
+
+                $ruling = $validated['ruling'];
+                $notes = $validated['ruling_notes'];
+                $refundAmount = $validated['refund_amount'] ?? $dispute->contested_amount;
+
+                $isResolved = in_array($ruling, ['refund_buyer', 'payout_seller', 'void_lot', 'reassign_winner']);
+                $newStatus = $isResolved ? 'resolved' : 'dismissed';
+
+                $dispute->update([
+                    'status'        => $newStatus,
+                    'ruling'        => $ruling,
+                    'ruling_notes'  => $notes,
+                    'refund_amount' => ($ruling === 'refund_buyer') ? $refundAmount : 0,
+                    'arbitrated_by' => $admin->id,
+                    'arbitrated_at' => now(),
+                    'resolved_at'   => now(),
+                ]);
+
+                // Domain actions on auction & escrow based on ruling
+                if ($auction) {
+                    if ($ruling === 'void_lot') {
+                        $auction->update(['status' => 'cancelled']);
+                    } elseif ($ruling === 'refund_buyer') {
+                        $auction->update(['status' => 'cancelled']);
+                    } elseif ($ruling === 'reassign_winner') {
+                        $runnerUpBid = $auction->bids()
+                            ->where('user_id', '!=', $dispute->winner_id ?? $auction->winner_id)
+                            ->orderByDesc('amount')
+                            ->first();
+
+                        if ($runnerUpBid) {
+                            $auction->update([
+                                'winner_id'     => $runnerUpBid->user_id,
+                                'current_price' => $runnerUpBid->amount,
+                                'status'        => 'ended',
+                            ]);
+                        }
+                    } elseif ($ruling === 'payout_seller') {
+                        $auction->update(['status' => 'ended']);
+                    }
+                }
+
+                // Record AdminFeed audit entry
+                try {
+                    \App\Models\AdminFeed::record(
+                        title: "Auction Dispute Arbitrated: #{$dispute->dispute_number}",
+                        description: "Admin {$admin->name} arbitrated dispute with ruling: {$dispute->ruling_label}.",
+                        type: 'dispute',
+                        icon: 'gavel',
+                        badgeText: strtoupper($newStatus),
+                        badgeColor: ($ruling === 'refund_buyer' || $ruling === 'void_lot') ? 'rose' : 'emerald',
+                        actionUrl: route('admin.auctions.disputes.show', $dispute->id)
+                    );
+                } catch (\Throwable $feedEx) {}
+
+                return redirect()->route('admin.auctions.disputes.show', $dispute->id)
+                    ->with('success', "Dispute #{$dispute->dispute_number} has been arbitrated with ruling: {$dispute->ruling_label}.");
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', "Failed to arbitrate auction dispute: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create Auction Dispute directly from Admin Console
+     */
+    public function createAuctionDispute(Request $request, $id)
+    {
+        $admin = Auth::guard('admin')->user() ?? Auth::user();
+        abort_unless($admin && in_array($admin->role, ['admin', 'manager', 'support']), 403);
+
+        $auction = Auction::findOrFail($id);
+
+        $validated = $request->validate([
+            'user_id'           => ['required', 'exists:users,id'],
+            'dispute_type'      => ['required', 'in:quality_mismatch,non_payment,seller_refusal,damaged_transit,shill_bidding,reserve_dispute,other'],
+            'priority'          => ['required', 'in:low,medium,high,urgent'],
+            'subject'           => ['required', 'string', 'max:255'],
+            'claim_description' => ['required', 'string', 'max:3000'],
+            'contested_amount'  => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $dispute = AuctionDispute::create([
+            'auction_id'        => $auction->id,
+            'user_id'           => $validated['user_id'],
+            'seller_id'         => $auction->seller_id,
+            'winner_id'         => $auction->winner_id,
+            'dispute_type'      => $validated['dispute_type'],
+            'priority'          => $validated['priority'],
+            'status'            => 'open',
+            'subject'           => $validated['subject'],
+            'claim_description' => $validated['claim_description'],
+            'contested_amount'  => $validated['contested_amount'] ?? $auction->current_price ?? 0,
+        ]);
+
+        try {
+            \App\Models\AdminFeed::record(
+                title: "New Auction Dispute Lodged: #{$dispute->dispute_number}",
+                description: "Dispute lodged on Lot #AUC-{$auction->id}: '{$dispute->subject}'.",
+                type: 'dispute',
+                icon: 'report',
+                badgeText: 'DISPUTE',
+                badgeColor: 'amber',
+                actionUrl: route('admin.auctions.disputes.show', $dispute->id)
+            );
+        } catch (\Throwable $feedEx) {}
+
+        return redirect()->route('admin.auctions.disputes.show', $dispute->id)
+            ->with('success', "Auction dispute #{$dispute->dispute_number} created successfully.");
+    }
+
+    /**
      * Auction Lot Control Center with Eager Loaded Categories & Graceful Fallbacks
      */
     public function auctionDetail($id = 'AUC-8041')
     {
         $auction = Auction::where('id', $id)
-            ->with(['product.category', 'seller', 'winner', 'bids.user'])
+            ->with(['product.category', 'seller', 'winner', 'bids.user', 'disputes.claimant'])
             ->first();
 
         if (!$auction) {
-            $auction = Auction::with(['product.category', 'seller', 'winner', 'bids.user'])->latest()->first();
+            $auction = Auction::with(['product.category', 'seller', 'winner', 'bids.user', 'disputes.claimant'])->latest()->first();
         }
 
         if (!$auction) {
@@ -928,8 +1160,9 @@ class AdminDashboardController extends Controller
         }
 
         $bids = $auction ? $auction->bids()->with('user')->orderByDesc('amount')->get() : collect();
+        $disputes = $auction ? $auction->disputes()->with(['claimant', 'arbitratedBy'])->latest()->get() : collect();
 
-        return view('admin.auctions.show', compact('auction', 'bids'));
+        return view('admin.auctions.show', compact('auction', 'bids', 'disputes'));
     }
 
     /**
@@ -1438,6 +1671,15 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Dedicated Live Auction Settings Configuration
+     */
+    public function auctionSettings()
+    {
+        $settings = SiteSetting::allMap();
+        return view('admin.settings.auction', compact('settings'));
+    }
+
+    /**
      * Update Platform Configuration & Branding Settings
      */
     public function updateSettings(Request $request)
@@ -1575,6 +1817,9 @@ class AdminDashboardController extends Controller
         $request->validate([
             'gemini_api_key' => 'nullable|string|max:255',
             'gemini_model' => 'nullable|string|max:100',
+            'nvidia_api_key' => 'nullable|string|max:255',
+            'nvidia_model' => 'nullable|string|max:100',
+            'ai_provider' => 'nullable|string|in:nvidia,gemini',
             'temperature' => 'nullable|numeric|min:0|max:2',
             'auto_triage_enabled' => 'nullable|string|in:0,1,true,false',
             'dispute_confidence_threshold' => 'nullable|numeric|min:0|max:100',
@@ -1586,6 +1831,9 @@ class AdminDashboardController extends Controller
         $keys = [
             'gemini_api_key',
             'gemini_model',
+            'nvidia_api_key',
+            'nvidia_model',
+            'ai_provider',
             'temperature',
             'auto_triage_enabled',
             'dispute_confidence_threshold',

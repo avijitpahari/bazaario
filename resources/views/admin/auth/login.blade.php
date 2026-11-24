@@ -74,18 +74,18 @@
                     <!-- Email Input -->
                     <div>
                         <label for="email" class="block font-headline-sm text-xs font-semibold text-slate-300 mb-1.5">
-                            Admin Identity (Email)
+                            Admin Identity (Email or Username)
                         </label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">mail</span>
                             <input 
                                 id="email" 
                                 name="email" 
-                                type="email" 
-                                value="{{ old('email') }}" 
+                                type="text" 
+                                value="{{ old('email', 'admin@bazaario.com') }}" 
                                 required 
                                 autofocus
-                                placeholder="name@domain.com"
+                                placeholder="admin@bazaario.com or admin"
                                 class="w-full pl-10 pr-4 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#F5A623] focus:ring-1 focus:ring-[#F5A623] transition-all font-body-md"
                             />
                         </div>
@@ -97,7 +97,7 @@
                             <label for="password" class="block font-headline-sm text-xs font-semibold text-slate-300">
                                 Security Passkey
                             </label>
-                            <span class="text-[11px] text-slate-500">2FA Verified</span>
+                            <span class="text-[11px] text-slate-500">Pass: <code class="text-amber-400 font-mono">admin123</code></span>
                         </div>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">lock</span>
@@ -105,6 +105,7 @@
                                 id="password" 
                                 name="password" 
                                 type="password" 
+                                value="{{ old('password', 'admin123') }}" 
                                 required 
                                 placeholder="••••••••••••"
                                 class="w-full pl-10 pr-11 py-2.5 bg-[#0F172A] border border-[#334155] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#F5A623] focus:ring-1 focus:ring-[#F5A623] transition-all font-body-md"
@@ -117,6 +118,19 @@
                                 <span id="togglePasswordIcon" class="material-symbols-outlined text-[18px]">visibility</span>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Quick Autofill Helper -->
+                    <div onclick="autofillDemo()" class="p-2.5 rounded-xl bg-[#0F172A] border border-[#334155] hover:border-[#F5A623]/50 flex items-center justify-between text-xs cursor-pointer transition-colors group">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <span class="material-symbols-outlined text-[16px] text-[#F5A623]">key</span>
+                            <span class="font-mono text-[11px] text-slate-300">admin@bazaario.com</span>
+                            <span class="text-slate-600">•</span>
+                            <span class="font-mono text-[11px] text-amber-400">admin123</span>
+                        </div>
+                        <button type="button" id="autofillBtn" class="text-[#F5A623] group-hover:underline font-bold text-[11px] cursor-pointer">
+                            Autofill Credentials
+                        </button>
                     </div>
 
                     <!-- Remember Me -->
@@ -192,6 +206,29 @@
             } else {
                 passwordInput.type = 'password';
                 icon.textContent = 'visibility';
+            }
+        }
+
+        function autofillDemo() {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const btn = document.getElementById('autofillBtn');
+
+            if (emailInput) {
+                emailInput.value = 'admin@bazaario.com';
+                emailInput.classList.add('ring-2', 'ring-[#F5A623]');
+                setTimeout(() => emailInput.classList.remove('ring-2', 'ring-[#F5A623]'), 700);
+            }
+            if (passwordInput) {
+                passwordInput.value = 'admin123';
+                passwordInput.classList.add('ring-2', 'ring-[#F5A623]');
+                setTimeout(() => passwordInput.classList.remove('ring-2', 'ring-[#F5A623]'), 700);
+            }
+            if (btn) {
+                btn.innerHTML = '<span class="text-emerald-400 font-bold">✓ Credentials Filled!</span>';
+                setTimeout(() => {
+                    btn.textContent = 'Autofill Credentials';
+                }, 2000);
             }
         }
     </script>

@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('chat_conversations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')
+                ->nullable()
                 ->constrained('users')->cascadeOnDelete();
             $table->string('title', 255)->nullable();
             $table->string('status', 50)->default('active');

@@ -33,6 +33,7 @@ Route::get('/test', function () {
 });
 
 Route::get('/', [ProductController::class, 'home'])->name('home');
+Route::post('/language/switch', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
 
 // ── Public Marketplace & Product Catalog ────────────────────────────────────
 
@@ -61,7 +62,24 @@ Route::post('/ai/chat', [\App\Http\Controllers\AiAssistantController::class, 'ch
 Route::match(['get', 'post'], '/ai/recommendations', [\App\Http\Controllers\AiAssistantController::class, 'recommendations'])->name('ai.recommendations');
 Route::match(['get', 'post'], '/ai/compare', [\App\Http\Controllers\AiAssistantController::class, 'compare'])->name('ai.compare');
 
-// ── Live Customer Support Chat (Widget) ──────────────────────────────────────
+// ── Live Customer Support Chat (Widget) & Support Hub ─────────────────────────
+Route::get('/support', function () {
+    if (Auth::guard('admin')->check()) {
+        return redirect()->route('admin.support.index');
+    }
+    if (Auth::guard('seller')->check()) {
+        return redirect()->route('seller.support.index');
+    }
+    if (Auth::guard('user')->check() && Auth::guard('user')->user()->isSupportAgent()) {
+        return redirect()->route('agent.dashboard');
+    }
+    return redirect()->route('user.support.index');
+})->name('support.hub');
+
+Route::get('/help', function () {
+    return redirect()->route('support.hub');
+})->name('help');
+
 Route::prefix('support/chat')->name('support.chat.')->group(function () {
     Route::post('/init', [\App\Http\Controllers\SupportChatController::class, 'init'])->name('init');
     Route::post('/send', [\App\Http\Controllers\SupportChatController::class, 'sendMessage'])->name('send');
@@ -80,6 +98,10 @@ Route::middleware(['auth:user', 'user'])->group(function () {
     Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon');
     Route::delete('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 });
+
+// ── Public & Shared Wishlist ──────────────────────────────────────────────────
+Route::get('/wishlist/shared/{token}', [WishlistController::class, 'publicShow'])->name('wishlist.public');
+Route::post('/wishlist/toggle', [WishlistController::class, 'store'])->name('wishlist.toggle');
 
 // ── Checkout ────────────────────────────────────────────────────────────────
 
@@ -141,10 +163,15 @@ Route::prefix('user')->name('user.')->middleware(['auth:user', 'user'])->group(f
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
     Route::post('/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
 
-    // Wishlist
+    // Wishlist (Upgraded System)
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/wishlist/{wishlistItem}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    Route::post('/wishlist/{wishlistItem}/move-to-cart', [WishlistController::class, 'moveToCart'])->name('wishlist.move-to-cart');
+    Route::post('/wishlist/move-all-to-cart', [WishlistController::class, 'moveAllToCart'])->name('wishlist.move-all-to-cart');
+    Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+    Route::post('/wishlist/{wishlistItem}/note', [WishlistController::class, 'updateNote'])->name('wishlist.note');
+    Route::post('/wishlist/share', [WishlistController::class, 'generateShareLink'])->name('wishlist.share');
 
     // Reviews
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
@@ -320,6 +347,8 @@ Route::prefix('seller')->name('seller.')->middleware(['auth:seller', 'seller'])-
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/', [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::get('/login', [AdminAuthController::class, 'showLogin']);
+    Route::post('/', [AdminAuthController::class, 'login']);
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
 
     Route::middleware(['auth:admin', 'admin'])->group(function () {
@@ -353,8 +382,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders/{id}', [AdminDashboardController::class, 'orderDetail'])->name('orders.show');
         Route::post('/orders/{id}/status', [AdminDashboardController::class, 'updateOrderStatus'])->name('orders.update-status');
 
-        // Live Auctions
+        // Live Auctions & Wholesale Disputes
         Route::get('/auctions', [AdminDashboardController::class, 'auctions'])->name('auctions.index');
+        Route::post('/auctions/toggle-system', [AdminDashboardController::class, 'toggleAuctionSystem'])->name('auctions.toggleSystem');
+        Route::get('/auctions/disputes', [AdminDashboardController::class, 'auctionDisputes'])->name('auctions.disputes.index');
+        Route::get('/auctions/disputes/{id}', [AdminDashboardController::class, 'auctionDisputeShow'])->name('auctions.disputes.show');
+        Route::post('/auctions/disputes/{id}/arbitrate', [AdminDashboardController::class, 'arbitrateAuctionDispute'])->name('auctions.disputes.arbitrate');
+        Route::post('/auctions/{id}/disputes/create', [AdminDashboardController::class, 'createAuctionDispute'])->name('auctions.disputes.create');
         Route::get('/auctions/{id}', [AdminDashboardController::class, 'auctionDetail'])->name('auctions.show');
         Route::post('/auctions/{id}/end', [AdminDashboardController::class, 'endAuction'])->name('auctions.end');
         Route::post('/auctions/{id}/cancel', [AdminDashboardController::class, 'cancelAuction'])->name('auctions.cancel');
@@ -382,6 +416,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Platform Configuration & Branding Settings
         Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('settings.index');
         Route::post('/settings', [AdminDashboardController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/settings/auctions', [AdminDashboardController::class, 'auctionSettings'])->name('settings.auctions');
 
         // AI Engine Configuration
         Route::get('/settings/ai', [AdminDashboardController::class, 'aiSettings'])->name('settings.ai');
@@ -396,9 +431,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Support Tickets (Unified Dashboard)
         Route::get('/support/tickets', [\App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.tickets.index');
         Route::get('/support/tickets/{ticket}', [\App\Http\Controllers\Admin\AdminSupportController::class, 'showSupportTicket'])->name('support.tickets.show');
+        Route::post('/support/tickets/{ticket}/reply', [\App\Http\Controllers\Admin\AdminSupportController::class, 'replySupportTicket'])->name('support.tickets.reply');
+        Route::post('/support/tickets/{ticket}/status', [\App\Http\Controllers\Admin\AdminSupportController::class, 'updateTicketStatus'])->name('support.tickets.status');
         Route::post('/support/tickets/{ticket}/arbitrate', [\App\Http\Controllers\Admin\AdminSupportController::class, 'arbitrateSupportTicket'])->name('support.tickets.arbitrate');
         Route::get('/support/tickets/{ticket}/poll', [\App\Http\Controllers\Admin\AdminSupportController::class, 'pollTicketMessages'])->name('support.tickets.poll');
         Route::get('/support/tickets/escalated', [\App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.tickets.escalated');
+
+        // ── Support Staff & Agent Management (Admin Only) ───────────────────
+        Route::prefix('support/agents')->name('support.agents.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'store'])->name('store');
+            Route::get('/{agent}/edit', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'edit'])->name('edit');
+            Route::put('/{agent}', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'update'])->name('update');
+            Route::post('/{agent}/toggle', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'toggleStatus'])->name('toggle');
+            Route::delete('/{agent}', [\App\Http\Controllers\Admin\AdminSupportAgentController::class, 'destroy'])->name('destroy');
+        });
 
         // ── Admin Impersonation ─────────────────────────────────────────────
         Route::post('/impersonate/{userId}', [\App\Http\Controllers\Admin\ImpersonationController::class, 'impersonate'])->name('impersonate');
@@ -407,3 +455,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     });
 });
+
+// ── Dedicated Support Specialist Workstation / Panel ─────────────────────────
+Route::middleware(['auth:user', 'support_agent'])->prefix('agent')->name('agent.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Agent\AgentDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/status/toggle', [\App\Http\Controllers\Agent\AgentDashboardController::class, 'toggleStatus'])->name('status.toggle');
+
+    // Workstation Tickets
+    Route::get('/tickets', [\App\Http\Controllers\Agent\AgentTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [\App\Http\Controllers\Agent\AgentTicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/claim', [\App\Http\Controllers\Agent\AgentTicketController::class, 'claim'])->name('tickets.claim');
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Agent\AgentTicketController::class, 'reply'])->name('tickets.reply');
+    Route::post('/tickets/{ticket}/status', [\App\Http\Controllers\Agent\AgentTicketController::class, 'updateStatus'])->name('tickets.status');
+    Route::post('/tickets/{ticket}/escalate', [\App\Http\Controllers\Agent\AgentTicketController::class, 'escalate'])->name('tickets.escalate');
+
+    // Live Chats Workstation
+    Route::get('/chats', [\App\Http\Controllers\Agent\AgentChatController::class, 'index'])->name('chats.index');
+    Route::post('/chats/{conversation}/reply', [\App\Http\Controllers\Agent\AgentChatController::class, 'reply'])->name('chats.reply');
+    Route::get('/chats/{conversation}/poll', [\App\Http\Controllers\Agent\AgentChatController::class, 'poll'])->name('chats.poll');
+    Route::post('/chats/{conversation}/status', [\App\Http\Controllers\Agent\AgentChatController::class, 'updateStatus'])->name('chats.status');
+});
+

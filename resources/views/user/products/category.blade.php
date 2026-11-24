@@ -156,9 +156,19 @@
             </form>
 
             <!-- Dynamic Product Grid -->
+            @php
+                $catUser = Auth::guard('user')->user() ?? Auth::user();
+                $wishlistProductIds = [];
+                if ($catUser) {
+                    $wishlistProductIds = $catUser->wishlist ? $catUser->wishlist->items->pluck('product_id')->map(fn($id) => (int)$id)->toArray() : [];
+                } else {
+                    $wishlistProductIds = array_map('intval', session('wishlist', []));
+                }
+            @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @forelse($products as $product)
                     @php
+                        $inWishlist = in_array((int)$product->id, $wishlistProductIds);
                         $imgUrl = $product->main_image_url;
                         $sellerName = $product->seller && $product->seller->sellerProfile ? $product->seller->sellerProfile->shop_name : ($product->seller ? $product->seller->name : 'Bazaario Artisan');
                         $ratingDisplay = $product->average_rating ? number_format($product->average_rating, 1) : 'New';
@@ -176,11 +186,21 @@
                                          src="{{ $imgUrl }}" 
                                          onerror="this.onerror=null; this.src='{{ asset('images/product-placeholder.svg') }}';">
                                 </a>
-                                <div class="absolute top-2.5 left-2.5">
-                                    <span class="font-mono text-[9px] uppercase font-bold bg-slate-900/90 backdrop-blur-md text-amber-400 px-2 py-0.5 rounded-md tracking-wider shadow-sm">
+                                <div class="absolute top-2.5 left-2.5 z-10 pointer-events-none">
+                                    <span class="font-mono text-[9px] uppercase font-bold bg-slate-900/90 backdrop-blur-md text-amber-400 px-2.5 py-0.5 rounded-full tracking-wider shadow-sm">
                                         {{ $product->price > 10000 ? 'Premium' : (($product->average_rating && $product->average_rating >= 4.8) ? 'Top Pick' : 'Verified') }}
                                     </span>
                                 </div>
+                                <button type="button" 
+                                        onclick="window.bazaarioToggleWishlist({{ $product->id }}, this)"
+                                        data-wishlist-product="{{ $product->id }}"
+                                        title="{{ $inWishlist ? 'Remove from Wishlist' : 'Save to Wishlist' }}"
+                                        class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-sm z-10 active:scale-90 cursor-pointer {{ $inWishlist ? 'bg-white text-red-500 ring-1 ring-red-200 shadow-md' : 'bg-white/90 text-slate-700 hover:text-red-500 hover:bg-white' }}">
+                                    <span class="material-symbols-outlined text-[18px] leading-none select-none transition-transform duration-200"
+                                          style="{{ $inWishlist ? "font-variation-settings: 'FILL' 1;" : "font-variation-settings: 'FILL' 0;" }}">
+                                        {{ $inWishlist ? 'favorite' : 'favorite_border' }}
+                                    </span>
+                                </button>
                             </div>
 
                             <div class="flex items-center justify-between gap-2 mb-1">
@@ -206,10 +226,11 @@
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-3">
-                            <div class="flex items-baseline gap-2">
-                                <span class="font-mono font-bold text-base text-slate-900">₹{{ number_format($product->price, 2) }}</span>
+                            <div class="flex items-baseline gap-2 flex-wrap">
+                                <span class="font-mono font-bold text-base text-slate-900">{{ format_inr($product->price) }}</span>
+                                <span class="text-[11px] font-sans font-medium text-slate-500">/ {{ $product->unit_type ?? 'piece' }}</span>
                                 @if($originalPrice > $product->price)
-                                    <span class="font-mono text-xs line-through text-slate-400">₹{{ number_format($originalPrice, 2) }}</span>
+                                    <span class="font-mono text-xs line-through text-slate-400">{{ format_inr($originalPrice) }}</span>
                                 @endif
                             </div>
 
@@ -285,5 +306,69 @@
 
     <!-- Global Floating Live Support Chat Widget -->
     <x-support-chat-widget />
+
+    <script>
+    window.bazaarioToggleWishlist = async function(productId, btnElement = null) {
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (btnElement) {
+                btnElement.classList.add('scale-125');
+                setTimeout(() => btnElement.classList.remove('scale-125'), 200);
+            }
+
+            const res = await fetch("{{ route('wishlist.toggle') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token || ''
+                },
+                body: JSON.stringify({ product_id: productId })
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                }
+                throw new Error('Failed to toggle wishlist');
+            }
+
+            const data = await res.json();
+            if (data.success) {
+                window.dispatchEvent(new CustomEvent('wishlist-updated', { 
+                    detail: { count: data.count, in_wishlist: data.in_wishlist, product_id: productId } 
+                }));
+
+                document.querySelectorAll(`[data-wishlist-product="${productId}"]`).forEach(btn => {
+                    const icon = btn.querySelector('.material-symbols-outlined') || btn;
+                    if (data.in_wishlist) {
+                        btn.classList.add('text-red-500', 'bg-white', 'ring-1', 'ring-red-200', 'shadow-md');
+                        btn.classList.remove('text-slate-700', 'bg-white/90');
+                        btn.title = 'Remove from Wishlist';
+                        if (icon) {
+                            icon.textContent = 'favorite';
+                            icon.style.fontVariationSettings = "'FILL' 1";
+                        }
+                    } else {
+                        btn.classList.remove('text-red-500', 'ring-1', 'ring-red-200', 'shadow-md');
+                        btn.classList.add('text-slate-700', 'bg-white/90');
+                        btn.title = 'Save to Wishlist';
+                        if (icon) {
+                            icon.textContent = 'favorite_border';
+                            icon.style.fontVariationSettings = "'FILL' 0";
+                        }
+                    }
+                });
+
+                if (typeof showToast === 'function') {
+                    showToast(data.message, data.in_wishlist ? 'success' : 'info');
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    </script>
 </body>
 </html>

@@ -27,6 +27,10 @@ class AuthController extends Controller
 
     public function showLogin()
     {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         if (Auth::guard('seller')->check()) {
             return $this->redirectByRole(Auth::guard('seller')->user());
         }
@@ -53,6 +57,15 @@ class AuthController extends Controller
         ]);
 
         $remember = $request->boolean('remember') || $request->boolean('remember_me');
+
+        // Block admin from public /login: administrators must authenticate exclusively via /admin
+        $normalizedEmail = strtolower(trim((string)$credentials['email']));
+        $adminUser = User::where('email', $normalizedEmail)->where('role', 'admin')->first();
+        if ($adminUser) {
+            return back()->withErrors([
+                'email' => 'Administrators must authenticate via the dedicated Admin Portal at /admin.',
+            ])->onlyInput('email');
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -92,18 +105,15 @@ class AuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Admin should NOT login from normal login page
+            | Reject admin login on public user guard
             |--------------------------------------------------------------------------
             */
 
             if ($user->role === 'admin') {
-
                 Auth::guard('user')->logout();
-                Auth::guard('seller')->logout();
-
                 return back()
                     ->withErrors([
-                        'email' => 'Please use the Admin Login page.',
+                        'email' => 'Administrators must authenticate via the dedicated Admin Portal at /admin.',
                     ])
                     ->onlyInput('email');
             }
@@ -117,6 +127,13 @@ class AuthController extends Controller
             if ($user->role === 'seller') {
                 Auth::guard('seller')->login($user, $remember);
             }
+
+            if ($user->isSupportAgent()) {
+                $user->update(['is_online' => true]);
+            }
+
+            // Merge guest session wishlist into user's database wishlist
+            \App\Models\Wishlist::mergeSessionWishlist($user);
 
             /*
             |--------------------------------------------------------------------------
@@ -533,6 +550,9 @@ class AuthController extends Controller
             Auth::guard('user')->login($user);
         }
 
+        // Merge guest session wishlist into user's database wishlist
+        \App\Models\Wishlist::mergeSessionWishlist($user);
+
         $request->session()->regenerate();
 
         try {
@@ -561,6 +581,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        if (Auth::guard('user')->check()) {
+            $currentUser = Auth::guard('user')->user();
+            if ($currentUser && $currentUser->isSupportAgent()) {
+                $currentUser->update(['is_online' => false]);
+            }
+        }
+
         Auth::guard('user')->logout();
         Auth::guard('seller')->logout();
         Auth::guard('web')->logout();
@@ -615,6 +642,19 @@ class AuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
+            | Support Agent
+            |--------------------------------------------------------------------------
+            */
+
+            case 'support_agent':
+            case 'support':
+
+                return redirect()
+                    ->route('agent.dashboard');
+
+
+            /*
+            |--------------------------------------------------------------------------
             | user
             |--------------------------------------------------------------------------
             */
@@ -636,14 +676,10 @@ class AuthController extends Controller
 
             case 'admin':
 
-                Auth::guard('user')->logout();
+                Auth::guard('admin')->login($user);
 
                 return redirect()
-                    ->route('admin.login')
-                    ->withErrors([
-                        'email' =>
-                            'Please use the Admin Login page.',
-                    ]);
+                    ->route('admin.dashboard');
 
 
             /*

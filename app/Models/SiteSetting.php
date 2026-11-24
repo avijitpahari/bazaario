@@ -22,7 +22,13 @@ class SiteSetting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        if (static::$memoryCache === null) {
+        if (app()->runningUnitTests()) {
+            try {
+                static::$memoryCache = static::pluck('setting_value', 'setting_key')->toArray();
+            } catch (\Throwable $e) {
+                return $default;
+            }
+        } elseif (static::$memoryCache === null) {
             try {
                 static::$memoryCache = \Illuminate\Support\Facades\Cache::remember('site_settings_all', 3600, function () {
                     return static::pluck('setting_value', 'setting_key')->toArray();
@@ -132,6 +138,18 @@ class SiteSetting extends Model
     public static function isMultiVendor(): bool
     {
         return !static::isSingleVendor();
+    }
+
+    /**
+     * Check if the wholesale auction system is enabled across the platform.
+     */
+    public static function isAuctionEnabled(): bool
+    {
+        $val = static::get('auction_system_enabled', '1');
+        if (is_bool($val)) {
+            return $val;
+        }
+        return !in_array((string)$val, ['0', 'false', 'paused', 'disabled'], true);
     }
 
     /**

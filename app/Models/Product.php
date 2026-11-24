@@ -114,6 +114,11 @@ class Product extends Model
 
     // Accessors
 
+    public function getFormattedPriceAttribute(): string
+    {
+        return '₹' . number_format((float) ($this->price ?? 0), 2);
+    }
+
     public function getMainImageUrlAttribute(): string
     {
         $img = $this->primaryImage ?? $this->images->first();
